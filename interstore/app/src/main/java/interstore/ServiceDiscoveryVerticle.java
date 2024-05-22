@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -59,7 +61,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
                LOGGER.info("Received message from NATS" + messageContent);
                try {
                 this.vertxSetUp(messageContent);
-            } catch (JsonProcessingException e) {
+            } catch (JsonProcessingException | JSONException e) {
                 
                 e.printStackTrace();
             } 
@@ -116,7 +118,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
            return this.serviceName;
        } 
 
-       public String extractService(String natsmsg)
+       public String extractService(String natsmsg) throws JSONException
        {
             LOGGER.info(natsmsg);
             JSONTokener parser = new JSONTokener(natsmsg);
@@ -136,7 +138,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     }
     
 
-    public void vertxSetUp(String natsmsg) throws JsonProcessingException
+    public void vertxSetUp(String natsmsg) throws JsonProcessingException, JSONException
     {
         
          Object microServiceObject = getMicroservice(this.microServiceFactory.getMicroservices(), extractService(natsmsg)); 

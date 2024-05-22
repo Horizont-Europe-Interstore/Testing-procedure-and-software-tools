@@ -53,36 +53,8 @@ public class App {
         payload.put("derlistlink", "/der");
         return payload;
     }
+  
     
-    public Map<String, String> postPayLoad2()
-    {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("lfdi", "3E4F46");
-        payload.put("deviceCategory", "0");
-        payload.put("sfdi", "16726121138L");
-        payload.put("registrationLink", "/rg1");
-        payload.put("functionsetAssignmentLink", "/fsa1");
-        payload.put("subscriptionLink", "/sub1");
-        payload.put("deviceStatusLink", "/dstat1");
-        payload.put("endDeviceListLink", "/edev1");
-        return payload;
-    }
-
-    
-    public Map<String, String> postPayLoad3()
-    {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("lfdi", "3E4F47");
-        payload.put("deviceCategory", "0");
-        payload.put("sfdi", "16726121137L");
-        payload.put("registrationLink", "/rg2");
-        payload.put("functionsetAssignmentLink", "/fsa2");
-        payload.put("subscriptionLink", "/sub2");
-        payload.put("deviceStatusLink", "/dstat2");
-        payload.put("endDeviceListLink", "/edev2");
-        return payload;
-    }
-
     
 
     public Map<String, String> createRegisterEndDevice() throws Exception
@@ -189,12 +161,12 @@ public class App {
        so that part can be eliminated
      */
      public Object getAllEndDevicesTest(String natsSubject)throws Exception {
-//        CreateEndDeviceTest("CreateEndDeviceTest");
         Thread.sleep(300);
         // impliment a different logic for get all end device . ///
         String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
+        LOGGER.info("the end device list link is ... " + endDeviceListLink); 
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
         interstore.EndDeviceTest.EndDeviceListLinktest()); 
         Thread.sleep(300);
@@ -299,6 +271,7 @@ public class App {
    
     public static void main(String[] args) throws Exception {
         String natsUrl = System.getenv("NATS_URL");
+        //String natsUrl = "nats://localhost:4222"; 
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
@@ -313,43 +286,6 @@ public class App {
 
 /*
  *
-     
-     public Object createMultipleEndDeviceTest(String natsSubject, Map<String, String> payload) throws Exception{
-        Object response = DeviceCapabilitygetAllEndDevice("DeviceCapabilitygetAllEndDevice");
-        Thread.sleep(300);
-        if(response instanceof String)
-        {
-            LOGGER.info("No endDevices found.");
-
-            interstore.EndDeviceTest.setServicename("createnewenddevice");
-            String Payload =  interstore.EndDeviceTest.createNewEndDevice(payload);
-            this.messageToPublish.newStart(natsSubject + "EndDevice", Payload);
-            // Thread.sleep(100);
-            response = interstore.EndDeviceTest.getEndDevices();
-            LOGGER.info("the created end device with sfdi and lfdi " + response);
-            return response;
-        }
-        else if (response instanceof List)
-        {
-            return response;
-        }
-
-        return null ;
-    }
- * 
- * 
-    public void multipleEndDeviceCreateTest() throws Exception
-     {
-        List<Map<String, String>>maxPayLoad  = new ArrayList<Map<String, String>>();
-
-        maxPayLoad.add(postPayLoad());
-        maxPayLoad.add(postPayLoad2());
-        maxPayLoad.add(postPayLoad3());
-        for (int i = 0; i <maxPayLoad.size(); i++
-         )
-         {
-            createMultipleEndDeviceTest("MultipleEndDevices", maxPayLoad.get(i));
-         }
-     }
+     export NATS_URL=nats://localhost:4222 
  *
  */
