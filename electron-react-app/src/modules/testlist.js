@@ -18,7 +18,7 @@ const tests=[
         object:{},
     },
     {
-        test:'Device Capability End Device',
+        test:'Get All End Devices',
         desc:'description',
         args: false,
         object:{},
