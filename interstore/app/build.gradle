@@ -1,0 +1,83 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2' // Update the Spring Boot version
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.2' // Update the Spring Boot BOM
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2' // Update dependencies to match Spring Boot 3.2.2
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'io.vertx:vertx-core:4.5.1'
+    implementation 'io.nats:jnats:2.16.12'
+    implementation 'com.google.inject:guice:5.1.0'
+    implementation 'org.json:json:20210307'
+    implementation 'io.vertx:vertx-service-discovery:4.5.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.1'
+    implementation 'org.modelmapper:modelmapper:2.4.5'
+    implementation 'com.h2database:h2'
+    implementation 'org.hibernate.orm:hibernate-core:6.1.6.Final' // Hibernate version supporting Jakarta Persistence
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Changed from compileOnly to implementation
+    implementation 'com.h2database:h2'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+
+    //compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Use Jakarta Persistence API
+    //
+
+    // Cucumber dependencies (ensure version consistency)
+    implementation 'io.cucumber:cucumber-spring:7.1.0'
+    implementation 'io.cucumber:cucumber-java:7.1.0'
+    implementation 'io.cucumber:cucumber-junit:7.1.0'
+    implementation 'io.cucumber:cucumber-core:7.1.0'
+
+    // Spring Boot Starter Test
+    implementation 'org.springframework.boot:spring-boot-starter-test:3.2.2'
+}
+
+application {
+    mainClass = 'interstore.App'
+}
+
+run {
+    jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+}
+
+sourceSets {
+    main {
+        java {
+            exclude '**/NatsToVertxBridgeReceiver.java'
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = 'io.cucumber.core.cli.Main'
+            classpath = sourceSets.test.runtimeClasspath
+            args = ['--plugin', 'pretty',
+                    '--plugin', 'html:build/reports/cucumber/html',
+                    '--plugin', 'json:build/reports/cucumber/report.json',
+                    '--tags', System.getProperty('cucumber.tags', ''),
+                       System.getProperty('cucumber.feature', 'src/test/resources')
+                    ]
+        }
+    }
+}
