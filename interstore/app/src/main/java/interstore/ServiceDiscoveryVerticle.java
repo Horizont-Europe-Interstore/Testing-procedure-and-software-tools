@@ -41,24 +41,19 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
         this.serviceName = null; 
        }
 
-       public ServiceDiscoveryVerticle() throws Exception{  
-        this.natsUrl = System.getenv("NATS_URL"); 
-        this.natsConnection = Nats.connect(natsUrl);
-        this.microServiceFactory = new MicroServiceFactory(); 
-        this.messageToPublish = new MessageToPublish(); 
-        this.serviceName = null; 
-       }
-
-       @PostConstruct
-       public void postConstruct(){
-
-       }
-     
+      
+       
     public MessageHandler getMessageHandler(String natssubject)
        {
          return msg -> {
                String messageContent = new String(msg.getData(), StandardCharsets.UTF_8 );
                LOGGER.info("Received message from NATS" + messageContent);
+               try {
+                this.dispatcher.unsubscribe(natssubject);
+            } catch (Exception e) {
+                LOGGER.info(String.valueOf(e)); 
+            
+            }
                try {
                 this.vertxSetUp(messageContent);
             } catch (JsonProcessingException | JSONException e) {
@@ -66,6 +61,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
                 e.printStackTrace();
             } 
            };
+        
        }
 
        public Dispatcher subscribeFromNats(String natsSubject)
@@ -98,6 +94,11 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
            return msg -> {
                String messageContent = new String(msg.getData(), StandardCharsets.UTF_8);
                this.messageToPublish.responseToSender(serviceName, messageContent); 
+               try {
+                this.dispatcher.unsubscribe(getNatsMatter());
+            } catch (Exception e) {
+                LOGGER.info(String.valueOf(e)); 
+            }
            };
        }
        
@@ -172,3 +173,21 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
 
 
     
+
+    /*
+     * @PostConstruct
+       public void postConstruct(){
+
+       }
+       
+
+        public ServiceDiscoveryVerticle() throws Exception{  
+        this.natsUrl = System.getenv("NATS_URL"); 
+        this.natsConnection = Nats.connect(natsUrl);
+        this.microServiceFactory = new MicroServiceFactory(); 
+        this.messageToPublish = new MessageToPublish(); 
+        this.serviceName = null; 
+       }
+
+     * 
+     */

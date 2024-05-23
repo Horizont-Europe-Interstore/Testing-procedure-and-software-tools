@@ -52,10 +52,10 @@ public class MessageToPublish {
         natsConnection.publish(natSubject, messageBytes);
     }
         
-   // public void closeConnection() throws Exception 
-    //{
-      // natsConnection.close();
-   // }
+    public void closeConnection() throws Exception 
+    {
+       this.natsConnection.close();
+   }
 
   
    public void subscribeMessage(String natsSubject)
