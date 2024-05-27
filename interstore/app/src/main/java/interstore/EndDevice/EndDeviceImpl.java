@@ -58,11 +58,13 @@ public class EndDeviceImpl {
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
         String endDeviceLink = endDeviceListLink + idString;
         String functionsetAssignmentListLink =  endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
+        String derListLink = endDeviceListLink + idString + payload.optString("derListLink");
         String deviceStatusLink = endDeviceListLink + idString + payload.optString("deviceStatusLink", "defaultLink");
         String registrationLink = endDeviceListLink + idString + payload.optString("registrationLink", "defaultLink");
+        String subscriptionLink = endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
         String deviceCategory = payload.optString("deviceCategory", "defaultDeviceCategory");
-        String derListLink = endDeviceListLink + idString + payload.optString("derlistlink");
-        System.out.println(derListLink);
+        
+       // System.out.println(derListLink);
         String sfdiString = payload.optString("sfdi", null);
         Long sfdi = null; 
         sfdiString = sfdiString.replaceAll("\\D", ""); 
@@ -84,16 +86,12 @@ public class EndDeviceImpl {
         endDeviceDto.setDeviceStatusLink(link.getLink());
         link.setLink(registrationLink);
         endDeviceDto.setRegistrationLink(link.getLink());
-        link.setLink(derListLink);
-        endDeviceDto.setDERListLink(link.getLink());
-
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("payload",getDERPayload(link.getLink()));
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String postPayload = objectMapper.writeValueAsString(attributes);
-//            System.out.println("Try catch print: "+postPayload);
             JSONObject jsonPayloadWrapper = new JSONObject(postPayload);
             DERList derList = new DERList(link.getLink());
             derList = derListRepository.save(derList);
@@ -101,9 +99,15 @@ public class EndDeviceImpl {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         ListLink listLink = new ListLink();
         listLink.setListLink(functionsetAssignmentListLink);
         endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink()); 
+        listLink.setListLink(derListLink);
+        endDeviceDto.setDERListLink(listLink.getListLink()); 
+        listLink.setListLink(subscriptionLink);
+        endDeviceDto.setSubscriptionListLink(listLink.getListLink());
+
 
     }
 
@@ -347,202 +351,4 @@ public class EndDeviceImpl {
 
 
 
-
-//@GetMapping("/DERListLink")
-//public  Map<String, Object> getDERListLink() throws Exception{
- //  return EndDeviceDto.getDERAttributes();
-//}
-
-
-
-
-
-
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-   String endDeviceRegisteredLink = endDeviceEndPoint + "/" + endDeviceID.toString() + registrationEndPoint;
-        LOGGER.log(Level.INFO , "the end device registered link is " + endDeviceRegisteredLink);
-
-String registrationEndPoint = EndDeviceTest.getRegistrationLinkEndPoint();
-String endDeviceEndPoint = EndDeviceTest.getEndDeviceEndPoint();
-LOGGER.info("the registration end point is ....." +  registrationEndPoint );
-LOGGER.info("the end device end point is ....." +  endDeviceEndPoint );
-
-
-
-
-
- public Map<Long, Object> getEndDevices(EndDeviceDto endDeviceDto) {
-        if (endDeviceDto == null || endDeviceDto.getId() == null) {
-            throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
-        }
-    
-        
-        ListLink listLink = new ListLink();
-        Object urls = listLink.getListLinks(endDeviceDto);
-        Map<Long, Object> result = new HashMap<>();
-        result.put(endDeviceDto.getId(), urls);
-        LOGGER.log(Level.INFO, "the result from getAllLinks: " + result.toString()); 
-        return result;
-    }
-    
-
-
-
-for (String defaultendPointString: endDevicelinks)
-        { 
-            link.setLink(defaultendPointString);
-            LOGGER.log(Level.INFO, "EndDevice Links  " + link.getLink());
-            endDeviceDto.addLink(link.getLink()); 
-        }
-
- LOGGER.log(Level.INFO, "ListLink devices : " + listLink.getListLink());
-        endDeviceDto.addLink(listLink.getListLink());
-           
-
-
-// Map<String, Object> result = new HashMap<>();
-        //result.put("EndDeviceID" ,endDeviceDto.getId());
-        //result.put("DeviceCategory", endDeviceDto.getDeviceCategory());
-         //result.put("SFDI", endDeviceDto.getsfdi());   
-        //result.put("LFDI", endDeviceDto.gethexBinary160());
-        //result.put("DeviceStatusLink", endDeviceDto.getDeviceStatusLink());
-        //result.put("FunctionSetAssignmentLinkList", endDeviceDto.getFunctionSetAssignmentsListLink() ); 
-        //result.put("RegistrationLink", endDeviceDto.getRegistrationLink());
-        LOGGER.log(Level.INFO, "the result from getEndDevice: " + result.toString()); 
-       
-        return result; 
-    }
-
-
-
-
-
-
-
-
-
-
- @GetMapping("/edev")
-    public ResponseEntity<List<EndDeviceDto>> getAllEndDevices() {
-        try {
-            List<EndDeviceDto> endDeviceDtos = endDeviceRepository.findAll();
-            return ResponseEntity.ok(endDeviceDtos);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDtos", e);
-            // Respond with an HTTP 500 error.
-            return ResponseEntity.status(500).body(null);
-        }
-    }
-
-
-    public void setEndDevice(EndDeviceDto endDeviceDto, JSONObject payload)
-    {   Long id = endDeviceDto.getId(); 
-        String idString = "/"+ String.valueOf(id);
-        LOGGER.log(Level.INFO, "EndDeviceDevice id is" + idString);
-        endDeviceDto.setDeviceCategory(payload.getString("deviceCategory"));
-            endDeviceDto.setsfid(Long.parseLong(payload.getString("sfid"))); 
-            endDeviceDto.sethexBinary160(payload.getString("lfdi"));
-            endDeviceDto.setFunctionSetAssignmentsListLink(idString + payload.getString("functionSetAssignmentsListLink"));
-            endDeviceDto.setDeviceStatusLink(idString + payload.getString("deviceStatusLink"));
-            endDeviceDto.setRegistrationLink(idString + payload.getString("registrationLink"));
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    @PostMapping("/edev")
-    public ResponseEntity<EndDeviceDto> createEndDevice(@RequestBody EndDeviceDto endDeviceDto) {
-        try {
-            LOGGER.log(Level.INFO, "EndDeviceDto"); 
-            EndDeviceDto savedEndDevice = endDeviceRepository.save(endDeviceDto);
-            LOGGER.log(Level.INFO, "EndDeviceDto saved successfully" + savedEndDevice); 
-            return ResponseEntity.ok(savedEndDevice);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving EndDeviceDto", e);
-            // Respond with an HTTP 500 error.
-            return ResponseEntity.status(500).body(null);
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-@RestController()
-public class EndDeviceImpl {
-     EndDeviceDto endDeviceDto = new EndDeviceDto();
-    private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
-    public EndDeviceImpl() {
-    
-    }
-     
-     
-}
-
-
-
- * //List<EndDeviceDto> endDeviceList = endDeviceDto.getEndDeviceList();
-       // EndDeviceDto lastendDevice = endDeviceList.get(endDeviceList.size()-1);
-       // List<String> endDeviceLinkList = EndDeviceDto.getEnddeviceListLink();
-        //Map<String, Object> lastendDeviceMap = new HashMap<String, Object>();
-       // lastendDeviceMap.put("sFDI", lastendDevice.getsFDI().getValue());
-        //lastendDeviceMap.put("lFDI", lastendDevice.getlFDI().getHexValue());
-        //lastendDeviceMap.put("deviceCategory", lastendDevice.getDeviceCategory().getHexValue());
-       // lastendDeviceMap.put("endDeviceLink", toURL(endDeviceLinkList.get(endDeviceLinkList.size()-1)));
- * 
- * 
- * 
- *     int i = 1;
-      for (String enddeviceLink : endDeviceListLinks) {
-          URL url = toURL(enddeviceLink);
-             enddeviceUrlList.add(url.toString());
-             endDeviceMap.put(Integer.toString(i++), url);
- * 
- * 
- * List<String> keyList = new ArrayList<>(endDeviceListLinks.size());
-       for (int i = 0; i < endDeviceListLinks.size(); i++) {
-           keyList.add(Integer.toString(i+1));
-       } 
-      for(int i = 0; i<endDeviceListLinks.size() ; i ++)
-      {
-          String key = keyList.get(i);
-          String value = endDeviceListLinks.get(i);
-          System.out.println("Inserting: Key=" + key + ", Value=" + value);
-          endDeviceMap.put(key, value);
-
-
-      }
- * 
- * 
- * 
- * 
- */
     

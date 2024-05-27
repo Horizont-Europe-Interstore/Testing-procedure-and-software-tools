@@ -42,6 +42,7 @@ const tests=[
             subscriptionLink:'',
             deviceStatusLink:'',
             endDeviceListLink:'',
+            derListLink:'',
         }
     },
     {

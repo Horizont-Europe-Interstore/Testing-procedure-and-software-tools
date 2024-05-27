@@ -133,7 +133,6 @@ public class EndDeviceDto implements AbstractDevice{
     }
     @Override
     public void setDeviceStatusLink(String link) {
-        LOGGER.info("Setting deviceStatusLink: " + link);
         this.linkDstat = link;
        
     
@@ -160,16 +159,14 @@ public class EndDeviceDto implements AbstractDevice{
     }
     
     @Override
-    @JsonIgnore
     public void setDERListLink(String link)
     {
         this.linkDerList = link;
     }
     @Override
-    @JsonIgnore
     public String getDERListLink()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.linkDerList;
     } 
 
 
