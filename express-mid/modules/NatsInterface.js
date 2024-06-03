@@ -1,36 +1,37 @@
 
 module.exports = class NatsInterface{
     static #dotenvConfig = require('dotenv').config();
-    #sub;
     #processTimeout;
     static #processMaxTime=30000;
     static #controleChannel = 'ControleInstructions';
     static #responseChannel = 'ControleResponse';
     static #NATS = require("nats");
-    static #decoder = NatsInterface.#NATS.StringCodec().decode; 
+    static #decoder = NatsInterface.#NATS.StringCodec().decode;
     constructor(){}
 
     handleSetTest (testObject, res) {
-      console.log(testObject)
       let testName = testObject.test;
       testObject.test = testObject.test.replace(/ /g,'');
+
       this.#processTimeout = setTimeout(()=>{
         res.status(400)
            .json(this.#generateErrorReport("Test Timed Out", testName));
       },NatsInterface.#processMaxTime);
+
       NatsInterface.#NATS.connect({servers:process.env.NATS_URL})
-          .then(connection=>{
+          .then(async (connection)=>{
             connection.publish(NatsInterface.#controleChannel, JSON.stringify(testObject));
-            this.#sub = connection.subscribe(NatsInterface.#responseChannel);
-            this.#sendMsgs(res,testName);
+            const sub = connection.subscribe(NatsInterface.#responseChannel);
+            await this.#sendMsgs(res,testName,sub).then(()=>connection.close());
           })
           .catch(err=>{
               res.status(400)
-                 .json(this.#generateErrorReport('Could not connect to NATS server\n'+err, 
+                 .json(this.#generateErrorReport('Exception when getting response from backend\n'+err, 
                                                  testName));
               clearTimeout(this.#processTimeout)
           });
     }
+
     #generateErrorReport(error, testName){
         return {
           Feature: testName,
@@ -72,8 +73,16 @@ module.exports = class NatsInterface{
         return report;
       }
 
-      async #sendMsgs(res,testName) {
-        for await (const m of this.#sub) {
+      #pingBackend(){
+
+      }
+
+      #restoreBackend(){
+
+      }
+
+      async #sendMsgs(res,testName,sub) {
+        for await (const m of sub) {
           try{
             let data = NatsInterface.#decoder(m.data);
             if(data == "Received."){
@@ -83,18 +92,19 @@ module.exports = class NatsInterface{
               res.status(400)
                  .json(this.#generateErrorReport('Exception while generating test report', 
                                            testName));
+              sub.unsubscribe();
+              break;
             }
             else{
               res.status(200)
                  .json(this.#generateReport(JSON.parse(data)));
+              sub.unsubscribe();
+              break;
             }
           }
           catch(err){
-            res.status(400)
-                 .json(this.#generateErrorReport('Exception while parsing test report\n'+err, 
-                                           testName));
+            throw err
           }
         }
-        this.#sub.unsubscribe();
       }
 }

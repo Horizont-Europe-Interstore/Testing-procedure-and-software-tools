@@ -18,14 +18,14 @@ function handleSetTest (event, testObject) {
   },processMaxTime);
 
   NATS.connect()
-      .then(connection=>{
+      .then(async (connection)=>{
         const pub = connection.publish("ControleInstructions", JSON.stringify(testObject));
         sub = connection.subscribe("ControleResponse")
-        sendMsgs(webContents,sub,testName)
+        await sendMsgs(webContents,sub,testName)
      })
       .catch(err=>{
         webContents.send('report-msg',
-                          generateErrorReport('Could not connect to NATS server.', 
+                          generateErrorReport('Exception when getting response from backend\n'+err, 
                                               testName));
         webContents.send('log-msg','Ready')
         console.log(err);
@@ -34,33 +34,33 @@ function handleSetTest (event, testObject) {
 
 function generateErrorReport(error, testName){
   
-return {
-  Feature: testName,
-  Tag: '@'+testName.split(' ').slice(0,2).join(''),
-  Scenario: '...',
-  'End result': 'failed',
-  Steps: [
-    {
-      Keyword: 'Given ',
-      Name: '...',
-      Result: 'skipped',
-      'Error message': error,
-      Value: ''
-    }
-  ]
-}
+  return {
+    Feature: testName,
+    Tag: '@'+testName.split(' ').slice(0,2).join(''),
+    Scenario: '...',
+    'End result': 'failed',
+    Steps: [
+      {
+        Keyword: 'Given ',
+        Name: '...',
+        Result: 'skipped',
+        'Error message': error,
+        Value: ''
+      }
+    ]
+  }
 
 }
 
-function generateReport(fileContents){  
+function generateReport(fileContents){
   let steps = []
   let report = {
     'Feature':fileContents[0].name,
     'Tag':fileContents[0].elements[0].tags[0].name,
     'Scenario' : fileContents[0].elements[0].name
   }
-  passed = true;
-  for(x of fileContents[0].elements[0].steps){
+  let passed = true;
+  for(let x of fileContents[0].elements[0].steps){
     passed &= x.result.status == 'passed'
     steps.push({
       'Keyword':x.keyword,
@@ -79,28 +79,29 @@ async function sendMsgs(webContents,subscription,testName) {
   for await (const m of subscription) {
     try{
       let data = decoder(m.data);
-      if(data == "Received."){
+      if(data === "Received."){
         webContents.send("log-msg", "Running");
         clearTimeout(processTimeout);
       }
-      else if (data == "Test failed"){
+      else if (data === "Test failed"){
+        subscription.unsubscribe();
         webContents.send('report-msg',
                           generateErrorReport('Exception while generating test report', 
                                               testName));
         webContents.send("log-msg", "Ready");
+        break;
       }
       else{
+        subscription.unsubscribe();
         webContents.send('report-msg', generateReport(JSON.parse(data))); 
         webContents.send('log-msg', 'Ready');
+        break;
       }
     }
     catch(err){
-      webContents.send('report-msg', generateErrorReport('Exception while parsing report',
-                                                          testName));
-      console.log(err)
+      throw err
     }
   }
-  subscription.unsubscribe()
 }
 
   module.exports = {

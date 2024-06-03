@@ -8,7 +8,7 @@ services:
       - "4222:4222"
     networks:
       - back-nats
-      - nats-mid
+      - nats-front
 
   java-backend:
     build: ./interstore
@@ -28,35 +28,13 @@ services:
     hostname: electron-frontend
     container_name: electron-frontend
     environment:
-      - EXPRESS_URL=http://express-mid:6000
-    ports:
-      - 9000:9000
-    command: ["tail","-f"]
-    networks:
-      - mid-front
-
-  express-mid:
-    build: ./express-mid
-    hostname: express-mid
-    container_name: express-mid
-    environment:
       - NATS_URL=nats://nats-server:4222
     ports:
-      - 6000:6000
+      - 5900:5900
+    command: ["tail","-f"]
     networks:
-      - nats-mid
-      - mid-front
-    command: ["node","index.js"]
-    
+      - nats-front
 
 networks:
   back-nats:
-  nats-mid:
-  mid-front:
-
-
-  
-
-
-      #  enviornment:
-      # - SERVER_URL=nats://nats:4222   
+  nats-front:

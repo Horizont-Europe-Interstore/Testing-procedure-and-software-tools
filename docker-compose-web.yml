@@ -1,0 +1,61 @@
+version: '3.8'
+services: 
+  nats: 
+    image : nats:latest
+    container_name: nats-server
+    hostname: nats-server
+    ports:
+      - "4222:4222"
+    networks:
+      - back-nats
+      - nats-mid
+
+  java-backend:
+    build: ./interstore
+    container_name: java-backend 
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://nats-server:4222
+    command: ["./gradlew", "run"]
+    ports:
+      - "8080:8080"
+    networks:
+      - back-nats
+    volumes:
+      - ./interstore:/app
+
+  electron-frontend:
+    build: ./electron-react-app
+    hostname: electron-frontend
+    container_name: electron-frontend
+    environment:
+      - EXPRESS_URL=http://express-mid:6000
+    ports:
+      - 9000:9000
+    command: ["tail","-f"]
+    networks:
+      - mid-front
+    volumes:
+      - ./electron-react-app:/app
+
+  express-mid:
+    build: ./express-mid
+    hostname: express-mid
+    container_name: express-mid
+    environment:
+      - NATS_URL=nats://nats-server:4222
+    ports:
+      - 6000:6000
+    networks:
+      - nats-mid
+      - mid-front
+    command: ["node","index.js"]
+    volumes:
+      - ./express-mid:/app
+    
+
+networks:
+  back-nats:
+  nats-mid:
+  mid-front:

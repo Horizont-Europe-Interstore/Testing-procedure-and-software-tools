@@ -18,7 +18,7 @@ const tests=[
         object:{},
     },
     {
-        test:'Get All End Devices',
+        test:'Device Capability End Device',
         desc:'description',
         args: false,
         object:{},
@@ -42,7 +42,6 @@ const tests=[
             subscriptionLink:'',
             deviceStatusLink:'',
             endDeviceListLink:'',
-            derListLink:'',
         }
     },
     {
