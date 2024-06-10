@@ -1,9 +1,17 @@
-# ieee2030.5-RESTAPI
-
-
+# IEEE2030.5 Testing Procdure and Software Tools 
 
 ## Getting started
+The Testing procedure and test software were developed base on the Sunspec documentation this is a standered for developing testing 
+softwares and the sunspec testing procedures emphasises on CSIP smart inverter profile . The test software constructed in a manner
+which the behaviour driven development way which transalted that in given conditions what are the expected outcomes of the testing. 
 
+* IEEE 2030.5 is a wast protocol to test this protocol is a client server model which means that the server should contains the
+  implimentation of the protocol to complete the testing , in IEEE 2030.5 the features or properties of the protocol is addressed
+  as resources , different kind of resources is present in the IEEE 2030.5 which are inter connected via links (hyperlinks )  the
+  
+
+
+The Construction of the software consist of many 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
 Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
