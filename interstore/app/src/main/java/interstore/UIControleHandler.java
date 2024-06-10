@@ -43,8 +43,9 @@ public class UIControleHandler {
                 Thread.sleep(2000);
                 Path reportPath = Paths.get("build/reports/cucumber/report.json").toAbsolutePath();
                 String file = new String(Files.readAllBytes(reportPath), StandardCharsets.UTF_8);
-                System.out.println(file);
+                System.out.println(file); 
                 this.publishMsg(file);
+                
             }
             catch(Exception exception){
                 this.publishMsg("Test failed");
@@ -53,7 +54,7 @@ public class UIControleHandler {
         };
        }
     
-       private void modifyExpectedResult(String expectedResult, String featureFileName){
+       public void modifyExpectedResult(String expectedResult, String featureFileName){
             try{
                 Path featureFilePath = Paths.get("src/test/resources/interstore/"+featureFileName+".feature");
                 String fileContents = new String(Files.readAllBytes(featureFilePath), StandardCharsets.UTF_8);
@@ -67,6 +68,7 @@ public class UIControleHandler {
             }
 
        }
+
        public void publishMsg (String msg){
         this.natsConnection.publish(responseTopic, (msg).getBytes());
        }
@@ -88,10 +90,30 @@ public class UIControleHandler {
         return this.currentTestObject;
        }
 
-       public void runTest(String testName){
-            io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
+       public Object runTest(String testName){
+           return  io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
        }
        public void runTestWithArgs(String testName){
         io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
    }
 }
+
+
+
+
+
+/*
+ * public void runTest(String testName){
+            io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
+       }
+       public void runTestWithArgs(String testName){
+        io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
+   }
+ * 
+ */
+
+ /*
+  * {report: report,
+    expected: expected,
+    actual: actual}
+  */

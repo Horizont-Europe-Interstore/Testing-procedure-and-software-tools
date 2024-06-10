@@ -1,5 +1,4 @@
 package interstore;
-
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -132,6 +131,7 @@ public class App {
         Thread.sleep(100);
         endDeviceList = interstore.EndDeviceTest.getEndDevices();
         LOGGER.info("the list of EndDevices are " + endDeviceList);
+       
         return endDeviceList;
     }
     
@@ -166,7 +166,6 @@ public class App {
         String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
-        LOGGER.info("the end device list link is ... " + endDeviceListLink); 
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
         interstore.EndDeviceTest.EndDeviceListLinktest()); 
         Thread.sleep(300);
@@ -190,7 +189,10 @@ public class App {
         getAllEndDevicesTest("getAllEndDevicesTest");
         Thread.sleep(300);
         interstore.EndDeviceTest.setServicename("enddeviceinstancemanager"); // enddeviceinstancemanager
-        interstore.EndDeviceTest.setsfdi();
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        String Payload =  interstore.EndDeviceTest.createNewEndDevice(currentTest);
+        LOGGER.info("the sfdi payload is " + Payload); 
+        interstore.EndDeviceTest.setsfdi( Payload );  // needs to supply an sfdi 
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
         interstore.EndDeviceTest.getEndDeviceInstancetest());
         Thread.sleep(300);

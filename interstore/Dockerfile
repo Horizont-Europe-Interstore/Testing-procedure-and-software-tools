@@ -3,20 +3,41 @@ FROM openjdk:17-slim
 
 # Set the working directory in the container
 WORKDIR /app
-RUN apt-get update && apt-get install -y netcat
-# Copy the local code and gradle wrapper to the container
-COPY . .
-#COPY ../wait-for-nats.sh /app/wait-for-nats.sh
-#RUN chmod +x /app/wait-for-nats.sh 
-# Give execution permission to Gradle wrapper scripts
+RUN apt-get update && apt-get install -y netcat wget unzip entr
+COPY gradlew /app/
+COPY gradle /app/gradle
+COPY app/build.gradle /app/
 RUN chmod +x ./gradlew
+COPY . /app
+#RUN ./gradlew build --no-daemon || return 0
+COPY . /app
+#COPY . .
 
-# Use the Gradle wrapper to build the application
-RUN ./gradlew build --no-daemon
+#RUN ./gradlew build --no-daemon
 
 # Expose the port the app runs on
 EXPOSE 8080
+CMD ["sh", "-c", "find src -type f | entr -r ./gradlew bootRun"]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#CMD ["sh", "-c", "find src | entr -r ./gradlew run"]
+#CMD ["./gradlew", "build"]
+#CMD ["./gradlew", "bootRun"]
+#CMD ["./gradlew", "run"]
 # Run the application
 #CMD ["/app/wait-for-nats.sh", "nats", "4222", "java", "-jar", "app/build/libs/app.jar"]
 #CMD ["java", "-jar", "app/build/libs/app.jar"]

@@ -191,25 +191,29 @@ public class EndDeviceTest {
      * code does this . This shall be reviewed while integrating with the 
      * database 
      */
-     public static String setsfdi() throws JSONException
+     public static String setsfdi(String Sfdi) throws JSONException
      {
+        LOGGER.info("the sfdi is here in form payload  " + Sfdi);
+        Long requestedSfdi = Long.parseLong(Sfdi); 
        String EndDevices = getEndDevices(); 
        JSONObject jsonObject = new JSONObject(EndDevices);
        JSONArray jsonArray = jsonObject.getJSONArray("endDevices");
-       if(jsonArray.length() > 0)
-       {
-           JSONObject endDevice = jsonArray.getJSONObject(jsonArray.length() - 1);
+        for(int i = 0 ; i < jsonArray.length() ; i++)
+        {
+            JSONObject endDevice = jsonArray.getJSONObject(i);
             Long sfdi = endDevice.getLong("sfdi");
-            String sfdiString = sfdi.toString();
-            setSfdi(sfdiString);
-            Long endDeviceID = endDevice.getLong("id");
-            String endDeviceIDString = endDeviceID.toString();
-            setendDeviceID(endDeviceIDString); 
-            String endDeviceLink = endDevice.getString("endDeviceLink");
-            setendDeviceLink(endDeviceLink); 
+            if(sfdi == requestedSfdi)
+            {   String sfdiString = sfdi.toString();
+                setSfdi(sfdiString);
+                LOGGER.info("the sfdi is which is set and geeting from getter " + getSfdi());
+                Long endDeviceID = endDevice.getLong("id");
+                String endDeviceIDString = endDeviceID.toString();
+                setendDeviceID(endDeviceIDString);
+                String endDeviceLink = endDevice.getString("endDeviceLink");
+                setendDeviceLink(endDeviceLink);
             
-       }
-     
+            }
+        }
         return null ; 
        }
        
@@ -343,3 +347,19 @@ public static String getregisteredEndDeviceDetails()
 
   
 
+/*
+ *  if(jsonArray.length() > 0)
+       {
+           JSONObject endDevice = jsonArray.getJSONObject(jsonArray.length() - 1);
+            Long sfdi = endDevice.getLong("sfdi");
+            String sfdiString = sfdi.toString();
+            setSfdi(sfdiString);
+            Long endDeviceID = endDevice.getLong("id");
+            String endDeviceIDString = endDeviceID.toString();
+            setendDeviceID(endDeviceIDString); 
+            String endDeviceLink = endDevice.getString("endDeviceLink");
+            setendDeviceLink(endDeviceLink); 
+            
+       }
+ * 
+ */

@@ -59,26 +59,20 @@ import React from "react";
             {isReport.Steps.map((x,i)=>(
               <Flex flexDirection='column' gap='1vh' key={i}>
               <Flex flexDirection={'row'} maxHeight='5vh' gap='0.5vw' paddingLeft='1vw'>
-              <Text fontWeight={'bold'} fontSize={'1xl'}>
-                {i+'. '}
-              </Text>
               <Box marginTop={'0.8vh'}>
               {
                 x.Result === 'passed' ? <CheckMark/> : x.Result === 'failed'? <CrossMark/> :<SquareMark/>
               }
               </Box>
-              <Text marginTop={'0.2vh'} fontSize={'medium'} textColor={colors.PRIMARY_COLOR} fontWeight='bold'>
-                {x.Keyword}
-              </Text>
-              <Text fontSize='medium' marginTop={'0.3vh'} fontWeight='light'>
-                {x.Name}
-              </Text>
             </Flex>
-            <Text maxHeight={'15vh'}  textColor={'black'} bgColor={colors.BAD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
-              {x['Error message'] ? x['Error message'] : ''}
+            <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
+              {x['test_description']}
             </Text>
             <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
-              {x['Value'] ? x['Value'] : ''}
+              {x['expected_result']}
+            </Text>
+            <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
+              {x['actual_result']}
             </Text>
             </Flex>
             ))}

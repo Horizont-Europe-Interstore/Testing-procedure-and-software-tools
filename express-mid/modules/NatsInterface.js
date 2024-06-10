@@ -58,16 +58,26 @@ module.exports = class NatsInterface{
           'Scenario' : fileContents[0].elements[0].name
         };
         let passed = true;
-        for(let x of fileContents[0].elements[0].steps){
-          passed &= x.result.status == 'passed';
+        let stepss = fileContents[0].elements[0].steps
+        let x = stepss[stepss.length-1] // output.actual, output.expected , doc_string.value 
+        let outputarray = x.output
+        let actual_result = ""
+        let expected_result = ""
+        outputarray.forEach(element => {
+          if(element.includes("actual")){
+            actual_result = " Actual Response:" +  element.split("actual:")[1].trim();
+          }
+          if(element.includes("expected")){
+            expected_result = "Expected Response:"+ element.split("expected:")[1].trim();
+          }
+        });
           steps.push({
-            'Keyword':x.keyword,
-            'Name': x.name,
-            'Result':x.result.status,
-            'Error message':x.result.status=='failed' ? x.result.error_message:'',
-            'Value': x.doc_string? JSON.stringify(x.doc_string.value).replace(/(\\\"|\\n)/g,'') : ''
+              'Result':x.result.status,
+             'actual_result': actual_result,
+             'expected_result': expected_result,
+            'test_description': JSON.stringify(x.doc_string.value).replace(/(\\\"|\\n)/g,'')
           });
-        }
+  
         report['End result'] = passed ? 'passed' : 'failed';
         report['Steps'] = steps;
         return report;

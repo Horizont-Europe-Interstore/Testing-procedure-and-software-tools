@@ -6,15 +6,15 @@ Feature: Device Capability EndDevice
     Then the test should complete successfully with EndDevice response containing:
     """
     {
-      "1": "http://localhost/interstore/edev/1",
-      "2": "http://localhost/interstore/edev/2",
-      "3": "http://localhost/interstore/edev/3",
-      "4": "http://localhost/interstore/edev/4"
+      Test Description :This is part of the Device capablity Test, to find out all
+       End Devices present in the server , there is two possible outcomes 
+			 for this test one is no end devices found which implies that no end devices 
+			 added to the test application , another outcome is listing all the end devices urls 
+			 through particular url will get the details of the end device presented on the 
+			 server . if there is no end device found the next test test is to create an end device 
     }
-    """
+    """ 
 
-  Examples:
-    | natsSubject | 
-    | natsSubject |
+   
 
     

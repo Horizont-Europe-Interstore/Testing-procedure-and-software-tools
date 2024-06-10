@@ -1,7 +1,7 @@
 version: '3.8'
-services: 
-  nats: 
-    image : nats:latest
+services:
+  nats:
+    image: nats:latest
     container_name: nats-server
     hostname: nats-server
     ports:
@@ -9,21 +9,27 @@ services:
     networks:
       - back-nats
       - nats-mid
-
   java-backend:
-    build: ./interstore
-    container_name: java-backend 
+    build:
+      context: ./interstore
+      dockerfile: Dockerfile
+    container_name: java-backend
     depends_on:
       - nats
+    volumes:
+      - type: bind
+        source: ./interstore
+        target: /app   
     environment:
       - NATS_URL=nats://nats-server:4222
-    command: ["./gradlew", "run"]
+    command: ["./gradlew", "run"]  
+   
     ports:
       - "8080:8080"
     networks:
       - back-nats
-    volumes:
-      - ./interstore:/app
+    working_dir: /app
+  
 
   electron-frontend:
     build: ./electron-react-app
@@ -37,7 +43,10 @@ services:
     networks:
       - mid-front
     volumes:
-      - ./electron-react-app:/app
+      - type: bind
+        source: ./react-browser
+        target: /react
+    working_dir: /app
 
   express-mid:
     build: ./express-mid
@@ -50,12 +59,24 @@ services:
     networks:
       - nats-mid
       - mid-front
-    command: ["node","index.js"]
+    command: ["node", "index.js"]
     volumes:
-      - ./express-mid:/app
-    
+      - type: bind
+        source: ./express-mid
+        target: /express 
+   
 
 networks:
   back-nats:
   nats-mid:
   mid-front:
+
+ #command: ["./gradlew", "run"]
+   #volumes:
+     # - ./interstore:/app
+     # -  /app/build
+  #command: ["./gradlew", "run", "--continuous"]  
+     #volumes:
+      #- ./electron-react-app:/app
+ #volumes:
+     # - ./express-mid:/app

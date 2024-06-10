@@ -56,22 +56,9 @@ export default class Client{
             args: false,
             object:{},
         },
+
         {
             index:2,
-            test:'Device Capability End Device',
-            desc:'description',
-            args: false,
-            object:{},
-        },
-        {
-            index:3,
-            test:'Device Capability End Device Link',
-            desc:'description',
-            args: false,
-            object:{},
-        },
-        {
-            index:4,
             test:'Create End Device',
             desc:'description',
             args: true,
@@ -87,8 +74,25 @@ export default class Client{
             },
         },
         {
+            index:3,
+            test:'Get An End Device',
+            desc:'description',
+            args: false,
+            object:{
+                sfdi:''
+            },
+        },
+        {
+            index:4,
+            test:'Register End Device ',
+            desc:'description',
+            args: false,
+            object:{},
+        },
+        
+        {
             index:5,
-            test:'Device Capability Get All End Device',
+            test:'Get Registered End Device ',
             desc:'description',
             args: false,
             object:{}
