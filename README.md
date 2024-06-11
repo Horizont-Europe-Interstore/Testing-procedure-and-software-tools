@@ -77,12 +77,17 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
 4. Using the Location of the created EndDevice instance returned by the REF-Server, perform a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
 5. Process the EndDevice instance returned by the REF-Server and perform a HTTP GET operatoin on the FunctionSetAssignmentsListLink to retrieve the various FSA-assigned resources assigned to the REF-Client.         
 
-* Pass/Fail Criteria :  
+ * Pass/Fail Criteria :  
 1). REF-Client requested and received the DeviceCapability resource on the REF-Server using the HTTP configuration information provided. REF-Server responded with 200 OK and returned a conformant payload for its DeviceCapability.
+   
 2). REF-Server returned an EndDeviceList payload in response to the REF-Client HTTP GET request. If the REF-Client is preregistered, the REF-Server should include an EndDevice instance associated with it. Otherwise, the EndDeviceList payload will not include the instance for the REF-Client in which case the REF-Client shall POST its own instance to the REF-Server.
+
 3). If no EndDevice instance was found with the same identification as the REF-Client, it did a successful HTTP POST operation of its own EndDevice instance to the REF-Server. REF-Server successfully processed the HTTP POST operation from the REF-Client by creating a new EndDevice instance under the EndDeviceListLink resource and returned a 201 Created response with Location header indicating the URI of the newly created resource.
+
 4). If no such EndDevice instance is found in the EndDeviceList, do a POST of an EndDevice instance, which includes mandatory elements. For example, SFDI/LFDI and changedTime elements. The REF-Server shall respond with a 201 Created HTTP response code based on the handling of the POST payload and a Location header indicating the URI of the created resource on the REF-Server.
+
 5). REF-Client, using the Location of the created EndDevice instance returned by the REF-Server, performed a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example, SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
+
 6). REF-Client processed the EndDevice instance returned by the REF-Server and did a HTTP GET on the FunctionSetAssignmentsListLink to retrieve the various FSA assigned resources assigned to the REF-Client.
 
 ## Walk Through the example using the TestApp. 
