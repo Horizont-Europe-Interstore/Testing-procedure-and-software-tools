@@ -27,7 +27,7 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      * Given: In the Given test condition this referes to the test set up
      * When:  The prcedure of the test , every test has a list of procedure ( test procedure)
      * Then: The expected and actaul response to show that the test is passed or faulied .
-     *    
+         
    ## BackEnd
    
   * The Backend of the application is an application server (Spring Boot) which is complimented by dependency injection framework google guice 
@@ -67,7 +67,22 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      * Basice EndDevice Test (Core 008 in Suspec Doc)
         *  Purpose : The basic end device test verifies the REF-Client can find or POST its EndDevice instance from the IEEE 2030.5 server
                     and can use the resource information, including SFDI, LDFI, FunctionSetAssignmentsListLink, SubscriptionListLink, and LogEventListLink.
-        * Set Up : Verify a DeviceCapability resource exists on the REF-Server, which includes a link to EndDeviceListLink and its subordinate resources.
+        * Set Up : Verify a DeviceCapability resource exists on the REF-Server, which includes a link to EndDeviceListLink and its subordinate resources. 
+                   Pre-register an EndDevice instance for the REF-Client device, including all following attributes. For example, SFDI, LFDI, FunctionSetAssignments. 
+        * Procedure :  
+1. Retrieve the DeviceCapability resource from the REF-Server using the supported HTTP and IP address and find the EndDeviceListLink element.
+2.  Perform a HTTP GET operatoin on the EndDeviceListLink URI and search through the EndDeviceList payload to find if an EndDevice instance is included that matches the identity of the REF-Client device. For example, SFDI/LFDI. If found, skip next step.
+3.  If no such EndDevice instance is found in the EndDeviceList, do a POST of an EndDevice instance, which includes the following elements. For example, SFDI/LFDI and changedTime elements. The REF-Server shall respond with a 201 Created HTTP response code based on the handling of the POST payload and a Location header indicating the URI of the created resource on the REF-Server.
+4. Using the Location of the created EndDevice instance returned by the REF-Server, perform a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
+5. Process the EndDevice instance returned by the REF-Server and perform a HTTP GET operatoin on the FunctionSetAssignmentsListLink to retrieve the various FSA-assigned resources assigned to the REF-Client.         
+
+* Pass/Fail Criteria 
+REF-Client requested and received the DeviceCapability resource on the REF-Server using the HTTP configuration information provided. REF-Server responded with 200 OK and returned a conformant payload for its DeviceCapability.
+REF-Server returned an EndDeviceList payload in response to the REF-Client HTTP GET request. If the REF-Client is preregistered, the REF-Server should include an EndDevice instance associated with it. Otherwise, the EndDeviceList payload will not include the instance for the REF-Client in which case the REF-Client shall POST its own instance to the REF-Server.
+If no EndDevice instance was found with the same identification as the REF-Client, it did a successful HTTP POST operation of its own EndDevice instance to the REF-Server. REF-Server successfully processed the HTTP POST operation from the REF-Client by creating a new EndDevice instance under the EndDeviceListLink resource and returned a 201 Created response with Location header indicating the URI of the newly created resource.
+If no such EndDevice instance is found in the EndDeviceList, do a POST of an EndDevice instance, which includes mandatory elements. For example, SFDI/LFDI and changedTime elements. The REF-Server shall respond with a 201 Created HTTP response code based on the handling of the POST payload and a Location header indicating the URI of the created resource on the REF-Server.
+REF-Client, using the Location of the created EndDevice instance returned by the REF-Server, performed a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example, SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
+REF-Client processed the EndDevice instance returned by the REF-Server and did a HTTP GET on the FunctionSetAssignmentsListLink to retrieve the various FSA assigned resources assigned to the REF-Client.
                  
       
 
