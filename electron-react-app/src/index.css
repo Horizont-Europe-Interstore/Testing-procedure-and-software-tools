@@ -1,0 +1,11 @@
+body{
+  margin: auto;
+}
+
+.results{
+  white-space: pre-wrap;
+}
+
+.logs{
+  word-wrap:break-word;
+}
