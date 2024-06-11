@@ -1,17 +1,77 @@
 # IEEE2030.5 Testing Procdure and Software Tools 
 
 ## Getting started
+
 The Testing procedure and test software were developed base on the Sunspec documentation this is a standered for developing testing 
 softwares and the sunspec testing procedures emphasises on CSIP smart inverter profile . The test software constructed in a manner
 which the behaviour driven development way which transalted that in given conditions what are the expected outcomes of the testing. 
+A variety of tests can be conducted according to the SunSpec CSIP Conformance Test Procedures, encompassing server and client tests.
 
 * IEEE 2030.5 is a wast protocol to test this protocol is a client server model which means that the server should contains the
   implimentation of the protocol to complete the testing , in IEEE 2030.5 the features or properties of the protocol is addressed
-  as resources , different kind of resources is present in the IEEE 2030.5 which are inter connected via links (hyperlinks )  the
+  as resources , different kind of resources is present in the IEEE 2030.5 which are inter connected via links (hyperlinks ). 
+* Every Resources in IEEE 2030.5 is accessed through a Hyperlink for this reason the resources has to be found or constrcted in order
+  to test the application , which implies that there is need of server that impliments the resources .
+* To test the resources in the server there is a need of client this client can be a web client or desktop client all important
+  is that this client shall send the paylad which is acceptable by IEEE 2030.5 protocol .
+
+## Construction of test Software . 
+
+   The test tool developed based on the fact that any IEEE 2030.5 system that has to be tested will needs to enter the IEEE 2030.5 
+   Specification which is realized on thier premesis to thhis test application , using docker compose the instance of this software 
+   will be available , by this way the test software will be a copy or mirror image of the IEEE 2030.5 system that choosen for testing.  
+   
+ * The test software is developed of Many components it's divided into different parts Backend, Mode communication, MiddleWare , FrontEnd
+    and behaviour driven testing agent
+ * This test software is behaviour driven which refers to ,
+     * Given: In the Given test condition this referes to the test set up
+     * When:  The prcedure of the test , every test has a list of procedure ( test procedure)
+     * Then: The expected and actaul response to show that the test is passed or faulied .
+     *    
+   ## BackEnd
+   
+  * The Backend of the application is an application server (Spring Boot) which is complimented by dependency injection framework google guice 
+   to automate the operations in the backend , the resources are created as Plain Old Java (POJO) .
+
+  * It's necessary to have a database to store resources of the IEEE 2030.5 which every end user shall try to replicate from thier system for this
+    reason the data has to persisted to maintain the  state of the resources . Since it's a testing application the database opted in an embeded
+    database once the application is closed the data will be loss to keep the test data or mirror constrcted IEEE 2030.5 resources one can deploy it
+    in Kubernetes that will persist the data . 
+  * The backend of the appliction shall include a mechanisam to test the real IEEE 2030.5 system that's is mirror imaged in the application .
+
+## Communication 
+   * The communication between the client and the server ( where IEEE 2030.5 resources constructed ) is established throug NATS messaging system
+     
+   * What Nats does is that there is a NATS server to this NATS sever , the messages can be published and subscribed the testing application will
+     publish a message under given subject  as a trigger from the frontend ( client who triger the test) and the server side can subscribe it ,
+     based on the mesage it received the backend automatically find the corresponding resource and process the message and send back to
+     the front end ( client who triger the test) using a new publish from the backend and it will consuned in the frontend by a subscription .
+     
+## MiddleWare    
+     * There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
+       can only send/accept the request/responses in http for this reason one who operate from the web which is the easyiest way to access
+       the application wills end the request to backend end so the middeleware sitting in between will facilitate the message direction to 
+       nats publisher and the publisher will publish the message . 
+       
+ ## Frontend 
+     * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing . 
+     
+     * For some features of the IEEE 2030.5 has to enter the details ( attributes) undergo testing this is handeled by the form . The react part
+       of the front end will communicate to the middleware in the form of request and response. 
+
+ ## Behaviour Driven automated test set up 
+    * One of the most import part of the software testing is executed by cucumber . 
+    
+     
+     
+       
+     
+       
+     
   
+    
 
 
-The Construction of the software consist of many 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
 Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
