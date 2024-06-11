@@ -77,7 +77,7 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
 4. Using the Location of the created EndDevice instance returned by the REF-Server, perform a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
 5. Process the EndDevice instance returned by the REF-Server and perform a HTTP GET operatoin on the FunctionSetAssignmentsListLink to retrieve the various FSA-assigned resources assigned to the REF-Client.         
 
- * Pass/Fail Criteria :  
+* Pass/Fail Criteria :  
 1). REF-Client requested and received the DeviceCapability resource on the REF-Server using the HTTP configuration information provided. REF-Server responded with 200 OK and returned a conformant payload for its DeviceCapability.
    
 2). REF-Server returned an EndDeviceList payload in response to the REF-Client HTTP GET request. If the REF-Client is preregistered, the REF-Server should include an EndDevice instance associated with it. Otherwise, the EndDeviceList payload will not include the instance for the REF-Client in which case the REF-Client shall POST its own instance to the REF-Server.
