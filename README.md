@@ -48,17 +48,20 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      the front end ( client who triger the test) using a new publish from the backend and it will consuned in the frontend by a subscription .
      
  ## Middle Ware    
- * The Middele ware is 
+ * There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
+   can only send/accept the request/responses in http for this reason one who operate from the web which is the easyiest way to access
+   the application wills end the request to backend end so the middeleware sitting in between will facilitate the message direction to 
+   nats publisher and the publisher will publish the message .  
       
  ## Front End . 
-     * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing .
+ * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing .
      
-     * For some features of the IEEE 2030.5 has to enter the details ( attributes) undergo testing this is handeled by the form . The react part
-       of the front end will communicate to the middleware in the form of request and response. 
+ * For some features of the IEEE 2030.5 has to enter the details ( attributes) undergo testing this is handeled by the form . The react part
+   of the front end will communicate to the middleware in the form of request and response. 
     
  ## Behaviour driven automated test set up . 
-    * One of the most import part of the software testing is Cucumber , the Cucumber is bebaviour driven testing tool , open source 
-      this tool can help to do the test set up and the test procedures and matching with the expected values . 
+ * One of the most import part of the software testing is Cucumber , the Cucumber is bebaviour driven testing tool , open source 
+   this tool can help to do the test set up and the test procedures and matching with the expected values . 
       
  ## An example testing procedure from the IEEE 2030.5 Core tests . 
  * Basice EndDevice Test (Core 008 in Suspec Document)
@@ -75,12 +78,12 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
 5. Process the EndDevice instance returned by the REF-Server and perform a HTTP GET operatoin on the FunctionSetAssignmentsListLink to retrieve the various FSA-assigned resources assigned to the REF-Client.         
 
 * Pass/Fail Criteria :  
-A). REF-Client requested and received the DeviceCapability resource on the REF-Server using the HTTP configuration information provided. REF-Server responded with 200 OK and returned a conformant payload for its DeviceCapability.
-B). REF-Server returned an EndDeviceList payload in response to the REF-Client HTTP GET request. If the REF-Client is preregistered, the REF-Server should include an EndDevice instance associated with it. Otherwise, the EndDeviceList payload will not include the instance for the REF-Client in which case the REF-Client shall POST its own instance to the REF-Server.
-C). If no EndDevice instance was found with the same identification as the REF-Client, it did a successful HTTP POST operation of its own EndDevice instance to the REF-Server. REF-Server successfully processed the HTTP POST operation from the REF-Client by creating a new EndDevice instance under the EndDeviceListLink resource and returned a 201 Created response with Location header indicating the URI of the newly created resource.
-D). If no such EndDevice instance is found in the EndDeviceList, do a POST of an EndDevice instance, which includes mandatory elements. For example, SFDI/LFDI and changedTime elements. The REF-Server shall respond with a 201 Created HTTP response code based on the handling of the POST payload and a Location header indicating the URI of the created resource on the REF-Server.
-E). REF-Client, using the Location of the created EndDevice instance returned by the REF-Server, performed a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example, SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
-F). REF-Client processed the EndDevice instance returned by the REF-Server and did a HTTP GET on the FunctionSetAssignmentsListLink to retrieve the various FSA assigned resources assigned to the REF-Client.
+1). REF-Client requested and received the DeviceCapability resource on the REF-Server using the HTTP configuration information provided. REF-Server responded with 200 OK and returned a conformant payload for its DeviceCapability.
+2). REF-Server returned an EndDeviceList payload in response to the REF-Client HTTP GET request. If the REF-Client is preregistered, the REF-Server should include an EndDevice instance associated with it. Otherwise, the EndDeviceList payload will not include the instance for the REF-Client in which case the REF-Client shall POST its own instance to the REF-Server.
+3). If no EndDevice instance was found with the same identification as the REF-Client, it did a successful HTTP POST operation of its own EndDevice instance to the REF-Server. REF-Server successfully processed the HTTP POST operation from the REF-Client by creating a new EndDevice instance under the EndDeviceListLink resource and returned a 201 Created response with Location header indicating the URI of the newly created resource.
+4). If no such EndDevice instance is found in the EndDeviceList, do a POST of an EndDevice instance, which includes mandatory elements. For example, SFDI/LFDI and changedTime elements. The REF-Server shall respond with a 201 Created HTTP response code based on the handling of the POST payload and a Location header indicating the URI of the created resource on the REF-Server.
+5). REF-Client, using the Location of the created EndDevice instance returned by the REF-Server, performed a HTTP GET operation on that Location. On successful GET operation, the EndDevice instance payload returned by the REF-Server shall include relevant subordinate resources assigned to the REF-Client. For example, SubscriptionListLink, RegistrationLink, FunctionSetAssignmentsListLink, SFDI/LFDI, and others.
+6). REF-Client processed the EndDevice instance returned by the REF-Server and did a HTTP GET on the FunctionSetAssignmentsListLink to retrieve the various FSA assigned resources assigned to the REF-Client.
 
 ## Walk Through the example using the TestApp. 
 * This test application is made using NATS instead of http to send  message /request from client to server for this reason when it comes to actaul
