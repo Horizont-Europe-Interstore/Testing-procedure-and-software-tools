@@ -13,16 +13,20 @@ function App(){
   const theme = themeObject.theme;
   const colors = themeObject.colors;
   const tests = Client.getTests();
-  const [testState,setTestState] = React.useState(true)
-  const [toggleVar,setToggle] = React.useState(true)
-  const [currentTest,setCurrentTest] = React.useState(tests[0])
+  const [testState,setTestState] = React.useState(true);
+  const [toggleVar,setToggle] = React.useState(true);
+  const [currentTest,setCurrentTest] = React.useState(tests[0]);
+  
   const [isReport,setReport] = React.useState({
     'Feature':'...',
     'Tag':'...',
     'End result':'...',
     'Scenario':'...',
-    'Steps':[]
-  })
+    'Description': '...',
+    'Actual response': '...',
+    'Expected response': '...'
+  });
+
   return(
     <ChakraProvider theme={theme}>
       <Flex flexDirection='row' h='100%' w='100%'>

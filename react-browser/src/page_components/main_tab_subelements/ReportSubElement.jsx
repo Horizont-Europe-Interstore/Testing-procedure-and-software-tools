@@ -6,7 +6,6 @@ import {
     Flex,
    List } from '@chakra-ui/react'
 import React from "react";
-  
   function ReportSubElement({isReport,setReport,toggleVar,colors}){
     return( <Flex flexDirection={'column'} border={'groove'} borderColor={colors.PRIMARY_COLOR} maxHeight='100%' hidden={!toggleVar}>
     <Box h={'100%'}> 
@@ -51,34 +50,35 @@ import React from "react";
           </Text>
         </Flex>
       </Grid>
+      {
+        isReport["Feature"] !== '...' ?
       <Box paddingLeft='1vw' colSpan={2} rowSpan={'8'} fontWeight={'bold'} fontSize={'1xl'}>
-          Steps:
-          { isReport.Steps.length === 0 ?<List>
-          </List>:
-          <List>
-            {isReport.Steps.map((x,i)=>(
-              <Flex flexDirection='column' gap='1vh' key={i}>
-              <Flex flexDirection={'row'} maxHeight='5vh' gap='0.5vw' paddingLeft='1vw'>
-              <Box marginTop={'0.8vh'}>
-              {
-                x.Result === 'passed' ? <CheckMark/> : x.Result === 'failed'? <CrossMark/> :<SquareMark/>
-              }
-              </Box>
-            </Flex>
-            <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
-              {x['test_description']}
+        <Text variant={'report_key'} textAlign={'center'}>
+            DESCRIPTION
+        </Text>
+        <Text maxHeight={'15vh'}  bgColor={colors.TERTIARY_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
+          {isReport['Description']}
+        </Text>
+        <Flex flexDirection={'row'} w={'100%'}>
+          <Flex flexDirection={'column'} w={'100%'}>
+            <Text variant={'report_key'} textAlign={'center'}>
+              ACTUAL
             </Text>
-            <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
-              {x['expected_result']}
+            <Text bgColor={isReport['End result'] === 'failed' ? colors.BAD_COLOR : colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
+            {isReport['Actual response']}
             </Text>
-            <Text maxHeight={'15vh'}  bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'} overflowY={'scroll'}>
-              {x['actual_result']}
+          </Flex>
+          <Flex flexDirection={'column'} colSpan={2} w={'100%'}>
+            <Text variant={'report_key'} textAlign={'center'}>
+              EXPECTED
             </Text>
-            </Flex>
-            ))}
-          </List>
-          }
-        </Box>
+            <Text bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
+            {isReport['Expected response']}
+            </Text>
+          </Flex>
+        </Flex>
+      </Box> :<></>
+    }
     </Box>
     </Flex>)
   }

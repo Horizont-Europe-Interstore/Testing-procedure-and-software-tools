@@ -28,7 +28,7 @@ module.exports = class NatsInterface{
               res.status(400)
                  .json(this.#generateErrorReport('Exception when getting response from backend\n'+err, 
                                                  testName));
-              clearTimeout(this.#processTimeout)
+              clearTimeout(this.#processTimeout);
           });
     }
 
@@ -38,49 +38,39 @@ module.exports = class NatsInterface{
           Tag: '@'+testName.split(' ').slice(0,2).join(''),
           Scenario: '...',
           'End result': 'failed',
-          Steps: [
-            {
-              Keyword: 'Given ',
-              Name: '...',
-              Result: 'skipped',
-              'Error message': error,
-              Value: ''
-            }
-          ]
+          'Description': error,
+          'Expected response': 'none',
+          'Actual response': 'none'
         };
     }
 
-    #generateReport(fileContents){  
-        let steps = [];
+    #generateReport(fileContents,testName){  
+        if(fileContents.length===0){
+          return this.#generateErrorReport("Test does not yet exist",testName)
+        }
         let report = {
           'Feature':fileContents[0].name,
           'Tag':fileContents[0].elements[0].tags[0].name,
           'Scenario' : fileContents[0].elements[0].name
         };
-        let passed = true;
-        let stepss = fileContents[0].elements[0].steps
-        let x = stepss[stepss.length-1] // output.actual, output.expected , doc_string.value 
-        let outputarray = x.output
-        let actual_result = ""
-        let expected_result = ""
-        outputarray.forEach(element => {
-          if(element.includes("actual")){
-            actual_result = " Actual Response:" +  element.split("actual:")[1].trim();
-          }
-          if(element.includes("expected")){
-            expected_result = "Expected Response:"+ element.split("expected:")[1].trim();
-          }
-        });
-          steps.push({
-              'Result':x.result.status,
-             'actual_result': actual_result,
-             'expected_result': expected_result,
-            'test_description': JSON.stringify(x.doc_string.value).replace(/(\\\"|\\n)/g,'')
-          });
-  
-        report['End result'] = passed ? 'passed' : 'failed';
-        report['Steps'] = steps;
-        return report;
+        
+        try{
+          let steps = fileContents[0].elements[0].steps;
+          let last = steps[steps.length-1];
+          let description = last.doc_string.value.replace(/(\\\"|\\n)/g,'');
+          let outputarray = last.output;
+          let actual = outputarray !== undefined ? outputarray.find(x=>x.slice(0,6) === "actual").split("actual")[1]: "No actual response for this test";
+          let expected = outputarray !== undefined ? outputarray.find(x=>x.slice(0,8) === "expected").split("expected")[1]: "No expected response for this test";
+          report["End result"] = last.result.status;
+          report["Actual response"] = actual;
+          report["Expected response"] = expected;
+          report["Description"] = description;
+          return report;
+        }
+        catch(error){
+          clearTimeout(this.#processTimeout);
+          throw error;
+        }
       }
 
       #pingBackend(){
@@ -107,12 +97,13 @@ module.exports = class NatsInterface{
             }
             else{
               res.status(200)
-                 .json(this.#generateReport(JSON.parse(data)));
+                 .json(this.#generateReport(JSON.parse(data),testName));
               sub.unsubscribe();
               break;
             }
           }
           catch(err){
+            clearTimeout(this.#processTimeout);
             throw err
           }
         }

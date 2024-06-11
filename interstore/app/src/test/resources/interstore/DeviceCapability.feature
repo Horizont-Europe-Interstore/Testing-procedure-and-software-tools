@@ -5,7 +5,7 @@ Feature: Device Capability Test
     When I execute the device capability test with service name "dcapmanager" and subject "<natsSubject>"
     Then the test should complete successfully with DeviceCapability response containing:
     """
-    {
+    
      Test Description : This test is a part of the Device Capablity , to find out the device
                    Capabilities is present or not , for the simplicity purpose this test 
                    allready added the device capablity features those atleast a link for 
@@ -15,6 +15,6 @@ Feature: Device Capability Test
                    capablity before all the test started this one of the intail condition , the 
                    test application right now has a default device capablity while runnig this 
                    test it will depicts the default device capablities .   
-    }
+    
      """
  
