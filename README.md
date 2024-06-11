@@ -47,13 +47,14 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      based on the mesage it received the backend automatically find the corresponding resource and process the message and send back to
      the front end ( client who triger the test) using a new publish from the backend and it will consuned in the frontend by a subscription .
 ## MiddleWare    
-     There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
+      There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
       can only send/accept the request/responses in http for this reason one who operate from the web which is the easyiest way to access
       the application wills end the request to backend end so the middeleware sitting in between will facilitate the message direction to 
       nats publisher and the publisher will publish the message . 
       
-## MiddleWare
-     * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing . 
+## FrontEnd 
+     * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing .
+     
      * For some features of the IEEE 2030.5 has to enter the details ( attributes) undergo testing this is handeled by the form . The react part
        of the front end will communicate to the middleware in the form of request and response. 
     
