@@ -58,12 +58,19 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      
      * For some features of the IEEE 2030.5 has to enter the details ( attributes) undergo testing this is handeled by the form . The react part
        of the front end will communicate to the middleware in the form of request and response. 
-
- ## Behaviour Driven automated test set up 
-    * One of the most import part of the software testing is executed by cucumber . 
     
-     
-     
+ ## Behaviour Driven automated test set up 
+    * One of the most import part of the software testing is Cucumber , the Cucumber is bebaviour driven testing tool , open source 
+      this tool can help to do the test set up and the test procedures and matching with the expected values . 
+      
+ ## An example testing procedure from the IEEE 2030.5 Core tests . 
+     * Basice EndDevice Test (Core 008 in Suspec Doc)
+        *  Purpose : The basic end device test verifies the REF-Client can find or POST its EndDevice instance from the IEEE 2030.5 server
+                    and can use the resource information, including SFDI, LDFI, FunctionSetAssignmentsListLink, SubscriptionListLink, and LogEventListLink.
+        * Set Up : Verify a DeviceCapability resource exists on the REF-Server, which includes a link to EndDeviceListLink and its subordinate resources.
+                 
+      
+
        
      
        
