@@ -47,7 +47,7 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      based on the mesage it received the backend automatically find the corresponding resource and process the message and send back to
      the front end ( client who triger the test) using a new publish from the backend and it will consuned in the frontend by a subscription .
 ## MiddleWare    
-    * There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
+     There is need of a middleware to faciliate the actions from frontend to the backend becuase the front end is browser process which 
       can only send/accept the request/responses in http for this reason one who operate from the web which is the easyiest way to access
       the application wills end the request to backend end so the middeleware sitting in between will facilitate the message direction to 
       nats publisher and the publisher will publish the message . 
