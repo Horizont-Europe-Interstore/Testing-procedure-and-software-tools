@@ -48,8 +48,7 @@ A variety of tests can be conducted according to the SunSpec CSIP Conformance Te
      the front end ( client who triger the test) using a new publish from the backend and it will consuned in the frontend by a subscription .
      
  ## Middle Ware    
-
-     The Middele ware is 
+ * The Middele ware is 
       
  ## Front End . 
      * The front end of the app is in React which has buttons corresponds to features of IEEE 2030.5 which will be the part of the testing .
