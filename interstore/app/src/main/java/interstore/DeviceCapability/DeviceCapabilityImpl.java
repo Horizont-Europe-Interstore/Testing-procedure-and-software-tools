@@ -137,7 +137,7 @@ public class DeviceCapabilityImpl {
     }
 
     @Transactional
-    public String updateTime(String payload){
+    public String updateTime(String payload) throws JSONException{
         JSONObject jsonObject = new JSONObject(payload);
         long updatedTimeInstance = jsonObject.getLong("updated_time_instance");
         String timeLink = jsonObject.getString("timeLink");

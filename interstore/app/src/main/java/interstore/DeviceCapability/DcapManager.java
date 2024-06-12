@@ -93,7 +93,7 @@ public String getTime(String payload) throws JSONException{
     return deviceCapabilityImpl.getTime(payload);
 }
 
-public void updateTime(String payload){
+public void updateTime(String payload) throws JSONException{
     deviceCapabilityImpl.updateTime(payload);
 }
 

@@ -72,7 +72,7 @@ public class TimeTest {
         LOGGER.info("The Time resource was successfully updated.");
     }
 
-    public static String getTimeLink(String response){
+    public static String getTimeLink(String response) throws JSONException{
         JSONObject jsonObject = new JSONObject(response);
         JSONArray jsonArray = jsonObject.getJSONArray("1");
         String timeLink = "";
@@ -83,9 +83,7 @@ public class TimeTest {
                 break;
             }
         }
-        catch (JSONException e){
-            e.printStackTrace();
-        }
+       
         return null;
     }
 }
