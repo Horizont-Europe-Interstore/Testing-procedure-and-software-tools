@@ -8,23 +8,41 @@ import {
 import Client from '../../modules/client.js'
 
 
-function FormSubElement({toggleVar,currentTest,setToggle,setTestState,setCurrentTest,tests,setReport}){  
+function FormSubElement({toggleVar,
+                         currentTest,
+                         setToggle,
+                         setTestState,
+                         setCurrentTest,
+                         tests,
+                         setReport,
+                         setHeaderState,
+                         testState}){  
     const handleSubmitForm = async (event)=>{
       event.preventDefault()
+      let tmpTimeout;
       const validation = Client.getValid(currentTest.test)
       for(let entry of Object.entries(currentTest.object)){
-        if(validation[entry[0]] === undefined){
-          continue;
-        }
-        if(!validation[entry[0]](entry[1])){
-          console.log('Invalid Field '+entry[0]);
-          return;
+        let key = entry[0].slice(0,1).toLowerCase()+entry[0].slice(1,entry[0].length).replace(' ','');
+        if(entry[1]==='' || (validation[key]!==undefined&&!validation[key](entry[1]))){
+            setHeaderState({text:'Invalid Field '+entry[0],visElemIdx:1});
+            tmpTimeout=setTimeout(()=>{
+              if(!testState){
+                setHeaderState({text:'Ready',visElemIdx:0});
+                return;
+              }
+              setHeaderState({text:'Running Test', visElemIdx:2});
+            },1000);
+            return;
         }
       }
-      setToggle(true)
-      setCurrentTest(tests[0])
-      const res = await Client.sendTest(currentTest)
+      if(tmpTimeout !== undefined){clearTimeout(tmpTimeout);}
+      setTestState(false);
+      setHeaderState({text:'Running Test',visElemIdx:2})
+      setCurrentTest(tests[0]);
+      setToggle(true);
+      const res = await Client.sendTest(currentTest);
       setReport(res);
+      setHeaderState({text:'Ready',visElemIdx:0})
       setTestState(true);
       }
     return (

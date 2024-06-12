@@ -13,6 +13,7 @@ public class TimeTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName());
     private static String serviceName;
     public static String TimeResponse;
+    public static String timeLink;
     public static String getServiceName(){
 
         return serviceName;
@@ -71,7 +72,7 @@ public class TimeTest {
         LOGGER.info("The Time resource was successfully updated.");
     }
 
-    public static String getTimeLink(String response) throws JSONException{
+    public static String getTimeLink(String response){
         JSONObject jsonObject = new JSONObject(response);
         JSONArray jsonArray = jsonObject.getJSONArray("1");
         String timeLink = "";
@@ -82,7 +83,10 @@ public class TimeTest {
                 break;
             }
         }
-        return timeLink;
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 

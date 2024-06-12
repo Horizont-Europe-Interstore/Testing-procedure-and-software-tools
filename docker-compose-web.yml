@@ -1,7 +1,7 @@
 version: '3.8'
-services:
-  nats:
-    image: nats:latest
+services: 
+  nats: 
+    image : nats:latest
     container_name: nats-server
     hostname: nats-server
     ports:
@@ -9,17 +9,15 @@ services:
     networks:
       - back-nats
       - nats-mid
+
   java-backend:
-    build:
-      context: ./interstore
-      dockerfile: Dockerfile
-    container_name: java-backend
+    build: ./interstore
+    container_name: java-backend 
     depends_on:
       - nats
     environment:
       - NATS_URL=nats://nats-server:4222
-    command: ["./gradlew", "run"]  
-   
+    command: ["tail", "-f"]
     ports:
       - "8080:8080"
     networks:
@@ -44,13 +42,12 @@ services:
     environment:
       - NATS_URL=nats://nats-server:4222
     ports:
-      - 6000:6000
+      - 5000:5000
     networks:
       - nats-mid
       - mid-front
     command: ["node", "index.js"]
     
-   
 
 networks:
   back-nats:

@@ -2,6 +2,13 @@ export default class Client{
     static #baseUrl='/api'  //FOR WITHOUT DOCKER: 'http://fedora-gna-1.acs-lab.eonerc.rwth-aachen.de:5000/api'
     static async sendTest(testObject){
         try{
+            let argsObject = {}
+            for(let [k,v] of Object.entries(testObject.object)){
+                k=k.split(' ').join('')
+                k=k[0].toLowerCase()+k.substring(1,k.length)
+                argsObject[k] = v;
+            }
+            testObject.object = argsObject;
             const res = await fetch(Client.#baseUrl, {
                 method: "POST",
                 body: JSON.stringify(testObject),
@@ -63,14 +70,14 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
-                lfdi:'',
-                deviceCategory:'',
-                sfdi:'',
-                registrationLink:'',
-                functionsetAssignmentLink:'',
-                subscriptionLink:'',
-                deviceStatusLink:'',
-                endDeviceListLink:'',
+                'lfdi':'',
+                'Device Category':'',
+                'sfdi':'',
+                'Registration Link':'',
+                'Functionset Assignment Link':'',
+                'Subscription Link':'',
+                'Device Status Link':'',
+                'End Device List Link':'',
             },
         },
         {
@@ -97,14 +104,21 @@ export default class Client{
             args: false,
             object:{}
         },
-
         {
             index:6,
             test:'Time',
             desc:'description',
             args: false,
             object:{}
+        },
+        {
+            index:7,
+            test:'Advanced Time',
+            desc:'description',
+            args: false,
+            object:{}
         }
+
     ];
 
     static #validationObject={

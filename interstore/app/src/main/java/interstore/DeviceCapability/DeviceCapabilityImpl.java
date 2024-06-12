@@ -135,6 +135,17 @@ public class DeviceCapabilityImpl {
         object.put("quality", timeDto.getQuality());
         return object.toString();
     }
+
+    @Transactional
+    public String updateTime(String payload){
+        JSONObject jsonObject = new JSONObject(payload);
+        long updatedTimeInstance = jsonObject.getLong("updated_time_instance");
+        String timeLink = jsonObject.getString("timeLink");
+        TimeDto timeDto = timeDtoRepository.findByTimeLink(timeLink);
+        timeDto.setCurrentTime(String.valueOf(updatedTimeInstance));
+        timeDtoRepository.save(timeDto);
+        return "";
+    }
    
 }
 

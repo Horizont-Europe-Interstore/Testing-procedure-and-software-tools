@@ -4,26 +4,24 @@ import {
     Text,
     Flex, 
     Center} from '@chakra-ui/react'
-import {HeaderLoad, HeaderCheck} from './visual_components/logos'
+import {HeaderLoad, HeaderCheck, HeaderCross} from './visual_components/logos'
 
-function Header({colors,testState}){
-    let hidden = testState;
-    React.useEffect(()=>{
-      hidden=testState;
-    })
+function Header({colors,headerState}){
+  const cVisElemIdx = headerState.visElemIdx;
     return(
       <GridItem rowSpan={4} colSpan={30} 
       bg={colors.TERTIARY_COLOR}>
         <Flex justifyContent={'center'} flexDirection='row' w='100%' h='100%'>
           <Center justify={'center'}>
-            <Text hidden={!hidden}  variant={'header_text'}>Ready</Text>
-            <Text hidden={hidden}  variant={'header_text'}>Running Test</Text>
+            <Text variant={'header_text'}>{headerState.text}</Text>
           </Center>
-          <Center height='100%'>
+          <Center height='100%' width='10vw'>
            <HeaderLoad colors={colors}
-                      testState={testState}/>
+                      cVisElemIdx={cVisElemIdx}/>
             <HeaderCheck colors={colors}
-                        testState={testState}/>
+                        cVisElemIdx={cVisElemIdx}/>
+            <HeaderCross colors={colors}
+                        cVisElemIdx={cVisElemIdx}/>
           </Center>
         </Flex>
       </GridItem>
