@@ -23,8 +23,6 @@ function FormSubElement({toggleVar,
       const validation = Client.getValid(currentTest.test)
       for(let entry of Object.entries(currentTest.object)){
         let key = entry[0].slice(0,1).toLowerCase()+entry[0].slice(1,entry[0].length).replace(' ','');
-        console.log(key);
-        
         if(entry[1]==='' || (validation[key]!==undefined&&!validation[key](entry[1]))){
             setHeaderState({text:'Invalid Field '+entry[0],visElemIdx:1});
             tmpTimeout=setTimeout(()=>{

@@ -2,6 +2,13 @@ export default class Client{
     static #baseUrl='/api'  //FOR WITHOUT DOCKER: 'http://fedora-gna-1.acs-lab.eonerc.rwth-aachen.de:5000/api'
     static async sendTest(testObject){
         try{
+            let argsObject = {}
+            for(let [k,v] of Object.entries(testObject.object)){
+                k=k.split(' ').join('')
+                k=k[0].toLowerCase()+k.substring(1,k.length)
+                argsObject[k] = v;
+            }
+            testObject.object = argsObject;
             const res = await fetch(Client.#baseUrl, {
                 method: "POST",
                 body: JSON.stringify(testObject),
