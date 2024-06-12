@@ -2,6 +2,7 @@ package interstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -70,7 +71,7 @@ public class TimeTest {
         LOGGER.info("The Time resource was successfully updated.");
     }
 
-    public static String getTimeLink(String response){
+    public static String getTimeLink(String response) throws JSONException{
         JSONObject jsonObject = new JSONObject(response);
         JSONArray jsonArray = jsonObject.getJSONArray("1");
         String timeLink = "";

@@ -128,7 +128,7 @@ public class DeviceCapabilityImpl {
     }
 
     @Transactional
-    public String getTime(String payload){
+    public String getTime(String payload) throws JSONException{
         TimeDto timeDto = timeDtoRepository.findByTimeLink(payload);
         JSONObject object = new JSONObject();
         object.put("time_instance", timeDto.getCurrentTime());

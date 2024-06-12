@@ -87,7 +87,7 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 }
 }
 
-public String getTime(String payload){
+public String getTime(String payload) throws JSONException{
     return deviceCapabilityImpl.getTime(payload);
 }
 
