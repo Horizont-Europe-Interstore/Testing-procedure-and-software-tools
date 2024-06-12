@@ -13,20 +13,18 @@ function App(){
   const theme = themeObject.theme;
   const colors = themeObject.colors;
   const tests = Client.getTests();
-  const [testState,setTestState] = React.useState(true);
-  const [toggleVar,setToggle] = React.useState(true);
-  const [currentTest,setCurrentTest] = React.useState(tests[0]);
-  
-  const [isReport,setReport] = React.useState({
+  const [testState,setTestState] = React.useState(true)
+  const [headerState,setHeaderState] = React.useState({text:'Ready',
+                                                       visElemIdx:0})
+  const [toggleVar,setToggle] = React.useState(true)
+  const [currentTest,setCurrentTest] = React.useState(tests[0])
+  const [report,setReport] = React.useState({
     'Feature':'...',
     'Tag':'...',
     'End result':'...',
     'Scenario':'...',
-    'Description': '...',
-    'Actual response': '...',
-    'Expected response': '...'
-  });
-
+    'Steps':[]
+  })
   return(
     <ChakraProvider theme={theme}>
       <Flex flexDirection='row' h='100%' w='100%'>
@@ -35,7 +33,7 @@ function App(){
                 templateRows='repeat(30, 1fr)'
                 templateColumns='repeat(30, 1fr)'>
             <Header colors={colors}
-                    testState={testState}/>
+                    headerState={headerState}/>
             <Controle setTestState={setTestState}
                       testState={testState}
                       setToggle={setToggle}
@@ -43,7 +41,9 @@ function App(){
                       setCurrentTest={setCurrentTest}
                       colors={colors}
                       tests={tests}
-                      setReport={setReport}/>
+                      setReport={setReport}
+                      setHeaderState={setHeaderState}
+                      headerState={headerState}/>
             <ReportViewer toggleVar={toggleVar}
                           setToggle={setToggle}
                           currentTest={currentTest}
@@ -52,7 +52,9 @@ function App(){
                           colors={colors}
                           tests={tests}
                           setReport={setReport}
-                          isReport={isReport}/> 
+                          report={report}
+                          setHeaderState={setHeaderState}
+                          testState={testState}/> 
           </Grid>
         </Box>
       </Flex>

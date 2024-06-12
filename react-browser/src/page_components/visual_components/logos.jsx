@@ -18,22 +18,29 @@ function CheckMark(){
     )
   }
 
-  function HeaderCheck({colors,testState}){
-    let hidden = testState;
-    React.useEffect(()=>{
-      hidden=testState;
-    })
-    return (<svg hidden={!hidden} width='100%' height='100%' xmlns="http://www.w3.org/2000/svg" fill={colors.PRIMARY_COLOR} viewBox="-5 -10 30 30">
+  function HeaderCheck({colors,cVisElemIdx}){
+    const id = 0;
+    const hidden = cVisElemIdx !== id;
+    return (<svg hidden={hidden} width='100%' height='100%' xmlns="http://www.w3.org/2000/svg" fill={colors.PRIMARY_COLOR} viewBox="-5 -10 30 30">
       <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
     </svg>);
   }
 
-  function HeaderLoad({colors,testState}){
+  function HeaderCross({colors,cVisElemIdx}){
+    const id = 1;
+    const hidden = cVisElemIdx !== id;
+    return (<svg hidden={hidden} width='100%' height='100%' xmlns="http://www.w3.org/2000/svg" fill={colors.PRIMARY_COLOR} viewBox="-5 -10 30 30">
+    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
+  </svg>);
+  }
+
+  function HeaderLoad({colors,cVisElemIdx}){
     const lim = 7 // strictly < lim from 0
     const loadString = "2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m";
     const baseString = "M3 4.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m";
     const [counter,setCounter] = React.useState(0);
-    let hidden = testState;
+    const id=2;
+    const hidden = cVisElemIdx !== id;
     const advanceCounter =()=>{
         setCounter((counter+1)%lim);
     }
@@ -41,7 +48,6 @@ function CheckMark(){
       if(!hidden){
         setTimeout(advanceCounter,100)
       }
-      hidden=testState;
     })
 
     return(
@@ -53,4 +59,4 @@ function CheckMark(){
     );
   }
 
-  export {SquareMark,CrossMark,CheckMark,HeaderCheck,HeaderLoad};
+  export {SquareMark,CrossMark,CheckMark,HeaderCheck,HeaderLoad,HeaderCross};

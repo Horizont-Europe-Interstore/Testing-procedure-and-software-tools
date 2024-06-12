@@ -1,12 +1,11 @@
-import {SquareMark,CheckMark,CrossMark} from '../visual_components/logos.jsx'
+import {CheckMark,CrossMark} from '../visual_components/logos.jsx'
 import {
     Grid, 
     Text,
     Box ,
-    Flex,
-   List } from '@chakra-ui/react'
+    Flex,} from '@chakra-ui/react'
 import React from "react";
-  function ReportSubElement({isReport,setReport,toggleVar,colors}){
+  function ReportSubElement({report,toggleVar,colors}){
     return( <Flex flexDirection={'column'} border={'groove'} borderColor={colors.PRIMARY_COLOR} maxHeight='100%' hidden={!toggleVar}>
     <Box h={'100%'}> 
       <Text variant={'element_name'}>REPORT</Text>
@@ -17,7 +16,7 @@ import React from "react";
             Feature:
           </Text>
           <Text variant={'report_value'}>
-            {isReport.Feature}
+            {report.Feature}
           </Text>
         </Flex>
         <Flex rowSpan={2} flexDirection={'row'}>
@@ -25,7 +24,7 @@ import React from "react";
             Tag:
           </Text>
           <Text variant={'report_value'}>
-            {isReport.Tag}
+            {report.Tag}
           </Text>
         </Flex>
         <Flex rowSpan={2} flexDirection={'row'}>
@@ -33,7 +32,7 @@ import React from "react";
             Scenario:
           </Text>
           <Text variant={'report_value'}>
-            {isReport.Scenario}
+            {report.Scenario}
           </Text>
         </Flex>
         <Flex rowSpan={2} flexDirection={'row'}>
@@ -42,30 +41,30 @@ import React from "react";
           </Text>
           <Box marginTop={'2.4vh'} marginLeft={'0.3vw'}>
           {
-            isReport['End result'] === 'passed' ? <CheckMark/> :  isReport['End result'] === 'failed' ? <CrossMark/> : <></>
+            report['End result'] === 'passed' ? <CheckMark/> :  report['End result'] === 'failed' ? <CrossMark/> : <></>
           }
           </Box>
           <Text variant={'report_value'}>
-            {isReport['End result']}
+            {report['End result']}
           </Text>
         </Flex>
       </Grid>
       {
-        isReport["Feature"] !== '...' ?
+        report["Feature"] !== '...' ?
       <Box paddingLeft='1vw' colSpan={2} rowSpan={'8'} fontWeight={'bold'} fontSize={'1xl'}>
         <Text variant={'report_key'} textAlign={'center'}>
             DESCRIPTION
         </Text>
         <Text maxHeight={'15vh'}  bgColor={colors.TERTIARY_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
-          {isReport['Description']}
+          {report['Description']}
         </Text>
         <Flex flexDirection={'row'} w={'100%'}>
           <Flex flexDirection={'column'} w={'100%'}>
             <Text variant={'report_key'} textAlign={'center'}>
               ACTUAL
             </Text>
-            <Text bgColor={isReport['End result'] === 'failed' ? colors.BAD_COLOR : colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
-            {isReport['Actual response']}
+            <Text bgColor={report['End result'] === 'failed' ? colors.BAD_COLOR : colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
+            {report['Actual response']}
             </Text>
           </Flex>
           <Flex flexDirection={'column'} colSpan={2} w={'100%'}>
@@ -73,7 +72,7 @@ import React from "react";
               EXPECTED
             </Text>
             <Text bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
-            {isReport['Expected response']}
+            {report['Expected response']}
             </Text>
           </Flex>
         </Flex>
