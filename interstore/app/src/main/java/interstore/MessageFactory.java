@@ -96,6 +96,11 @@ public class MessageFactory {
               Method method = microServiceClass.getMethod("getTimeResponse", String.class);
               method.invoke(microServiceObject, payLoad);
           }
+          else if (serviceName.equals("advancedtimemanager"))
+          {
+              Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
+              method.invoke(microServiceObject, payLoad);
+          }
         else if (serviceName.equals("dcapmanager")){
             Method method = microServiceClass.getMethod("DeviceCapability", String.class);
             method.invoke(microServiceObject, payLoad);

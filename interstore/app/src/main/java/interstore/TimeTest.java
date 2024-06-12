@@ -2,6 +2,7 @@ package interstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ public class TimeTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName());
     private static String serviceName;
     public static String TimeResponse;
+    public static String timeLink;
     public static String getServiceName(){
 
         return serviceName;
@@ -71,17 +73,33 @@ public class TimeTest {
     }
 
     public static String getTimeLink(String response){
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray jsonArray = jsonObject.getJSONArray("1");
-        String timeLink = "";
-        for (int i = 0; i < jsonArray.length(); i++) {
-            String url = jsonArray.getString(i);
-            if (url.endsWith("/tm")) {
-                timeLink = url;
-                break;
+        try {
+            System.out.println(response);
+            if (response.startsWith("\"") && response.endsWith("\"")) {
+                response = response.substring(1, response.length() - 1);
+            }
+            response = response.replace("\\\"", "\"");
+            System.out.println(response);
+            JSONObject jsonObject = new JSONObject(response);
+            if(jsonObject.has("time_instance") && jsonObject.has("quality")){
+                if (timeLink != null){
+                    return timeLink;
+                }
+            } else {
+                JSONArray jsonArray = jsonObject.getJSONArray("1");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String url = jsonArray.getString(i);
+                    if (url.endsWith("/tm")) {
+                        timeLink = url;
+                        return timeLink;
+                    }
+                }
             }
         }
-        return timeLink;
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 

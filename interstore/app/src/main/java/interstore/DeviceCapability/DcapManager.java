@@ -36,6 +36,8 @@ if (payload == null || payload.isEmpty()) {
         return getTime(jsonObject.getString("payload"));
         case "put":
         updateDeviceCapability(jsonObject);
+        case "update-time":
+        updateTime(jsonObject.getString("payload"));
         break; 
       }
       return "Operation completed successfully"; 
@@ -89,6 +91,10 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 
 public String getTime(String payload){
     return deviceCapabilityImpl.getTime(payload);
+}
+
+public void updateTime(String payload){
+    deviceCapabilityImpl.updateTime(payload);
 }
 
 }

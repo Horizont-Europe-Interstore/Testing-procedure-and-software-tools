@@ -98,6 +98,7 @@ public class App {
     /*This method is to create a device capablity in the server */
     public String CreateDeviceCapabilityTest(String natsSubject) throws Exception {
         String deviceCapabilityResponse = findDeviceCapability(natsSubject);
+        LOGGER.info("CreateDeviceCapability response: "+deviceCapabilityResponse);
         if(deviceCapabilityResponse != null){
             return deviceCapabilityResponse;
         }
@@ -279,6 +280,38 @@ public class App {
         } else {
             LOGGER.info("Quality value not found.");
             return "Quality value not found.";
+        }
+    }
+
+    public String AdvancedTimeTest(String natsSubject) throws Exception {
+
+        String response = CreateDeviceCapabilityTest("Device_Capability");
+        LOGGER.info("the device capability response is  " + response);
+        String timeLink = interstore.TimeTest.getTimeLink(response);
+        LOGGER.info("the timelink response is  " + timeLink);
+        interstore.TimeTest.setserviceName("timemanager");
+        this.messageToPublish.newStart(natsSubject+"_Get_Time", interstore.TimeTest.getTimeQuery(timeLink));
+        Thread.sleep(300);
+        String timeListResponse = interstore.TimeTest.getTimeResponse();
+        timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+        timeListResponse = timeListResponse.replace("\\", "");
+        JSONObject object = new JSONObject(timeListResponse);
+        String timeInstance = object.getString("time_instance");
+        if (timeInstance!=null) {
+            long updatedTime = Long.parseLong(timeInstance) + 3600;
+            JSONObject payload = new JSONObject();
+            payload.put("updated_time_instance", updatedTime);
+            payload.put("timeLink", timeLink);
+            interstore.TimeTest.setserviceName("advancedtimemanager");
+            this.messageToPublish.newStart(natsSubject+"_update_time", interstore.TimeTest.updateTimeQuery(payload.toString()));
+            Thread.sleep(1000);
+            interstore.TimeTest.setserviceName("timemanager");
+            this.messageToPublish.newStart(natsSubject+"_validate_updated_time", interstore.TimeTest.getTimeQuery(timeLink));
+            Thread.sleep(100);
+            return "The Time resource was updated successfully by 1 hour.";
+        } else {
+            System.out.println("Time Instance value not found.");
+            return "Time Instance value not found.";
         }
     }
 

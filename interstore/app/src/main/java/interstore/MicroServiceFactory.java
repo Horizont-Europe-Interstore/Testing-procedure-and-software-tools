@@ -56,6 +56,7 @@ public class MicroServiceFactory {
         this.microservices.put("findregistrededendevice", edevManager);
         this.microservices.put("dermanager", derManager);
         this.microservices.put("timemanager", dcapManager);
+        this.microservices.put("advancedtimemanager", dcapManager);
     } 
 
 
@@ -82,6 +83,7 @@ public class MicroServiceFactory {
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
         this.dtoMap.put("timemanager", timeTest);
+        this.dtoMap.put("advancedtimemanager", timeTest);
     }
    
     public Map<String, Object> getDtoMap() {

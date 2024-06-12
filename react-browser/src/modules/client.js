@@ -110,6 +110,13 @@ export default class Client{
             desc:'description',
             args: false,
             object:{}
+        },
+        {
+            index:7,
+            test:'Advanced Time',
+            desc:'description',
+            args: false,
+            object:{}
         }
 
     ];

@@ -1,18 +1,15 @@
 package interstore;
-import java.util.logging.Logger;
-import org.checkerframework.checker.units.qual.s;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException; 
-import com.fasterxml.jackson.core.type.TypeReference; 
-import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 public class DeviceCapabilitytest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
     private static String endDeviceListLink;
@@ -132,7 +129,7 @@ public class DeviceCapabilitytest {
      // this response should be a map not string and this map 
     public String DeviceCapability(String responsePayLoad) throws Exception
     { 
-        //LOGGER.info("Response sent back to NATS for subject: " + responsePayLoad);
+        LOGGER.info("Response sent back to NATS for subject: " + responsePayLoad);
         setDeviceCapabilityResponse(responsePayLoad); 
         findEndDeviceListLink(responsePayLoad); 
         return responsePayLoad; 
