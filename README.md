@@ -1,4 +1,4 @@
-# IEEE2030.5 Testing Procdure and Software Tools 
+# IEEE2030.5 Testing Procedure and Software Tools 
 
 ## Getting started
 
