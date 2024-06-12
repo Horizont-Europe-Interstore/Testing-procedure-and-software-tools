@@ -97,11 +97,6 @@ export default class Client{
             args: false,
             object:{}
         },
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> d6cf9da (adjust test list)
         {
             index:6,
             test:'Time',

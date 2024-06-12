@@ -48,7 +48,6 @@ services:
       - mid-front
     command: ["node", "index.js"]
     
-   
 
 networks:
   back-nats:
