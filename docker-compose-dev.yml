@@ -23,7 +23,8 @@ services:
         target: /app
     environment:
       - NATS_URL=nats://nats-server:4222
-    command: ["./gradlew","run"]
+    #command: ["./gradlew","run"]
+    command: ['tail', '-f']
     ports:
       - "8080:8080"
     networks:

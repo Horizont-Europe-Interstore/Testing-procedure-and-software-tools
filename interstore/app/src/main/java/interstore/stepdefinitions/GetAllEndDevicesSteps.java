@@ -65,7 +65,7 @@ public class GetAllEndDevicesSteps {
             
             if(key.equals("message") &&  expectedNoEndDeviceFoundMap.containsKey(key))
             {
-                scenario.log("expected" + ":" +  actualMap);
+                scenario.log("actual" + ":" +  actualMap);
                 scenario.log("expected" + ":" +  expectedNoEndDeviceFoundMap);
             }
             else if( key.equals("endDevices"))
