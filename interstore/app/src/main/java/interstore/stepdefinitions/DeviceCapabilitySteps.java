@@ -1,24 +1,19 @@
 package interstore.stepdefinitions;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import interstore.App;
+import interstore.ApplicationContextProvider;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.HashSet;
-import java.util.Set;
-import interstore.ApplicationContextProvider;
-import interstore.Types.Int64;
-import interstore.App;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import org.mockito.internal.matchers.Null;
+import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
-import java.util.List; 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 public class DeviceCapabilitySteps {
 
@@ -50,6 +45,7 @@ public class DeviceCapabilitySteps {
         expectedResponseList.add("http://localhost/sdev");
         expectedResponseList.add("http://localhost/mup");
         expectedResponseList.add("http://localhost/edev");
+        expectedResponseList.add("http://localhost/tm");
         expectedMap.put("1", expectedResponseList);
         ObjectMapper actualObjectMapper = new ObjectMapper();
         Map<Object, Object>actaulMap = actualObjectMapper.readValue((String)response, Map.class);

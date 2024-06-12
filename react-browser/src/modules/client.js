@@ -96,6 +96,14 @@ export default class Client{
             desc:'description',
             args: false,
             object:{}
+        },
+
+        {
+            index:6,
+            test:'Time',
+            desc:'description',
+            args: false,
+            object:{}
         }
     ];
 

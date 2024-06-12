@@ -1,17 +1,13 @@
 package interstore.DeviceCapability;
-import java.util.HashSet;
-import java.util.logging.Logger;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentBase;
+import jakarta.persistence.*;
+
+import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 @Entity
-public class DeviceCapabilityDto {
+public class DeviceCapabilityDto extends FunctionSetAssignmentBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

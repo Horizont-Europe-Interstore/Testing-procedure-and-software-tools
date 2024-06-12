@@ -1,8 +1,10 @@
 package interstore;
-import java.util.logging.Logger;
 
-import io.nats.client.*;
+import io.nats.client.Connection;
+import io.nats.client.Nats;
+
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 public class MessageToPublish {
     private ServiceDiscoveryVerticle serviceDiscoveryVerticle;
@@ -90,7 +92,7 @@ public class MessageToPublish {
    public String responseToSender(String serviceName, String responseMessage)
    { 
       MessageFactory messageFactory = new MessageFactory(); 
-      LOGGER.info("Response message giving back to test class  : " + responseMessage); 
+      LOGGER.info("Response message giving back to test class  : " + responseMessage);
       messageFactory.selfDeviceEndDeviceTests(serviceName, responseMessage);
       // messageFactory.selfTimeEndDevice()
       return responseMessage; 

@@ -1,4 +1,5 @@
 package interstore;
+import interstore.Types.TimeType;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,13 +10,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 @SpringBootApplication()
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
-, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER"})
+, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.Time"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -72,6 +74,7 @@ public class App {
         payload.put("mirrorUsagePointListLink", "/mup");
         payload.put("selfDeviceLink", "/sdev");
         payload.put("endDeviceListLink", "/edev");
+        payload.put("timeLink", "/tm");
 
         return payload;
     }
@@ -105,7 +108,7 @@ public class App {
         this.messageToPublish.newStart(natsSubject, Payload );
         Thread.sleep(300);
         deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
-        LOGGER.info("the device capability response is  " + deviceCapabilityResponse);    
+//        LOGGER.info("the device capability response is  " + deviceCapabilityResponse);
         return  deviceCapabilityResponse;
     }
    
@@ -240,6 +243,44 @@ public class App {
         LOGGER.info("the deatils of the registered end device is " + detailsOfEndDeviceRegistration );
         return detailsOfEndDeviceRegistration ;
      }
+
+    public String TimeTest(String natsSubject) throws Exception {
+
+        String response = CreateDeviceCapabilityTest("Device_Capability");
+        LOGGER.info("the device capability response is  " + response);
+        Thread.sleep(300);
+        String timeLink = interstore.TimeTest.getTimeLink(response);
+        LOGGER.info("the timelink response is  " + timeLink);
+        interstore.TimeTest.setserviceName("timemanager");
+        this.messageToPublish.newStart(natsSubject, interstore.TimeTest.getTimeQuery(timeLink));
+        Thread.sleep(300);
+        String timeListResponse = interstore.TimeTest.getTimeResponse();
+
+        timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+        timeListResponse = timeListResponse.replace("\\", "");
+        JSONObject object = new JSONObject(timeListResponse);
+        String timeInstance = object.getString("time_instance");
+        String quality = object.getString("quality");
+        Thread.sleep(500);
+        Instant instant = Instant.now();
+        long currentTime =  instant.getEpochSecond();
+        TimeType REF_Client_TimeInstance = new TimeType(currentTime);
+        if (quality!=null && timeInstance!=null) {
+            if(quality.equals("7")){
+                LOGGER.info("Quality metric matched with Client with value: "+quality);
+                LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getValue());
+                LOGGER.info("Synchronized REF-Client Time: " + timeInstance);
+                return "Synchronized the REF-Client Time with the Device Capability";
+            }
+            else {
+                LOGGER.info("Wrong quality metric value of "+quality);
+                return "Wrong quality metric value of "+quality;
+            }
+        } else {
+            LOGGER.info("Quality value not found.");
+            return "Quality value not found.";
+        }
+    }
 
     public void start(String natsUrl) throws Exception
     {    

@@ -1,24 +1,21 @@
 package interstore;
-import io.vertx.core.AbstractVerticle;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.MessageHandler;
 import io.nats.client.Nats;
-import io.vertx.core.json.JsonObject;
-import jakarta.annotation.PostConstruct;
+import io.vertx.core.AbstractVerticle;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
-import com.fasterxml.jackson.databind.ObjectMapper; 
-import com.fasterxml.jackson.core.JsonProcessingException; 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class ServiceDiscoveryVerticle extends AbstractVerticle {

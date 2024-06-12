@@ -55,6 +55,7 @@ public class MicroServiceFactory {
         this.microservices.put("findallregistrededendevice", edevManager);
         this.microservices.put("findregistrededendevice", edevManager);
         this.microservices.put("dermanager", derManager);
+        this.microservices.put("timemanager", dcapManager);
     } 
 
 
@@ -68,6 +69,7 @@ public class MicroServiceFactory {
         SelfDeviceDto selfDeviceDto = new SelfDeviceDto();
         DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
         EndDeviceTest endDeviceTest = new EndDeviceTest();
+        TimeTest timeTest = new TimeTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
@@ -78,7 +80,8 @@ public class MicroServiceFactory {
         this.dtoMap.put("createnewenddevice", endDeviceTest); 
         this.dtoMap.put("enddeviceinstancemanager", endDeviceTest);
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
-        this.dtoMap.put("findregistrededendevice", endDeviceTest); 
+        this.dtoMap.put("findregistrededendevice", endDeviceTest);
+        this.dtoMap.put("timemanager", timeTest);
     }
    
     public Map<String, Object> getDtoMap() {

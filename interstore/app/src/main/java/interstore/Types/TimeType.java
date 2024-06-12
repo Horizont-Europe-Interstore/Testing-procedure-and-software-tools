@@ -5,6 +5,7 @@ public class TimeType extends Int64{
 
     public TimeType(long value) {
         super(value);
+        this.value = value;
     }
     public long getValue(){
         return this.value;

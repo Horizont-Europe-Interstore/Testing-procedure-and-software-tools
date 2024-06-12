@@ -1,25 +1,31 @@
 package interstore.DeviceCapability;
-import java.net.MalformedURLException;
-import java.util.logging.Logger;
-import org.springframework.stereotype.Service;
+
+import interstore.Identity.Link;
+import interstore.Identity.ListLink;
+import interstore.Time.TimeDto;
+import interstore.Time.TimeDtoRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.ResponseEntity; 
-import interstore.Identity.Link;
-import interstore.Identity.ListLink;
-import java.util.ArrayList;
+
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class DeviceCapabilityImpl {
 
     @Autowired
     private DeviceCapabilityRepository deviceCapabilityRepository;
+
+    @Autowired
+    TimeDtoRepository timeDtoRepository;
   
     
     private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityImpl.class.getName());
@@ -64,7 +70,16 @@ public class DeviceCapabilityImpl {
          deviceCapabilityDto.addLink(listLink.getListLink());
          String mirrorUsagePointListLink = jsonObject.getString("mirrorUsagePointListLink");
          listLink.setListLink(mirrorUsagePointListLink );
-         deviceCapabilityDto.addLink(listLink.getListLink());   
+         deviceCapabilityDto.addLink(listLink.getListLink());
+
+        String timeLink = jsonObject.getString("timeLink");
+        link.setLink(timeLink);
+        deviceCapabilityDto.addLink(link.getLink());
+        deviceCapabilityDto.setTimeLink(link.getLink());
+
+        TimeDto time = new TimeDto();
+        time.setTimeLink(link.getLink());
+        timeDtoRepository.save(time);
     }
 
     public Map<Long, Object> getAllLinks(DeviceCapabilityDto deviceCapabilityDto) {
@@ -110,6 +125,15 @@ public class DeviceCapabilityImpl {
         }
        
         return null; 
+    }
+
+    @Transactional
+    public String getTime(String payload){
+        TimeDto timeDto = timeDtoRepository.findByTimeLink(payload);
+        JSONObject object = new JSONObject();
+        object.put("time_instance", timeDto.getCurrentTime());
+        object.put("quality", timeDto.getQuality());
+        return object.toString();
     }
    
 }

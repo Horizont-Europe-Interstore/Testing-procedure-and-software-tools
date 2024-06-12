@@ -1,10 +1,10 @@
 package interstore;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger; 
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 public class MessageFactory {
     String action;
     String natssubject;
@@ -91,12 +91,17 @@ public class MessageFactory {
              method.invoke(microServiceObject, payLoad);
 
           }
-        else{ 
-             Method method = microServiceClass.getMethod("DeviceCapability", String.class);
-             method.invoke(microServiceObject, payLoad);
+          else if (serviceName.equals("timemanager"))
+          {
+              Method method = microServiceClass.getMethod("getTimeResponse", String.class);
+              method.invoke(microServiceObject, payLoad);
+          }
+        else if (serviceName.equals("dcapmanager")){
+            Method method = microServiceClass.getMethod("DeviceCapability", String.class);
+            method.invoke(microServiceObject, payLoad);
           }
         
-          
+
            
        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             LOGGER.warning("Error invoking method: " + e.getMessage());   
