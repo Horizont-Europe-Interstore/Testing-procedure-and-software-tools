@@ -168,6 +168,7 @@ public class App {
         Thread.sleep(300);
         // impliment a different logic for get all end device . ///
         String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+        LOGGER.info("the end device list link is " + endDeviceListLink);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
@@ -190,7 +191,7 @@ public class App {
        */
       
     public Object getEndDeviceTest(String natsSubject)throws Exception{
-        getAllEndDevicesTest("getAllEndDevicesTest");
+        Object endDevicesList = getAllEndDevicesTest("getAllEndDevicesTest");
         Thread.sleep(300);
         interstore.EndDeviceTest.setServicename("enddeviceinstancemanager"); // enddeviceinstancemanager
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();

@@ -176,6 +176,7 @@ public class EndDeviceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("the instance that we are looking is " + postPayload);
             return postPayload;
 
         } catch (Exception e) {
@@ -193,7 +194,7 @@ public class EndDeviceTest {
      */
      public static String setsfdi(String Sfdi) throws JSONException
      {
-        LOGGER.info("the sfdi is here in form payload  " + Sfdi);
+        LOGGER.info("the sfdi is in the end device test class in form payload  " + Sfdi);
         Long requestedSfdi = Long.parseLong(Sfdi); 
        String EndDevices = getEndDevices(); 
        JSONObject jsonObject = new JSONObject(EndDevices);

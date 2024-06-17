@@ -84,9 +84,10 @@ export default class Client{
             index:3,
             test:'Get An End Device',
             desc:'description',
-            args: false,
+            args: true,
             object:{
                 sfdi:''
+                
             },
         },
         {
@@ -125,6 +126,10 @@ export default class Client{
         'Create End Device':{
             sfdi:(field)=>{return !isNaN(field)},
             deviceCategory:(field=>{return !isNaN(field)})
+        }
+        ,
+        'Get An End Device':{
+            sfdi:(field)=>{return !isNaN(field)}
         }
     }
 

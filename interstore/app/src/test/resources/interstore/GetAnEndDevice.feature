@@ -6,6 +6,12 @@ Feature: Device Capability Get All End Device Test
     Then the test should complete successfully with DeviceCapabilityGetAllEndDevice response containing:
     """
 
-      {"message":"No endDevices found."}
+      {
+      Test Description : This is part of the Basic End Device  Test, this 
+      checks the Given end device is present in the server or not by entering 
+      the SFDI value of the end device of interest , the response will be the 
+      given end device or it says that the given end device is not found 
+      
+    }
     
     """
