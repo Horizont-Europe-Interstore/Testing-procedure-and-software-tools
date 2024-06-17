@@ -14,6 +14,7 @@ public class TimeTest {
     private static String serviceName;
     public static String TimeResponse;
     public static String timeLink;
+    public static String timeLink;
     public static String getServiceName(){
 
         return serviceName;
@@ -72,15 +73,28 @@ public class TimeTest {
         LOGGER.info("The Time resource was successfully updated.");
     }
 
-    public static String getTimeLink(String response) throws JSONException{
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray jsonArray = jsonObject.getJSONArray("1");
-        String timeLink = "";
-        for (int i = 0; i < jsonArray.length(); i++) {
-            String url = jsonArray.getString(i);
-            if (url.endsWith("/tm")) {
-                timeLink = url;
-                break;
+    public static String getTimeLink(String response){
+        try {
+            System.out.println(response);
+            if (response.startsWith("\"") && response.endsWith("\"")) {
+                response = response.substring(1, response.length() - 1);
+            }
+            response = response.replace("\\\"", "\"");
+            System.out.println(response);
+            JSONObject jsonObject = new JSONObject(response);
+            if(jsonObject.has("time_instance") && jsonObject.has("quality")){
+                if (timeLink != null){
+                    return timeLink;
+                }
+            } else {
+                JSONArray jsonArray = jsonObject.getJSONArray("1");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String url = jsonArray.getString(i);
+                    if (url.endsWith("/tm")) {
+                        timeLink = url;
+                        return timeLink;
+                    }
+                }
             }
         }
        
