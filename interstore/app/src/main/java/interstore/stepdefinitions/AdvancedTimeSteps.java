@@ -10,9 +10,6 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AdvancedTimeSteps {
     private App app;
     private static final Logger LOGGER = LoggerFactory.getLogger(AdvancedTimeSteps.class);
@@ -38,7 +35,6 @@ public class AdvancedTimeSteps {
     @Then("^the test should complete successfully with AdvancedTimeTest response containing:$")
     public void the_test_should_complete_successfully_with_AdvancedTimeTest_response_containing(String expectedJson) throws Exception {
 //        Map<String, List<String>> expectedMap = new HashMap<>();
-        List<String> expectedResponseList = new ArrayList<>();
         String expected = "The Time resource was updated successfully by 1 hour.";
 //        expectedResponseList.add("The Time resource was updated successfully by 1 hour.");
 //        expectedMap.put("1", expectedResponseList);

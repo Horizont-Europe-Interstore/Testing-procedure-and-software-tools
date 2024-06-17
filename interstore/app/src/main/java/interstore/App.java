@@ -12,12 +12,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 @SpringBootApplication()
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
-, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.Time"})
+, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments", "interstore.DERProgram", "interstore.Time"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -121,11 +122,11 @@ public class App {
     */
 
     public Object DeviceCapabilitygetAllEndDevice(String natsSubject) throws Exception {
-        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
-        if(endDeviceList != null){
-            return endDeviceList;
-        }
-        String deviceCapabilityResponse = CreateDeviceCapabilityTest(natsSubject);
+//        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
+//        if(endDeviceList != null){
+//            return endDeviceList;
+//        }
+        //String deviceCapabilityResponse = CreateDeviceCapabilityTest(natsSubject);
         String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
         Thread.sleep(100);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
@@ -133,7 +134,7 @@ public class App {
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
         interstore.EndDeviceTest.EndDeviceListLinktest()); 
         Thread.sleep(100);
-        endDeviceList = interstore.EndDeviceTest.getEndDevices();
+        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
         LOGGER.info("the list of EndDevices are " + endDeviceList);
        
         return endDeviceList;
@@ -166,8 +167,9 @@ public class App {
      */
      public Object getAllEndDevicesTest(String natsSubject)throws Exception {
         Thread.sleep(300);
+
         // impliment a different logic for get all end device . ///
-        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink();
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
@@ -315,12 +317,44 @@ public class App {
         }
     }
 
+    public String FunctionSetAssignmentTest (String natsSubject) throws Exception
+    {
+        if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilitytest.getEndDeviceListLink() != null){
+            String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
+            List<Integer> values = interstore.FunctionSetAssignmentTest.getPin(response);
+            int regID = values.get(0);
+            int pin = values.get(1);
+            interstore.FunctionSetAssignmentTest.setServicename("fsalistmanager");
+            this.messageToPublish.newStart(natsSubject+ "_FSAListLink",
+                    interstore.FunctionSetAssignmentTest.getFSAListQuery(String.valueOf(pin), Integer.toUnsignedLong(regID)));
+            Thread.sleep(100);
+            interstore.FunctionSetAssignmentTest.setServicename("fsamanager");
+            this.messageToPublish.newStart(natsSubject+ "_FSAInstances",
+                    interstore.FunctionSetAssignmentTest.getFSAQuery(interstore.FunctionSetAssignmentTest.fsaIds));
+            Thread.sleep(100);
+//        List<String> derpLinks = functionSetAssignmentTest.getDerpLinks();
+            interstore.FunctionSetAssignmentTest.setDERPListLinks();
+            interstore.FunctionSetAssignmentTest.setServicename("derprogrammanager");
+            this.messageToPublish.newStart(natsSubject+ "_DERPrograms",
+                    interstore.FunctionSetAssignmentTest.getDERProgramQuery(FunctionSetAssignmentTest.derpListLinks));
+            Thread.sleep(100);
+//            return interstore.FunctionSetAssignmentTest.getDerProgramInstance();
+            return "Found DERPrograms instances";
+        }
+        return "No EndDevices found";
+
+//        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
+//
+
+    }
+
     public void start(String natsUrl) throws Exception
     {    
         this.serviceDiscoveryVerticle = new ServiceDiscoveryVerticle(natsUrl);
         this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
         this.uiControleHandler = new UIControleHandler();
-        this.uiControleHandler.setupBridge();                                                                                                                      
+        this.uiControleHandler.setupBridge();
+//        FunctionSetAssignmentTest("FSA-Test");
         //findDeviceCapability("Adam");
         // CreateDeviceCapabilityTest("vinay"); // returns the device capability in the server . 
           // DeviceCapabilitygetAllEndDevice("enddevicemanager"); 

@@ -117,6 +117,13 @@ export default class Client{
             desc:'description',
             args: false,
             object:{}
+        },
+        {
+            index:8,
+            test:'Function Set Assignments',
+            desc:'description',
+            args: false,
+            object:{}
         }
 
     ];

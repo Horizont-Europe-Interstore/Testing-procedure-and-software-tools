@@ -1,8 +1,6 @@
 package interstore.Identity;
-import java.nio.charset.StandardCharsets;
 
-
-// the version here comes to play , this vesion 
+// the version here comes to play , this vesion
 // can be a type . now treating it like a string
 public class IdentifiedObject {
     private byte mRID;
@@ -14,6 +12,10 @@ public class IdentifiedObject {
        this.version = version;
        this.description = description;
    }
+
+    public IdentifiedObject(){
+
+    }
    
    public byte getMRID(){
        return mRID;

@@ -1,17 +1,19 @@
 package interstore.stepdefinitions;
+
 import interstore.App;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
-import static org.junit.jupiter.api.Assertions.*;
 import interstore.ApplicationContextProvider;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class GetAnEndDeviceSteps {
     private App app; 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceCapabilitySteps.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetAnEndDeviceSteps.class);
     private Object response;
    
 

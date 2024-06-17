@@ -128,7 +128,8 @@ public class DeviceCapabilitytest {
 
      // this response should be a map not string and this map 
     public String DeviceCapability(String responsePayLoad) throws Exception
-    { 
+    {
+        LOGGER.info("--------here-----------"+responsePayLoad);
         LOGGER.info("Response sent back to NATS for subject: " + responsePayLoad);
         setDeviceCapabilityResponse(responsePayLoad); 
         findEndDeviceListLink(responsePayLoad); 
@@ -142,22 +143,27 @@ public class DeviceCapabilitytest {
     @SuppressWarnings("unchecked")
     public void findEndDeviceListLink(String resposnePayLoad) throws JsonMappingException, JsonProcessingException, JSONException
 
-    { 
-       String endDeviceListLinkEndPoint = getEndDeviceEndPoint();
-       JSONObject jsonObject = new JSONObject(resposnePayLoad);
-        for(String key: ((Map<String, String>) jsonObject).keySet()) // the json object with many keys and keys are int  long corresponding value is list 
-         {
-                JSONArray jsonArray = jsonObject.getJSONArray(key);  // value is list obtaining the vlaue here 
+    {
+        try{
+            String endDeviceListLinkEndPoint = getEndDeviceEndPoint();
+            JSONObject jsonObject = new JSONObject(resposnePayLoad);
+            for(String key: jsonObject.keySet()) // the json object with many keys and keys are int  long corresponding value is list
+            {
+                JSONArray jsonArray = jsonObject.getJSONArray(key);  // value is list obtaining the vlaue here
                 for(int i = 0; i < jsonArray.length(); i++)
                 {
                     String link = jsonArray.getString(i);
                     if(link.endsWith(endDeviceListLinkEndPoint))
                     {
-                        LOGGER.info("the end device list link is " + link); 
+                        LOGGER.info("the end device list link is " + link);
                         setEndDeviceListLink(link);
-                   }
+                    }
                 }
-         }      
+            }
+        }catch (Exception e){
+            LOGGER.info("Error: "+e);
+        }
+
     }
 
 } 

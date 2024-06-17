@@ -16,5 +16,9 @@ public class SubscribableIdentifiedObject extends IdentifiedObject {
     public void setSubscribableResource(SubscribableResource subscribableResource) {
         this.subscribableResource = subscribableResource;
     }
+
+    public SubscribableIdentifiedObject() {
+
+    }
     
 }
