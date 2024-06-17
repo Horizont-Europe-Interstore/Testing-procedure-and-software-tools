@@ -58,7 +58,7 @@ public class EndDeviceImpl {
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
         String endDeviceLink = endDeviceListLink + idString;
         String functionsetAssignmentListLink =  endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
-        String derListLink = endDeviceListLink + idString + payload.optString("derListLink");
+        String derListLink = endDeviceListLink + idString + payload.optString("derListLink", "defaultLink");
         String deviceStatusLink = endDeviceListLink + idString + payload.optString("deviceStatusLink", "defaultLink");
         String registrationLink = endDeviceListLink + idString + payload.optString("registrationLink", "defaultLink");
         String subscriptionLink = endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
@@ -184,7 +184,17 @@ public class EndDeviceImpl {
         }
 
     } 
-
+    /*get all end devices has two outcomes one is no end devices found 
+     * and other one is end devices found, among the end devcies found 
+     * the end devices found shall response the list of the end devices 
+     * those are only with the uri , the list of uri of the end devices . 
+     * the list of EndDevices are {"endDevices":[{"id":1,"deviceCategory":"0","hexBinary160":"3E4F45","endDeviceLink":"http://localhost/edev/1","deviceStatusLink":"http://localhost/edev/1/dstat",
+     * "registrationLink":"http://localhost/edev/1/rg","functionSetAssignmentsListLink":"http://localhost/edev/1/fsa","derlistLink":"http://localhost/edev/1","subscriptionListLink":"http://localhost/edev/1/sub","sfdi":16726121139},
+     * {"id":2,"deviceCategory":"1","hexBinary160":"3E4F46","endDeviceLink":"http://localhost/edev/2","deviceStatusLink":"http://localhost/edev/2/dstat","registrationLink":"http://localhost/edev/2/rg",
+     * "functionSetAssignmentsListLink":"http://localhost/edev/2/fsa","derlistLink":"http://localhost/edev/2","subscriptionListLink":"http://localhost/edev/2/sub","sfdi":16726121111}]}
+     * 
+     */
+    @SuppressWarnings("unlikely-arg-type")
     public ResponseEntity<Map<String, Object>> getAllEndDevices() {
         Map<String, Object> responseMap = new HashMap<>();
         try {
@@ -195,6 +205,7 @@ public class EndDeviceImpl {
             }
             else {
                 responseMap.put("endDevices", endDeviceDtos);
+                
             }
             
             return ResponseEntity.ok(responseMap);

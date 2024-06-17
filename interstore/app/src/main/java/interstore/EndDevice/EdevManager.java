@@ -8,6 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -87,6 +94,9 @@ public class EdevManager {
         }
         } catch (PatternSyntaxException e) {
          
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     return null;
       
@@ -97,6 +107,7 @@ public class EdevManager {
      *  call the getter and compare it with the thing after '/' , create an 
      *   array from the url after the '/' get all the end points 
      *  iterate through it and find the one corresponding to the getter of enddevice 
+     * this getter is get query from the database . 
      *  this you can get it from the device capablity becasue /edev is an attribute 
      */
 
@@ -226,9 +237,12 @@ public class EdevManager {
 
      
     @GetMapping("/edev")
-    public Map<String, Object> getEndevices() {
+    public Map<String, Object> getEndevices() throws JsonProcessingException {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllEndDevices();
-        return responseEntity.getBody();
+       // LOGGER.info("the response is " + responseEntity.getBody()); 
+       // {message=No endDevices found.} 
+        return utiltyGetallEndDeviceLinks(responseEntity);
+        //return responseEntity.getBody();
     }
 
      @GetMapping("/edev/{id}")
@@ -250,8 +264,60 @@ public class EdevManager {
         return responseEntity.getBody();
      }
     
-
-
+    public Map<String, Object> utiltyGetallEndDeviceLinks(ResponseEntity<Map<String, Object>> response) throws JsonProcessingException
+      { 
+        ObjectMapper objectMapper = new ObjectMapper(); 
+        List<Object> endDeviceLinks = new ArrayList(); 
+         Map<String, Object> responseMap = new HashMap(); 
+         List<Object> endDeviceList = new ArrayList<>();
+         Map<String, Object> listofEndDevicesLink = response.getBody();
+         String endDeviceLink = "endDeviceLink";
+         LOGGER.info("the list of end device links is " + listofEndDevicesLink);
+         for(Map.Entry<String, Object>entry : listofEndDevicesLink.entrySet())
+         {
+            String endDeviceLinkkey = entry.getKey();
+            LOGGER.info("the key is " + endDeviceLinkkey); 
+             if (endDeviceLinkkey.equals("message"))
+             {
+                LOGGER.info("the message is " + entry.getValue());
+                return listofEndDevicesLink;
+             }
+             else
+             {
+                LOGGER.info("the message is " + entry.getValue());
+                endDeviceList.add(entry.getValue());
+             }
+            
+         } 
+        for(Object item : endDeviceList)
+               {
+                try {
+                    
+                    String jsonString = objectMapper.writeValueAsString(item); 
+                    LOGGER.info("the new string is " + jsonString); 
+                    JsonNode jsonArray = objectMapper.readTree(jsonString);
+                    for(JsonNode node : jsonArray)
+                    {
+                        if(node.has(endDeviceLink))
+                        {  
+                            String jsonEndDeviceLink = node.get("endDeviceLink").asText();
+                            LOGGER.info("endDeviceLink in JSON: " + jsonEndDeviceLink);
+                           // LOGGER.info("Match found: " + node);
+                            endDeviceLinks.add(jsonEndDeviceLink);
+                        }
+                    }
+                } 
+               catch (JsonProcessingException e) {
+                LOGGER.info("the exception is " + e.getMessage());
+            } 
+            responseMap.put("endDevices", endDeviceLinks); 
+            LOGGER.info("the response Map is ---- +++ .... " + responseMap);
+            return responseMap;   
+        
+        } 
+         return null;
+      }
+ 
 
 
 
@@ -281,6 +347,14 @@ public class EdevManager {
 
 
 /*
+
+if (jsonNode.has("someField") && jsonNode.get("someField").asText().equals(endDeviceLink))
+                       {
+                        LOGGER.info("Match found: " + jsonNode); 
+                       } 
+
+
+
 
   if("get".equals(action) && payload != null && payload.contains(getregistrationEndpoint()))
        {

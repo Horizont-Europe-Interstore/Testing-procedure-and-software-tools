@@ -36,24 +36,16 @@ public class GetAllEndDevicesSteps {
         response = app.getAllEndDevicesTest(natsSubject);
     }
 
-
-
+ 
+    /* check out for the /edev is present in the endev return links , this can be use for validation while creatign the end device 
+     * the /edev has to stored in the front end to compare it with the result from the back end 
+     */
     @Then("^the test should complete successfully with EndDevice response containing:$")
     public  void then_the_test_should_complete_successfully_with_EndDevice_response_containing(String expectedJson) throws Exception {
         Map<String, String > expectedNoEndDeviceFoundMap = new HashMap<>();
         expectedNoEndDeviceFoundMap.put("message", "No endDevices found."); 
         Map<String, String> defaultexpectedEndDeviceMap = new HashMap<>();
-        defaultexpectedEndDeviceMap.put("id", "1");
-        defaultexpectedEndDeviceMap.put("sfdi", "16726121139");
-        defaultexpectedEndDeviceMap.put("deviceCategory", "1");
-        defaultexpectedEndDeviceMap.put("registrationLink", "/rg");
-        defaultexpectedEndDeviceMap.put("endDeviceLink", "/edev/1");
-        defaultexpectedEndDeviceMap.put("functionSetAssignmentsListLink", "/fsa");
-        defaultexpectedEndDeviceMap.put("subscriptionListLink", "/sub");
-        defaultexpectedEndDeviceMap.put("derlistLink", "/der");
-        defaultexpectedEndDeviceMap.put("deviceCategory", "1");
-        defaultexpectedEndDeviceMap.put("hexBinary160", "3E4F45");
-        defaultexpectedEndDeviceMap.put("deviceStatusLink", "/dstat"); 
+        defaultexpectedEndDeviceMap.put("enddeviceLink", "http://localhost/edev/1");
         LOGGER.info("Expected No Device Message : {} ", expectedNoEndDeviceFoundMap); 
         LOGGER.info("Expected End Devices present response : {} ", defaultexpectedEndDeviceMap);
         ObjectMapper actualObjectMapper = new ObjectMapper();

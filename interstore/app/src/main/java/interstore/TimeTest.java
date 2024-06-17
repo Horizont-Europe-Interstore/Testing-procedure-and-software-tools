@@ -14,7 +14,6 @@ public class TimeTest {
     private static String serviceName;
     public static String TimeResponse;
     public static String timeLink;
-    public static String timeLink;
     public static String getServiceName(){
 
         return serviceName;
@@ -98,7 +97,9 @@ public class TimeTest {
             }
         }
        
-        return null;
+        catch (JSONException e) {
+            LOGGER.warning("Error parsing JSON: " + e.getMessage());
+        } return null;
     }
 }
 

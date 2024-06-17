@@ -2,9 +2,6 @@ version: '3.8'
 services: 
   nats: 
     image : nats:latest
-services: 
-  nats: 
-    image : nats:latest
     container_name: nats-server
     hostname: nats-server
     ports:
@@ -15,8 +12,6 @@ services:
 
 
   java-backend:
-    build: ./interstore
-    container_name: java-backend 
     build: ./interstore
     container_name: java-backend 
     depends_on:
@@ -48,7 +43,6 @@ services:
     environment:
       - NATS_URL=nats://nats-server:4222
     ports:
-      - 5000:5000
       - 5000:5000
     networks:
       - nats-mid
