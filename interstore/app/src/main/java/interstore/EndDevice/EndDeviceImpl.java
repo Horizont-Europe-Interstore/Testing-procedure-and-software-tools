@@ -231,22 +231,23 @@ public class EndDeviceImpl {
     /*
      */
     @Transactional
-    public Map<String, Object> registerEndDevice(JSONObject  registrationPayload, Long endDeviceID)
+    public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
-        JSONObject payload = registrationPayload.optJSONObject("payload");
-        String registrationPin = (payload != null) ? payload.optString("pin", "null") : "null";
+        //JSONObject payload = registrationPayload.optJSONObject("payload");
+        //String registrationPin = (payload != null) ? payload.optString("pin", "null") : "null";
 
-        Long registrationPinLong = null;
-        try {
-           if (!"null".equals(registrationPin)) {
-             registrationPinLong = Long.parseLong(registrationPin);
-        }  else {
-            LOGGER.log(Level.WARNING, "No PIN provided in the payload.");
-        }
-       } catch (NumberFormatException e) {
-          LOGGER.log(Level.SEVERE, "Invalid PIN format: " + registrationPin, e);
-         throw new IllegalArgumentException("PIN must be a numeric value.");
-        }
+       // Long registrationPinLong = null;
+       // try {
+        //   if (!"null".equals(registrationPin)) {
+         //    registrationPinLong = Long.parseLong(registrationPin);
+      //  }  else {
+         //   LOGGER.log(Level.WARNING, "No PIN provided in the payload.");
+        //}
+       //} catch (NumberFormatException e) {
+        //  LOGGER.log(Level.SEVERE, "Invalid PIN format: " + registrationPin, e);
+       //  throw new IllegalArgumentException("PIN must be a numeric value.");
+       // }
+
         EndDeviceDto endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
         RegistrationDto registrationDto = new RegistrationDto();

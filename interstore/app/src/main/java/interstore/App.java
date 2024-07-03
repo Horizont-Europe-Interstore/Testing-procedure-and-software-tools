@@ -191,18 +191,15 @@ public class App {
        */
       
     public Object getEndDeviceTest(String natsSubject)throws Exception{
-        Object endDevicesList = getAllEndDevicesTest("getAllEndDevicesTest");
-        Thread.sleep(300);
-        interstore.EndDeviceTest.setServicename("enddeviceinstancemanager"); // enddeviceinstancemanager
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        String Payload =  interstore.EndDeviceTest.createNewEndDevice(currentTest);
-        LOGGER.info("the sfdi payload is " + Payload); 
-        interstore.EndDeviceTest.setsfdi( Payload );  // needs to supply an sfdi 
+        Long endDeviceID = currentTest.getLong("id");
+        LOGGER.info("the current test object is which is the id .. " + endDeviceID );
+        interstore.EndDeviceTest.setServicename("enddeviceinstancemanager");
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
-        interstore.EndDeviceTest.getEndDeviceInstancetest());
+        interstore.EndDeviceTest.getEndDeviceInstancetest(endDeviceID));
         Thread.sleep(300);
         Object endDevice = interstore.EndDeviceTest.getEndDeviceInstance();
-        LOGGER.info("the end device instance is " + endDevice); 
+        LOGGER.info("the end device instance is in app class " + endDevice); 
        return endDevice; 
     }
 
@@ -210,36 +207,49 @@ public class App {
     /*
      first needs to check that the device has registered or not if it registered
      this will return  pin as the attribute if not it returns device not registered message
+     this method needs needs a form with end device id and registration pin "pin"
     */
     
-     public Long createEndDeviceRegistrationTest(String natsSubject) throws Exception
+     public Object createEndDeviceRegistrationTest(String natsSubject) throws Exception
      {
-        Object response = getEndDeviceTest("EndDevice");
-        Thread.sleep(300);
-        interstore.EndDeviceTest.getRegisteredEndDevice(response.toString()); 
-        String registrationLink = interstore.EndDeviceTest.getRegistrationLink();
-        Map<String, String> payload = createRegisterEndDevice();
-        payload.put("registrationLink", registrationLink);
+       // Object response = getEndDeviceTest("EndDevice");
+        //Thread.sleep(300);
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long pin = currentTest.getLong("registrationPin"); 
+        //interstore.EndDeviceTest.getRegisteredEndDevice(response.toString()); 
+        //String registrationLink = interstore.EndDeviceTest.getRegistrationLink();
+       // Map<String, String> payload = createRegisterEndDevice();
+       // payload.put("registrationLink", registrationLink);
         interstore.EndDeviceTest.setServicename("enddeviceregistrationmanager");
-        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(payload));
+        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(endDeviceID, pin ));
         Thread.sleep(300);
-       // LOGGER.info("the registration pin " + interstore.EndDeviceTest.getRegistrationPin());
+       LOGGER.info("the registration pin " + interstore.EndDeviceTest.getRegistrationPin());
        // LOGGER.info("the registration link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
-        return interstore.EndDeviceTest.getRegistrationPin();
+        Long pinRegistered = interstore.EndDeviceTest.getRegistrationPin();
+        Map<String, Long> registration = new HashMap<String , Long>();
+        registration.put("pin", pinRegistered);
+        //return interstore.EndDeviceTest.getRegistrationPin();
+        return registration; 
 
      }
 
     
-
+    /* to find the regisered end device we need to provide the id of the end device 
+     * and the registration pin , thee shall be a form in the front end 
+     */
      public String findRegisterdEndDeviceTest(String natsSubject)throws Exception
      {
-        Long rgPin  = createEndDeviceRegistrationTest("CreateaRegisteredEndDevice");
-        LOGGER.info("the pin is  rttt" + rgPin);
+        //Long rgPin  = createEndDeviceRegistrationTest("CreateaRegisteredEndDevice");
+       // LOGGER.info("the pin is  rttt" + rgPin);
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long registrationID = currentTest.getLong("registrationID"); 
         Thread.sleep(300);
-        LOGGER.info("the end device registerd link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
+        //LOGGER.info("the end device registerd link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
        // String  interstore.EndDeviceTest.getEndDeviceregisteredwithId();
         interstore.EndDeviceTest.setServicename("findallregistrededendevice");
-        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice());
+        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice(endDeviceID,  registrationID));
         Thread.sleep(300);
         String detailsOfEndDeviceRegistration = interstore.EndDeviceTest.getregisteredEndDeviceDetails();
         LOGGER.info("the deatils of the registered end device is " + detailsOfEndDeviceRegistration );

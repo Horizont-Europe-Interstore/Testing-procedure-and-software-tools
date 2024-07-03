@@ -86,24 +86,29 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
-                sfdi:''
+                id:''
                 
             },
         },
         {
             index:4,
-            test:'Register End Device ',
+            test:'Register End Device',
             desc:'description',
-            args: false,
-            object:{},
+            args: true,
+            object:{
+                endDeviceId:'',
+                registrationPin:''
+            },
         },
-        
         {
             index:5,
-            test:'Get Registered End Device ',
+            test:'Get Registered End Device',
             desc:'description',
-            args: false,
-            object:{}
+            args: true,
+            object:{
+                endDeviceId:'',
+                registrationID:''
+            }
         },
         {
             index:6,
@@ -129,8 +134,19 @@ export default class Client{
         }
         ,
         'Get An End Device':{
-            sfdi:(field)=>{return !isNaN(field)}
+            id:(field)=>{return !isNaN(field)}
         }
+        ,
+        'Register End Device':{
+            endDeviceId:(field)=>{return !isNaN(field)},
+            registrationPin:(field)=>{return !isNaN(field)}
+        }
+        ,
+        'Get Registered End Device':{
+            endDeviceId:(field)=>{return !isNaN(field)},
+            registrationID:(field)=>{return !isNaN(field)}
+        }
+       
     }
 
     static getValid(key){

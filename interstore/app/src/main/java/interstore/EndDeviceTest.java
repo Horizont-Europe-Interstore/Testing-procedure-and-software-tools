@@ -3,6 +3,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.JsonObject;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -130,12 +133,14 @@ public class EndDeviceTest {
        return null ; 
    }
    
-   public static String createEndDeviceRegistration(Map<String, String> PayLoad)
+   public static String createEndDeviceRegistration(Long EndDeviceID, Long pin)
    {
        Map<String, Object> attributes = new HashMap<>();
        attributes.put("servicename", getserviceName());
        attributes.put("action", "post");
-       attributes.put("payload", PayLoad);
+       attributes.put("endDeviceID", EndDeviceID);
+       attributes.put("pin", pin); 
+       attributes.put("payload", endDeviceID);
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
@@ -165,14 +170,14 @@ public class EndDeviceTest {
    }
 
     /* This method will get the end device instance from the server */ 
-    public static String getEndDeviceInstancetest()
+    public static String getEndDeviceInstancetest(Long endDeviceID)
     {  
         
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
-        attributes.put("payload", getendDeviceLink());
-        attributes.put("sfdi", getSfdi());
+        //attributes.put("payload", endDeviceID);
+        attributes.put("endDeviceID", endDeviceID); 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
@@ -241,7 +246,7 @@ public class EndDeviceTest {
      * interest is needed */  
     public static void setEndDeviceInstance(String EndDevice)
        { 
-         endDeviceInstance = EndDevice;  
+        endDeviceInstance = EndDevice;  
          
        }
    
@@ -313,12 +318,14 @@ public static String getEndDeviceregisteredwithId()
     return tmpregistrationLinkId;
 }
 
-public static String findRegisteredEndDevice()
+public static String findRegisteredEndDevice(Long endDeviceID, Long  registrationID)
 {
     Map<String, Object> attributes = new HashMap<>();
     attributes.put("servicename", getserviceName());
     attributes.put("action", "get");
-    attributes.put("payload",  getEndDeviceregisteredwithId());
+    //attributes.put("payload",  getEndDeviceregisteredwithId());
+    attributes.put("endDeviceID", endDeviceID);
+    attributes.put("registrationID", registrationID);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
         String postPayload = objectMapper.writeValueAsString(attributes);

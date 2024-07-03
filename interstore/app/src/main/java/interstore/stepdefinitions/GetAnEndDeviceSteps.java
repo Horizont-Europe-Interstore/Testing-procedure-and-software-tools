@@ -39,26 +39,34 @@ public class GetAnEndDeviceSteps {
     @Then("^the test should complete successfully with DeviceCapabilityGetAllEndDevice response containing:$")
     public void the_test_should_complete_successfully_with_DeviceCapabilityGetAllEndDevice_response_containing(String expectedJson) throws Exception {
          Map<String, String> expectedMap = new HashMap<>();
-         expectedMap.put("SFDI", "16726121139");
-       // String expected = String.valueOf(expectedJson).trim();
-       // String actual = String.valueOf(response).trim();
+         expectedMap.put("sfdi", "16726121139");
+         expectedMap.put("id", "1");
+         expectedMap.put("deviceCategory", "1");
+         expectedMap.put("hexBinary160", "3E4F45");
+         expectedMap.put("endDeviceLink", "http://localhost/edev/1");
+         expectedMap.put("deviceStatusLink", "http://localhost/edev/1/dstat");
+         expectedMap.put("registrationLink", "http://localhost/edev/1/rg");
+         expectedMap.put("functionSetAssignmentsListLink", "http://localhost/edev/1/fsa");
+         expectedMap.put("derlistLink", "http://localhost/edev/1defaultLink");
+         expectedMap.put("subscriptionListLink", "http://localhost/edev/1/sub");
         ObjectMapper actualObjectMapper = new ObjectMapper(); 
        Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
-       LOGGER.info("Actual response: {}", actualMap);
-       for(Map.Entry<Object, Object> entry:actualMap.entrySet())
+       LOGGER.info("Actual response before comparing with expected : {}", actualMap);
+       Map<String, Object> endDeviceMap = (Map<String, Object>) actualMap.get("endDevice");
+       for(Map.Entry<String, String> entry:expectedMap.entrySet())
        {  
-
-           Object key = entry.getKey();
-           if(actualMap.containsKey(key) && expectedMap.containsKey(key))
+          
+           //Object key = entry.getKey();
+           String key = entry.getKey(); 
+           if(endDeviceMap.containsKey(key) && expectedMap.containsKey(key))
            {
                LOGGER.info("sample key is:" + entry.getKey());
                scenario.log("actual" + ":" + actualMap);
                scenario.log("expected" + ":" +  expectedMap);
            }
        }  
-      // LOGGER.info("Expected response: {}", expected + "and " + "actual response is "+ actual);
-     
-     //  assertTrue(expected.equals(actual), "The actual response does not match the expected response.");
+    
 
     }
 }
+

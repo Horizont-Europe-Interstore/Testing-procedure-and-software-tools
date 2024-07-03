@@ -92,7 +92,7 @@ public class MessageToPublish {
    public String responseToSender(String serviceName, String responseMessage)
    { 
       MessageFactory messageFactory = new MessageFactory(); 
-      LOGGER.info("Response message giving back to test class  : " + responseMessage);
+      LOGGER.info("Response message giving back to test class  : " + responseMessage + "Service name" + serviceName);
       messageFactory.selfDeviceEndDeviceTests(serviceName, responseMessage);
       // messageFactory.selfTimeEndDevice()
       return responseMessage; 

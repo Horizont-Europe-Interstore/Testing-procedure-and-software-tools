@@ -67,11 +67,25 @@ public class EdevManager {
 
 
     public  Map<String, Object> payLoadParser(JSONObject jsonObject)
-    {   
+    {  
+    if(jsonObject.has("endDeviceID"))  // endDeviceID
+    {
+        Long endDeviceID = jsonObject.getLong("endDeviceID");
+        if (jsonObject.has("registrationID")) {
+            Long registrationID = jsonObject.getLong("registrationID");
+            // Handle the case where both endDeviceID and registrationID are present
+            return this.getRegisteredEndDeviceDetails(endDeviceID, registrationID);
+        } else
+        {
+            return this.getEndDeviceById(endDeviceID);
+        }    
+    
+    } 
        String[] extractedPayload = extractPayload(jsonObject);
        String payload = extractedPayload[1]; 
+       LOGGER.info("the payload with end device is ****" + payload); 
         try
-        {
+        {   
             Object response = splitPayload(payload);
             if(response instanceof String)
         {
@@ -95,7 +109,6 @@ public class EdevManager {
         } catch (PatternSyntaxException e) {
          
         } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     return null;
@@ -150,18 +163,22 @@ public class EdevManager {
     public String[] extractPayload( JSONObject jsonObject)
     { 
         String action = jsonObject.optString("action");
+        
        String payload = jsonObject.optString("payload");
+     
        return new String[]{action, payload}; 
     }
     
     public  Map<String, Object> identify_method(JSONObject jsonObject) throws InterruptedException
-    {
-        String payload = jsonObject.optString("payload");
-        if(payload.contains("pin"))
+    {  
+        if(jsonObject.has("endDeviceID"))
         {
-            return registerEndDevice(jsonObject);
+          return registerEndDevice(jsonObject);
+            
         }
-        return addEndDevice(jsonObject);
+        else {
+            return addEndDevice(jsonObject);
+        }
     }
    
     public Map<String, Object> addEndDevice( JSONObject jsonPayLoad) throws InterruptedException {
@@ -172,11 +189,24 @@ public class EdevManager {
     
 
     public Map<String, Object> registerEndDevice( JSONObject jsonPayLoad) throws InterruptedException {
-        String endDevcieID = getEndDeviceInstance(jsonPayLoad);
-        Long endDeviceId = Long.parseLong(endDevcieID);
-        return  this.endDeviceImpl.registerEndDevice( jsonPayLoad, endDeviceId); 
+        // the payload will contain 
+        Long endDeviceID = jsonPayLoad.getLong("endDeviceID");
+        Long registrationPin = jsonPayLoad.getLong("pin");
+        return  this.endDeviceImpl.registerEndDevice( registrationPin, endDeviceID); 
+        //return this.getEndDeviceById(endDeviceID);
+   
+     
+        //this.getEndDeviceById(endDeviceID);
+       // String endDevcieID = getEndDeviceInstance(jsonPayLoad);
+        //Long endDeviceId = Long.parseLong(endDevcieID);
+        //return  this.endDeviceImpl.registerEndDevice( jsonPayLoad, endDeviceId ); 
+        
     }
      
+
+
+
+
     public String getEndDeviceInstance( JSONObject jsonPayLoad) {
        try{
         String payload = jsonPayLoad.optString("payload");
@@ -239,10 +269,7 @@ public class EdevManager {
     @GetMapping("/edev")
     public Map<String, Object> getEndevices() throws JsonProcessingException {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllEndDevices();
-       // LOGGER.info("the response is " + responseEntity.getBody()); 
-       // {message=No endDevices found.} 
         return utiltyGetallEndDeviceLinks(responseEntity);
-        //return responseEntity.getBody();
     }
 
      @GetMapping("/edev/{id}")
