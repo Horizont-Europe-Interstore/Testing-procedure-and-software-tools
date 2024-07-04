@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 public class Link {
    
     private String link;
-    private static String fixedLink = "http://localhost";
+    private static String fixedLink = "http://localhost/";
     private static final Logger LOGGER = Logger.getLogger(Link.class.getName());
 
    

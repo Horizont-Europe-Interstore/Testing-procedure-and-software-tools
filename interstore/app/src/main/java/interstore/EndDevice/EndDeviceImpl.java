@@ -48,23 +48,20 @@ public class EndDeviceImpl {
     }
 
 
-    @SuppressWarnings("null")
     public void setEndDevice(EndDeviceDto endDeviceDto, JSONObject payloadWrapper)
     {   
         Long id = endDeviceDto.getId(); 
-        String idString = "/"+ String.valueOf(id);
+        String idString = "/"+ String.valueOf(id) + "/";
         JSONObject payload = payloadWrapper.optJSONObject("payload");
         setEndDeviceAttributesEndPoints(payload);
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
-        String endDeviceLink = endDeviceListLink + idString;
-        String functionsetAssignmentListLink =  endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
-        String derListLink = endDeviceListLink + idString + payload.optString("derListLink", "defaultLink");
-        String deviceStatusLink = endDeviceListLink + idString + payload.optString("deviceStatusLink", "defaultLink");
-        String registrationLink = endDeviceListLink + idString + payload.optString("registrationLink", "defaultLink");
-        String subscriptionLink = endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
-        String deviceCategory = payload.optString("deviceCategory", "defaultDeviceCategory");
-        
-       // System.out.println(derListLink);
+        String endDeviceLink =  endDeviceListLink +  idString;
+        String functionsetAssignmentListLink =   endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
+        String derListLink = endDeviceListLink +  idString + payload.optString("derListLink", "defaultLink");
+        String deviceStatusLink =  endDeviceListLink  + idString + payload.optString("deviceStatusLink", "defaultLink");
+        String registrationLink = endDeviceListLink  + idString + payload.optString("registrationLink", "defaultLink");
+        String subscriptionLink =  endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
+        String deviceCategory =  payload.optString("deviceCategory", "defaultDeviceCategory");
         String sfdiString = payload.optString("sfdi", null);
         Long sfdi = null; 
         sfdiString = sfdiString.replaceAll("\\D", ""); 
@@ -233,20 +230,7 @@ public class EndDeviceImpl {
     @Transactional
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
-        //JSONObject payload = registrationPayload.optJSONObject("payload");
-        //String registrationPin = (payload != null) ? payload.optString("pin", "null") : "null";
-
-       // Long registrationPinLong = null;
-       // try {
-        //   if (!"null".equals(registrationPin)) {
-         //    registrationPinLong = Long.parseLong(registrationPin);
-      //  }  else {
-         //   LOGGER.log(Level.WARNING, "No PIN provided in the payload.");
-        //}
-       //} catch (NumberFormatException e) {
-        //  LOGGER.log(Level.SEVERE, "Invalid PIN format: " + registrationPin, e);
-       //  throw new IllegalArgumentException("PIN must be a numeric value.");
-       // }
+       
 
         EndDeviceDto endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
@@ -331,7 +315,7 @@ public class EndDeviceImpl {
         }
 
         try {
-            Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceId(endDeviceID);
+            Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
             if (registrationDto == null) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);

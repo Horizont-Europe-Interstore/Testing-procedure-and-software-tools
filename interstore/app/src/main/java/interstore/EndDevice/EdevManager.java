@@ -68,12 +68,11 @@ public class EdevManager {
 
     public  Map<String, Object> payLoadParser(JSONObject jsonObject)
     {  
-    if(jsonObject.has("endDeviceID"))  // endDeviceID
+    if(jsonObject.has("endDeviceID"))  
     {
         Long endDeviceID = jsonObject.getLong("endDeviceID");
         if (jsonObject.has("registrationID")) {
             Long registrationID = jsonObject.getLong("registrationID");
-            // Handle the case where both endDeviceID and registrationID are present
             return this.getRegisteredEndDeviceDetails(endDeviceID, registrationID);
         } else
         {
@@ -192,15 +191,7 @@ public class EdevManager {
         // the payload will contain 
         Long endDeviceID = jsonPayLoad.getLong("endDeviceID");
         Long registrationPin = jsonPayLoad.getLong("pin");
-        return  this.endDeviceImpl.registerEndDevice( registrationPin, endDeviceID); 
-        //return this.getEndDeviceById(endDeviceID);
-   
-     
-        //this.getEndDeviceById(endDeviceID);
-       // String endDevcieID = getEndDeviceInstance(jsonPayLoad);
-        //Long endDeviceId = Long.parseLong(endDevcieID);
-        //return  this.endDeviceImpl.registerEndDevice( jsonPayLoad, endDeviceId ); 
-        
+        return  this.endDeviceImpl.registerEndDevice( registrationPin, endDeviceID);   
     }
      
 

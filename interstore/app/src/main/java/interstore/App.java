@@ -40,41 +40,16 @@ public class App {
 
     }
 
-    public Map<String , String> postPayLoad()
-    {
-        Map<String, String> payload = new HashMap<>(); 
-        payload.put("lfdi", "3E4F45");
-        payload.put("deviceCategory", "0");
-        payload.put("sfdi", "16726121139L");
-        payload.put("registrationLink", "/rg");
-        payload.put("functionsetAssignmentLink", "/fsa");
-        payload.put("subscriptionLink", "/sub");
-        payload.put("deviceStatusLink", "/dstat");
-        payload.put("endDeviceListLink", "/edev");
-        payload.put("derlistlink", "/der");
-        return payload;
-    }
-  
-    
-    
-
-    public Map<String, String> createRegisterEndDevice() throws Exception
-    {
-        
-         Map<String, String> payLoad = new HashMap<>();
-         payLoad.put("pin", "111115");
-         return payLoad; 
-        
-    }
+   
 
     public Map<String, String> postDeviceCapablity()
     {
         Map<String, String> payload = new HashMap<>();
        
-        payload.put("mirrorUsagePointListLink", "/mup");
-        payload.put("selfDeviceLink", "/sdev");
-        payload.put("endDeviceListLink", "/edev");
-        payload.put("timeLink", "/tm");
+        payload.put("mirrorUsagePointListLink", "mup");
+        payload.put("selfDeviceLink", "sdev");
+        payload.put("endDeviceListLink", "edev");
+        payload.put("timeLink", "tm");
 
         return payload;
     }
@@ -85,9 +60,6 @@ public class App {
     //needs persistence
      public String findDeviceCapability(String natsSubject) throws Exception
      {
-        /*DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
-        deviceCapabilitytest.setserviceName("getalldcapmanager" );
-         Thread.sleep(100);*/
          String deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
          LOGGER.info("the device capability response is  " + deviceCapabilityResponse);
          return  deviceCapabilityResponse;
@@ -109,7 +81,6 @@ public class App {
         this.messageToPublish.newStart(natsSubject, Payload );
         Thread.sleep(300);
         deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
-//        LOGGER.info("the device capability response is  " + deviceCapabilityResponse);
         return  deviceCapabilityResponse;
     }
    
@@ -212,24 +183,18 @@ public class App {
     
      public Object createEndDeviceRegistrationTest(String natsSubject) throws Exception
      {
-       // Object response = getEndDeviceTest("EndDevice");
-        //Thread.sleep(300);
+       
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         Long pin = currentTest.getLong("registrationPin"); 
-        //interstore.EndDeviceTest.getRegisteredEndDevice(response.toString()); 
-        //String registrationLink = interstore.EndDeviceTest.getRegistrationLink();
-       // Map<String, String> payload = createRegisterEndDevice();
-       // payload.put("registrationLink", registrationLink);
+        
         interstore.EndDeviceTest.setServicename("enddeviceregistrationmanager");
         this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(endDeviceID, pin ));
         Thread.sleep(300);
        LOGGER.info("the registration pin " + interstore.EndDeviceTest.getRegistrationPin());
-       // LOGGER.info("the registration link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
         Long pinRegistered = interstore.EndDeviceTest.getRegistrationPin();
         Map<String, Long> registration = new HashMap<String , Long>();
         registration.put("pin", pinRegistered);
-        //return interstore.EndDeviceTest.getRegistrationPin();
         return registration; 
 
      }
@@ -240,14 +205,11 @@ public class App {
      */
      public String findRegisterdEndDeviceTest(String natsSubject)throws Exception
      {
-        //Long rgPin  = createEndDeviceRegistrationTest("CreateaRegisteredEndDevice");
-       // LOGGER.info("the pin is  rttt" + rgPin);
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         Long registrationID = currentTest.getLong("registrationID"); 
         Thread.sleep(300);
-        //LOGGER.info("the end device registerd link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
-       // String  interstore.EndDeviceTest.getEndDeviceregisteredwithId();
+       
         interstore.EndDeviceTest.setServicename("findallregistrededendevice");
         this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice(endDeviceID,  registrationID));
         Thread.sleep(300);
