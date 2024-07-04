@@ -3,6 +3,9 @@ package interstore.EndDevice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
+import interstore.FunctionSetAssignments.FsaImpl;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsList;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsListRepository;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Registration.RegistrationDto;
@@ -35,6 +38,9 @@ public class EndDeviceImpl {
 
     @Autowired
     private DERListRepository derListRepository;
+
+    @Autowired
+    private FunctionSetAssignmentsListRepository functionSetAssignmentsListRepository;
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
 
@@ -99,13 +105,26 @@ public class EndDeviceImpl {
 
         ListLink listLink = new ListLink();
         listLink.setListLink(functionsetAssignmentListLink);
-        endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink()); 
+        endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink());
+        try {
+            FunctionSetAssignmentsList fsaList = new FunctionSetAssignmentsList(listLink.getListLink());
+            fsaList = functionSetAssignmentsListRepository.save(fsaList);
+            generateFSA(fsaList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         listLink.setListLink(derListLink);
         endDeviceDto.setDERListLink(listLink.getListLink()); 
         listLink.setListLink(subscriptionLink);
         endDeviceDto.setSubscriptionListLink(listLink.getListLink());
 
 
+    }
+    public void generateFSA(FunctionSetAssignmentsList fsaList){
+        for(int i = 0; i < 3; i++) {
+            FsaImpl fsaImpl = ApplicationContextProvider.getApplicationContext().getBean(FsaImpl.class);
+            fsaImpl.createFSA(fsaList);
+        }
     }
 
     public void setEndDeviceAttributesEndPoints(JSONObject payload)
@@ -331,6 +350,12 @@ public class EndDeviceImpl {
 
 
 }
+
+    public EndDeviceDto getEndDeviceByRegistrationID(Long id){
+        Optional<RegistrationDto> registrationDto = registrationRepository.findById(id);
+        EndDeviceDto endDeviceDto = registrationDto.get().getEndDevice();
+        return endDeviceDto;
+    }
 
 }
 

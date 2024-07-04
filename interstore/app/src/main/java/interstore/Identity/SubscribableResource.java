@@ -1,9 +1,11 @@
 package interstore.Identity;
 
-public class SubscribableResource extends Resource{
-    private boolean subscribable;
+import interstore.Types.SubscribableType;
 
-     public SubscribableResource(String href, boolean subscribable) {
+public class SubscribableResource extends Resource{
+    private SubscribableType subscribable;
+
+     public SubscribableResource(String href, SubscribableType subscribable) {
         super(href);
         this.subscribable = subscribable;
     }
@@ -11,11 +13,11 @@ public class SubscribableResource extends Resource{
 
     }
 
-    public boolean isSubscribable() {
+    public SubscribableType isSubscribable() {
         return subscribable;
     }
 
-    public void setSubscribable(boolean subscribable) {
+    public void setSubscribable(SubscribableType subscribable) {
         this.subscribable = subscribable;
     }
 }

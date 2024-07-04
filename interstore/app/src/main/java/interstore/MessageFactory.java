@@ -101,6 +101,26 @@ public class MessageFactory {
               Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
               method.invoke(microServiceObject, payLoad);
           }
+          else if(serviceName.equals("fsalistmanager"))
+          {
+              Method method = microServiceClass.getMethod("getFSAList", String.class);
+              method.invoke(microServiceObject, payLoad);
+          }
+          else if (serviceName.equals("fsamanager"))
+          {
+              Method method = microServiceClass.getMethod("getFSAInstance", Object.class);
+              method.invoke(microServiceObject, payLoad);
+          }
+          else if (serviceName.equals("derplistmanager"))
+          {
+              Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+              method.invoke(microServiceObject, payLoad.toString());
+          }
+          else if (serviceName.equals("derprogrammanager"))
+          {
+              Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+              method.invoke(microServiceObject, payLoad.toString());
+          }
         else if (serviceName.equals("dcapmanager")){
             Method method = microServiceClass.getMethod("DeviceCapability", String.class);
             method.invoke(microServiceObject, payLoad);

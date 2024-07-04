@@ -1,7 +1,5 @@
 package interstore;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.JsonObject;
@@ -9,9 +7,14 @@ import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipseso
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 public class EndDeviceTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
      private static String endDeviceListLink; 
@@ -98,7 +101,7 @@ public class EndDeviceTest {
        Map<String, Object> attributes = new HashMap<>(); 
       attributes.put("servicename", getserviceName());
       attributes.put("action", "get");
-      attributes.put("payload", getEndDeviceListLink()); 
+      attributes.put("payload", getEndDeviceListLink());
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes); 
@@ -199,6 +202,57 @@ public class EndDeviceTest {
      */
      public static String setsfdi(String Sfdi) throws JSONException
      {
+         try{
+             LOGGER.info("the sfdi is here in form payload  " + Sfdi);
+             Long requestedSfdi = Long.parseLong(Sfdi);
+             String EndDevices = getEndDevices();
+             JSONObject jsonObject = new JSONObject(EndDevices);
+             JSONArray jsonArray = jsonObject.getJSONArray("endDevices");
+             for(int i = 0 ; i < jsonArray.length() ; i++)
+             {
+                 JSONObject endDevice = jsonArray.getJSONObject(i);
+                 Long sfdi = endDevice.getLong("sfdi");
+                 if(sfdi == requestedSfdi)
+                 {   String sfdiString = sfdi.toString();
+                     setSfdi(sfdiString);
+                     LOGGER.info("the sfdi is which is set and geeting from getter " + getSfdi());
+                     Long endDeviceID = endDevice.getLong("id");
+                     String endDeviceIDString = endDeviceID.toString();
+                     setendDeviceID(endDeviceIDString);
+                     String endDeviceLink = endDevice.getString("endDeviceLink");
+                     setendDeviceLink(endDeviceLink);
+
+                 }
+             }
+         }
+         catch (Exception e){
+             JSONObject myjsonObject = new JSONObject(Sfdi);
+             JSONObject payload = myjsonObject.getJSONObject("payload");
+             Long requestedSfdi = Long.parseLong(payload.getString("sfdi"));
+             LOGGER.info("..............."+requestedSfdi);
+             String EndDevices = getEndDevices();
+             JSONObject jsonObject = new JSONObject(EndDevices);
+             JSONArray jsonArray = jsonObject.getJSONArray("endDevices");
+             for(int i = 0 ; i < jsonArray.length() ; i++)
+             {
+                 JSONObject endDevice = jsonArray.getJSONObject(i);
+                 Long sfdi = endDevice.getLong("sfdi");
+                 LOGGER.info("..............."+sfdi);
+                 if(sfdi.equals(requestedSfdi))
+                 {   LOGGER.info("insideeeeee...............");
+                     String sfdiString = sfdi.toString();
+                     setSfdi(sfdiString);
+                     LOGGER.info("the sfdi is which is set and geeting from getter " + getSfdi());
+                     Long endDeviceID = endDevice.getLong("id");
+                     String endDeviceIDString = endDeviceID.toString();
+                     setendDeviceID(endDeviceIDString);
+                     String endDeviceLink = endDevice.getString("endDeviceLink");
+                     setendDeviceLink(endDeviceLink);
+
+                 }
+             }
+         }
+
         LOGGER.info("the sfdi is in the end device test class in form payload  " + Sfdi);
         Long requestedSfdi = Long.parseLong(Sfdi); 
        String EndDevices = getEndDevices(); 
@@ -340,7 +394,7 @@ public static String findRegisteredEndDevice(Long endDeviceID, Long  registratio
 
 public static void setregisteredEndDeviceDetails(String instanceofRegisteredEndDevice)
 {
-   
+    LOGGER.info("Yaha aagaya........"+instanceofRegisteredEndDevice);
     registeredEndDeviceDetails = instanceofRegisteredEndDevice; 
 }
 

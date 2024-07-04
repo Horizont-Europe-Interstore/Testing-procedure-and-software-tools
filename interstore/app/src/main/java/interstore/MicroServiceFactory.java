@@ -3,10 +3,18 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import interstore.DER.DERImpl;
 import interstore.DER.DERManager;
+import interstore.DERProgram.DERPListImpl;
+import interstore.DERProgram.DERPListManager;
+import interstore.DERProgram.DERProgramImpl;
+import interstore.DERProgram.DERProgramManager;
 import interstore.DeviceCapability.DcapManager;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EdevManager;
 import interstore.EndDevice.EndDeviceImpl;
+import interstore.FunctionSetAssignments.FsaImpl;
+import interstore.FunctionSetAssignments.FsaListImpl;
+import interstore.FunctionSetAssignments.FsaListManager;
+import interstore.FunctionSetAssignments.FsaManager;
 import interstore.SelfDevice.SdevManager;
 import interstore.SelfDevice.SelfDeviceDto;
 import interstore.SelfDevice.SelfDeviceImpl;
@@ -43,6 +51,14 @@ public class MicroServiceFactory {
         EdevManager edevManager = new EdevManager( endDev );
         DERImpl derImpl = serviceFactory.getDERProvider().get();
         DERManager derManager = new DERManager(derImpl);
+        FsaImpl fsaImpl = serviceFactory.getFsaProvider().get();
+        FsaManager fsaManager = new FsaManager(fsaImpl);
+        FsaListImpl fsaListImpl = serviceFactory.getFsaListProvider().get();
+        FsaListManager fsaListManager = new FsaListManager(fsaListImpl);
+        DERProgramImpl derProgramImpl = serviceFactory.getDerProgramProvider().get();
+        DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
+        DERPListImpl derpListImpl = serviceFactory.getDerpListProvider().get();
+        DERPListManager derpListManager = new DERPListManager(derpListImpl);
         this.microservices.put("getalldcapmanager", dcapManager); 
         this.microservices.put("selfdevicemanager", sdevManager);
         this.microservices.put("dcapmanager", dcapManager); 
@@ -57,6 +73,10 @@ public class MicroServiceFactory {
         this.microservices.put("dermanager", derManager);
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);
+        this.microservices.put("fsalistmanager", fsaListManager);
+        this.microservices.put("fsamanager", fsaManager);
+        this.microservices.put("derplistmanager", derpListManager);
+        this.microservices.put("derprogrammanager", derProgramManager);
     } 
 
 
@@ -71,6 +91,7 @@ public class MicroServiceFactory {
         DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
         EndDeviceTest endDeviceTest = new EndDeviceTest();
         TimeTest timeTest = new TimeTest();
+        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
@@ -84,6 +105,10 @@ public class MicroServiceFactory {
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
         this.dtoMap.put("timemanager", timeTest);
         this.dtoMap.put("advancedtimemanager", timeTest);
+        this.dtoMap.put("fsalistmanager", functionSetAssignmentTest);
+        this.dtoMap.put("fsamanager", functionSetAssignmentTest);
+        this.dtoMap.put("derplistmanager", functionSetAssignmentTest);
+        this.dtoMap.put("derprogrammanager", functionSetAssignmentTest);
     }
    
     public Map<String, Object> getDtoMap() {

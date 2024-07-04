@@ -1,6 +1,9 @@
 package interstore.stepdefinitions;
+
 import interstore.App;
+import interstore.ApplicationContextProvider;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,10 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class GetAnEndDeviceSteps {
     private App app; 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceCapabilitySteps.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetAnEndDeviceSteps.class);
     private Object response;
     private Scenario scenario; 
     @Before
