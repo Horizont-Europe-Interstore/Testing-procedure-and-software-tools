@@ -290,7 +290,7 @@ public class App {
         }
     }
 
-    public String FunctionSetAssignmentTest (String natsSubject) throws Exception
+    public Object functionSetAssignmentTest (String natsSubject) throws Exception
     {
         if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilitytest.getEndDeviceListLink() != null){
             String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
@@ -310,8 +310,9 @@ public class App {
             interstore.FunctionSetAssignmentTest.setServicename("derprogrammanager");
             this.messageToPublish.newStart(natsSubject+ "_DERPrograms",
                     interstore.FunctionSetAssignmentTest.getDERProgramQuery(FunctionSetAssignmentTest.derpListLinks));
-            Thread.sleep(100);
-//            return interstore.FunctionSetAssignmentTest.getDerProgramInstance();
+            Thread.sleep(300);
+            //LOGGER.info("DERProgram Instance: ### " + interstore.FunctionSetAssignmentTest.getDerProgramInstance());
+           //return interstore.FunctionSetAssignmentTest.getDerProgramInstance();
             return "Found DERPrograms instances";
         }
         return "No EndDevices found";

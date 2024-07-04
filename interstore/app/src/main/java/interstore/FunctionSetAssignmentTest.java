@@ -126,8 +126,8 @@ public class FunctionSetAssignmentTest {
 //    }
 
     public static String getDERProgramInstance(String responsePayload){
-        LOGGER.info("DERProgram Instance: " + responsePayload);
         derProgramInstance = responsePayload;
+        LOGGER.info("DERProgram Instance: " + derProgramInstance);
         return responsePayload;
     }
     public static void setDERPListLinks(){
