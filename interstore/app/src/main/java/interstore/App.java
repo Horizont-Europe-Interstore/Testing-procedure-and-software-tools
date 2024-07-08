@@ -93,11 +93,7 @@ public class App {
     */
 
     public Object DeviceCapabilitygetAllEndDevice(String natsSubject) throws Exception {
-//        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
-//        if(endDeviceList != null){
-//            return endDeviceList;
-//        }
-        //String deviceCapabilityResponse = CreateDeviceCapabilityTest(natsSubject);
+
         String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
         Thread.sleep(100);
         interstore.EndDeviceTest.setServicename("enddevicemanager");

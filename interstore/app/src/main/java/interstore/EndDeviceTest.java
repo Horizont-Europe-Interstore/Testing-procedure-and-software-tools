@@ -102,6 +102,7 @@ public class EndDeviceTest {
       attributes.put("servicename", getserviceName());
       attributes.put("action", "get");
       attributes.put("payload", getEndDeviceListLink());
+      attributes.put("endDeviceLink", getEndDeviceListLink());
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes); 
@@ -191,7 +192,7 @@ public class EndDeviceTest {
             e.printStackTrace();
         }
         return null ;
-    }
+    }  
     /* the list of end devices will list all end devices present on 
      * the server among the end devices the user shall choose one 
      * end device , the end device is identified with sfdi and lfdi
