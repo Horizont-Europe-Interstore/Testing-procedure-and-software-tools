@@ -40,6 +40,7 @@ public class EndDeviceDto implements AbstractDevice{
     @Column(name= "link_der_list")
     private String linkDerList;
 
+
     public EndDeviceDto() {
         
     } 

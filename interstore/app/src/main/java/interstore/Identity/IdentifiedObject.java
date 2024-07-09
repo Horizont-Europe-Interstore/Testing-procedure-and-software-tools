@@ -16,7 +16,7 @@ public class IdentifiedObject {
     public IdentifiedObject(){
 
     }
-   
+
    public byte getMRID(){
        return mRID;
    }

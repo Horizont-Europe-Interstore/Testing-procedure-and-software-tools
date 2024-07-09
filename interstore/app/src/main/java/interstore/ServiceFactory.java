@@ -3,6 +3,7 @@ package interstore;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import interstore.DER.DERImpl;
+import interstore.DER.DERListImpl;
 import interstore.DERProgram.DERPListImpl;
 import interstore.DERProgram.DERProgramImpl;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
@@ -24,10 +25,12 @@ public class ServiceFactory {
     private final Provider<DERProgramImpl> derProgramProvider;
     private final Provider<DERPListImpl> derpListProvider;
 
+    private final Provider<DERListImpl> derListProvider;
+
     
     @Inject
     public ServiceFactory(Provider<DeviceCapabilityImpl> deviceCapabilityProvider,
-                          Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DERImpl> derProvider, Provider<FsaImpl> fsaProvider, Provider<FsaListImpl> fsaListProvider, Provider<DERProgramImpl> derProgramProvider, Provider<DERPListImpl> derpListProvider) {
+                          Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DERImpl> derProvider, Provider<FsaImpl> fsaProvider, Provider<FsaListImpl> fsaListProvider, Provider<DERProgramImpl> derProgramProvider, Provider<DERPListImpl> derpListProvider, Provider<DERListImpl> derListProvider) {
 
         this.deviceCapabilityProvider = deviceCapabilityProvider;
         this.endDeviceProvider = endDeviceProvider;
@@ -37,7 +40,7 @@ public class ServiceFactory {
         this.fsaListProvider = fsaListProvider;
         this.derProgramProvider = derProgramProvider;
         this.derpListProvider = derpListProvider;
-
+        this.derListProvider = derListProvider;
     }
     
     public Provider<DeviceCapabilityImpl> getDeviceCapabilityProvider() {
@@ -65,6 +68,10 @@ public class ServiceFactory {
     public Provider<DERPListImpl> getDerpListProvider(){
         return derpListProvider;
     }
+    public Provider<DERListImpl> getDERListProvider(){
+        return derListProvider;
+    }
+
 }
 
 

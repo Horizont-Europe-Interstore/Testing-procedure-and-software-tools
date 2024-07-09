@@ -38,7 +38,7 @@ if (payload == null || payload.isEmpty()) {
         updateDeviceCapability(jsonObject);
         case "update-time":
         updateTime(jsonObject.getString("payload"));
-        break; 
+        break;
       }
       return "Operation completed successfully"; 
    }

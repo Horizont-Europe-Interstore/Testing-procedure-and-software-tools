@@ -41,7 +41,7 @@ public class App {
 
     }
 
-   
+
 
     public Map<String, String> postDeviceCapablity()
     {
@@ -103,7 +103,7 @@ public class App {
         Thread.sleep(100);
         Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
         LOGGER.info("the list of EndDevices are " + endDeviceList);
-       
+
         return endDeviceList;
     }
     
@@ -168,7 +168,7 @@ public class App {
         interstore.EndDeviceTest.getEndDeviceInstancetest(endDeviceID));
         Thread.sleep(300);
         Object endDevice = interstore.EndDeviceTest.getEndDeviceInstance();
-        LOGGER.info("the end device instance is in app class " + endDevice); 
+        LOGGER.info("the end device instance is in app class " + endDevice);
        return endDevice; 
     }
 
@@ -181,11 +181,11 @@ public class App {
     
      public Object createEndDeviceRegistrationTest(String natsSubject) throws Exception
      {
-       
+
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
-        Long pin = currentTest.getLong("registrationPin"); 
-        
+        Long pin = currentTest.getLong("registrationPin");
+
         interstore.EndDeviceTest.setServicename("enddeviceregistrationmanager");
         this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(endDeviceID, pin ));
         Thread.sleep(300);
@@ -193,21 +193,21 @@ public class App {
         Long pinRegistered = interstore.EndDeviceTest.getRegistrationPin();
         Map<String, Long> registration = new HashMap<String , Long>();
         registration.put("pin", pinRegistered);
-        return registration; 
+        return registration;
 
      }
 
     
-    /* to find the regisered end device we need to provide the id of the end device 
-     * and the registration pin , thee shall be a form in the front end 
+    /* to find the regisered end device we need to provide the id of the end device
+     * and the registration pin , thee shall be a form in the front end
      */
      public String findRegisterdEndDeviceTest(String natsSubject)throws Exception
      {
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
-        Long registrationID = currentTest.getLong("registrationID"); 
+        Long registrationID = currentTest.getLong("registrationID");
         Thread.sleep(300);
-       
+
         interstore.EndDeviceTest.setServicename("findallregistrededendevice");
         this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice(endDeviceID,  registrationID));
         Thread.sleep(300);
@@ -217,73 +217,77 @@ public class App {
      }
 
     public String TimeTest(String natsSubject) throws Exception {
+        if(interstore.DeviceCapabilitytest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+            LOGGER.info("the device capability response is  " + response);
+            Thread.sleep(300);
+            String timeLink = interstore.TimeTest.getTimeLink(response);
+            LOGGER.info("the timelink response is  " + timeLink);
+            interstore.TimeTest.setserviceName("timemanager");
+            this.messageToPublish.newStart(natsSubject, interstore.TimeTest.getTimeQuery(timeLink));
+            Thread.sleep(300);
+            String timeListResponse = interstore.TimeTest.getTimeResponse();
 
-        String response = CreateDeviceCapabilityTest("Device_Capability");
-        LOGGER.info("the device capability response is  " + response);
-        Thread.sleep(300);
-        String timeLink = interstore.TimeTest.getTimeLink(response);
-        LOGGER.info("the timelink response is  " + timeLink);
-        interstore.TimeTest.setserviceName("timemanager");
-        this.messageToPublish.newStart(natsSubject, interstore.TimeTest.getTimeQuery(timeLink));
-        Thread.sleep(300);
-        String timeListResponse = interstore.TimeTest.getTimeResponse();
-
-        timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
-        timeListResponse = timeListResponse.replace("\\", "");
-        JSONObject object = new JSONObject(timeListResponse);
-        String timeInstance = object.getString("time_instance");
-        String quality = object.getString("quality");
-        Thread.sleep(500);
-        Instant instant = Instant.now();
-        long currentTime =  instant.getEpochSecond();
-        TimeType REF_Client_TimeInstance = new TimeType(currentTime);
-        if (quality!=null && timeInstance!=null) {
-            if(quality.equals("7")){
-                LOGGER.info("Quality metric matched with Client with value: "+quality);
-                LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getValue());
-                LOGGER.info("Synchronized REF-Client Time: " + timeInstance);
-                return "Synchronized the REF-Client Time with the Device Capability";
+            timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+            timeListResponse = timeListResponse.replace("\\", "");
+            JSONObject object = new JSONObject(timeListResponse);
+            String timeInstance = object.getString("time_instance");
+            String quality = object.getString("quality");
+            Thread.sleep(500);
+            Instant instant = Instant.now();
+            long currentTime =  instant.getEpochSecond();
+            TimeType REF_Client_TimeInstance = new TimeType(currentTime);
+            if (quality!=null && timeInstance!=null) {
+                if(quality.equals("7")){
+                    LOGGER.info("Quality metric matched with Client with value: "+quality);
+                    LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getValue());
+                    LOGGER.info("Synchronized REF-Client Time: " + timeInstance);
+                    return "Synchronized the REF-Client Time with the Device Capability";
+                }
+                else {
+                    LOGGER.info("Wrong quality metric value of "+quality);
+                    return "Wrong quality metric value of "+quality;
+                }
+            } else {
+                LOGGER.info("Quality value not found.");
+                return "Quality value not found.";
             }
-            else {
-                LOGGER.info("Wrong quality metric value of "+quality);
-                return "Wrong quality metric value of "+quality;
-            }
-        } else {
-            LOGGER.info("Quality value not found.");
-            return "Quality value not found.";
         }
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
     }
 
     public String AdvancedTimeTest(String natsSubject) throws Exception {
-
-        String response = CreateDeviceCapabilityTest("Device_Capability");
-        LOGGER.info("the device capability response is  " + response);
-        String timeLink = interstore.TimeTest.getTimeLink(response);
-        LOGGER.info("the timelink response is  " + timeLink);
-        interstore.TimeTest.setserviceName("timemanager");
-        this.messageToPublish.newStart(natsSubject+"_Get_Time", interstore.TimeTest.getTimeQuery(timeLink));
-        Thread.sleep(300);
-        String timeListResponse = interstore.TimeTest.getTimeResponse();
-        timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
-        timeListResponse = timeListResponse.replace("\\", "");
-        JSONObject object = new JSONObject(timeListResponse);
-        String timeInstance = object.getString("time_instance");
-        if (timeInstance!=null) {
-            long updatedTime = Long.parseLong(timeInstance) + 3600;
-            JSONObject payload = new JSONObject();
-            payload.put("updated_time_instance", updatedTime);
-            payload.put("timeLink", timeLink);
-            interstore.TimeTest.setserviceName("advancedtimemanager");
-            this.messageToPublish.newStart(natsSubject+"_update_time", interstore.TimeTest.updateTimeQuery(payload.toString()));
-            Thread.sleep(1000);
+        if(interstore.DeviceCapabilitytest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+            LOGGER.info("the device capability response is  " + response);
+            String timeLink = interstore.TimeTest.getTimeLink(response);
+            LOGGER.info("the timelink response is  " + timeLink);
             interstore.TimeTest.setserviceName("timemanager");
-            this.messageToPublish.newStart(natsSubject+"_validate_updated_time", interstore.TimeTest.getTimeQuery(timeLink));
-            Thread.sleep(100);
-            return "The Time resource was updated successfully by 1 hour.";
-        } else {
-            System.out.println("Time Instance value not found.");
-            return "Time Instance value not found.";
+            this.messageToPublish.newStart(natsSubject+"_Get_Time", interstore.TimeTest.getTimeQuery(timeLink));
+            Thread.sleep(300);
+            String timeListResponse = interstore.TimeTest.getTimeResponse();
+            timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+            timeListResponse = timeListResponse.replace("\\", "");
+            JSONObject object = new JSONObject(timeListResponse);
+            String timeInstance = object.getString("time_instance");
+            if (timeInstance!=null) {
+                long updatedTime = Long.parseLong(timeInstance) + 3600;
+                JSONObject payload = new JSONObject();
+                payload.put("updated_time_instance", updatedTime);
+                payload.put("timeLink", timeLink);
+                interstore.TimeTest.setserviceName("advancedtimemanager");
+                this.messageToPublish.newStart(natsSubject+"_update_time", interstore.TimeTest.updateTimeQuery(payload.toString()));
+                Thread.sleep(1000);
+                interstore.TimeTest.setserviceName("timemanager");
+                this.messageToPublish.newStart(natsSubject+"_validate_updated_time", interstore.TimeTest.getTimeQuery(timeLink));
+                Thread.sleep(100);
+                return "The Time resource was updated successfully by 1 hour.";
+            } else {
+                System.out.println("Time Instance value not found.");
+                return "Time Instance value not found.";
+            }
         }
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
     }
 
     public Object functionSetAssignmentTest (String natsSubject) throws Exception
@@ -311,7 +315,7 @@ public class App {
            //return interstore.FunctionSetAssignmentTest.getDerProgramInstance();
             return "Found DERPrograms instances";
         }
-        return "No EndDevices found";
+        return "No EndDevices found or the DeviceCapabilityResponse is null";
 
 //        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
 //
@@ -351,7 +355,7 @@ public class App {
    
     public static void main(String[] args) throws Exception {
         String natsUrl = System.getenv("NATS_URL");
-        //String natsUrl = "nats://localhost:4222"; 
+        //String natsUrl = "nats://localhost:4222";
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
@@ -366,6 +370,6 @@ public class App {
 
 /*
  *
-     export NATS_URL=nats://localhost:4222 
+     export NATS_URL=nats://localhost:4222
  *
  */

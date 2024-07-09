@@ -2,7 +2,7 @@ Feature: Function Set Assignments Test
   @FunctionSetAssignments
   Scenario Outline: Verifying Function Set Assignments Test Execution
     Given I have a fsa test setup
-    When I execute the fsa test with service name "fsalistmanager" and subject "<natsSubject>"
+    When I execute the fsa test with service name "fsalistmanager" and subject "basic_fsa_test"
     Then the test should complete successfully with FunctionSetAssignmentTest response containing:
     """
 

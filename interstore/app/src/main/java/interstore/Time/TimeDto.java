@@ -7,8 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 public class TimeDto {
@@ -27,7 +25,7 @@ public class TimeDto {
     // private TimeType localTime; Local time: localTime = currentTime + tzOffset (+ dstOffset when in effect).
     // private TimeOffSetType tzOffset; Time zone offset from UTC. Local time zone offset from currentTime. Does not include any daylight savings time offsets. For American
     // time zones, a negative tzOffset SHALL be used (e.g., EST = GMT −5 which is −18 000).
-    public String quality;
+     public String quality;
     public TimeDto() {
         Instant instant = Instant.now();
         long currentTime =  instant.getEpochSecond();
@@ -36,9 +34,9 @@ public class TimeDto {
     }
 
 
-    // the time link has to give the output of the resource that has created .
-    // public static String getTimeLink() {
-    // return Link.produceLink("/tm");
+    // the time link has to give the output of the resource that has created . 
+   // public static String getTimeLink() {
+     // return Link.produceLink("/tm"); 
 
     //}
 
@@ -74,12 +72,12 @@ public class TimeDto {
 
 
 
-    public String toHumanReadableFormat() {
+ /*   public String toHumanReadableFormat() {
         Instant instant = Instant.ofEpochSecond(Long.parseLong(getCurrentTime()));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(ZoneId.of("UTC"));
         return formatter.format(instant);
-    }
+    }*/
 
 
 }

@@ -131,6 +131,7 @@ public class DeviceCapabilitytest {
     {
         LOGGER.info("--------here-----------"+responsePayLoad);
         LOGGER.info("Response sent back to NATS for subject: " + responsePayLoad);
+
         setDeviceCapabilityResponse(responsePayLoad); 
         findEndDeviceListLink(responsePayLoad); 
         return responsePayLoad; 
