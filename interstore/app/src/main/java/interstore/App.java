@@ -312,8 +312,13 @@ public class App {
                     interstore.FunctionSetAssignmentTest.getDERProgramQuery(FunctionSetAssignmentTest.derpListLinks));
             Thread.sleep(300);
             //LOGGER.info("DERProgram Instance: ### " + interstore.FunctionSetAssignmentTest.getDerProgramInstance());
-           //return interstore.FunctionSetAssignmentTest.getDerProgramInstance();
-            return "Found DERPrograms instances";
+            String der_response = interstore.FunctionSetAssignmentTest.getDerProgramInstance();
+            if (der_response.length() > 0){
+                String truncatedString = der_response.substring(0,500) + "...";
+                return truncatedString;
+            }
+           return der_response;
+//            return "Found DERPrograms instances";
         }
         return "No EndDevices found or the DeviceCapabilityResponse is null";
 
