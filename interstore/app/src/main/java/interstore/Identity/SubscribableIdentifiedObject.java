@@ -20,5 +20,5 @@ public class SubscribableIdentifiedObject extends IdentifiedObject {
     public SubscribableIdentifiedObject() {
 
     }
-    
+
 }

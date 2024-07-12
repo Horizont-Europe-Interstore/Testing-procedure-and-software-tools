@@ -30,6 +30,22 @@ public class DERList {
 
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getDerListLink() {
+        return derListLink;
+    }
+
+    public void setDerListLink(String derListLink) {
+        this.derListLink = derListLink;
+    }
+
+    public List<DERDto> getDerDto() {
+        return derDto;
+    }
+
     public void setDerDto(List<DERDto> derDto) {
         this.derDto = derDto;
     }

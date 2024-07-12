@@ -34,99 +34,125 @@ public class MessageFactory {
     Class<?> microServiceClass = microServiceObject.getClass(); 
     //LOGGER.info("microservice name is " + serviceName); 
     try {
-          if(serviceName.equals("selfenddevicemanager") )  
-          {
-             
-              Method method = microServiceClass.getMethod("forwardResponse", String.class);
-              method.invoke(microServiceObject, payLoad);
+        if(serviceName.equals("selfenddevicemanager") )
+        {
 
-          }
-          else if(serviceName.equals("enddevicemanager"))  
-          {
-            
-             Method method = microServiceClass.getMethod("setEndDevices", String.class);
-             method.invoke(microServiceObject, payLoad);
-            
-          }
-          
-          else if(serviceName.equals("createnewenddevice"))
-          {
+            Method method = microServiceClass.getMethod("forwardResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-              Method method = microServiceClass.getMethod("setEndDevices", String.class); 
-              method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("enddevicemanager"))
+        {
 
-          }
-          
-          else if(serviceName.equals("enddeviceinstancemanager"))
-          {
+            Method method = microServiceClass.getMethod("setEndDevices", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-              Method method = microServiceClass.getMethod("setEndDeviceInstance", String.class);
-              method.invoke(microServiceObject, payLoad);
+        }
 
-          }
+        else if(serviceName.equals("createnewenddevice"))
+        {
 
-          else if(serviceName.equals("enddevicelinkmanager"))
-          {
-              Method method = microServiceClass.getMethod("getEndDevice", String.class);
-              method.invoke(microServiceObject, payLoad);
+            Method method = microServiceClass.getMethod("setEndDevices", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-          }
-         
-         else if(serviceName.equals("enddeviceregistrationmanager"))
-         {
-             Method method = microServiceClass.getMethod("verifyRegisteredEndDevice", String.class);
-             method.invoke(microServiceObject, payLoad);
+        }
 
-         }
+        else if(serviceName.equals("enddeviceinstancemanager"))
+        {
+
+            Method method = microServiceClass.getMethod("setEndDeviceInstance", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("enddevicelinkmanager"))
+        {
+            Method method = microServiceClass.getMethod("getEndDevice", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("enddeviceregistrationmanager"))
+        {
+            Method method = microServiceClass.getMethod("verifyRegisteredEndDevice", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
         else if(serviceName.equals("getalldcapmanager"))
-          {
-             Method method = microServiceClass.getMethod("AllDeviceCapablity", String.class);
-             method.invoke(microServiceObject, payLoad);
+        {
+            Method method = microServiceClass.getMethod("AllDeviceCapablity", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-          } 
+        }
 
-          else if(serviceName.equals("findallregistrededendevice"))
-          {
-             Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class);  //   , registeredEndDevice
-             method.invoke(microServiceObject, payLoad);
+        else if(serviceName.equals("findallregistrededendevice"))
+        {
+            Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class);  //   , registeredEndDevice
+            method.invoke(microServiceObject, payLoad);
 
-          }
-          else if (serviceName.equals("timemanager"))
-          {
-              Method method = microServiceClass.getMethod("getTimeResponse", String.class);
-              method.invoke(microServiceObject, payLoad);
-          }
-          else if (serviceName.equals("advancedtimemanager"))
-          {
-              Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
-              method.invoke(microServiceObject, payLoad);
-          }
-          else if(serviceName.equals("fsalistmanager"))
-          {
-              Method method = microServiceClass.getMethod("getFSAList", String.class);
-              method.invoke(microServiceObject, payLoad);
-          }
-          else if (serviceName.equals("fsamanager"))
-          {
-              Method method = microServiceClass.getMethod("getFSAInstance", Object.class);
-              method.invoke(microServiceObject, payLoad);
-          }
-          else if (serviceName.equals("derplistmanager"))
-          {
-              Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
-              method.invoke(microServiceObject, payLoad.toString());
-          }
-          else if (serviceName.equals("derprogrammanager"))
-          {
-              Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
-              method.invoke(microServiceObject, payLoad.toString());
-          }
-        else if (serviceName.equals("dcapmanager")){
+        }
+        else if(serviceName.equals("getDERListLink"))
+        {
+            Method method = microServiceClass.getMethod("getDERListLink", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getDERList"))
+        {
+            Method method = microServiceClass.getMethod("getDERList", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getDER_properties"))
+        {
+            Method method = microServiceClass.getMethod("getDER_properties", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("update_DER_properties"))
+        {
+            Method method = microServiceClass.getMethod("update_DER_properties", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("fsalistmanager"))
+        {
+            Method method = microServiceClass.getMethod("getFSAList", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("fsamanager"))
+        {
+            Method method = microServiceClass.getMethod("getFSAInstance", Object.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("derplistmanager"))
+        {
+            Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+            method.invoke(microServiceObject, payLoad.toString());
+        }
+        else if (serviceName.equals("derprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+            method.invoke(microServiceObject, payLoad.toString());
+        }
+        else if (serviceName.equals("timemanager"))
+        {
+            Method method = microServiceClass.getMethod("getTimeResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("advancedtimemanager"))
+        {
+            Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+
+
+        else if(serviceName.equals("dcapmanager")){
             Method method = microServiceClass.getMethod("DeviceCapability", String.class);
             method.invoke(microServiceObject, payLoad);
-          }
+        }
         
-
+          
            
        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             LOGGER.warning("Error invoking method: " + e.getMessage());   

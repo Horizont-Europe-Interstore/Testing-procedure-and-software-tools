@@ -2,7 +2,7 @@ Feature: Register an EndDevice
   @RegisterEndDevice
   Scenario Outline: Verifying Register an EndDevice 
     Given I have a register an end device test setup
-    When I execute the register end device test with service name "enddeviceregistrationmanager" and subject "<natsSubject>"
+    When I execute the register end device test with service name "enddeviceregistrationmanager" and subject "my_subject"
     Then the test should complete successfully with RegisterEndDevice response containing:
     """
 

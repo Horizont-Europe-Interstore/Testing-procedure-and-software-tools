@@ -3,11 +3,8 @@ package interstore.DER;
 import interstore.Identity.Resource;
 import jakarta.persistence.*;
 
-import java.util.logging.Logger;
-
 @Entity
 public class DERCapability extends Resource {
-    private static final Logger LOGGER = Logger.getLogger(DERCapability.class.getName());
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

@@ -2,7 +2,7 @@ Feature: Time Test
   @Time
   Scenario Outline: Verifying Time Test Execution
     Given I have a time test setup
-    When I execute the time test with service name "timemanager" and subject "<natsSubject>"
+    When I execute the time test with service name "timemanager" and subject "basic_time_test"
     Then the test should complete successfully with TimeTest response containing:
     """
 
