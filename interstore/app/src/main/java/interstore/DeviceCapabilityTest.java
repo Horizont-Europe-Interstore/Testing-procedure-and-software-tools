@@ -1,23 +1,22 @@
 package interstore;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-public class DeviceCapabilitytest {
+
+public class DeviceCapabilityTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
     private static String endDeviceListLink;
     private String serviceName;
     public static String DeviceCapabilityResponse;
     public static String DeviceCapablities ;   // this may be change into map  
     private static String endDeviceListLinkEndPoint; 
-    public DeviceCapabilitytest() {
+    public DeviceCapabilityTest() {
     
         
     }
@@ -141,14 +140,14 @@ public class DeviceCapabilitytest {
     
     // what to compare here is that while settign up the device capability the user give input /enddevcie 
     // the message received from the nats in the payload . use try , except there 
-    @SuppressWarnings("unchecked")
+    
     public void findEndDeviceListLink(String resposnePayLoad) throws JsonMappingException, JsonProcessingException, JSONException
 
     {
         try{
             String endDeviceListLinkEndPoint = getEndDeviceEndPoint();
             JSONObject jsonObject = new JSONObject(resposnePayLoad);
-            for(String key: jsonObject.keySet()) // the json object with many keys and keys are int  long corresponding value is list
+            for(String key: ((Map<String, String>) jsonObject).keySet()) // the json object with many keys and keys are int  long corresponding value is list
             {
                 JSONArray jsonArray = jsonObject.getJSONArray(key);  // value is list obtaining the vlaue here
                 for(int i = 0; i < jsonArray.length(); i++)

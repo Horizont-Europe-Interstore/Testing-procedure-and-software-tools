@@ -1,6 +1,7 @@
 package interstore.DERProgram;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class DERProgramImpl {
         derProgram.setDerpListLink(derpListLink);
     }
 
-    public String getDerProgramByListLinks(Object derpListLinks) {
+    public String getDerProgramByListLinks(Object derpListLinks) throws JSONException {
         Map<Long, Object> derProgramMap = new HashMap<>();
         if (derpListLinks instanceof JSONArray) {
             JSONArray linksArray = (JSONArray) derpListLinks;

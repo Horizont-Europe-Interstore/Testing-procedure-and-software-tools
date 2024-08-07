@@ -9,27 +9,6 @@ services:
     networks:
       - back-nats
       - nats-mid
-
-  java-backend:
-    build:
-      context: ./interstore
-      dockerfile: Dockerfile 
-    container_name: java-backend 
-    depends_on:
-      - nats
-    volumes:
-      - type: bind
-        source: ./interstore
-        target: /app
-    environment:
-      - NATS_URL=nats://nats-server:4222
-    #command: ["./gradlew","run"]
-    command: ['tail', '-f']
-    ports:
-      - "8080:8080"
-    networks:
-      - back-nats
-
   react-browser:
     build: ./react-browser
     hostname: react-browser
@@ -45,7 +24,7 @@ services:
     command: ["npm","start"]
     networks:
       - mid-front
-
+  
   express-mid:
     build: ./express-mid
     hostname: express-mid
@@ -67,3 +46,27 @@ networks:
   back-nats:
   nats-mid:
   mid-front:
+
+
+# export NATS_URL=nats://nats-server:4222
+# export NATS_URL=0.0.0.0:4222
+
+#java-backend:
+   # build:
+      #context: ./interstore
+      #dockerfile: Dockerfile 
+    #container_name: java-backend 
+   # depends_on:
+     # - nats
+    #volumes:
+     # - type: bind
+       # source: ./interstore
+       # target: /app
+    #environment:
+     # - NATS_URL=nats://nats-server:4222
+    #command: ["./gradlew","run"]
+   # command: ['tail', '-f']
+   # ports:
+    #  - "8080:8080"
+    #networks:
+    #  - back-nats

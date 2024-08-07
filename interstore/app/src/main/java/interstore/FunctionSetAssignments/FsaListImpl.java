@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-@Service
+/*
+ * @Service
 public class FsaListImpl {
     private static final Logger LOGGER = Logger.getLogger(FsaListImpl.class.getName());
 
@@ -18,12 +18,12 @@ public class FsaListImpl {
 
     @Transactional
     public Object getFSAList(String fsaListLink) {
-        FunctionSetAssignmentsList functionSetAssignmentsList = functionSetAssignmentsListRepository.findByFsaListLink(fsaListLink);
-        if (functionSetAssignmentsList == null) {
+       // FunctionSetAssignmentsList functionSetAssignmentsList = functionSetAssignmentsListRepository.findByFsaListLink(fsaListLink);
+      //  if (functionSetAssignmentsList == null) {
             throw new EntityNotFoundException("FunctionSetAssignmentsList not found for link: " + fsaListLink);
         }
-        List<FunctionSetAssignments> functionSetAssignments = functionSetAssignmentsList.getFsa();
-        List<Long> ids = new ArrayList<>();
+       // List<FunctionSetAssignmentsEntity> functionSetAssignments = functionSetAssignmentsList.getFsa();
+       // List<Long> ids = new ArrayList<>();
         for(int i=0; i<functionSetAssignments.size(); i++){
             ids.add(functionSetAssignments.get(i).getId());
         }
@@ -31,4 +31,6 @@ public class FsaListImpl {
         return ids;
     }
 }
+
+ */
 

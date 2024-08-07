@@ -1,17 +1,19 @@
 package interstore.FunctionSetAssignments;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.logging.Logger;
 
-public class FsaListManager {
+/*
+ * public class FsaListManager {
     FsaListImpl fsaListImpl;
     private static final Logger LOGGER = Logger.getLogger(FsaListManager.class.getName());
     public FsaListManager(FsaListImpl fsaListImpl) {
         this.fsaListImpl = fsaListImpl;
     }
 
-    public Object chooseMethod_basedOnAction(String payload){
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -60,3 +62,9 @@ public class FsaListManager {
         }
     }
 }
+ * 
+ */
+
+
+
+

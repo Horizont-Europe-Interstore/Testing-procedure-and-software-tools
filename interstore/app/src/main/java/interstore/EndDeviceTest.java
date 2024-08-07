@@ -2,13 +2,9 @@ package interstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.JsonObject;
-
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -328,7 +324,7 @@ public class EndDeviceTest {
      */
    public static void getRegisteredEndDevice(String endDeviceResponsePayLoad)
     { 
-       String endDevice = interstore.DeviceCapabilitytest.getEndDeviceEndPoint(); 
+       String endDevice = interstore.DeviceCapabilityTest.getEndDeviceEndPoint(); 
        String registeredEndDevice = getRegistrationLinkEndPoint();
        String patternString =  endDevice + "/(\\d+)" + registeredEndDevice ;  
        Pattern pattern = Pattern.compile(patternString);

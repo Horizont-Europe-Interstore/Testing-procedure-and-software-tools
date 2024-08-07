@@ -3,6 +3,8 @@ package interstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -88,7 +90,7 @@ public class FunctionSetAssignmentTest {
             return queryServiceFSAList("get",  Integer.toUnsignedLong(0));
         }
     }
-    public static List<Integer> getPin(String payload){
+    public static List<Integer> getPin(String payload) throws JSONException{
         JSONObject jsonObject = new JSONObject(payload);
         JSONObject registeredEndDevice = jsonObject.getJSONObject("RegisteredEndDevice");
         int id = registeredEndDevice.getInt("id");

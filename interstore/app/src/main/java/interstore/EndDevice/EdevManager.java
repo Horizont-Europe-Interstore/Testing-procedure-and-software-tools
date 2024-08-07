@@ -17,9 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 @RestController
 public class EdevManager {
     private EndDeviceImpl endDeviceImpl;
@@ -66,7 +63,7 @@ public class EdevManager {
     */
 
 
-    public  Map<String, Object> payLoadParser(JSONObject jsonObject) 
+    public  Map<String, Object> payLoadParser(JSONObject jsonObject) throws JSONException 
     {  
     if(jsonObject.has("endDeviceID"))  
     {
@@ -102,7 +99,7 @@ public class EdevManager {
     } 
     
 
-    public Map<String, Object> registerEndDevice( JSONObject jsonPayLoad) throws InterruptedException {
+    public Map<String, Object> registerEndDevice( JSONObject jsonPayLoad) throws InterruptedException, JSONException {
         Long endDeviceID = jsonPayLoad.getLong("endDeviceID");
         Long registrationPin = jsonPayLoad.getLong("pin");
         return  this.endDeviceImpl.registerEndDevice( registrationPin, endDeviceID);   
@@ -110,7 +107,7 @@ public class EdevManager {
      
     
     
-    public  Map<String, Object> identify_method(JSONObject jsonObject) throws InterruptedException
+    public  Map<String, Object> identify_method(JSONObject jsonObject) throws InterruptedException, JSONException
     {  
         if(jsonObject.has("endDeviceID"))
         {
@@ -172,6 +169,9 @@ public class EdevManager {
     public Map<String, Object>getEndDeviceById(@PathVariable Long id) 
     {   
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getEndDevice(id);
+        Map<String, Object> responseMap = responseEntity.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
         return responseEntity.getBody(); 
     }
 

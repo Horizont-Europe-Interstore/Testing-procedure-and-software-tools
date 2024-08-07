@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 @Entity
-public class DeviceCapabilityDto extends FunctionSetAssignmentBase {
+public class DeviceCapabilityDto  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

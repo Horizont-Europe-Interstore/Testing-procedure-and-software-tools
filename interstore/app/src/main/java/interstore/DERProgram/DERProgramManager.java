@@ -1,5 +1,6 @@
 package interstore.DERProgram;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.logging.Logger;
@@ -11,7 +12,7 @@ public class DERProgramManager {
         this.derProgramImpl = derProgramImpl;
     }
 
-    public Object chooseMethod_basedOnAction(String payload){
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -44,7 +45,7 @@ public class DERProgramManager {
         }
     }
 
-    public String getDERProgramByListLinks(Object payload) {
+    public String getDERProgramByListLinks(Object payload) throws JSONException {
         return derProgramImpl.getDerProgramByListLinks(payload);
 //        return derProgramImpl.getDerProgramLists(payload);
 

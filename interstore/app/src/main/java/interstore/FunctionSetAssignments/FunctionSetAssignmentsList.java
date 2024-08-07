@@ -7,20 +7,20 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+//@Entity 
 public class FunctionSetAssignmentsList extends SubscribableList {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+   // @Id
+   // @GeneratedValue(strategy = GenerationType.AUTO)
+   // private Long id;
 
-    @Column(name = "fsa_list_link")
-    private String fsaListLink;
-    @OneToMany(
-            mappedBy = "fsaList",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<FunctionSetAssignments> fsa = new ArrayList<>();
+   // @Column(name = "fsa_list_link")
+   // private String fsaListLink;
+   // @OneToMany(
+         //   mappedBy = "fsaList",
+          //  cascade = CascadeType.ALL,
+         //   orphanRemoval = true
+   // )
+    private List<FunctionSetAssignmentsEntity> fsa = new ArrayList<>();
 
 //    @OneToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "endDev_id")
@@ -43,31 +43,16 @@ public class FunctionSetAssignmentsList extends SubscribableList {
 
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public FunctionSetAssignmentsList(String fsaListLink) {
-        this.fsaListLink = fsaListLink;
-    }
-
-    public String getFsaListLink() {
-        return fsaListLink;
-    }
-
-    public void setFsaListLink(String fsaListLink) {
-        this.fsaListLink = fsaListLink;
-    }
-
-    public List<FunctionSetAssignments> getFsa() {
+    public List<FunctionSetAssignmentsEntity> getFsa() {
         return fsa;
     }
 
-    public void setFsa(List<FunctionSetAssignments> fsa) {
+    public void setFsa(List<FunctionSetAssignmentsEntity> fsa) {
         this.fsa = fsa;
     }
 
-    public void addFsa(FunctionSetAssignments fsa) {
+    public void addFsa(FunctionSetAssignmentsEntity fsa) {
         this.fsa.add(fsa);
     }
 
@@ -97,3 +82,24 @@ public class FunctionSetAssignmentsList extends SubscribableList {
 
 }
 
+
+/*
+ * 
+    public Long getId() {
+        return id;
+    }
+
+    public FunctionSetAssignmentsList(String fsaListLink) {
+        this.fsaListLink = fsaListLink;
+    }
+
+    public String getFsaListLink() {
+        return fsaListLink;
+    }
+
+    public void setFsaListLink(String fsaListLink) {
+        this.fsaListLink = fsaListLink;
+    }
+ * 
+ * 
+ */

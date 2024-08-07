@@ -3,9 +3,9 @@ package interstore.EndDevice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
-import interstore.FunctionSetAssignments.FsaImpl;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsList;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsListRepository;
+//import interstore.FunctionSetAssignments.FunctionSetAssignmentsListRepository;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Registration.RegistrationDto;
@@ -40,7 +40,7 @@ public class EndDeviceImpl {
     private DERListRepository derListRepository;
 
     @Autowired
-    private FunctionSetAssignmentsListRepository functionSetAssignmentsListRepository;
+    //private FunctionSetAssignmentsListRepository functionSetAssignmentsListRepository;
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
 
@@ -107,9 +107,9 @@ public class EndDeviceImpl {
         listLink.setListLink(functionsetAssignmentListLink);
         endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink());
         try {
-            FunctionSetAssignmentsList fsaList = new FunctionSetAssignmentsList(listLink.getListLink());
-            fsaList = functionSetAssignmentsListRepository.save(fsaList);
-            generateFSA(fsaList);
+          //  FunctionSetAssignmentsList fsaList = new FunctionSetAssignmentsList(listLink.getListLink());
+           // fsaList = functionSetAssignmentsListRepository.save(fsaList);
+           // generateFSA(fsaList);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,12 +120,7 @@ public class EndDeviceImpl {
 
 
     }
-    public void generateFSA(FunctionSetAssignmentsList fsaList){
-        for(int i = 0; i < 3; i++) {
-            FsaImpl fsaImpl = ApplicationContextProvider.getApplicationContext().getBean(FsaImpl.class);
-            fsaImpl.createFSA(fsaList);
-        }
-    }
+    
 
     public void setEndDeviceAttributesEndPoints(JSONObject payload)
     {
@@ -361,6 +356,20 @@ public class EndDeviceImpl {
 
 
 
+
+/*
+ * public void generateFSA(FunctionSetAssignmentsList fsaList){
+        for(int i = 0; i < 3; i++) {
+            FunctionSetAssignmentsService fsaImpl = ApplicationContextProvider.getApplicationContext().getBean(FunctionSetAssignmentsService.class);
+            fsaImpl.createFSA(fsaList);
+        }
+    }
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
 
 
 

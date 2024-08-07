@@ -14,9 +14,9 @@ import interstore.DeviceCapability.DcapManager;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EdevManager;
 import interstore.EndDevice.EndDeviceImpl;
-import interstore.FunctionSetAssignments.FsaImpl;
-import interstore.FunctionSetAssignments.FsaListImpl;
-import interstore.FunctionSetAssignments.FsaListManager;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
+//import interstore.FunctionSetAssignments.FsaListImpl;
+//import interstore.FunctionSetAssignments.FsaListManager;
 import interstore.FunctionSetAssignments.FsaManager;
 import interstore.SelfDevice.SdevManager;
 import interstore.SelfDevice.SelfDeviceDto;
@@ -57,10 +57,10 @@ public class MicroServiceFactory {
         DERManager derManager = new DERManager(derImpl);
         DERListImpl derListImpl = serviceFactory.getDERListProvider().get();
         DERListManager derListManager = new DERListManager(derListImpl);
-        FsaImpl fsaImpl = serviceFactory.getFsaProvider().get();
-        FsaManager fsaManager = new FsaManager(fsaImpl);
-        FsaListImpl fsaListImpl = serviceFactory.getFsaListProvider().get();
-        FsaListManager fsaListManager = new FsaListManager(fsaListImpl);
+        FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
+        FsaManager fsaManager = new FsaManager(fsaService);
+      // FsaListImpl fsaListImpl = serviceFactory.getFsaListProvider().get();
+        //FsaListManager fsaListManager = new FsaListManager(fsaListImpl);
         DERProgramImpl derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
         DERPListImpl derpListImpl = serviceFactory.getDerpListProvider().get();
@@ -82,7 +82,7 @@ public class MicroServiceFactory {
         this.microservices.put("getDERList", derListManager);
         this.microservices.put("getDER_properties", derManager);
         this.microservices.put("update_DER_properties", derManager);
-        this.microservices.put("fsalistmanager", fsaListManager);
+       // this.microservices.put("fsalistmanager", fsaListManager);
         this.microservices.put("fsamanager", fsaManager);
         this.microservices.put("derplistmanager", derpListManager);
         this.microservices.put("derprogrammanager", derProgramManager);
@@ -102,7 +102,7 @@ public class MicroServiceFactory {
     public void createDto() {
 
         SelfDeviceDto selfDeviceDto = new SelfDeviceDto();
-        DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
+        DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         EndDeviceTest endDeviceTest = new EndDeviceTest();
         FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
         TimeTest timeTest = new TimeTest();

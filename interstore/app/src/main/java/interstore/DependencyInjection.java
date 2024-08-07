@@ -7,8 +7,8 @@ import interstore.DERProgram.DERProgramImpl;
 import interstore.DER.DERListImpl;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
-import interstore.FunctionSetAssignments.FsaImpl;
-import interstore.FunctionSetAssignments.FsaListImpl;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
+//import interstore.FunctionSetAssignments.FsaListImpl;
 import interstore.SelfDevice.SelfDeviceImpl;
 //import interstore.Identity.LinkService; 
 public class DependencyInjection extends AbstractModule {
@@ -22,8 +22,8 @@ public class DependencyInjection extends AbstractModule {
         //bind(EndDeviceImpl.class);
         bind(DERImpl.class).toProvider(new SpringBeanProvider<>(DERImpl.class));
         bind(DERListImpl.class).toProvider(new SpringBeanProvider<>(DERListImpl.class));
-        bind(FsaImpl.class).toProvider(new SpringBeanProvider<>(FsaImpl.class));
-        bind(FsaListImpl.class).toProvider(new SpringBeanProvider<>(FsaListImpl.class));
+        bind(FunctionSetAssignmentsService.class).toProvider(new SpringBeanProvider<>(FunctionSetAssignmentsService.class));
+       // bind(FsaListImpl.class).toProvider(new SpringBeanProvider<>(FsaListImpl.class));
         bind(DERProgramImpl.class).toProvider(new SpringBeanProvider<>(DERProgramImpl.class));
         bind(DERPListImpl.class).toProvider(new SpringBeanProvider<>(DERPListImpl.class));
     }

@@ -75,7 +75,7 @@ public class DeviceCapabilityImpl {
         String timeLink = jsonObject.getString("timeLink");
         link.setLink(timeLink);
         deviceCapabilityDto.addLink(link.getLink());
-        deviceCapabilityDto.setTimeLink(link.getLink());
+        //deviceCapabilityDto.setTimeLink(link.getLink());
 
         TimeDto time = new TimeDto();
         time.setTimeLink(link.getLink());

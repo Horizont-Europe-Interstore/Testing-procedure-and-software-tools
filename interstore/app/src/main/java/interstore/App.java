@@ -9,7 +9,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +60,7 @@ public class App {
     //needs persistence
      public String findDeviceCapability(String natsSubject) throws Exception
      {
-         String deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+         String deviceCapabilityResponse = DeviceCapabilityTest.getDeviceCapabilityresponse();
          LOGGER.info("the device capability response is  " + deviceCapabilityResponse);
          return  deviceCapabilityResponse;
      }
@@ -76,12 +75,12 @@ public class App {
             return deviceCapabilityResponse;
         }
 
-        DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
+        DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         deviceCapabilitytest.setserviceName("dcapmanager" ); 
         String Payload =  deviceCapabilitytest.setPostQuery(postDeviceCapablity());
         this.messageToPublish.newStart(natsSubject, Payload );
         Thread.sleep(300);
-        deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+        deviceCapabilityResponse = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
         return  deviceCapabilityResponse;
     }
    
@@ -94,7 +93,7 @@ public class App {
 
     public Object DeviceCapabilitygetAllEndDevice(String natsSubject) throws Exception {
 
-        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+        String endDeviceListLink = interstore.DeviceCapabilityTest.getEndDeviceListLink(); 
         Thread.sleep(100);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
@@ -136,7 +135,7 @@ public class App {
         Thread.sleep(300);
 
         // impliment a different logic for get all end device . ///
-        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+        String endDeviceListLink = interstore.DeviceCapabilityTest.getEndDeviceListLink(); 
         LOGGER.info("the end device list link is " + endDeviceListLink);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
@@ -217,8 +216,8 @@ public class App {
      }
 
     public String TimeTest(String natsSubject) throws Exception {
-        if(interstore.DeviceCapabilitytest.getDeviceCapabilityresponse() != null){
-            String response = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+        if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
             LOGGER.info("the device capability response is  " + response);
             Thread.sleep(300);
             String timeLink = interstore.TimeTest.getTimeLink(response);
@@ -253,12 +252,12 @@ public class App {
                 return "Quality value not found.";
             }
         }
-        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
     }
 
     public String AdvancedTimeTest(String natsSubject) throws Exception {
-        if(interstore.DeviceCapabilitytest.getDeviceCapabilityresponse() != null){
-            String response = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+        if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
             LOGGER.info("the device capability response is  " + response);
             String timeLink = interstore.TimeTest.getTimeLink(response);
             LOGGER.info("the timelink response is  " + timeLink);
@@ -287,12 +286,12 @@ public class App {
                 return "Time Instance value not found.";
             }
         }
-        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
     }
 
     public Object functionSetAssignmentTest (String natsSubject) throws Exception
     {
-        if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilitytest.getEndDeviceListLink() != null){
+        if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilityTest.getEndDeviceListLink() != null){
             String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
             List<Integer> values = interstore.FunctionSetAssignmentTest.getPin(response);
             int regID = values.get(0);
@@ -333,25 +332,7 @@ public class App {
         this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
         this.uiControleHandler = new UIControleHandler();
         this.uiControleHandler.setupBridge();
-//        FunctionSetAssignmentTest("FSA-Test");
-        //findDeviceCapability("Adam");
-        // CreateDeviceCapabilityTest("vinay"); // returns the device capability in the server . 
-          // DeviceCapabilitygetAllEndDevice("enddevicemanager"); 
-          // CreateEndDeviceTest("Nithin");
-           //this.multipleEndDeviceCreateTest();
-//         getAllEndDevicesTest("Nithin");
-          // getEndDeviceTest("EndDeviceInstanceTest");
-//         createEndDeviceRegistrationTest("RegistrationLink");
-       //findRegisterdEndDeviceTest("RegisteredEndDevice");
-         // this.EndDeviceTest("enddevicemanager"); // returns all enddevices present in the server
-//       this.EndDeviceRegistrationTest("enddeviceregistration"); // return particular enddevice with it's registration link
-       // Thread.sleep(100);
-        //this.messageToPublish.closeConnection();
-        // needs to write a new test case for returnig the attribute of particular end device registered the output is this 
-          // { "registered PIN": "111112" } 
-              //this.DeviceCapblityendDeviceTest("enddevicemanager"); 
 
-       // LOGGER.info("Publisher connection closed");
           
     }
    
@@ -360,7 +341,7 @@ public class App {
    
     public static void main(String[] args) throws Exception {
         String natsUrl = System.getenv("NATS_URL");
-        //String natsUrl = "nats://localhost:4222";
+      
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
@@ -375,6 +356,6 @@ public class App {
 
 /*
  *
-     export NATS_URL=nats://localhost:4222
+ String natsUrl = "nats://localhost:4222";   
  *
  */

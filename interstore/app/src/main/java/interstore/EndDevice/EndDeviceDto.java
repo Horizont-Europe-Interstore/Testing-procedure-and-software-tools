@@ -2,8 +2,10 @@ package interstore.EndDevice;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import interstore.AbstractDevice;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @Entity
@@ -39,7 +41,9 @@ public class EndDeviceDto implements AbstractDevice{
 
     @Column(name= "link_der_list")
     private String linkDerList;
-
+    
+    @OneToMany(mappedBy = "endDevice", cascade = CascadeType.ALL)
+    private List<FunctionSetAssignmentsEntity> functionSetAssignments;
 
     public EndDeviceDto() {
         

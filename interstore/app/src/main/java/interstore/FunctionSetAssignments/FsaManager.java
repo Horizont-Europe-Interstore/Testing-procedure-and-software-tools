@@ -1,17 +1,18 @@
 package interstore.FunctionSetAssignments;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.logging.Logger;
 
 public class FsaManager {
-    FsaImpl fsaImpl;
+    FunctionSetAssignmentsService fsaImpl;
     private static final Logger LOGGER = Logger.getLogger(FsaManager.class.getName());
-    public FsaManager(FsaImpl fsaImpl) {
+    public FsaManager(FunctionSetAssignmentsService fsaImpl) {
         this.fsaImpl = fsaImpl;
     }
 
-    public Object chooseMethod_basedOnAction(String payload){
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -26,7 +27,7 @@ public class FsaManager {
                 addFSA(jsonObject);
                 break;
             case "get":
-                return getFSA(jsonObject.getString("payload"));
+                //return getFSA(jsonObject.getString("payload"));
 
             case "put":
                 updateFSA(jsonObject);
@@ -44,10 +45,7 @@ public class FsaManager {
         }
     }
 
-    public Object getFSA(String payload) {
-        return fsaImpl.getFSA(payload);
-
-    }
+ 
 
 
     public void updateFSA( JSONObject jsonObject) {
@@ -61,3 +59,11 @@ public class FsaManager {
         }
     }
 }
+
+/*
+ *    public Object getFSA(String payload) {
+        return fsaImpl.getFSA(payload);
+
+    }
+ * 
+ */
