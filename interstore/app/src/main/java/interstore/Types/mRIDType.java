@@ -1,30 +1,33 @@
 package interstore.Types;
-
 import java.math.BigInteger;
-
+import jakarta.persistence.Embeddable;
+@Embeddable
 public class mRIDType extends HexBinary128 {
-//    private final BigInteger PEN;
+    private BigInteger value;
 
     public mRIDType(String hexValue) {
         super(hexValue);
-        try {
-            BigInteger value = new BigInteger(hexValue, 16);
-        }
-        catch (Exception e){
-            throw new IllegalArgumentException("Invalid mRID value: " + hexValue);
-        }
-        BigInteger value = new BigInteger(hexValue, 16);
-        // Extract the PEN from the least significant bits
-//        int startIndex = value.bitLength() - 8;
-//        this.PEN = new BigInteger(value.toString().substring(startIndex)); // Assuming PEN is the last 8 characters
+        this.value = new BigInteger(getMRID(), 16); 
     }
 
-//    public BigInteger getPEN() {
-//        return PEN;
-//    }
+    public void setMRID(String hexValue) {
+        super.setHexValue(hexValue);
+        this.value = new BigInteger(getMRID(), 16); 
+    }
 
-    @Override
-    public String getHexValue() {
+    public String getMRID() {
         return super.getHexValue();
     }
+
+
+    public BigInteger getMRIDValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return getMRID();
+    }
 }
+
+

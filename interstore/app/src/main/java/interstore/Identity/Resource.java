@@ -1,5 +1,6 @@
 package interstore.Identity;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class Resource {
@@ -17,8 +18,12 @@ public class Resource {
         return href;
     }
    
-    public  void setLink(String endPoint) {
-        this.href = String.format("%s%s", fixedHref, endPoint);
+    public void setHref(Optional<String> endpoint) {
+        if (endpoint.isPresent()) {
+            this.href = String.format("%s%s", fixedHref, endpoint.get());
+        } else {
+            this.href = null;
+        }
     }
     
  

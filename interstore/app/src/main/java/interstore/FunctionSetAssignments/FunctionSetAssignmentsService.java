@@ -1,5 +1,6 @@
 package interstore.FunctionSetAssignments;
 import interstore.Identity.*;
+import interstore.Types.*;
 import interstore.ApplicationContextProvider;
 import interstore.DERProgram.DERPList;
 import interstore.DERProgram.DERPListRepository;
@@ -16,11 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 @Service
 public class FunctionSetAssignmentsService {
@@ -39,10 +45,7 @@ public class FunctionSetAssignmentsService {
        
     }
      /*
-      * function set assignment entity what it has to save 
-        payload shall have a base link 
-        baselink : http://localhost:8080/edev/id/fsa 
-        from the above link individual fsa link has to be created 
+      * 
        
         "payload" : {
          mRID : "XXXXXXXX", type: mRIDType
@@ -78,14 +81,28 @@ public class FunctionSetAssignmentsService {
             String endDeviceId = Fsapayload.optString("EndDeviceID");
             Long endDeviceIdLong = Long.parseLong(endDeviceId); 
             String idString = "/"+ String.valueOf(fsaId) ;
-            
             String functionsetassignmentLink = createFunctionSetAssignmentsLink(endDeviceIdLong );
             String fsaLink = functionsetassignmentLink + idString;
             fsaEntity.setFunctionSetAssignmentsLink(Optional.ofNullable(fsaLink));
+
+            mRIDType mRid = new mRIDType( Fsapayload.optString("mRID"));
+            String description = Fsapayload.optString("description");
+            String subScribabale = Fsapayload.optString("subscribable");
+            short shortSubscribable = Short.parseShort(subScribabale);
+            SubscribableType subscribableType =  new SubscribableType(shortSubscribable) ; 
+            String version = Fsapayload.optString("version");
+            int intVersion = Integer.parseInt(version) ;
+            VersionType versionType = new VersionType(intVersion);
+
+            fsaEntity.setmRID(mRid);
+            fsaEntity.setDescription(description);
+            fsaEntity.setSubscribable(subscribableType);
+            fsaEntity.setVersion(versionType);
+            findListLink(Fsapayload, fsaEntity);
            
 
       }
-      // "functionSetAssignmentsListLink" 
+     
       public String createFunctionSetAssignmentsLink(Long id )
       {
         EndDeviceImpl endDeviceImpl = new EndDeviceImpl();
@@ -109,9 +126,55 @@ public class FunctionSetAssignmentsService {
         return null; 
       }
     
-
+    public  void findListLink(JSONObject payload, FunctionSetAssignmentsEntity fsaEntity)
+    {
+        @SuppressWarnings("unchecked")
+        Iterator<String> keys  = payload.keys();
+        while(keys.hasNext())
+        {
+            String key = keys.next();
+            switch(key) {
+                case "DemandResponseProgramListLink":
+                fsaEntity.setDERProgramListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "FileListLink":
+                fsaEntity.setFileListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "TraiffProfileListLink":
+                fsaEntity.setTariffProfileListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "MessagingProgramListLink":
+                fsaEntity.setMessagingProgramListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "UsagePointListLink":
+                fsaEntity.setUsagePointListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "DERProgramListLink":
+                fsaEntity.setDERProgramListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "CustomerAccountListLink":
+                fsaEntity.setCustomerAccountListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "PrepaymentListLink":
+                fsaEntity.setPrepaymentListLink(Optional.ofNullable(payload.optString(key)));
+                break;
+                case "ResponseSetListLink":
+                fsaEntity.setResponseSetListLink(Optional.ofNullable(payload.optString(key)));
+                 default:
+                    break;    
+    }
     
 }
+
+    }
+
+
+}
+
+
+
+
+
 
 
 /*
@@ -174,6 +237,24 @@ public void createdFSA(FunctionSetAssignmentsList fsaList){
  *    @Autowired
     DERPListRepository derpListRepository;
  * 
+ * 
+ * 
+ *  }
+        List<String> list_Links = new ArrayList<>();
+        list_Links.add("DemandResponseProgramListLink");
+        list_Links.add("FileListLink");
+        list_Links.add("TraiffProfileListLink");
+        list_Links.add("MessagingProgramListLink");
+        list_Links.add("UsagePointListLink");
+        list_Links.add("DERProgramListLink");
+        list_Links.add("CustomerAccountListLink");
+        list_Links.add("PrepaymentListLink");
+        list_Links.add("ResponseSetListLink");
+        for(String link : list_Links)
+        {
+            String value = payload.optString(link);
+            listLink.put(link, value);
+        }
  * 
  * 
  * 

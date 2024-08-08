@@ -1,7 +1,12 @@
 package interstore.FunctionSetAssignments;
 import interstore.EndDevice.EndDeviceDto;
+import interstore.Identity.Resource;
 import jakarta.persistence.*;
 import java.util.Optional;
+
+import interstore.Types.SubscribableType;
+import interstore.Types.mRIDType;
+import interstore.Types.VersionType;
 
 @Entity
 @Table(name = "function_set_assignments")
@@ -17,14 +22,14 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     @Column(name = "description")
     private String description;
 
-    @Column(name = "m_RID")
-    private String mRID;
+    @Embedded
+    private mRIDType mRID;
 
-    @Column(name = "version")
-    private String version;
-
-    @Column(name = "subscribable")
-    private String subscribable;
+    @Embedded
+    private VersionType version;
+    
+    @Embedded
+    private SubscribableType subscribable;
    
 
     @Column(name = "demand_response_program_list_link")
@@ -77,30 +82,35 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public String getmRID() {
+    
+    public mRIDType getmRID() {
         return mRID;
     }
 
-    public void setmRID(String mRID) {
+    public void setmRID(mRIDType mRID) {
         this.mRID = mRID;
     }
 
-    public String getVersion() {
+
+  
+    public VersionType getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(VersionType version) {
         this.version = version;
     }
 
-    public String getSubscribable() {
+    public SubscribableType getSubscribable() {
         return subscribable;
     }
 
-    public void setSubscribable(String subscribable) {
+    public void setSubscribable(SubscribableType subscribable) {
         this.subscribable = subscribable;
     }
+   
+    
+
 
     @Override
     public Optional<String> getFunctionSetAssignmentsLink() {
@@ -119,6 +129,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setDemandResponseProgramListLink(Optional<String> demandResponseProgramListLink) {
+        if(demandResponseProgramListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(demandResponseProgramListLink);
+            this.demandResponseProgramListLink = resource.getHref();
+        }
         this.demandResponseProgramListLink = demandResponseProgramListLink.orElse(null);
     }
 
@@ -129,6 +144,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setTariffProfileListLink(Optional<String> tariffProfileListLink) {
+        if(tariffProfileListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(tariffProfileListLink);
+            this.tariffProfileListLink = resource.getHref();
+        }
         this.tariffProfileListLink = tariffProfileListLink.orElse(null);
     }
 
@@ -139,6 +159,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setMessagingProgramListLink(Optional<String> messagingProgramListLink) {
+        if(messagingProgramListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(messagingProgramListLink);
+            this.messagingProgramListLink = resource.getHref();
+        }
         this.messagingProgramListLink = messagingProgramListLink.orElse(null);
     }
 
@@ -149,6 +174,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setFileListLink(Optional<String> fileListLink) {
+        if(fileListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(fileListLink);
+            this.fileListLink = resource.getHref();
+        }
         this.fileListLink = fileListLink.orElse(null);
     }
 
@@ -159,6 +189,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setUsagePointListLink(Optional<String> usagePointListLink) {
+        if(usagePointListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(usagePointListLink);
+            this.usagePointListLink = resource.getHref();
+        }
         this.usagePointListLink = usagePointListLink.orElse(null);
     }
 
@@ -169,6 +204,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setDERProgramListLink(Optional<String> derProgramListLink) {
+        if(derProgramListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(derProgramListLink);
+            this.derProgramListLink = resource.getHref();
+        }
         this.derProgramListLink = derProgramListLink.orElse(null);
     }
 
@@ -179,6 +219,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setCustomerAccountListLink(Optional<String> customerAccountListLink) {
+        if(customerAccountListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(customerAccountListLink);
+            this.customerAccountListLink = resource.getHref();
+        }
         this.customerAccountListLink = customerAccountListLink.orElse(null);
     }
 
@@ -189,6 +234,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setPrepaymentListLink(Optional<String> prepaymentListLink) {
+        if(prepaymentListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(prepaymentListLink);
+            this.prepaymentListLink = resource.getHref();
+        }
         this.prepaymentListLink = prepaymentListLink.orElse(null);
     }
 
@@ -199,32 +249,44 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @Override
     public void setResponseSetListLink(Optional<String> responseSetListLink) {
+        if(responseSetListLink.isPresent()){
+            Resource resource = new Resource();
+            resource.setHref(responseSetListLink);
+            this.responseSetListLink = resource.getHref();
+        }
         this.responseSetListLink = responseSetListLink.orElse(null);
     }
   
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
     
 }
 
 
 /*
+
+
+@Column(name = "version")
+    private String version;
+    
+
+ @Column(name = "subscribable")
+    private String subscribable;
+   
+
+  public String getmRID() {
+        return mRID;
+    }
+
+    public void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
+
+
+
+
+ @Column(name = "m_RID")
+    private String mRID;
+    
  *  @Override
     public Optional<String> getTimeLink() {
         return Optional.ofNullable(timeLink);

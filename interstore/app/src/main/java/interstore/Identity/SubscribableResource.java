@@ -9,6 +9,8 @@ public class SubscribableResource extends Resource{
         super(href);
         this.subscribable = subscribable;
     }
+
+    
     public SubscribableResource() {
 
     }
