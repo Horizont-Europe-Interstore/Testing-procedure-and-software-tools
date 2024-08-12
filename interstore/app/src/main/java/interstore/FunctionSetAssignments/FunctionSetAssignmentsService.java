@@ -59,7 +59,7 @@ public class FunctionSetAssignmentsService {
          i need to create a function set assignments for a particular end device for this 
          reason i have to choose the end device id from front end and put it in the payload 
          once i receive the end device id i have to query for it's corresponding uri and it's 
-         fsa uri . so i can create the fsa link 
+         fsa uri .i can create the fsa link 
          "functionSetAssignmentsListLink":"http://localhost/edev/1/fsa"
 
       */
