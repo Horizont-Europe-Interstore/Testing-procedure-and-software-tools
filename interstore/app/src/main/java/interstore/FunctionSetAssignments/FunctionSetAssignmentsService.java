@@ -189,8 +189,9 @@ public class FunctionSetAssignmentsService {
 
     }
 
-    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments()
-    {
+    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(String endDeviceID)
+    {   
+         
         Map<String, Object> responseMap = new HashMap<>();
         try {
             List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findAll();
@@ -210,7 +211,7 @@ public class FunctionSetAssignmentsService {
 
     }
 
-    
+
     
     /*
      * if the function set assignment is subscribabsale then it has 
