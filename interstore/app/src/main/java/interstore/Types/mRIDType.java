@@ -3,25 +3,25 @@ import java.math.BigInteger;
 import jakarta.persistence.Embeddable;
 @Embeddable
 public class mRIDType extends HexBinary128 {
-    private BigInteger value;
+    private BigInteger mRIDvalue;
 
     public mRIDType(String hexValue) {
         super(hexValue);
-        this.value = new BigInteger(getMRID(), 16); 
+        this.mRIDvalue = new BigInteger(getMRID(), 16); 
     }
 
     public void setMRID(String hexValue) {
-        super.setHexValue(hexValue);
-        this.value = new BigInteger(getMRID(), 16); 
+        super.setHexValue128Value(hexValue);
+        this.mRIDvalue = new BigInteger(getMRID(), 16); 
     }
 
     public String getMRID() {
-        return super.getHexValue();
+        return super.getHexValue128Value();
     }
 
 
     public BigInteger getMRIDValue() {
-        return value;
+        return mRIDvalue;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package interstore.Types;
 
 public class String32 {
-    private final String value;
+    private final String String32value;
 
     public String32(String value) {
         if (value == null) {
@@ -10,15 +10,15 @@ public class String32 {
         if (value.length() > 32) {
             throw new IllegalArgumentException("Value length must not exceed 32 characters");
         }
-        this.value = value;
+        this.String32value = value;
     }
 
-    public String getValue() {
-        return value;
+    public String getString32value() {
+        return String32value;
     }
 
     @Override
     public String toString() {
-        return value;
+        return String32value;
     }
 }

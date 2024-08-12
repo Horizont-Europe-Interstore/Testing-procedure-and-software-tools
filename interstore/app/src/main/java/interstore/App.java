@@ -239,7 +239,7 @@ public class App {
             if (quality!=null && timeInstance!=null) {
                 if(quality.equals("7")){
                     LOGGER.info("Quality metric matched with Client with value: "+quality);
-                    LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getValue());
+                    LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getInt64Value());
                     LOGGER.info("Synchronized REF-Client Time: " + timeInstance);
                     return "Synchronized the REF-Client Time with the Device Capability";
                 }

@@ -3,18 +3,18 @@ package interstore.Types;
 import java.math.BigInteger;
 
 public class HexBinary128 {
-    private String hexValue;
+    private String hexValue128Value;
 
     public HexBinary128(String hexValue) {
-        this.hexValue = validateAndFormatHexValue(hexValue);
+        this.hexValue128Value = validateAndFormatHexValue(hexValue);
     }
 
-    public String getHexValue() {
-        return hexValue;
+    public String getHexValue128Value() {
+        return hexValue128Value;
     }
 
-    public void setHexValue(String hexValue) {
-        this.hexValue = validateAndFormatHexValue(hexValue);
+    public void setHexValue128Value(String hexValue) {
+        this.hexValue128Value = validateAndFormatHexValue(hexValue);
     }
 
     private String validateAndFormatHexValue(String hexValue) {

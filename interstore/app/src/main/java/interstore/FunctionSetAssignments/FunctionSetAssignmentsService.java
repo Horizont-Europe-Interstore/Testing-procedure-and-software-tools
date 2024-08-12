@@ -209,6 +209,8 @@ public class FunctionSetAssignmentsService {
         }
 
     }
+
+    
     
     /*
      * if the function set assignment is subscribabsale then it has 

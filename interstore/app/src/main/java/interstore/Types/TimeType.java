@@ -1,17 +1,17 @@
 package interstore.Types;
 
 public class TimeType extends Int64{
-    private long value;
+    private long Int64Value;
 
     public TimeType(long value) {
         super(value);
-        this.value = value;
+        this.Int64Value = value;
     }
-    public long getValue(){
-        return this.value;
+    public long getInt64Value(){
+        return this.Int64Value;
     }
-    public void setValue(long value){
-        this.value = value;
+    public void setInt64Value(long value){
+        this.Int64Value = value;
     }
 
 }

@@ -1,7 +1,7 @@
 package interstore.Types;
 
 public class PrimacyType extends UInt8 {
-    private short value;
+    private short PrimacyTypeValue;
     public PrimacyType(short value) {
         super(value);
         if (value >= 3 && value <= 64) {
@@ -10,10 +10,10 @@ public class PrimacyType extends UInt8 {
         if (value >= 192 && value <= 255) {
             throw new IllegalArgumentException("Values 192 to 255 are reserved");
         }
-        this.value = value;
+        this.PrimacyTypeValue = value;
     }
 
     public String getString(){
-        return String.valueOf(this.value);
+        return String.valueOf(this.PrimacyTypeValue);
     }
 }

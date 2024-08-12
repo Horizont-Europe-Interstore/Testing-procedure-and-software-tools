@@ -50,7 +50,7 @@ networks:
 
 # export NATS_URL=nats://nats-server:4222
 # export NATS_URL=0.0.0.0:4222
-
+# ./gradlew run -x test 
 #java-backend:
    # build:
       #context: ./interstore

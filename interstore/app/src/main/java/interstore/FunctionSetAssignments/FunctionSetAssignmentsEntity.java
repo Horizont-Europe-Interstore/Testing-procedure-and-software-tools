@@ -65,9 +65,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     @Column(name = "function_set_assignments_link")
     private String functionSetAssignmentsLink;
 
-    @Column(name = "function_set_assignment_subscribable_list")
-    @ElementCollection
-    private List<Object> functionSetAssignmentSubscribableList = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "parent_id")
+    private List<FunctionSetAssignmentsEntity> functionSetAssignmentSubscribableList = new ArrayList<>();
+
+
 
     public FunctionSetAssignmentsEntity(){
         
@@ -115,10 +117,10 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
         this.subscribable = subscribable;
     }
    
-    public List<Object> getFSASubscribableList() {
+    public List<FunctionSetAssignmentsEntity> getFSASubscribableList() {
         return functionSetAssignmentSubscribableList;
     }
-    public void setFSASubscribableList(Object functionSetAssignmentSubscribableList) {
+    public void setFSASubscribableList(FunctionSetAssignmentsEntity functionSetAssignmentSubscribableList) {
         this.functionSetAssignmentSubscribableList.add(functionSetAssignmentSubscribableList);
         
     }

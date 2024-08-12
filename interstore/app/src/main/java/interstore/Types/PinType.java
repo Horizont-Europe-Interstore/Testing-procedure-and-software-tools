@@ -9,10 +9,10 @@ public class PinType  extends UInt32{
        
     }
     
-    public long getValue(){
+    public long getUInt32Value(){
        // LOGGER.info("passing here  in PIN TYpe"); 
        // LOGGER.info("PIN TYpe value is " + super.getValue());
-        return  super.getValue();
+        return  super.getUInt32Value();
     }
     public void setValue(long value){
        

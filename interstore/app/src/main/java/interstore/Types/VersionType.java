@@ -6,8 +6,8 @@ public class VersionType extends UInt16{
         super(0);
     }
 
-    public VersionType(int value) {
-        super(value);
+    public VersionType(int versionTypeValue) {
+        super(versionTypeValue);
     }
 
     @Override

@@ -1,11 +1,11 @@
 package interstore.Types;
 
 public class Int64 {
-    private final long value;
+    private final long Int64Value;
 
     public Int64(long value) {
         validateRange(value);
-        this.value = value;
+        this.Int64Value = value;
     }
 
     private void validateRange(long value) {
