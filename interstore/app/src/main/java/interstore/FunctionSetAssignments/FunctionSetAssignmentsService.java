@@ -1,15 +1,6 @@
 package interstore.FunctionSetAssignments;
-import interstore.Identity.*;
 import interstore.Types.*;
-import interstore.ApplicationContextProvider;
-import interstore.DERProgram.DERPList;
-import interstore.DERProgram.DERPListRepository;
-import interstore.DERProgram.DERProgramImpl;
-import interstore.EndDevice.EndDeviceDto;
-import interstore.EndDevice.EndDeviceRepository;
 import interstore.EndDevice.EndDeviceImpl; 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -98,7 +87,10 @@ public class FunctionSetAssignmentsService {
             fsaEntity.setDescription(description);
             fsaEntity.setSubscribable(subscribableType);
             fsaEntity.setVersion(versionType);
+            
             findListLink(Fsapayload, fsaEntity);
+            AddSubscribabaleFsa(shortSubscribable, fsaEntity);
+
            
 
       }
@@ -128,7 +120,6 @@ public class FunctionSetAssignmentsService {
     
     public  void findListLink(JSONObject payload, FunctionSetAssignmentsEntity fsaEntity)
     {
-        @SuppressWarnings("unchecked")
         Iterator<String> keys  = payload.keys();
         while(keys.hasNext())
         {
@@ -165,10 +156,67 @@ public class FunctionSetAssignmentsService {
     }
     
 }
+       
+    }
+   
+        public void AddSubscribabaleFsa(Short shortSubscribable,FunctionSetAssignmentsEntity fsaEntity )
+        {
+          if(shortSubscribable!= 0)
+          {
+            fsaEntity.setFSASubscribableList(fsaEntity);
+          }
+        }
+
+
+    public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long id)
+    {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            FunctionSetAssignmentsEntity fsaEntity = functionSetAssignmentsRepository.findById(id).orElse(null);
+            LOGGER.log(Level.INFO, " fsaEntity retrieved successfully" + fsaEntity );
+            if(fsaEntity  == null) {
+                responseMap.put("message", "No functionSetAssignments found.");
+            }
+            else {
+                responseMap.put("functionSetAssignments", fsaEntity );
+            }
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
+            
+            return ResponseEntity.status(404).body(null);
+        }
 
     }
 
+    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments()
+    {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findAll();
+            LOGGER.log(Level.INFO, " fsaEntity retrieved successfully" + fsaEntityList);
+            if(fsaEntityList.isEmpty()) {
+                responseMap.put("message", "No functionSetAssignments found.");
+            }
+            else {
+                responseMap.put("functionSetAssignments", fsaEntityList);
+            }
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
 
+            return ResponseEntity.status(404).body(null);
+        }
+
+    }
+    
+    /*
+     * if the function set assignment is subscribabsale then it has 
+     * the function set assignemnts created has to added to the database 
+     * so there is a need for member called functionsetassignmentsubscribabale 
+     * 
+     * 
+     */
 }
 
 
@@ -178,6 +226,16 @@ public class FunctionSetAssignmentsService {
 
 
 /*
+
+SubscribableList object (SubscribableResource)
+A List to which a Subscription can be requested.
+all attribute (UInt32) «XSDattribute»
+The number specifying “all” of the items in the list. Required on GET, ignored otherwise.
+results attribute (UInt32) «XSDattribute»
+Indicates the number of items in this page of results.
+
+
+
 
 public void createdFSA(FunctionSetAssignmentsList fsaList){
         FunctionSetAssignmentsEntity functionSetAssignment = new FunctionSetAssignmentsEntity(fsaList);

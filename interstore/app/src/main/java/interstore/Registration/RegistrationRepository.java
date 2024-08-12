@@ -1,7 +1,6 @@
 package interstore.Registration;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties.Registration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 public interface RegistrationRepository extends JpaRepository<RegistrationDto, Long> {

@@ -2,6 +2,9 @@ package interstore.FunctionSetAssignments;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Resource;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import interstore.Types.SubscribableType;
@@ -62,12 +65,15 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     @Column(name = "function_set_assignments_link")
     private String functionSetAssignmentsLink;
 
+    @Column(name = "function_set_assignment_subscribable_list")
+    @ElementCollection
+    private List<Object> functionSetAssignmentSubscribableList = new ArrayList<>();
+
     public FunctionSetAssignmentsEntity(){
         
     }
 
     
-
 
     public Long getId() {
         return id;
@@ -109,7 +115,13 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
         this.subscribable = subscribable;
     }
    
-    
+    public List<Object> getFSASubscribableList() {
+        return functionSetAssignmentSubscribableList;
+    }
+    public void setFSASubscribableList(Object functionSetAssignmentSubscribableList) {
+        this.functionSetAssignmentSubscribableList.add(functionSetAssignmentSubscribableList);
+        
+    }
 
 
     @Override

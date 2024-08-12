@@ -285,11 +285,6 @@ public class EndDeviceImpl {
    */
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
-    ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-    Map<String, Object> responseMap = responseEntity.getBody();
-    if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-    }
         try {
             List<RegistrationDto> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
             LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
@@ -322,12 +317,7 @@ public class EndDeviceImpl {
      */
     public ResponseEntity<Map<String, Object>>getRegisterdEndDeviceDetails(Long endDeviceID, Long registrationID)
     {
-        ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-        Map<String, Object> responseMap = responseEntity.getBody();
-        if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-        }
-
+        
         try {
             Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
@@ -358,6 +348,24 @@ public class EndDeviceImpl {
 
 
 /*
+ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
+    Map<String, Object> responseMap = responseEntity.getBody();
+    if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+##### 
+
+ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
+        Map<String, Object> responseMap = responseEntity.getBody();
+        if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+        }
+
+
+
+
+
  * public void generateFSA(FunctionSetAssignmentsList fsaList){
         for(int i = 0; i < 3; i++) {
             FunctionSetAssignmentsService fsaImpl = ApplicationContextProvider.getApplicationContext().getBean(FunctionSetAssignmentsService.class);
