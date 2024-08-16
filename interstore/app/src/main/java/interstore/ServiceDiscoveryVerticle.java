@@ -157,8 +157,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     public void sendResponseToNats(String natsSubject ,Object response) throws JsonProcessingException {
                ObjectMapper objectMapper = new ObjectMapper();
                 String responseMessage = objectMapper.writeValueAsString(response);
-                //String responseMessage = response.toString();
-                //LOGGER.info("Response message in  service verticle : " + responseMessage);
+                LOGGER.info("Response message in  service verticle : " + responseMessage);
                 this.messageToPublish.reSubscribeMessage(getNatsMatter(), this.natsUrl , getServiceName()); 
                 // Use  NATS connection to publish the response
                 natsConnection.publish(getNatsMatter(), responseMessage.getBytes(StandardCharsets.UTF_8));
@@ -173,19 +172,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     
 
     /*
-     * @PostConstruct
-       public void postConstruct(){
-
-       }
-       
-
-        public ServiceDiscoveryVerticle() throws Exception{  
-        this.natsUrl = System.getenv("NATS_URL"); 
-        this.natsConnection = Nats.connect(natsUrl);
-        this.microServiceFactory = new MicroServiceFactory(); 
-        this.messageToPublish = new MessageToPublish(); 
-        this.serviceName = null; 
-       }
+     *
 
      * 
      */

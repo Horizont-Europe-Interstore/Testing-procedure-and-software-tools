@@ -25,14 +25,14 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     @Column(name = "description")
     private String description;
 
-    @Embedded
-    private mRIDType mRID;
+    @Column(name = "m_rid")
+    private String mRID; // HexBinary128 is now a String
 
-    @Embedded
-    private VersionType version;
-    
-    @Embedded
-    private SubscribableType subscribable;
+    @Column(name = "version")
+    private Integer version; // UInt16 is now an Integer
+
+    @Column(name = "subscribable")
+    private Short subscribable;
    
 
     @Column(name = "demand_response_program_list_link")
@@ -82,44 +82,47 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     }
 
     
-
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    public mRIDType getmRID() {
+   
+    @Override
+    public String getmRID() {
         return mRID;
     }
-
-    public void setmRID(mRIDType mRID) {
+    @Override
+    public void setmRID(String mRID) {
         this.mRID = mRID;
     }
-
-
-  
-    public VersionType getVersion() {
+    @Override
+    public Integer getVersion() {
         return version;
     }
-
-    public void setVersion(VersionType version) {
+    @Override
+    public void setVersion(Integer version) {
         this.version = version;
     }
-
-    public SubscribableType getSubscribable() {
+    @Override
+    public Short getSubscribable() {
         return subscribable;
     }
-
-    public void setSubscribable(SubscribableType subscribable) {
+    @Override
+    public void setSubscribable(Short subscribable) {
         this.subscribable = subscribable;
     }
-   
+
+    @Override
     public List<FunctionSetAssignmentsEntity> getFSASubscribableList() {
         return functionSetAssignmentSubscribableList;
     }
+
+    @Override
     public void setFSASubscribableList(FunctionSetAssignmentsEntity functionSetAssignmentSubscribableList) {
         this.functionSetAssignmentSubscribableList.add(functionSetAssignmentSubscribableList);
         

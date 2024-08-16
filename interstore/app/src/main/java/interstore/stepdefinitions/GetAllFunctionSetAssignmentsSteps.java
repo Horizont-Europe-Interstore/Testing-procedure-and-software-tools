@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
 public class GetAllFunctionSetAssignmentsSteps {
     private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllFunctionSetAssignmentsSteps.class);
@@ -48,15 +46,12 @@ public class GetAllFunctionSetAssignmentsSteps {
     @Then("^the test should complete successfully with all function set assignments response containing:$")
     public  void the_test_should_complete_successfully_with_all_function_set_assignments_response_containing(String expectedJson) throws Exception {
         Map<String, String > expectedNoEndDeviceFoundMap = new HashMap<>();
-        LOGGER.info("the function set assignment response is :" + response);
         expectedNoEndDeviceFoundMap.put("message", "No endDevices found."); 
         Map<String, String> defaultexpectedEndDeviceMap = new HashMap<>();
         defaultexpectedEndDeviceMap.put("enddeviceLink", "http://localhost/edev/1");
-        LOGGER.info("Expected No Device Message : {} ", expectedNoEndDeviceFoundMap); 
-        LOGGER.info("Expected End Devices present response : {} ", defaultexpectedEndDeviceMap);
         ObjectMapper actualObjectMapper = new ObjectMapper();
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
-        LOGGER.info("the actaul  response is ....." + actualMap);
+        LOGGER.info("the actaul get all functio set assignment response is ....." + actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())
         {
             Object key = entry.getKey();
@@ -66,7 +61,7 @@ public class GetAllFunctionSetAssignmentsSteps {
                 scenario.log("actual" + ":" +  actualMap);
                 scenario.log("expected" + ":" +  expectedNoEndDeviceFoundMap);
             }
-            else if( key.equals("endDevices"))
+            else if( key.equals("functionSetAssignments"))
             {  
                 {
                     scenario.log("actual" + ":" + entry.getValue());

@@ -1,6 +1,4 @@
 package interstore.Types;
-import jakarta.persistence.Embeddable;
-@Embeddable
 public class SubscribableType extends UInt8 {
     private short SubscribabaleTypevalue;
     public SubscribableType(short value) {

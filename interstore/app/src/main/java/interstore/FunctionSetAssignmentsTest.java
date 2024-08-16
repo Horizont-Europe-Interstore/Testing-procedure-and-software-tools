@@ -69,7 +69,7 @@ public class FunctionSetAssignmentsTest {
     /* response for all function set assignemnt for an end device and
      using below setter it sets in variable 
      */
-    public static String  setAllFsa(String responseAllFSA) {
+    public static String setAllFsa(String responseAllFSA) {
         LOGGER.info("The FSAList ID's for the EndDevice is "+ responseAllFSA);
         listOfFunctionsetAssignemnts = responseAllFSA;
         return responseAllFSA;
@@ -91,13 +91,13 @@ public class FunctionSetAssignmentsTest {
 
     public static String createNewFunctionsetAssignments(JSONObject  PayLoad )
     {  
-        System.out.println("********* FSA Payload "+String.valueOf(PayLoad));
+       
+       try {
         String attributes = new JSONObject()
                                 .put("servicename", getserviceName())
                                 .put("action", "post")
                                 .put("payload", (Object)PayLoad)
                                 .toString();
-       try {
            LOGGER.info(attributes);
            return attributes; 
 
@@ -105,13 +105,12 @@ public class FunctionSetAssignmentsTest {
            e.printStackTrace();
        }
        return null ;
-
         
     }
    /* the setter will set the response of the newly created FSA 
     * in a memeber variable 
     */
-    public static void  setCreatedFunctionSetAssignment(String responseCreatedFSA)
+    public static void setCreatedFunctionSetAssignment(String responseCreatedFSA)
     {
        createdFSA = responseCreatedFSA;
     }

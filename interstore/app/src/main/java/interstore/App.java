@@ -225,7 +225,7 @@ public class App {
         interstore.FunctionSetAssignmentsTest.getAllFsa(endDeviceID)); 
         Thread.sleep(300);
         String response = interstore.FunctionSetAssignmentsTest.getAllFsa();
-        LOGGER.info("the response of the function set assignment is " + response);
+        LOGGER.info("the response of the function set assignment is in the app.java " + response);
         return response;
     }
 
@@ -236,12 +236,12 @@ public class App {
         public String createFunctionsetAssignments(String natsSubject) throws Exception {
             interstore.FunctionSetAssignmentsTest.setServicename("createFsamanager");
             JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-            String Payload =  interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest); 
-        
-            this.messageToPublish.newStart(natsSubject + "Create FSA" , Payload);
+            //String Payload =  interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest); 
+            this.messageToPublish.newStart(natsSubject , 
+             interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest));
             Thread.sleep(300);
             String response = interstore.FunctionSetAssignmentsTest.getCreatedFunctionSetAssignment();
-            LOGGER.info("the response of the function set assignment is " + response);
+            LOGGER.info("the response of the created function set assignment is " + response);
             return response;
         }
 

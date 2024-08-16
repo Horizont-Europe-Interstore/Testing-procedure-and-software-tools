@@ -44,13 +44,17 @@ public class FsaManager {
     /*create a function set assignment from the payload 
      * the return shall be the id of the function set assignment 
      * and the mRID of the created function set assignment 
+     *  expectedMap.put("mRID", "3E4F45");
+        expectedMap.put("Version", "16726121139");
+        expectedMap.put("id", "1");
      */
-    public Map<String, Object>  addFSA( JSONObject jsonObject) {
-        {
+    public Map<String, Object> addFSA( JSONObject jsonObject) {
+        {  
+            LOGGER.info("the received payload in the FSA Manager class  is " + jsonObject);
             FunctionSetAssignmentsEntity fsaEntity = this.fsaService.createFunctionsetAssignments(jsonObject);
             LOGGER.info("id" + fsaEntity.getId());
             LOGGER.info("mRID" + fsaEntity.getmRID()); 
-            return Map.of("id", fsaEntity.getId(), "mRID", fsaEntity.getmRID());
+            return Map.of("Version", fsaEntity.getId(), "mRID", fsaEntity.getmRID());
             
         }
     }

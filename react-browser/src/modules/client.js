@@ -138,7 +138,7 @@ export default class Client{
 
         {
             index:9,
-            test:' Create Function Set Assignments',
+            test:'Create Function Set Assignments',
             desc:'description',
             args: true,
             object:{
@@ -185,9 +185,9 @@ export default class Client{
             endDeviceId:(field)=>{return !isNaN(field)}
         }
         ,
-        ' Create FunctionSetAssignments':{
+        'Create Function Set Assignments':{
             endDeviceId:(field)=>{return !isNaN(field)},
-            mRID:(field)=>{return !isNaN(field)},
+            mRID: (field) => field.trim() !== "",
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)}
         }
@@ -200,3 +200,9 @@ export default class Client{
 }
 
 
+/*
+
+ {"payload":{"demandResponseProgramListLink":"","responseSetListLink":"","fileListLink":"","traiffProfileListLink":"","description":"der program fsa","usagePointListLink":"","version":"1","prepaymentListLink":"","mRID":"A1000000","endDeviceId":"1","messagingProgramListLink":"","customerAccountListLink":"","dERProgramListLink":"","subscribable":"1"},"action":"post","servicename":"createFsamanager"}
+
+
+*/

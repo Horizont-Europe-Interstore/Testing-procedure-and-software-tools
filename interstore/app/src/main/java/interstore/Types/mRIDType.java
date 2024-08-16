@@ -1,7 +1,6 @@
 package interstore.Types;
 import java.math.BigInteger;
-import jakarta.persistence.Embeddable;
-@Embeddable
+
 public class mRIDType extends HexBinary128 {
     private BigInteger mRIDvalue;
 

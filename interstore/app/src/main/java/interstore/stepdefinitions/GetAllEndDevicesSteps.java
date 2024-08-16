@@ -43,12 +43,13 @@ public class GetAllEndDevicesSteps {
     @Then("^the test should complete successfully with EndDevice response containing:$")
     public  void then_the_test_should_complete_successfully_with_EndDevice_response_containing(String expectedJson) throws Exception {
         Map<String, String > expectedNoEndDeviceFoundMap = new HashMap<>();
-        expectedNoEndDeviceFoundMap.put("message", "No endDevices found."); 
+        expectedNoEndDeviceFoundMap.put("message", "No FunctionSetAssignments found."); 
         Map<String, String> defaultexpectedEndDeviceMap = new HashMap<>();
-        defaultexpectedEndDeviceMap.put("enddeviceLink", "http://localhost/edev/1");
-        LOGGER.info("Expected No Device Message : {} ", expectedNoEndDeviceFoundMap); 
+        defaultexpectedEndDeviceMap.put("functionsetassignmentslink", "http://localhost/edev/1/fsa"); 
         LOGGER.info("Expected End Devices present response : {} ", defaultexpectedEndDeviceMap);
         ObjectMapper actualObjectMapper = new ObjectMapper();
+
+
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
         LOGGER.info("the actaul  response is ....." + actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())

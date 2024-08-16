@@ -87,12 +87,12 @@ public class MessageFactory {
 
         else if(serviceName.equals("findallregistrededendevice"))
         {
-            Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class);  //   , registeredEndDevice
+            Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class); 
             method.invoke(microServiceObject, payLoad);
 
         }
 
-        else if(serviceName.equals("getallFsamanager"))
+        else if(serviceName.equals("getallFsamanager"))  
         {
             Method method = microServiceClass.getMethod("setAllFsa", String.class);
             method.invoke(microServiceObject, payLoad);

@@ -79,7 +79,7 @@ public class MicroServiceFactory {
         this.microservices.put("getDERList", derListManager);
         this.microservices.put("getDER_properties", derManager);
         this.microservices.put("update_DER_properties", derManager);
-        this.microservices.put("getallFsamanager", fsaManager);
+        this.microservices.put("getallFsamanager", fsaManager);    
         this.microservices.put("createFsamanager", fsaManager);
         this.microservices.put("getasingleFsamanager", fsaManager);
         this.microservices.put("fsamanager", fsaManager);
@@ -120,7 +120,9 @@ public class MicroServiceFactory {
         this.dtoMap.put("getDERList", endDeviceTest);
         this.dtoMap.put("getDER_properties", endDeviceTest);
         this.dtoMap.put("update_DER_properties", endDeviceTest);
-        this.dtoMap.put("fsalistmanager", functionSetAssignmentTest);
+        this.dtoMap.put("getallFsamanager", functionSetAssignmentTest);
+        this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
+        this.dtoMap.put("getasingleFsamanager", functionSetAssignmentTest); 
         this.dtoMap.put("fsamanager", functionSetAssignmentTest);
         this.dtoMap.put("derplistmanager", functionSetAssignmentTest);
         this.dtoMap.put("derprogrammanager", functionSetAssignmentTest);
