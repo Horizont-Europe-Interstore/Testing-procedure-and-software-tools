@@ -144,6 +144,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
          try {
                 Class<?> microServiceClass = microServiceObject.getClass();
                 Method method = microServiceClass.getMethod("chooseMethod_basedOnAction", String.class);
+                LOGGER.info("the nats message in the service discovery verticle is " + natsmsg);
                 Object response = method.invoke(microServiceObject, natsmsg);
                 this.sendResponseToNats( natsmsg,response);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

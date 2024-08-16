@@ -170,10 +170,3 @@ public class DeviceCapabilityTest {
   
 
 
-
-/*
- * // String searchKey =  jsonObject.getString("EndDeviceEndPoint");
- * 
- * 
- */
-

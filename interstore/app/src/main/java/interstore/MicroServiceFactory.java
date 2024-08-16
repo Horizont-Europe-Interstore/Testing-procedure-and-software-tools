@@ -59,8 +59,6 @@ public class MicroServiceFactory {
         DERListManager derListManager = new DERListManager(derListImpl);
         FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
         FsaManager fsaManager = new FsaManager(fsaService);
-      // FsaListImpl fsaListImpl = serviceFactory.getFsaListProvider().get();
-        //FsaListManager fsaListManager = new FsaListManager(fsaListImpl);
         DERProgramImpl derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
         DERPListImpl derpListImpl = serviceFactory.getDerpListProvider().get();
@@ -77,19 +75,20 @@ public class MicroServiceFactory {
         this.microservices.put("enddeviceinstancemanager", edevManager); 
         this.microservices.put("findallregistrededendevice", edevManager);
         this.microservices.put("findregistrededendevice", edevManager);
-//        this.microservices.put("dermanager", derManager);
-//        this.microservices.put("getDERListLink", edevManager);
+      
         this.microservices.put("getDERList", derListManager);
         this.microservices.put("getDER_properties", derManager);
         this.microservices.put("update_DER_properties", derManager);
-       // this.microservices.put("fsalistmanager", fsaListManager);
+        this.microservices.put("getallFsamanager", fsaManager);
+        this.microservices.put("createFsamanager", fsaManager);
+        this.microservices.put("getasingleFsamanager", fsaManager);
         this.microservices.put("fsamanager", fsaManager);
         this.microservices.put("derplistmanager", derpListManager);
         this.microservices.put("derprogrammanager", derProgramManager);
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);
 
-//        this.microservices.put("getDERs", edevManager);
+
 
     } 
 
@@ -104,7 +103,7 @@ public class MicroServiceFactory {
         SelfDeviceDto selfDeviceDto = new SelfDeviceDto();
         DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         EndDeviceTest endDeviceTest = new EndDeviceTest();
-        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
+        FunctionSetAssignmentsTest functionSetAssignmentTest = new FunctionSetAssignmentsTest();
         TimeTest timeTest = new TimeTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 

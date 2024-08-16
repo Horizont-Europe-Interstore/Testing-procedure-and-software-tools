@@ -215,6 +215,40 @@ public class App {
         return detailsOfEndDeviceRegistration ;
      }
 
+    public String getAllFsaTest(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        LOGGER.info("the current test object is which is the id .. " + endDeviceID ); 
+        interstore.FunctionSetAssignmentsTest.setServicename("getallFsamanager");
+        this.messageToPublish.newStart(natsSubject+ "getAllFunctionSetAssignments",
+        interstore.FunctionSetAssignmentsTest.getAllFsa(endDeviceID)); 
+        Thread.sleep(300);
+        String response = interstore.FunctionSetAssignmentsTest.getAllFsa();
+        LOGGER.info("the response of the function set assignment is " + response);
+        return response;
+    }
+
+     /*
+      * 
+      */
+
+        public String createFunctionsetAssignments(String natsSubject) throws Exception {
+            interstore.FunctionSetAssignmentsTest.setServicename("createFsamanager");
+            JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+            String Payload =  interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest); 
+        
+            this.messageToPublish.newStart(natsSubject + "Create FSA" , Payload);
+            Thread.sleep(300);
+            String response = interstore.FunctionSetAssignmentsTest.getCreatedFunctionSetAssignment();
+            LOGGER.info("the response of the function set assignment is " + response);
+            return response;
+        }
+
+
+
+
+
     public String TimeTest(String natsSubject) throws Exception {
         if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
             String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
@@ -289,7 +323,42 @@ public class App {
         return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
     }
 
-    public Object functionSetAssignmentTest (String natsSubject) throws Exception
+   
+    
+
+    public void start(String natsUrl) throws Exception
+    {    
+        this.serviceDiscoveryVerticle = new ServiceDiscoveryVerticle(natsUrl);
+        this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
+        this.uiControleHandler = new UIControleHandler();
+        this.uiControleHandler.setupBridge();
+
+          
+    }
+   
+
+  
+   
+    public static void main(String[] args) throws Exception {
+        String natsUrl = System.getenv("NATS_URL");
+      
+        ApplicationContext context = SpringApplication.run(App.class);
+        ApplicationContextProvider.setApplicationContext(context);
+        App mainApp = (App)context.getBean("app");
+        mainApp.start(natsUrl);
+
+    }
+    
+}
+       
+
+
+
+/*
+ *
+ String natsUrl = "nats://localhost:4222";   
+ *
+ *  public Object functionSetAssignmentTest (String natsSubject) throws Exception
     {
         if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilityTest.getEndDeviceListLink() != null){
             String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
@@ -324,38 +393,17 @@ public class App {
 //        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
 //
 
-    }
-
-    public void start(String natsUrl) throws Exception
-    {    
-        this.serviceDiscoveryVerticle = new ServiceDiscoveryVerticle(natsUrl);
-        this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
-        this.uiControleHandler = new UIControleHandler();
-        this.uiControleHandler.setupBridge();
-
-          
-    }
-   
-
-  
-   
-    public static void main(String[] args) throws Exception {
-        String natsUrl = System.getenv("NATS_URL");
-      
-        ApplicationContext context = SpringApplication.run(App.class);
-        ApplicationContextProvider.setApplicationContext(context);
-        App mainApp = (App)context.getBean("app");
-        mainApp.start(natsUrl);
-
-    }
-    
-}
-       
+ * 
+ * 
+ * 
+ * 
+ * 
 
 
 
-/*
- *
- String natsUrl = "nats://localhost:4222";   
- *
+
+
+
+
+
  */

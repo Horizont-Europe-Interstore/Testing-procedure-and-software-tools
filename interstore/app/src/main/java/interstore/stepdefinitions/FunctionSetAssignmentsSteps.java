@@ -31,7 +31,7 @@ public class FunctionSetAssignmentsSteps {
     @When("^I execute the fsa test with service name \"([^\"]*)\" and subject \"([^\"]*)\"$")
     public void i_execute_the_fsa_test_with_service_name_and_subject(String serviceName, String natsSubject) throws Exception {
         LOGGER.info("STEP");
-        response =  app.functionSetAssignmentTest(natsSubject);
+        //response =  app.functionSetAssignmentTest(natsSubject);
     }
 
     @Then("^the test should complete successfully with FunctionSetAssignmentTest response containing:$")

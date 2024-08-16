@@ -21,7 +21,6 @@ public class ServiceFactory {
     private final Provider <SelfDeviceImpl> selfDeviceProvider;
     private final Provider<DERImpl> derProvider;
     private final Provider<FunctionSetAssignmentsService> fsaProvider;
-   // private final Provider<FsaListImpl> fsaListProvider;
     private final Provider<DERProgramImpl> derProgramProvider;
     private final Provider<DERPListImpl> derpListProvider;
 
@@ -39,7 +38,6 @@ public class ServiceFactory {
         this.selfDeviceProvider = selfDeviceProvider;
         this.derProvider = derProvider;
         this.fsaProvider = fsaProvider;
-       // this.fsaListProvider = fsaListProvider;
         this.derProgramProvider = derProgramProvider;
         this.derpListProvider = derpListProvider;
         this.derListProvider = derListProvider;
@@ -73,12 +71,4 @@ public class ServiceFactory {
     }
 
 }
-
-/*
- * Provider<FsaListImpl> fsaListProvider
- * public Provider<FsaListImpl> getFsaListProvider(){
-        return fsaListProvider;
-    }
- */
-
 

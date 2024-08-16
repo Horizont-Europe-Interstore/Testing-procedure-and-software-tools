@@ -3,6 +3,7 @@ package interstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl;
+import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,43 +16,111 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FunctionSetAssignmentTest {
-    private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentTest.class.getName());
+public class FunctionSetAssignmentsTest {
+    private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsTest.class.getName());
     private static String serviceName;
-    //    EndDeviceImpl endDeviceImpl;
-//    FsaImpl fsaImpl;
-//    FsaListImpl fsaListImpl;
+    static String listOfFunctionsetAssignemnts;
+    static String createdFSA ; 
     static String fsaIds;
     static Object fsaInstances;
     static List<String> derpListLinks = new ArrayList<>();
     static String derProgramInstance;
 
-    public FunctionSetAssignmentTest(){
-//        endDeviceImpl = new EndDeviceImpl();
-//        fsaImpl = new FsaImpl();
-//        fsaListImpl = new FsaListImpl();
+    public FunctionSetAssignmentsTest(){
+
     }
 
-//    public Object getEndDeviceID(String regId){
-//
-//
-//        String url = endDeviceImpl.getEndDeviceByRegistration(regId);
-//        Pattern pattern = Pattern.compile(".*/edev/(\\d+)");
-//        Matcher matcher = pattern.matcher(url);
-//        if (matcher.find()) {
-//            String id = matcher.group(1);
-//            return id;
-//        } else {
-//            System.out.println("ID: "+matcher.group(1)+" was not found");
-//            return null;
-//        }
-//    }
-
-    public Object getFSAList(String responsePayload) {
-        LOGGER.info("The FSAList ID's for the EndDevice is "+ responsePayload);
-        fsaIds = responsePayload;
-        return responsePayload;
+    public static String getserviceName(){
+        return serviceName;
     }
+    public static void setServicename(String serviceName)
+    {
+        FunctionSetAssignmentsTest.serviceName = serviceName;
+    }
+
+
+
+
+   /* create a query to get all function set assignments  
+   The method is to query for list of enddevices present in the server*/
+      public static String getAllFsa(Long endDeviceID)
+      { 
+         
+         Map<String, Object> attributes = new HashMap<>(); 
+        attributes.put("servicename", getserviceName());
+        attributes.put("action", "get");
+        attributes.put("endDeviceID", endDeviceID);
+         ObjectMapper objectMapper = new ObjectMapper();
+         try {
+             String postPayload = objectMapper.writeValueAsString(attributes);
+             LOGGER.info("The payload for the get all FSA is " + postPayload); 
+             return postPayload; 
+             
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+         return null; 
+     }
+  
+    
+
+
+
+    /* response for all function set assignemnt for an end device and
+     using below setter it sets in variable 
+     */
+    public static String  setAllFsa(String responseAllFSA) {
+        LOGGER.info("The FSAList ID's for the EndDevice is "+ responseAllFSA);
+        listOfFunctionsetAssignemnts = responseAllFSA;
+        return responseAllFSA;
+    }
+    
+    /*getter method to ge the response back to the front end part of
+     * the cucmmber testing as response of the intail get all fsunction 
+     * set assignemnts requests . 
+     */
+   public static String getAllFsa(){
+        return listOfFunctionsetAssignemnts;
+    }
+
+    /* create new FSA the input this is called from the 
+      method  createFunctionsetAssignments from app.java
+      /* This method will create an end device in the server  */
+  
+
+
+    public static String createNewFunctionsetAssignments(JSONObject  PayLoad )
+    {  
+        System.out.println("********* FSA Payload "+String.valueOf(PayLoad));
+        String attributes = new JSONObject()
+                                .put("servicename", getserviceName())
+                                .put("action", "post")
+                                .put("payload", (Object)PayLoad)
+                                .toString();
+       try {
+           LOGGER.info(attributes);
+           return attributes; 
+
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return null ;
+
+        
+    }
+   /* the setter will set the response of the newly created FSA 
+    * in a memeber variable 
+    */
+    public static void  setCreatedFunctionSetAssignment(String responseCreatedFSA)
+    {
+       createdFSA = responseCreatedFSA;
+    }
+
+    public static String getCreatedFunctionSetAssignment()
+    {
+        return createdFSA;
+    }
+
 
     public Object getFSAInstance(Object responsePayload){
         LOGGER.info("The FSA instances for the EndDevice is " + responsePayload);
@@ -70,16 +139,10 @@ public class FunctionSetAssignmentTest {
     }
 
     public static void setDerProgramInstance(String derProgramInstance) {
-        FunctionSetAssignmentTest.derProgramInstance = derProgramInstance;
+        FunctionSetAssignmentsTest.derProgramInstance = derProgramInstance;
     }
 
-    public static String getserviceName(){
-        return serviceName;
-    }
-    public static void setServicename(String serviceName)
-    {
-        FunctionSetAssignmentTest.serviceName = serviceName;
-    }
+   
     public static String  getFSAListQuery(String regPin, Long id){
         String refClientPin = "111115";
         if (regPin.equals(refClientPin)) {

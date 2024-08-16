@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsList;
-//import interstore.FunctionSetAssignments.FunctionSetAssignmentsListRepository;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Registration.RegistrationDto;
@@ -33,14 +31,8 @@ public class EndDeviceImpl {
     @Autowired
     private RegistrationRepository registrationRepository;
 
-    @Autowired
-    private DERRepository derRepository;
+   
 
-    @Autowired
-    private DERListRepository derListRepository;
-
-    @Autowired
-    //private FunctionSetAssignmentsListRepository functionSetAssignmentsListRepository;
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
 
@@ -82,6 +74,7 @@ public class EndDeviceImpl {
         endDeviceDto.setDeviceCategory(deviceCategory);
         endDeviceDto.setsfdi(sfdi);
         endDeviceDto.sethexBinary160(lfdi);
+
         Link link = new Link(); 
         link.setLink(endDeviceLink);
         endDeviceDto.setEndDeviceLink(link.getLink());
@@ -92,27 +85,10 @@ public class EndDeviceImpl {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("payload",getDERPayload(link.getLink()));
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String postPayload = objectMapper.writeValueAsString(attributes);
-            JSONObject jsonPayloadWrapper = new JSONObject(postPayload);
-            DERList derList = new DERList(link.getLink());
-            derList = derListRepository.save(derList);
-            generateDER(jsonPayloadWrapper, derList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    
         ListLink listLink = new ListLink();
         listLink.setListLink(functionsetAssignmentListLink);
         endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink());
-        try {
-          //  FunctionSetAssignmentsList fsaList = new FunctionSetAssignmentsList(listLink.getListLink());
-           // fsaList = functionSetAssignmentsListRepository.save(fsaList);
-           // generateFSA(fsaList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         listLink.setListLink(derListLink);
         endDeviceDto.setDERListLink(listLink.getListLink());
         listLink.setListLink(subscriptionLink);
@@ -138,16 +114,7 @@ public class EndDeviceImpl {
         }
 
     }
-    public void generateDER(JSONObject jsonPayloadWrapper, DERList derList){
-        for(int i = 0; i < 3; i++) {
-            DERDto derDto = new DERDto(derList);
-            derDto = derRepository.save(derDto);
-            derList.addDerDto(derDto);
-            DERImpl derImpl = ApplicationContextProvider.getApplicationContext().getBean(DERImpl.class);
-            derImpl.setDER(derDto, jsonPayloadWrapper);
-        }
-    }
-
+   
     public Map<String, String> getDERPayload(String derListLink){
         Map<String, String> payload = new HashMap<>();
         payload.put("DERListLink", derListLink);
@@ -347,46 +314,3 @@ public class EndDeviceImpl {
 
 
 
-/*
-ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-    Map<String, Object> responseMap = responseEntity.getBody();
-    if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-    }
-
-##### 
-
-ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-        Map<String, Object> responseMap = responseEntity.getBody();
-        if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-        }
-
-
-
-
-
- * public void generateFSA(FunctionSetAssignmentsList fsaList){
-        for(int i = 0; i < 3; i++) {
-            FunctionSetAssignmentsService fsaImpl = ApplicationContextProvider.getApplicationContext().getBean(FunctionSetAssignmentsService.class);
-            fsaImpl.createFSA(fsaList);
-        }
-    }
- * 
- * 
- * 
- * 
- * 
- */
-
-
-
-
-
-
-
-
-
-
-
-    

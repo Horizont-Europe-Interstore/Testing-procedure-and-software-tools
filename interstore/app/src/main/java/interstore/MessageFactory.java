@@ -32,7 +32,7 @@ public class MessageFactory {
 
     Object microServiceObject = getMicroservice(this.microServiceFactory.getDtoMap(), serviceName); 
     Class<?> microServiceClass = microServiceObject.getClass(); 
-    //LOGGER.info("microservice name is " + serviceName); 
+    LOGGER.info("microservice name is " + serviceName); 
     try {
         if(serviceName.equals("selfenddevicemanager") )
         {
@@ -91,6 +91,21 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
+
+        else if(serviceName.equals("getallFsamanager"))
+        {
+            Method method = microServiceClass.getMethod("setAllFsa", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("createFsamanager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedFunctionSetAssignment", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        } 
+
         else if(serviceName.equals("getDERListLink"))
         {
             Method method = microServiceClass.getMethod("getDERListLink", String.class);

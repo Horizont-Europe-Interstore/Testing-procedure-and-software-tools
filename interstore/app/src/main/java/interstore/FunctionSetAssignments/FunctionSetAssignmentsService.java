@@ -126,7 +126,7 @@ public class FunctionSetAssignmentsService {
             String key = keys.next();
             switch(key) {
                 case "DemandResponseProgramListLink":
-                fsaEntity.setDERProgramListLink(Optional.ofNullable(payload.optString(key)));
+                fsaEntity.setDemandResponseProgramListLink(Optional.ofNullable(payload.optString(key)));
                 break;
                 case "FileListLink":
                 fsaEntity.setFileListLink(Optional.ofNullable(payload.optString(key)));
@@ -168,33 +168,14 @@ public class FunctionSetAssignmentsService {
         }
 
 
-    public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long id)
-    {
-        Map<String, Object> responseMap = new HashMap<>();
-        try {
-            FunctionSetAssignmentsEntity fsaEntity = functionSetAssignmentsRepository.findById(id).orElse(null);
-            LOGGER.log(Level.INFO, " fsaEntity retrieved successfully" + fsaEntity );
-            if(fsaEntity  == null) {
-                responseMap.put("message", "No functionSetAssignments found.");
-            }
-            else {
-                responseMap.put("functionSetAssignments", fsaEntity );
-            }
-            return ResponseEntity.ok(responseMap);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
-            
-            return ResponseEntity.status(404).body(null);
-        }
-
-    }
-
-    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(String endDeviceID)
+       /*get all  function set assignments for an end device   */
+    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long endDeviceId)
     {   
          
-        Map<String, Object> responseMap = new HashMap<>();
         try {
-            List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findAll();
+            //Long EndDeviceId = Long.parseLong(endDeviceId);
+             Map<String, Object> responseMap = new HashMap<>();
+            List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findByEndDeviceId(endDeviceId);
             LOGGER.log(Level.INFO, " fsaEntity retrieved successfully" + fsaEntityList);
             if(fsaEntityList.isEmpty()) {
                 responseMap.put("message", "No functionSetAssignments found.");
@@ -210,6 +191,31 @@ public class FunctionSetAssignmentsService {
         }
 
     }
+
+     /*get a single function set assignments for an end device   */
+    public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long endDeviceId, Long fsaId)
+
+    {
+        try {
+            //Long EndDeviceId = Long.parseLong(endDeviceId);
+            //Long fsaID = Long.parseLong(fsaId);
+            Optional<FunctionSetAssignmentsEntity> fsaEntity = functionSetAssignmentsRepository.findFirstByEndDeviceIdAndId( endDeviceId , fsaId );
+            Map<String, Object> result = new HashMap<>();
+            if (fsaEntity == null) {
+                result.put("message", "No functionsetassignment found for EndDevice ID " +  endDeviceId  + " and FSA ID " +   fsaId );
+            } else {
+                result.put("RegisteredEndDevice", fsaEntity.get());
+            }
+            return ResponseEntity.ok(result);
+          } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
+            return ResponseEntity.status(404).body(null);
+        }
+
+       
+       
+    }
+
 
 
     

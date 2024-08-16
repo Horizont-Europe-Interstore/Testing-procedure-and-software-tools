@@ -124,12 +124,39 @@ export default class Client{
             args: false,
             object:{}
         },
+         
         {
             index:8,
-            test:'Function Set Assignments',
+            test:'Get All Function Set Assignments',
             desc:'description',
-            args: false,
-            object:{}
+            args: true,
+            object:{
+                endDeviceId:'',
+                
+            }
+        },
+
+        {
+            index:9,
+            test:' Create Function Set Assignments',
+            desc:'description',
+            args: true,
+            object:{
+                endDeviceId:'',
+                mRID:'',
+                description:'',
+                subscribable:'',
+                version:'',
+                DemandResponseProgramListLink:'', 
+                FileListLink:'',
+                TraiffProfileListLink:'',
+                MessagingProgramListLink:'',
+                UsagePointListLink:'',
+                DERProgramListLink:'',
+                CustomerAccountListLink:'',
+                PrepaymentListLink:'',
+                ResponseSetListLink:'',
+            }
         }
 
     ];
@@ -152,6 +179,17 @@ export default class Client{
         'Get Registered End Device':{
             endDeviceId:(field)=>{return !isNaN(field)},
             registrationID:(field)=>{return !isNaN(field)}
+        }
+        ,
+        'Get All Function Set Assignments':{
+            endDeviceId:(field)=>{return !isNaN(field)}
+        }
+        ,
+        ' Create FunctionSetAssignments':{
+            endDeviceId:(field)=>{return !isNaN(field)},
+            mRID:(field)=>{return !isNaN(field)},
+            subscribable:(field)=>{return !isNaN(field)},
+            version:(field)=>{return !isNaN(field)}
         }
        
     }

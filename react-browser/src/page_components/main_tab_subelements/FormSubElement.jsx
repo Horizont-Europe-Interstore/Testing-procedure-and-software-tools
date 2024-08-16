@@ -1,83 +1,118 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-         Text,
-         Button,
-         Box, 
-         Flex,
-        SimpleGrid } from '@chakra-ui/react'
-import Client from '../../modules/client.js'
+  Text,
+  Button,
+  Box,
+  Flex,
+  SimpleGrid,
+  Select,
+} from "@chakra-ui/react";
+import Client from "../../modules/client.js";
 
+function FormSubElement({
+  toggleVar,
+  currentTest,
+  setToggle,
+  setTestState,
+  setCurrentTest,
+  tests,
+  setReport,
+  setHeaderState,
+  testState,
+}) {
+  const [selectedFunctionSet, setSelectedFunctionSet] = useState("");
+  const [inputValue, setInputValue] = useState("");
 
-function FormSubElement({toggleVar,
-                         currentTest,
-                         setToggle,
-                         setTestState,
-                         setCurrentTest,
-                         tests,
-                         setReport,
-                         setHeaderState,
-                         testState}){  
-    const handleSubmitForm = async (event)=>{
-      event.preventDefault()
-      let tmpTimeout;
-      const validation = Client.getValid(currentTest.test)
-      for(let entry of Object.entries(currentTest.object)){
-        let key = entry[0].slice(0,1).toLowerCase()+entry[0].slice(1,entry[0].length).replace(' ','');
-        if(entry[1]==='' || (validation[key]!==undefined&&!validation[key](entry[1]))){
-            setHeaderState({text:'Invalid Field '+entry[0],visElemIdx:1});
-            tmpTimeout=setTimeout(()=>{
-              if(!testState){
-                setHeaderState({text:'Ready',visElemIdx:0});
-                return;
-              }
-              setHeaderState({text:'Running Test', visElemIdx:2});
-            },1000);
-            return;
-        }
+  const handleSubmitForm = async (event) => {
+    event.preventDefault();
+
+    console.log("Form Submission Initiated for Test:", currentTest.test);
+    console.log("Current Test Object before Validation:", currentTest.object);
+
+    // Validate input for the current test
+    const validation = Client.getValid(currentTest.test);
+    for (let [key, value] of Object.entries(currentTest.object)) {
+      key = key.split(' ').join('');
+      key = key[0].toLowerCase() + key.substring(1);
+      if (value === "" || (validation[key] !== undefined && !validation[key](value))) {
+        console.log(`Validation failed for field: ${key}, Value: ${value}`);
+        setHeaderState({ text: `Invalid Field ${key}`, visElemIdx: 1 });
+        return;
       }
-      if(tmpTimeout !== undefined){clearTimeout(tmpTimeout);}
-      setTestState(false);
-      setHeaderState({text:'Running Test',visElemIdx:2})
-      setCurrentTest(tests[0]);
-      setToggle(true);
+    }
+
+    console.log("Validation Passed. Submitting the form...");
+
+    setTestState(false);
+    setHeaderState({ text: "Running Test", visElemIdx: 2 });
+    setToggle(true);
+
+    console.log("Final Test Object being sent to Client.sendTest:", currentTest);
+
+    try {
       const res = await Client.sendTest(currentTest);
+      console.log("Response received from Client.sendTest:", res);
       setReport(res);
-      setHeaderState({text:'Ready',visElemIdx:0})
-      setTestState(true);
-      }
-    return (
-      <Flex flexDirection={'column'} maxHeight='100%' hidden={toggleVar}>
-        <Text variant={'element_name'}>{currentTest.test} TEST PARAMETERS</Text>
-      <Box >
-        <form onSubmit={handleSubmitForm}>
-        <SimpleGrid columns={2}>
-      {Object.entries(currentTest.object).map(t=>(
-        <Flex key={t[0]} border={'groove'} borderWidth={'1vh'} flexDirection={'column'} alignItems={'center'}>
-        <label key={t[0]+'l'}>
-          {t[0]}:
-          </label>
-          <input  key={t[0]+'i'} id={t[0]} type="text" onChange={(event)=>{
-          setCurrentTest(currentTest=>({...currentTest, object:{...currentTest.object, [event.target.id]:event.target.value}}))
-        }}/>        
-        </Flex>
-      ))}
-      </SimpleGrid>
-      <SimpleGrid columns={2}>
-      <Button variant={'submit_form_button'}  type="submit" value="Submit">
-        SUBMIT
-        </Button>
-        <Button variant={'cancel_form_button'} onClick={()=>{
-    setTestState(true)
-    setToggle(true)
-    setCurrentTest(tests[0])
-    }}>
-      CANCEL
-  </Button>
-      </SimpleGrid>
-        </form>
-  </Box>
-  </Flex>
-    );
-  }
+    } catch (err) {
+      console.error("Error occurred during form submission:", err);
+    }
 
-  export {FormSubElement}
+    setHeaderState({ text: "Ready", visElemIdx: 0 });
+    setTestState(true);
+  };
+
+  return (
+    <Flex flexDirection={"column"} maxHeight="100%" hidden={toggleVar}>
+      <Text variant={"element_name"}>{currentTest.test} TEST PARAMETERS</Text>
+      <Box>
+        <form onSubmit={handleSubmitForm}>
+          <SimpleGrid columns={2}>
+            {Object.entries(currentTest.object).map(([key, value]) => (
+              <Flex
+                key={key}
+                border={"groove"}
+                borderWidth={"1vh"}
+                flexDirection={"column"}
+                alignItems={"center"}
+              >
+                <label key={key + "l"}>{key}:</label>
+                <input
+                  key={key + "i"}
+                  id={key}
+                  type="text"
+                  value={value}
+                  onChange={(event) => {
+                    const updatedValue = event.target.value;
+                    setCurrentTest((currentTest) => ({
+                      ...currentTest,
+                      object: { ...currentTest.object, [event.target.id]: updatedValue },
+                    }));
+                    console.log(`Updated ${key} to ${updatedValue}`);
+                  }}
+                />
+              </Flex>
+            ))}
+          </SimpleGrid>
+          <SimpleGrid columns={2}>
+            <Button variant={"submit_form_button"} type="submit" value="Submit">
+              SUBMIT
+            </Button>
+            <Button
+              variant={"cancel_form_button"}
+              onClick={() => {
+                console.log("Form submission canceled. Resetting to initial state.");
+                setTestState(true);
+                setToggle(true);
+                setCurrentTest(tests[0]);
+              }}
+            >
+              CANCEL
+            </Button>
+          </SimpleGrid>
+        </form>
+      </Box>
+    </Flex>
+  );
+}
+
+export { FormSubElement };

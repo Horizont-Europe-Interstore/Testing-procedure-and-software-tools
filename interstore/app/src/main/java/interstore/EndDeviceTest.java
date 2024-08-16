@@ -406,19 +406,3 @@ public static String getregisteredEndDeviceDetails()
 
   
 
-/*
- *  if(jsonArray.length() > 0)
-       {
-           JSONObject endDevice = jsonArray.getJSONObject(jsonArray.length() - 1);
-            Long sfdi = endDevice.getLong("sfdi");
-            String sfdiString = sfdi.toString();
-            setSfdi(sfdiString);
-            Long endDeviceID = endDevice.getLong("id");
-            String endDeviceIDString = endDeviceID.toString();
-            setendDeviceID(endDeviceIDString); 
-            String endDeviceLink = endDevice.getString("endDeviceLink");
-            setendDeviceLink(endDeviceLink); 
-            
-       }
- * 
- */

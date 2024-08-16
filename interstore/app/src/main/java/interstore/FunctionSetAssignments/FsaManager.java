@@ -2,7 +2,9 @@ package interstore.FunctionSetAssignments;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,7 +29,7 @@ public class FsaManager {
             case"post":
                 return addFSA(jsonObject);
             case "get":
-                return getFSA(jsonObject.getString("payload"));
+                return  getFSA(jsonObject);   
             case "put":
                 updateFSA(jsonObject);
                 break;
@@ -52,30 +54,54 @@ public class FsaManager {
             
         }
     }
-    /* This about get all functionsetassignments and 
-       and individual fsa based on the fsa id passed 
-     * not only fsa id but also the end device id 
-     * condition 1 , "payload" : {
+    /*  "payload" : {
      *  endDeviceID : 1 , both are string } this has to look for all 
      * function set assignemnts belongs to the particular end device 
      * condition 2 , "payload" : {
      *  endDeviceID : 1 
      *  fsaID : 1 , this has to look for the particular fsa
+     * 
      * }
+     *   "endDeviceID"
      */
-    public Map<String, Object> getFSA(String payload) {
-        if(payload.contains("endDeviceID"))
+    public Map<String, Object> getFSA(JSONObject payload) {
+       
+         if (payload.has("endDeviceID") && payload.has("fsaID"))
         {
-            return null ;//fsaService.getFunctionsetAssignmentsBasedOnEndDevice(payload);
-        }
-        else if(payload.contains("endDeviceID") & payload.contains("fsaID"))
-        {
-            return  null;//fsaService.getFunctionsetAssignments(payload);
-        }
-        return null;
-    }
+               String endDeviceId = payload.getString("endDeviceID");
+               String fsaId = payload.getString("fsaID");
+               Long endDeviceIdLong = Long.parseLong(endDeviceId);
+               Long fsaIdLong = Long.parseLong(fsaId);
+                return getFunctionSetAssignmentsDetails(endDeviceIdLong, fsaIdLong );
+        }   
 
+        else if(payload.has("endDeviceID"))
+        {
+           // String endDeviceId = payload.getString("endDeviceID");
+            Long endDeviceIdLong =   payload.getLong("endDeviceID"); //Long.parseLong(endDeviceId);
+            LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
+            return getEndDeviceById(endDeviceIdLong);
+        }
+        return null; 
+    } 
     
+
+    @GetMapping("/edev/{id}/fsa")
+    public Map<String, Object>getEndDeviceById(@PathVariable Long id) 
+    {   
+        
+        ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getAllFunctionsetAssignments(id);
+        return  responseEntity.getBody(); 
+    }
+    
+    @GetMapping("/edev/{endDeviceID}/fsa/{functionsetAssignmentsID}")
+     public Map<String, Object> getFunctionSetAssignmentsDetails(@PathVariable Long endDeviceID, @PathVariable Long fsaID)
+      {
+        ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getFunctionsetAssignments(endDeviceID, fsaID);
+        return responseEntity.getBody();
+     }
+    
+
 
     public void updateFSA( JSONObject jsonObject) {
         {
@@ -89,10 +115,3 @@ public class FsaManager {
     }
 }
 
-/*
- *    public Object getFSA(String payload) {
-        return fsaImpl.getFSA(payload);
-
-    }
- * 
- */
