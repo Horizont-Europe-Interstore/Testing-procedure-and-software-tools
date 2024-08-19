@@ -22,6 +22,7 @@ public class FunctionSetAssignmentsTest {
     static String listOfFunctionsetAssignemnts;
     static String createdFSA ; 
     static String fsaIds;
+    static String fsaInstance;
     static Object fsaInstances;
     static List<String> derpListLinks = new ArrayList<>();
     static String derProgramInstance;
@@ -120,6 +121,41 @@ public class FunctionSetAssignmentsTest {
         return createdFSA;
     }
 
+   /*
+    *  
+    */
+
+
+   public static String findAFunctionSetAssignments(Long endDeviceID, Long fsaID)
+   {
+       Map<String, Object> attributes = new HashMap<>();
+       attributes.put("servicename", getserviceName());
+       attributes.put("action", "get");
+       attributes.put("endDeviceID", endDeviceID);
+       attributes.put("fsaID", fsaID);
+       ObjectMapper objectMapper = new ObjectMapper();
+       try {
+           String postPayload = objectMapper.writeValueAsString(attributes);
+           LOGGER.info("The payload for the get all FSA is " + postPayload);
+           return postPayload;
+
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return null; 
+   }
+
+
+    public static void setSingleFunctionSetAssignments(String responseFindFSA) {
+        LOGGER.info("The FSAList ID's for the EndDevice is "+ responseFindFSA);
+        fsaInstance = responseFindFSA;
+        
+    }
+   
+    public static String getSingleFSA()
+    {
+        return fsaInstance; 
+    }
 
     public Object getFSAInstance(Object responsePayload){
         LOGGER.info("The FSA instances for the EndDevice is " + responsePayload);

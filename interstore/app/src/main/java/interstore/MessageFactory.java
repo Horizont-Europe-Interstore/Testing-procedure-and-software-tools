@@ -106,6 +106,13 @@ public class MessageFactory {
 
         } 
 
+        else if(serviceName.equals("getASingleFsamanager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedFunctionSetAssignment", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
         else if(serviceName.equals("getDERListLink"))
         {
             Method method = microServiceClass.getMethod("getDERListLink", String.class);

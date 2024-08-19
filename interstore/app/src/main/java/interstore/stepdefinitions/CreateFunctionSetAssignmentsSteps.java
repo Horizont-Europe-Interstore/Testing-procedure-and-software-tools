@@ -36,20 +36,23 @@ public class CreateFunctionSetAssignmentsSteps {
     public void i_execute_the_create_function_set_assignments_test_with_subject(String natsSubject) throws Exception {
         LOGGER.info("Expected response");
         response = app.createFunctionsetAssignments(natsSubject);
+        LOGGER.info("Actual response: {}", response); 
         
     }
 
  
     /* check out for the /edev is present in the endev return links , this can be use for validation while creatign the end device 
      * the /edev has to stored in the front end to compare it with the result from the back end 
+     * return Map.of("id", fsaEntity.getId(), "mRID", fsaEntity.getmRID(), "Version", fsaEntity.getVersion());
      */
-    @Then("^the test should complete successfully with create a set assignments response containing:$")
-    public  void the_test_should_complete_successfully_with_create_a_set_assignments_response_containing(String expectedJson) throws Exception {
+    @Then("^the test should complete successfully with create a function set assignments response containing:$")
+    public void the_test_should_complete_successfully_with_create_a_function_set_assignments_response_containing(String expectedJson) throws Exception  {
         Map<String, String> expectedMap = new HashMap<>();
-        expectedMap.put("mRID", "3E4F45");
-        expectedMap.put("Version", "16726121139");
+        expectedMap.put("mRID", "1000000");
+        expectedMap.put("Version", "1");
         expectedMap.put("id", "1");
         ObjectMapper actualObjectMapper = new ObjectMapper();
+        @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
         LOGGER.info("Actual response: {}", actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())

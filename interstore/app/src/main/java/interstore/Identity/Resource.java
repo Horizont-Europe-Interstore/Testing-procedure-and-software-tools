@@ -18,11 +18,9 @@ public class Resource {
         return href;
     }
    
-    public void setHref(Optional<String> endpoint) {
-        if (endpoint.isPresent()) {
-            this.href = String.format("%s%s", fixedHref, endpoint.get());
-        } else {
-            this.href = null;
+    public void setHref(String endpoint) {
+        {
+            this.href = String.format("%s%s", fixedHref, endpoint);
         }
     }
     

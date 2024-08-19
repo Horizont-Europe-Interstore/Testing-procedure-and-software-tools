@@ -278,34 +278,7 @@ public class EndDeviceDto implements AbstractDevice{
 
 
 /*
-
-   
-    // Assuming you want to store a list of links in a separate table
-   // @ElementCollection
-    //@CollectionTable(name = "end_device_links")
-   // private Set<String> endDeviceLinks = new HashSet<>();
- * public Set<String> getLinks() {
-        return endDeviceLinks;
-    }
-
-    public void setLinks(Set<String> links) {
-        this.endDeviceLinks = links;
-    }
-
-    public void addLink(String link) {
-        this.endDeviceLinks.add(link);
-    }
     
-  import java.util.Set;
-  import java.util.HashSet; 
- 
-  import interstore.Identity.Link;
-import interstore.Identity.ListLink;
-import interstore.Types.DeviceCategoryType;
-import interstore.Types.HexBinary160;
-import interstore.Types.SFDIType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
  */
 
 

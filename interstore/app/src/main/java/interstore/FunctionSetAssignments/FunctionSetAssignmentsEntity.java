@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import interstore.Types.SubscribableType;
-import interstore.Types.mRIDType;
-import interstore.Types.VersionType;
-
 @Entity
 @Table(name = "function_set_assignments")
 public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{  
@@ -20,6 +16,7 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     private Long id; 
 
     @ManyToOne
+    @JoinColumn(name = "end_device_id")  // This column will store the foreign key to EndDeviceDto
     private EndDeviceDto endDevice;
 
     @Column(name = "description")
@@ -81,7 +78,14 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
         return id;
     }
 
-    
+    public EndDeviceDto getEndDevice() {
+        return endDevice;
+    }
+
+    public void setEndDevice(EndDeviceDto endDevice) {
+        this.endDevice = endDevice;
+    } 
+
     @Override
     public String getDescription() {
         return description;
@@ -130,148 +134,136 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
 
     @Override
-    public Optional<String> getFunctionSetAssignmentsLink() {
-        return Optional.ofNullable(functionSetAssignmentsLink);
+    public String getFunctionSetAssignmentsLink() {
+        return functionSetAssignmentsLink;
     }
     @Override
-    public void setFunctionSetAssignmentsLink(Optional<String> functionSetAssignmentsLink) {
-        this.functionSetAssignmentsLink = functionSetAssignmentsLink.orElse(null);
+    public void setFunctionSetAssignmentsLink(String functionSetAssignmentsLink) {
+        this.functionSetAssignmentsLink = functionSetAssignmentsLink;
     }
 
 
     @Override
-    public Optional<String> getDemandResponseProgramListLink() {
-        return Optional.ofNullable(demandResponseProgramListLink);
+    public String getDemandResponseProgramListLink() {
+        return demandResponseProgramListLink;
     }
 
     @Override
-    public void setDemandResponseProgramListLink(Optional<String> demandResponseProgramListLink) {
-        if(demandResponseProgramListLink.isPresent()){
+    public void setDemandResponseProgramListLink(String demandResponseProgramListLink) {
+        
             Resource resource = new Resource();
             resource.setHref(demandResponseProgramListLink);
             this.demandResponseProgramListLink = resource.getHref();
-        }
-        this.demandResponseProgramListLink = demandResponseProgramListLink.orElse(null);
     }
 
     @Override
-    public Optional<String> getTariffProfileListLink() {
-        return Optional.ofNullable(tariffProfileListLink);
+    public String getTariffProfileListLink() {
+        return tariffProfileListLink;
     }
 
     @Override
-    public void setTariffProfileListLink(Optional<String> tariffProfileListLink) {
-        if(tariffProfileListLink.isPresent()){
+    public void setTariffProfileListLink(String tariffProfileListLink) {
+        {
             Resource resource = new Resource();
             resource.setHref(tariffProfileListLink);
             this.tariffProfileListLink = resource.getHref();
         }
-        this.tariffProfileListLink = tariffProfileListLink.orElse(null);
+      
     }
 
     @Override
-    public Optional<String> getMessagingProgramListLink() {
-        return Optional.ofNullable(messagingProgramListLink);
+    public String getMessagingProgramListLink() {
+        return messagingProgramListLink;
     }
 
     @Override
-    public void setMessagingProgramListLink(Optional<String> messagingProgramListLink) {
-        if(messagingProgramListLink.isPresent()){
+    public void setMessagingProgramListLink(String messagingProgramListLink) {
+     
             Resource resource = new Resource();
             resource.setHref(messagingProgramListLink);
             this.messagingProgramListLink = resource.getHref();
-        }
-        this.messagingProgramListLink = messagingProgramListLink.orElse(null);
+      
+        
     }
 
     @Override
-    public Optional<String> getFileListLink() {
-        return Optional.ofNullable(fileListLink);
+    public String getFileListLink() {
+        return fileListLink;
     }
 
     @Override
-    public void setFileListLink(Optional<String> fileListLink) {
-        if(fileListLink.isPresent()){
+    public void setFileListLink(String fileListLink) {
+      
             Resource resource = new Resource();
             resource.setHref(fileListLink);
             this.fileListLink = resource.getHref();
-        }
-        this.fileListLink = fileListLink.orElse(null);
+       
     }
 
     @Override
-    public Optional<String> getUsagePointListLink() {
-        return Optional.ofNullable(usagePointListLink);
+    public String getUsagePointListLink() {
+        return usagePointListLink;
     }
 
     @Override
-    public void setUsagePointListLink(Optional<String> usagePointListLink) {
-        if(usagePointListLink.isPresent()){
+    public void setUsagePointListLink(String usagePointListLink) {
+        
             Resource resource = new Resource();
             resource.setHref(usagePointListLink);
             this.usagePointListLink = resource.getHref();
-        }
-        this.usagePointListLink = usagePointListLink.orElse(null);
+    }
+   
+
+    @Override
+    public String getDERProgramListLink() {
+        return derProgramListLink;
     }
 
     @Override
-    public Optional<String> getDERProgramListLink() {
-        return Optional.ofNullable(derProgramListLink);
-    }
-
-    @Override
-    public void setDERProgramListLink(Optional<String> derProgramListLink) {
-        if(derProgramListLink.isPresent()){
+    public void setDERProgramListLink(String derProgramListLink) {
+        
             Resource resource = new Resource();
             resource.setHref(derProgramListLink);
             this.derProgramListLink = resource.getHref();
-        }
-        this.derProgramListLink = derProgramListLink.orElse(null);
     }
 
     @Override
-    public Optional<String> getCustomerAccountListLink() {
-        return Optional.ofNullable(customerAccountListLink);
+    public String getCustomerAccountListLink() {
+        return customerAccountListLink;
     }
 
     @Override
-    public void setCustomerAccountListLink(Optional<String> customerAccountListLink) {
-        if(customerAccountListLink.isPresent()){
+    public void setCustomerAccountListLink(String customerAccountListLink) {
+      
             Resource resource = new Resource();
             resource.setHref(customerAccountListLink);
             this.customerAccountListLink = resource.getHref();
-        }
-        this.customerAccountListLink = customerAccountListLink.orElse(null);
     }
 
     @Override
-    public Optional<String> getPrepaymentListLink() {
-        return Optional.ofNullable(prepaymentListLink);
+    public String getPrepaymentListLink() {
+        return prepaymentListLink;
     }
 
     @Override
-    public void setPrepaymentListLink(Optional<String> prepaymentListLink) {
-        if(prepaymentListLink.isPresent()){
+    public void setPrepaymentListLink(String prepaymentListLink) {
+     
             Resource resource = new Resource();
             resource.setHref(prepaymentListLink);
             this.prepaymentListLink = resource.getHref();
-        }
-        this.prepaymentListLink = prepaymentListLink.orElse(null);
+      
     }
 
     @Override
-    public Optional<String> getResponseSetListLink() {
-        return Optional.ofNullable(responseSetListLink);
+    public String getResponseSetListLink() {
+        return responseSetListLink ;
     }
 
     @Override
-    public void setResponseSetListLink(Optional<String> responseSetListLink) {
-        if(responseSetListLink.isPresent()){
+    public void setResponseSetListLink( String responseSetListLink) {
             Resource resource = new Resource();
             resource.setHref(responseSetListLink);
             this.responseSetListLink = resource.getHref();
-        }
-        this.responseSetListLink = responseSetListLink.orElse(null);
     }
   
 

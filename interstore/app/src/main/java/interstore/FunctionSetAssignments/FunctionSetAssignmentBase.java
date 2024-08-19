@@ -12,44 +12,44 @@ public interface FunctionSetAssignmentBase {
   
 
     // Function Set Assignments Link getters and setters
-    Optional<String> getFunctionSetAssignmentsLink();
-    void setFunctionSetAssignmentsLink(Optional<String> resource);
+  String getFunctionSetAssignmentsLink();
+    void setFunctionSetAssignmentsLink(String resource);
 
     // Demand Response Program List Link getters and setters
-    Optional<String> getDemandResponseProgramListLink();
-    void setDemandResponseProgramListLink(Optional<String> resource);
+    String getDemandResponseProgramListLink();
+    void setDemandResponseProgramListLink(String resource);
 
     // Tariff Profile List Link getters and setters
-    Optional<String> getTariffProfileListLink();
-    void setTariffProfileListLink(Optional<String> resource);
+   String getTariffProfileListLink();
+    void setTariffProfileListLink(String resource);
 
     // Messaging Program List Link getters and setters
-    Optional<String> getMessagingProgramListLink();
-    void setMessagingProgramListLink(Optional<String> resource);
+    String getMessagingProgramListLink();
+    void setMessagingProgramListLink(String resource);
 
     // File List Link getters and setters
-    Optional<String> getFileListLink();
-    void setFileListLink(Optional<String> resource);
+    String getFileListLink();
+    void setFileListLink(String resource);
 
     // Usage Point List Link getters and setters
-    Optional<String> getUsagePointListLink();
-    void setUsagePointListLink(Optional<String> resource);
+    String getUsagePointListLink();
+    void setUsagePointListLink(String resource);
 
     // DER Program List Link getters and setters
-    Optional<String> getDERProgramListLink();
-    void setDERProgramListLink(Optional<String> resource);
+    String getDERProgramListLink();
+    void setDERProgramListLink(String resource);
 
     // Customer Account List Link getters and setters
-    Optional<String> getCustomerAccountListLink();
-    void setCustomerAccountListLink(Optional<String> resource);
+    String getCustomerAccountListLink();
+    void setCustomerAccountListLink(String resource);
 
     // Prepayment List Link getters and setters
-    Optional<String> getPrepaymentListLink();
-    void setPrepaymentListLink(Optional<String> resource);
+    String getPrepaymentListLink();
+    void setPrepaymentListLink(String resource);
 
     // Response Set List Link getters and setters
-    Optional<String> getResponseSetListLink();
-    void setResponseSetListLink(Optional<String> resource);
+    String getResponseSetListLink();
+    void setResponseSetListLink(String resource);
 
     // Additional getters and setters from the entity class
 

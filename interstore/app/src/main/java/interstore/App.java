@@ -229,23 +229,29 @@ public class App {
         return response;
     }
 
-     /*
-      * 
-      */
-
         public String createFunctionsetAssignments(String natsSubject) throws Exception {
             interstore.FunctionSetAssignmentsTest.setServicename("createFsamanager");
             JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-            //String Payload =  interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest); 
             this.messageToPublish.newStart(natsSubject , 
              interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest));
             Thread.sleep(300);
             String response = interstore.FunctionSetAssignmentsTest.getCreatedFunctionSetAssignment();
-            LOGGER.info("the response of the created function set assignment is " + response);
             return response;
         }
 
+       public String getAFunctionSetAssignments(String natsSubject) throws Exception {
 
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long fsaID = currentTest.getLong("fsaID");
+        Thread.sleep(300);
+        interstore.FunctionSetAssignmentsTest.setServicename("getASingleFsamanager");
+        this.messageToPublish.newStart(natsSubject, interstore.FunctionSetAssignmentsTest.findAFunctionSetAssignments(endDeviceID, fsaID));
+        Thread.sleep(300);
+        String singleFSA = interstore.FunctionSetAssignmentsTest.getSingleFSA();
+        LOGGER.info("the deatils of the registered end device is " + singleFSA  );
+        return singleFSA   ;
+       }
 
 
 

@@ -1,12 +1,14 @@
 package interstore.FunctionSetAssignments;
-import interstore.Types.*;
+import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl; 
+import interstore.EndDevice.EndDeviceRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,17 +28,25 @@ public class FunctionSetAssignmentsService {
     @Autowired
     private EndDeviceImpl endDeviceImpl;
 
+    @Autowired
+    private EndDeviceRepository endDeviceRepository;
+
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
      
     @Transactional
     public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) {
         LOGGER.info("The payload reached FSA service class: " + payload);
-        
-        // Create new FSA entity
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
+        Optional<EndDeviceDto> endDeviceOptional = endDeviceRepository.findById(endDeviceId);
         FunctionSetAssignmentsEntity fsaEntity = new FunctionSetAssignmentsEntity();
         
         // Save it to the database
         try {
+            if(endDeviceOptional.isPresent()) {
+                fsaEntity.setEndDevice(endDeviceOptional.get());
+            } else {
+                LOGGER.warning("End device with ID " + endDeviceId + " not found.");
+            }
             fsaEntity = functionSetAssignmentsRepository.save(fsaEntity);
             LOGGER.info("FSA entity saved: " + fsaEntity);
         } catch (Exception e) {
@@ -135,7 +146,7 @@ public class FunctionSetAssignmentsService {
             String idString = "/"+ String.valueOf(fsaId) ;
             String functionsetassignmentLink = createFunctionSetAssignmentsLink(endDeviceIdLong );
             String fsaLink = functionsetassignmentLink + idString;
-
+            LOGGER.info("the fsa link is in service class ööö " + fsaLink); 
         String subScribable = Fsapayload.optString("subscribable");
         short shortSubscribable = Short.parseShort(subScribable);
         String mRID = Fsapayload.optString("mRID");
@@ -147,11 +158,12 @@ public class FunctionSetAssignmentsService {
         fsaEntity.setmRID(mRID);
         fsaEntity.setVersion(intVersion );
         fsaEntity.setDescription(description);
-            fsaEntity.setFunctionSetAssignmentsLink(Optional.ofNullable(fsaLink));
+            fsaEntity.setFunctionSetAssignmentsLink(fsaLink);
             LOGGER.info(fsaEntity.getDescription());
             LOGGER.info(fsaEntity.getmRID().toString());
             LOGGER.info(fsaEntity.getSubscribable().toString());
             LOGGER.info(fsaEntity.getVersion().toString());
+            LOGGER.info(fsaEntity.getFunctionSetAssignmentsLink().toString()); 
             findListLink(Fsapayload, fsaEntity);
             AddSubscribabaleFsa(shortSubscribable, fsaEntity);
 
@@ -164,14 +176,16 @@ public class FunctionSetAssignmentsService {
             ResponseEntity<Map<String, Object>> responseEntity = endDeviceImpl.getEndDevice(id);
             Map<String, Object> endDeviceMap = responseEntity.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
-
+            
             for (Map.Entry<String, Object> entry : endDeviceMap.entrySet()) {
                 try {
                     String jsonValue = objectMapper.writeValueAsString(entry.getValue());
-                    LOGGER.info("The key is " + entry.getKey() + " the value is " + jsonValue);
-                    if ("functionSetAssignmentsListLink".equals(entry.getKey())) {
-                        return jsonValue;
+                    Map<String, String> FsaLinkMap = objectMapper.readValue(jsonValue , new TypeReference<Map<String, String>>(){});
+                    if (FsaLinkMap.containsKey("functionSetAssignmentsListLink")) {
+                        LOGGER.info("the fsaLink value is " + FsaLinkMap.get("functionSetAssignmentsListLink"));
+                       return FsaLinkMap.get("functionSetAssignmentsListLink");
                     }
+                   
                 } catch (JsonProcessingException e) {
                     LOGGER.info("Error occurred while converting to JSON: " + e.getMessage());
                 }
@@ -189,46 +203,124 @@ public class FunctionSetAssignmentsService {
 
 
     public  void findListLink(JSONObject payload, FunctionSetAssignmentsEntity fsaEntity)
-    {
-        Iterator<String> keys  = payload.keys();
-        while(keys.hasNext())
-        {
-            String key = keys.next();
-            switch(key) {
-                case "DemandResponseProgramListLink":
-                fsaEntity.setDemandResponseProgramListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "FileListLink":
-                fsaEntity.setFileListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "TraiffProfileListLink":
-                fsaEntity.setTariffProfileListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "MessagingProgramListLink":
-                fsaEntity.setMessagingProgramListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "UsagePointListLink":
-                fsaEntity.setUsagePointListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "DERProgramListLink":
-                fsaEntity.setDERProgramListLink(Optional.ofNullable(payload.optString(key)));
-                LOGGER.info(fsaEntity.getDERProgramListLink().toString()); 
-                break;
-                case "CustomerAccountListLink":
-                fsaEntity.setCustomerAccountListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "PrepaymentListLink":
-                fsaEntity.setPrepaymentListLink(Optional.ofNullable(payload.optString(key)));
-                break;
-                case "ResponseSetListLink":
-                fsaEntity.setResponseSetListLink(Optional.ofNullable(payload.optString(key)));
-                 default:
-                    break;    
+    {   
+        LOGGER.info("the payload is displayed in the findListLink method " + payload);
+        try {
+            Iterator<String> keys  = payload.keys();
+            while(keys.hasNext())
+            {
+                String key = keys.next();
+                String value = payload.optString(key);
+                if(!value.isEmpty())
+                {
+                    switch(key) {
+                        case "demandResponseProgramListLink":
+                        fsaEntity.setDemandResponseProgramListLink(payload.optString(key));
+                        break;
+                        case "fileListLink":
+                        fsaEntity.setFileListLink(payload.optString(key));
+                        break;
+                        case "traiffProfileListLink":
+                        fsaEntity.setTariffProfileListLink(payload.optString(key));
+                        break;
+                        case "messagingProgramListLink":
+                        fsaEntity.setMessagingProgramListLink(payload.optString(key));
+                        break;
+                        case "usagePointListLink":
+                        fsaEntity.setUsagePointListLink(payload.optString(key));
+                        break;
+                        case "dERProgramListLink":
+                        fsaEntity.setDERProgramListLink(payload.optString(key));
+                        LOGGER.info(fsaEntity.getDERProgramListLink().toString()); 
+                        break;
+                        case "customerAccountListLink":
+                        fsaEntity.setCustomerAccountListLink(payload.optString(key));
+                        break;
+                        case "prepaymentListLink":
+                        fsaEntity.setPrepaymentListLink(payload.optString(key));
+                        break;
+                        case "responseSetListLink":
+                        fsaEntity.setResponseSetListLink(payload.optString(key));
+                         default:
+                            break;    
+            }
+                }
+              
+        }
     }
+         catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
+        }
+       
     
 }
-       
+   
+public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long endDeviceId) {
+    try {
+        Map<String, Object> responseMap = new HashMap<>();
+        List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findByEndDeviceId(endDeviceId);
+
+        List<Map<String, Object>> fsaDetails = fsaEntityList.stream()
+            .map(fsaEntity -> {
+                Map<String, Object> entityMap = new HashMap<>();
+                entityMap.put("id", fsaEntity.getId());
+                entityMap.put("mRID", fsaEntity.getmRID() != null ? fsaEntity.getmRID() : "N/A");
+                entityMap.put("description", fsaEntity.getDescription() != null ? fsaEntity.getDescription() : "No description");
+                entityMap.put("subscribable", fsaEntity.getSubscribable());
+                entityMap.put("version", fsaEntity.getVersion());
+
+                // Add only non-null links to the response
+                if (fsaEntity.getDemandResponseProgramListLink() != null) {
+                    entityMap.put("demandResponseProgramListLink", fsaEntity.getDemandResponseProgramListLink());
+                }
+                if (fsaEntity.getFileListLink() != null) {
+                    entityMap.put("fileListLink", fsaEntity.getFileListLink());
+                }
+                if (fsaEntity.getTariffProfileListLink() != null) {
+                    entityMap.put("tariffProfileListLink", fsaEntity.getTariffProfileListLink());
+                }
+                if (fsaEntity.getMessagingProgramListLink() != null) {
+                    entityMap.put("messagingProgramListLink", fsaEntity.getMessagingProgramListLink());
+                }
+                if (fsaEntity.getUsagePointListLink() != null) {
+                    entityMap.put("usagePointListLink", fsaEntity.getUsagePointListLink());
+                }
+                if (fsaEntity.getDERProgramListLink() != null) {
+                    entityMap.put("dERProgramListLink", fsaEntity.getDERProgramListLink());
+                }
+                if (fsaEntity.getCustomerAccountListLink() != null) {
+                    entityMap.put("customerAccountListLink", fsaEntity.getCustomerAccountListLink());
+                }
+                if (fsaEntity.getPrepaymentListLink() != null) {
+                    entityMap.put("prepaymentListLink", fsaEntity.getPrepaymentListLink());
+                }
+                if (fsaEntity.getResponseSetListLink() != null) {
+                    entityMap.put("responseSetListLink", fsaEntity.getResponseSetListLink());
+                }
+                if (fsaEntity.getFunctionSetAssignmentsLink() != null) {
+                    entityMap.put("functionSetAssignmentsLink", fsaEntity.getFunctionSetAssignmentsLink());
+                }
+
+                return entityMap;
+            })
+            .collect(Collectors.toList());
+
+        if (fsaDetails.isEmpty()) {
+            responseMap.put("message", "No functionSetAssignments found.");
+        } else {
+            responseMap.put("functionSetAssignments", fsaDetails);
+        }
+
+        return ResponseEntity.ok(responseMap);
+    } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
+        return ResponseEntity.status(404).body(null);
     }
+}
+
+   
+
+
    
         public void AddSubscribabaleFsa(Short shortSubscribable,FunctionSetAssignmentsEntity fsaEntity )
         {
@@ -239,45 +331,61 @@ public class FunctionSetAssignmentsService {
         }
 
 
-       /*get all  function set assignments for an end device   */
-    public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long endDeviceId)
-    {   
-         
-        try {
-            //Long EndDeviceId = Long.parseLong(endDeviceId);
-             Map<String, Object> responseMap = new HashMap<>();
-            List<FunctionSetAssignmentsEntity> fsaEntityList = functionSetAssignmentsRepository.findByEndDeviceId(endDeviceId);
-            LOGGER.log(Level.INFO, " fsaEntity retrieved successfully" + fsaEntityList);
-            if(fsaEntityList.isEmpty()) {
-                responseMap.put("message", "No functionSetAssignments found.");
-            }
-            else {
-                responseMap.put("functionSetAssignments", fsaEntityList);
-            }
-            return ResponseEntity.ok(responseMap);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
-
-            return ResponseEntity.status(404).body(null);
-        }
-
-    }
-
+   
      /*get a single function set assignments for an end device   */
+    @SuppressWarnings("unused")
     public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long endDeviceId, Long fsaId)
 
     {
         try {
-            //Long EndDeviceId = Long.parseLong(endDeviceId);
-            //Long fsaID = Long.parseLong(fsaId);
-            Optional<FunctionSetAssignmentsEntity> fsaEntity = functionSetAssignmentsRepository.findFirstByEndDeviceIdAndId( endDeviceId , fsaId );
             Map<String, Object> result = new HashMap<>();
+           Optional <FunctionSetAssignmentsEntity> fsaEntityOptional = functionSetAssignmentsRepository.findFirstByEndDeviceIdAndId( endDeviceId , fsaId );
+           FunctionSetAssignmentsEntity fsaEntity = fsaEntityOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", fsaEntity.getId());
+            entityMap.put("mRID", fsaEntity.getmRID() != null ? fsaEntity.getmRID() : "N/A");
+            entityMap.put("description", fsaEntity.getDescription() != null ? fsaEntity.getDescription() : "No description");
+            entityMap.put("subscribable", fsaEntity.getSubscribable());
+            entityMap.put("version", fsaEntity.getVersion());
+
+            if (fsaEntity.getDemandResponseProgramListLink() != null) {
+                entityMap.put("demandResponseProgramListLink", fsaEntity.getDemandResponseProgramListLink());
+            }
+            if (fsaEntity.getFileListLink() != null) {
+                entityMap.put("fileListLink", fsaEntity.getFileListLink());
+            }
+            if (fsaEntity.getTariffProfileListLink() != null) {
+                entityMap.put("tariffProfileListLink", fsaEntity.getTariffProfileListLink());
+            }
+            if (fsaEntity.getMessagingProgramListLink() != null) {
+                entityMap.put("messagingProgramListLink", fsaEntity.getMessagingProgramListLink());
+            }
+            if (fsaEntity.getUsagePointListLink() != null) {
+                entityMap.put("usagePointListLink", fsaEntity.getUsagePointListLink());
+            }
+            if (fsaEntity.getDERProgramListLink() != null) {
+                entityMap.put("dERProgramListLink", fsaEntity.getDERProgramListLink());
+            }
+            if (fsaEntity.getCustomerAccountListLink() != null) {
+                entityMap.put("customerAccountListLink", fsaEntity.getCustomerAccountListLink());
+            }
+            if (fsaEntity.getPrepaymentListLink() != null) {
+                entityMap.put("prepaymentListLink", fsaEntity.getPrepaymentListLink());
+            }
+            if (fsaEntity.getResponseSetListLink() != null) {
+                entityMap.put("responseSetListLink", fsaEntity.getResponseSetListLink());
+            }
+            if (fsaEntity.getFunctionSetAssignmentsLink() != null) {
+                entityMap.put("functionSetAssignmentsLink", fsaEntity.getFunctionSetAssignmentsLink());
+            }
+
+
             if (fsaEntity == null) {
                 result.put("message", "No functionsetassignment found for EndDevice ID " +  endDeviceId  + " and FSA ID " +   fsaId );
             } else {
-                result.put("RegisteredEndDevice", fsaEntity.get());
+                result.put("RegisteredEndDevice", entityMap);
             }
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok( result );
           } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
             return ResponseEntity.status(404).body(null);
@@ -307,92 +415,6 @@ public class FunctionSetAssignmentsService {
 
 /*
 
-SubscribableList object (SubscribableResource)
-A List to which a Subscription can be requested.
-all attribute (UInt32) «XSDattribute»
-The number specifying “all” of the items in the list. Required on GET, ignored otherwise.
-results attribute (UInt32) «XSDattribute»
-Indicates the number of items in this page of results.
-
-
-
-
-public void createdFSA(FunctionSetAssignmentsList fsaList){
-        FunctionSetAssignmentsEntity functionSetAssignment = new FunctionSetAssignmentsEntity(fsaList);
-        setFSA(functionSetAssignment);
-        functionSetAssignmentsRepository.save(functionSetAssignment);
-        fsaList.addFsa(functionSetAssignment);
-        Long id = functionSetAssignment.getId();
-        String fsaLink = fsaList.getFsaListLink()+"/"+id.toString();
-        functionSetAssignment.setFsalink(fsaLink);
-        String derpListLink = fsaLink+"/derp";
-        functionSetAssignment.setDERProgramListLink(derpListLink);
-
-        DERPList derpList = new DERPList(derpListLink);
-        derpList = derpListRepository.save(derpList);
-        generateDERP(derpList);
-    }
-
-    public void setFSA(FunctionSetAssignmentsEntity functionSetAssignment){
-        functionSetAssignment.setDescription("FSA description");
-        functionSetAssignment.setmRID("A1000000");
-        functionSetAssignment.setSubscribable("1");
-        functionSetAssignment.setVersion("3");
-    }
-
-
- * public void generateDERP(DERPList derpList){
-        for(int i = 0; i < 3; i++) {
-            DERProgramImpl derProgramImpl = ApplicationContextProvider.getApplicationContext().getBean(DERProgramImpl.class);
-            derProgramImpl.createDERP(derpList);
-        }
-    }
-    @Transactional
-    public Object getFSA(String Ids) {
-        JSONObject val = new JSONObject();
-        Map<Long, Object> values = new HashMap<>();
-        try {
-            JSONArray jsonArray = new JSONArray(Ids);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                Long id = jsonArray.getLong(i);
-                Optional<FunctionSetAssignments> functionSetAssignments = functionSetAssignmentsRepository.findById(id);
-                values.put(functionSetAssignments.get().getId(), functionSetAssignments.get().getAll());
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return values.toString();
-    }
-
-//    public Map<String, String> getderpMap() {
-//        FunctionSetAssignments functionSetAssignments = new FunctionSetAssignments();
-//        return functionSetAssignments.getDerpMap();
-//    }
- * 
- * 
- * 
- *    @Autowired
-    DERPListRepository derpListRepository;
- * 
- * 
- * 
- *  }
-        List<String> list_Links = new ArrayList<>();
-        list_Links.add("DemandResponseProgramListLink");
-        list_Links.add("FileListLink");
-        list_Links.add("TraiffProfileListLink");
-        list_Links.add("MessagingProgramListLink");
-        list_Links.add("UsagePointListLink");
-        list_Links.add("DERProgramListLink");
-        list_Links.add("CustomerAccountListLink");
-        list_Links.add("PrepaymentListLink");
-        list_Links.add("ResponseSetListLink");
-        for(String link : list_Links)
-        {
-            String value = payload.optString(link);
-            listLink.put(link, value);
-        }
  * 
  * 
  * 

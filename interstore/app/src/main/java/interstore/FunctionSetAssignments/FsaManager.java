@@ -5,9 +5,13 @@ import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Map;
 import java.util.logging.Logger;
-
+@RestController
 public class FsaManager {
     FunctionSetAssignmentsService fsaService;
     private static final Logger LOGGER = Logger.getLogger(FsaManager.class.getName());
@@ -52,9 +56,7 @@ public class FsaManager {
         {  
             LOGGER.info("the received payload in the FSA Manager class  is " + jsonObject);
             FunctionSetAssignmentsEntity fsaEntity = this.fsaService.createFunctionsetAssignments(jsonObject);
-            LOGGER.info("id" + fsaEntity.getId());
-            LOGGER.info("mRID" + fsaEntity.getmRID()); 
-            return Map.of("Version", fsaEntity.getId(), "mRID", fsaEntity.getmRID());
+            return Map.of("id", fsaEntity.getId(), "mRID", fsaEntity.getmRID(), "Version", fsaEntity.getVersion());
             
         }
     }
@@ -98,7 +100,7 @@ public class FsaManager {
         return  responseEntity.getBody(); 
     }
     
-    @GetMapping("/edev/{endDeviceID}/fsa/{functionsetAssignmentsID}")
+    @GetMapping("/edev/{endDeviceID}/fsa/{fsaID}")
      public Map<String, Object> getFunctionSetAssignmentsDetails(@PathVariable Long endDeviceID, @PathVariable Long fsaID)
       {
         ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getFunctionsetAssignments(endDeviceID, fsaID);
