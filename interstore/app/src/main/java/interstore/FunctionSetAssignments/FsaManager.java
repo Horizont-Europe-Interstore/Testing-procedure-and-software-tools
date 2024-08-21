@@ -1,10 +1,7 @@
 package interstore.FunctionSetAssignments;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,7 +49,7 @@ public class FsaManager {
         expectedMap.put("Version", "16726121139");
         expectedMap.put("id", "1");
      */
-    public Map<String, Object> addFSA( JSONObject jsonObject) {
+    public Map<String, Object> addFSA( JSONObject jsonObject) throws NumberFormatException, JSONException {
         {  
             LOGGER.info("the received payload in the FSA Manager class  is " + jsonObject);
             FunctionSetAssignmentsEntity fsaEntity = this.fsaService.createFunctionsetAssignments(jsonObject);
@@ -70,14 +67,18 @@ public class FsaManager {
      * }
      *   "endDeviceID"
      */
-    public Map<String, Object> getFSA(JSONObject payload) {
+    public Map<String, Object> getFSA(JSONObject payload) throws JSONException {
        
          if (payload.has("endDeviceID") && payload.has("fsaID"))
-        {
-               String endDeviceId = payload.getString("endDeviceID");
-               String fsaId = payload.getString("fsaID");
-               Long endDeviceIdLong = Long.parseLong(endDeviceId);
-               Long fsaIdLong = Long.parseLong(fsaId);
+        {      
+            
+              // String endDeviceId = payload.getString("endDeviceID");
+              // String fsaId = payload.getString("fsaID");
+               Long endDeviceIdLong =  payload.getLong("endDeviceID");      //Long.parseLong(endDeviceId);
+               Long fsaIdLong =  payload.getLong("fsaID");                                          //Long.parseLong(fsaId);
+               LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
+               LOGGER.info("fsaID in the FSA Manager" + fsaIdLong);
+
                 return getFunctionSetAssignmentsDetails(endDeviceIdLong, fsaIdLong );
         }   
 

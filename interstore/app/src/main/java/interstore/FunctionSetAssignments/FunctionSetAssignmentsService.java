@@ -2,6 +2,8 @@ package interstore.FunctionSetAssignments;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl; 
 import interstore.EndDevice.EndDeviceRepository;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +36,7 @@ public class FunctionSetAssignmentsService {
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
      
     @Transactional
-    public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) {
+    public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException {
         LOGGER.info("The payload reached FSA service class: " + payload);
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
         Optional<EndDeviceDto> endDeviceOptional = endDeviceRepository.findById(endDeviceId);
@@ -332,7 +334,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
 
 
    
-     /*get a single function set assignments for an end device   */
+     /*get a single function set assignments for an end device  */
     @SuppressWarnings("unused")
     public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long endDeviceId, Long fsaId)
 
@@ -383,7 +385,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
             if (fsaEntity == null) {
                 result.put("message", "No functionsetassignment found for EndDevice ID " +  endDeviceId  + " and FSA ID " +   fsaId );
             } else {
-                result.put("RegisteredEndDevice", entityMap);
+                result.put("FunctionSetAssignments", entityMap);
             }
             return ResponseEntity.ok( result );
           } catch (Exception e) {

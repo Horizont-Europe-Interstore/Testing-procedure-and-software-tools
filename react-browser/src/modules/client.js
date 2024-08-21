@@ -157,6 +157,16 @@ export default class Client{
                 PrepaymentListLink:'',
                 ResponseSetListLink:'',
             }
+        }, 
+        {
+            index:10,
+            test:'Get A Function Set Assignments',
+            desc:'description', 
+            args: true,
+            object:{
+                endDeviceId:'',
+                fsaID:''
+            }
         }
 
     ];
@@ -190,6 +200,11 @@ export default class Client{
             mRID: (field) => field.trim() !== "",
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)}
+        }, 
+
+        'Get A Function Set Assignments':{
+            endDeviceId:(field)=>{return !isNaN(field)},
+            fsaID:(field)=>{return !isNaN(field)}
         }
        
     }

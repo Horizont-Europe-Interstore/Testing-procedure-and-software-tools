@@ -105,10 +105,10 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         } 
-
+           
         else if(serviceName.equals("getASingleFsamanager"))
         {
-            Method method = microServiceClass.getMethod("setCreatedFunctionSetAssignment", String.class);
+            Method method = microServiceClass.getMethod("setSingleFunctionSetAssignments", String.class);
             method.invoke(microServiceObject, payLoad);
 
         }

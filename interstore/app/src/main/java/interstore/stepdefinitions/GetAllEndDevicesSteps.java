@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
 public class GetAllEndDevicesSteps {
     private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllEndDevicesSteps.class);

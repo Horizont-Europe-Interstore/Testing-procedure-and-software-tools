@@ -45,27 +45,28 @@ public class GetAllFunctionSetAssignmentsSteps {
      */
     @Then("^the test should complete successfully with all function set assignments response containing:$")
     public  void the_test_should_complete_successfully_with_all_function_set_assignments_response_containing(String expectedJson) throws Exception {
-        Map<String, String > expectedNoEndDeviceFoundMap = new HashMap<>();
-        expectedNoEndDeviceFoundMap.put("message", "No endDevices found."); 
-        Map<String, String> defaultexpectedEndDeviceMap = new HashMap<>();
-        defaultexpectedEndDeviceMap.put("enddeviceLink", "http://localhost/edev/1");
+        Map<String, String > expectedNoFsaMap = new HashMap<>();
+        expectedNoFsaMap.put("message","No functionSetAssignments found."); 
+        Map<String, String> defaultFsaMap = new HashMap<>();
+        defaultFsaMap.put("enddeviceLink", "http://localhost/edev/1");
         ObjectMapper actualObjectMapper = new ObjectMapper();
+        @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
         LOGGER.info("the actaul get all functio set assignment response is ....." + actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())
         {
             Object key = entry.getKey();
             
-            if(key.equals("message") &&  expectedNoEndDeviceFoundMap.containsKey(key))
+            if(key.equals("message") &&  expectedNoFsaMap.containsKey(key))
             {
                 scenario.log("actual" + ":" +  actualMap);
-                scenario.log("expected" + ":" +  expectedNoEndDeviceFoundMap);
+                scenario.log("expected" + ":" +  expectedNoFsaMap);
             }
             else if( key.equals("functionSetAssignments"))
             {  
                 {
                     scenario.log("actual" + ":" + entry.getValue());
-                    scenario.log("expected" + ":" + defaultexpectedEndDeviceMap);
+                    scenario.log("expected" + ":" + defaultFsaMap);
                    } 
                }
             } 
