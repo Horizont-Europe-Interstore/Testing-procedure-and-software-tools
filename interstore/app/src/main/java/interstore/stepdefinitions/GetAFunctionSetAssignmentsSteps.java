@@ -71,7 +71,7 @@ public class GetAFunctionSetAssignmentsSteps {
       for(Map.Entry<String, String> entry:expectedMap.entrySet())
       {  
           String key = entry.getKey(); 
-          if( fsaMap.containsKey(key) && expectedMap.containsKey(key) && includeKeys.contains(key))
+          if( fsaMap.containsKey(key) || expectedMap.containsKey(key) || includeKeys.contains(key))
           {
               LOGGER.info("sample key is:" + entry.getKey());
               scenario.log("actual" + ":" + actualMap);

@@ -116,7 +116,6 @@ public class MicroServiceFactory {
         this.dtoMap.put("enddeviceinstancemanager", endDeviceTest);
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
-//        this.dtoMap.put("getDERListLink", endDeviceTest);
         this.dtoMap.put("getDERList", endDeviceTest);
         this.dtoMap.put("getDER_properties", endDeviceTest);
         this.dtoMap.put("update_DER_properties", endDeviceTest);

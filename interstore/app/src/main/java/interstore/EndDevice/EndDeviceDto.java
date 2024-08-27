@@ -1,12 +1,17 @@
 package interstore.EndDevice;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import interstore.AbstractDevice;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.logging.Logger;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 
 @Entity
 public class EndDeviceDto implements AbstractDevice{ 
@@ -42,6 +47,7 @@ public class EndDeviceDto implements AbstractDevice{
     @Column(name= "link_der_list")
     private String linkDerList;
     
+
     @OneToMany(mappedBy = "endDevice", cascade = CascadeType.ALL)
     private List<FunctionSetAssignmentsEntity> functionSetAssignments;
 
@@ -58,6 +64,17 @@ public class EndDeviceDto implements AbstractDevice{
     }
     
     
+  public List<FunctionSetAssignmentsEntity> setFunctionSetAssignments(List<FunctionSetAssignmentsEntity> functionSetAssignments)
+  {
+      return this.functionSetAssignments = functionSetAssignments;
+  }
+  
+  public List<FunctionSetAssignmentsEntity> getFunctionSetAssignments()
+  {
+      return this.functionSetAssignments;
+  }
+
+
     public void setsfdi(long sfdi)
 
    {   

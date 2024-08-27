@@ -1,17 +1,13 @@
 package interstore.FunctionSetAssignments;
 import interstore.EndDevice.EndDeviceDto;
-import interstore.EndDevice.EndDeviceImpl; 
 import interstore.EndDevice.EndDeviceRepository;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,192 +17,59 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 @Service
 public class FunctionSetAssignmentsService {
     @Autowired
     FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
     
     @Autowired
-    private EndDeviceImpl endDeviceImpl;
-
-    @Autowired
     private EndDeviceRepository endDeviceRepository;
 
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
      
-    @Transactional
-    public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException {
-        LOGGER.info("The payload reached FSA service class: " + payload);
+     @Transactional
+    public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
-        Optional<EndDeviceDto> endDeviceOptional = endDeviceRepository.findById(endDeviceId);
-        FunctionSetAssignmentsEntity fsaEntity = new FunctionSetAssignmentsEntity();
-        
-        // Save it to the database
+        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        .orElseThrow(() -> new NotFoundException());
+        endDevice.getFunctionSetAssignmentsListLink();
+        String fsaLink = endDevice.getFunctionSetAssignmentsListLink();
+        FunctionSetAssignmentsEntity fsaEntity = new FunctionSetAssignmentsEntity(); 
+        fsaEntity.setEndDevice(endDevice); 
         try {
-            if(endDeviceOptional.isPresent()) {
-                fsaEntity.setEndDevice(endDeviceOptional.get());
-            } else {
-                LOGGER.warning("End device with ID " + endDeviceId + " not found.");
-            }
-            fsaEntity = functionSetAssignmentsRepository.save(fsaEntity);
-            LOGGER.info("FSA entity saved: " + fsaEntity);
+            fsaEntity  = functionSetAssignmentsRepository.save(fsaEntity);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error saving FSA entity", e);
         }
-        
-        // Set properties and save again
-        setFunctionSetAssignmentEntity(fsaEntity, payload);
-        try {
-            fsaEntity = functionSetAssignmentsRepository.save(fsaEntity);
-            LOGGER.info("FSA entity updated and saved: " + fsaEntity);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error updating and saving FSA entity", e);
-        }
-        
-        return fsaEntity;
-    }
-    
-
-    
-     /*
-      @Transactional
-    public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject  payload)
-    {
-        LOGGER.info("the payload reached fsa service class " +  payload);
-        FunctionSetAssignmentsEntity fsaEntity = new FunctionSetAssignmentsEntity();
-        LOGGER.info("the fsa enttiy class is here" + fsaEntity ); 
-        fsaEntity = functionSetAssignmentsRepository.save(fsaEntity);
-        setFunctionSetAssignmentEntity(fsaEntity, payload);
-        fsaEntity = functionSetAssignmentsRepository.save(fsaEntity);
-        return fsaEntity ;
-       
+        setFunctionSetAssignmentEntity(fsaEntity  , payload,  fsaLink );
+        fsaEntity  = functionSetAssignmentsRepository.save(fsaEntity);
+        return fsaEntity;   
     }
 
-
-
-      * 
-       
-
-
-
-      
-        "payload" : {
-         mRID : "XXXXXXXX", type: mRIDType
-        "description" : "FSA description",  type : String32 
-        "subscribable" : "1",   type: SubscribabaleType 
-        "version" : "0",  type: VersionType 
-        "functionsetassignmentLink" : "http://localhost:8080/edev/id/fsa"
-        "DemandResponseProgramListLink": "/dr"
-        "FileListLink": "/file",
-        "TraiffProfileListLink": "/tp",
-        "MessagingProgramListLink": "/msg",
-        "UsagePointListLink": "/upt",
-        "DERProgramListLink": "/derp",
-        "CustomerAccountListLink":"/bill",
-        "PrepaymentListLink": "/ppy",
-        "ResponseSetListLink" "/rsps"
-        "EndDeviceID": "1"  type: EndDeviceIDType 
-
-        }
-       
-        if i receive the end device id in the payload, i need to create the fsa link
-         i need to create a function set assignments for a particular end device for this 
-         reason i have to choose the end device id from front end and put it in the payload 
-         once i receive the end device id i have to query for it's corresponding uri and it's 
-         fsa uri .i can create the fsa link 
-         "functionSetAssignmentsListLink":"http://localhost/edev/1/fsa"
-
-
-
-              mRIDType mRid = new mRIDType( Fsapayload.optString("mRID"));
-
-          
-            String subScribabale = Fsapayload.optString("subscribable");
-            short shortSubscribable = Short.parseShort(subScribabale);
-            SubscribableType subscribableType =  new SubscribableType(shortSubscribable) ; 
-            String version = Fsapayload.optString("version");
-            int intVersion = Integer.parseInt(version) ;
-            VersionType versionType = new VersionType(intVersion);
-
-              fsaEntity.setmRID(mRid);
-            fsaEntity.setDescription(description);
-            fsaEntity.setSubscribable(subscribableType);
-            fsaEntity.setVersion(versionType);
-
-      */
-    public void setFunctionSetAssignmentEntity(FunctionSetAssignmentsEntity fsaEntity , JSONObject payload)
+    
+    public void setFunctionSetAssignmentEntity(FunctionSetAssignmentsEntity fsaEntity , JSONObject payload, String functionsetassignmentLink) throws NotFoundException
       {    
-        LOGGER.info("the received payload in the FSA Service class  is " + payload);
-            Long fsaId = fsaEntity.getId();
-            LOGGER.info("the fsa id is in service class  " + fsaId); 
-            JSONObject Fsapayload = payload.optJSONObject("payload");
-            LOGGER.info("the json paylaod is the service class is" + Fsapayload);
-            String endDeviceId = Fsapayload.optString("endDeviceId");
-            Long endDeviceIdLong = Long.parseLong(endDeviceId); 
-            LOGGER.info("the end device id is in service class  " + endDeviceIdLong);
-            String idString = "/"+ String.valueOf(fsaId) ;
-            String functionsetassignmentLink = createFunctionSetAssignmentsLink(endDeviceIdLong );
-            String fsaLink = functionsetassignmentLink + idString;
-            LOGGER.info("the fsa link is in service class ööö " + fsaLink); 
+        Long fsaId = fsaEntity.getId();
+        JSONObject Fsapayload = payload.optJSONObject("payload");
+        String idString = "/"+ String.valueOf(fsaId) ;
+        String fsaLink = functionsetassignmentLink + idString;   
         String subScribable = Fsapayload.optString("subscribable");
         short shortSubscribable = Short.parseShort(subScribable);
         String mRID = Fsapayload.optString("mRID");
         String version = Fsapayload.optString("version");
         int intVersion = Integer.parseInt(version);
         String description = Fsapayload.optString("description");
-      
         fsaEntity.setSubscribable(shortSubscribable);
         fsaEntity.setmRID(mRID);
         fsaEntity.setVersion(intVersion );
         fsaEntity.setDescription(description);
-            fsaEntity.setFunctionSetAssignmentsLink(fsaLink);
-            LOGGER.info(fsaEntity.getDescription());
-            LOGGER.info(fsaEntity.getmRID().toString());
-            LOGGER.info(fsaEntity.getSubscribable().toString());
-            LOGGER.info(fsaEntity.getVersion().toString());
-            LOGGER.info(fsaEntity.getFunctionSetAssignmentsLink().toString()); 
-            findListLink(Fsapayload, fsaEntity);
-            AddSubscribabaleFsa(shortSubscribable, fsaEntity);
-
-        
+        fsaEntity.setFunctionSetAssignmentsLink(fsaLink);
+        findListLink(Fsapayload, fsaEntity);
+        AddSubscribabaleFsa(shortSubscribable, fsaEntity);
       }
      
-     
-      public String createFunctionSetAssignmentsLink(Long id) {
-        try {
-            ResponseEntity<Map<String, Object>> responseEntity = endDeviceImpl.getEndDevice(id);
-            Map<String, Object> endDeviceMap = responseEntity.getBody();
-            ObjectMapper objectMapper = new ObjectMapper();
-            
-            for (Map.Entry<String, Object> entry : endDeviceMap.entrySet()) {
-                try {
-                    String jsonValue = objectMapper.writeValueAsString(entry.getValue());
-                    Map<String, String> FsaLinkMap = objectMapper.readValue(jsonValue , new TypeReference<Map<String, String>>(){});
-                    if (FsaLinkMap.containsKey("functionSetAssignmentsListLink")) {
-                        LOGGER.info("the fsaLink value is " + FsaLinkMap.get("functionSetAssignmentsListLink"));
-                       return FsaLinkMap.get("functionSetAssignmentsListLink");
-                    }
-                   
-                } catch (JsonProcessingException e) {
-                    LOGGER.info("Error occurred while converting to JSON: " + e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
-        }
-        return null;
-    }
-
-
-
-
-
-
-
     public  void findListLink(JSONObject payload, FunctionSetAssignmentsEntity fsaEntity)
     {   
-        LOGGER.info("the payload is displayed in the findListLink method " + payload);
         try {
             Iterator<String> keys  = payload.keys();
             while(keys.hasNext())
@@ -270,8 +133,6 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
                 entityMap.put("description", fsaEntity.getDescription() != null ? fsaEntity.getDescription() : "No description");
                 entityMap.put("subscribable", fsaEntity.getSubscribable());
                 entityMap.put("version", fsaEntity.getVersion());
-
-                // Add only non-null links to the response
                 if (fsaEntity.getDemandResponseProgramListLink() != null) {
                     entityMap.put("demandResponseProgramListLink", fsaEntity.getDemandResponseProgramListLink());
                 }
@@ -320,11 +181,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
     }
 }
 
-   
-
-
-   
-        public void AddSubscribabaleFsa(Short shortSubscribable,FunctionSetAssignmentsEntity fsaEntity )
+    public void AddSubscribabaleFsa(Short shortSubscribable,FunctionSetAssignmentsEntity fsaEntity )
         {
           if(shortSubscribable!= 0)
           {
@@ -332,8 +189,6 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
           }
         }
 
-
-   
      /*get a single function set assignments for an end device  */
     @SuppressWarnings("unused")
     public ResponseEntity<Map<String, Object>> getFunctionsetAssignments(Long endDeviceId, Long fsaId)
@@ -398,26 +253,6 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
     }
 
 
-
-    
-    /*
-     * if the function set assignment is subscribabsale then it has 
-     * the function set assignemnts created has to added to the database 
-     * so there is a need for member called functionsetassignmentsubscribabale 
-     * 
-     * 
-     */
 }
 
 
-
-
-
-
-
-/*
-
- * 
- * 
- * 
- */

@@ -49,6 +49,12 @@ public class GetAllFunctionSetAssignmentsSteps {
         expectedNoFsaMap.put("message","No functionSetAssignments found."); 
         Map<String, String> defaultFsaMap = new HashMap<>();
         defaultFsaMap.put("enddeviceLink", "http://localhost/edev/1");
+        defaultFsaMap.put("mRID", "A1000000");
+        defaultFsaMap.put("description", "der program fsa");
+        defaultFsaMap.put("deviceCategory", "1");
+        defaultFsaMap.put("id", "1");
+        defaultFsaMap.put("functionSetAssignmentsLink", "http://localhost/edev/1/fsa/1");
+        defaultFsaMap.put("dERProgramListLink", "http://localhost/der"); 
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);

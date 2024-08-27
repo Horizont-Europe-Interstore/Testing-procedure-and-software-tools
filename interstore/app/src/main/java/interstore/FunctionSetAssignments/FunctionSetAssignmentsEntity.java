@@ -2,31 +2,35 @@ package interstore.FunctionSetAssignments;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Resource;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 
 @Entity
 @Table(name = "function_set_assignments")
 public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{  
-
+    
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id; 
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "end_device_id")  // This column will store the foreign key to EndDeviceDto
+
+    @ManyToOne 
+    @JoinColumn(name = "end_device_id", nullable = false)  
     private EndDeviceDto endDevice;
-
+    
     @Column(name = "description")
     private String description;
 
     @Column(name = "m_rid")
-    private String mRID; // HexBinary128 is now a String
+    private String mRID; 
 
     @Column(name = "version")
-    private Integer version; // UInt16 is now an Integer
+    private Integer version; 
 
     @Column(name = "subscribable")
     private Short subscribable;
@@ -77,7 +81,10 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     public Long getId() {
         return id;
     }
-
+    
+    public void setId(Long id) {
+        this.id = id;
+    } 
     public EndDeviceDto getEndDevice() {
         return endDevice;
     }
@@ -85,6 +92,8 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     public void setEndDevice(EndDeviceDto endDevice) {
         this.endDevice = endDevice;
     } 
+    
+   
 
     @Override
     public String getDescription() {
@@ -272,6 +281,20 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
 
 /*
+
+
+
+ public Long getFsaNumber() {
+        return fsaNumber;
+    }
+
+    public void setFsaNumber(Long fsaNumber) {
+        this.fsaNumber = fsaNumber;
+    }
+
+  @Column(name = "fsa_number", nullable = false)
+    private Long fsaNumber;  
+
 
 
 @Column(name = "version")

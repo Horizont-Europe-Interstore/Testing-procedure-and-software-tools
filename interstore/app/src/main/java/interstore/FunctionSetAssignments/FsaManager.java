@@ -1,6 +1,7 @@
 package interstore.FunctionSetAssignments;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,7 @@ public class FsaManager {
         this.fsaService = fsaService;
     }
 
-    public Object chooseMethod_basedOnAction(String payload) throws JSONException{
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException, NumberFormatException, NotFoundException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -49,7 +50,7 @@ public class FsaManager {
         expectedMap.put("Version", "16726121139");
         expectedMap.put("id", "1");
      */
-    public Map<String, Object> addFSA( JSONObject jsonObject) throws NumberFormatException, JSONException {
+    public Map<String, Object> addFSA( JSONObject jsonObject) throws NumberFormatException, JSONException, NotFoundException {
         {  
             LOGGER.info("the received payload in the FSA Manager class  is " + jsonObject);
             FunctionSetAssignmentsEntity fsaEntity = this.fsaService.createFunctionsetAssignments(jsonObject);
