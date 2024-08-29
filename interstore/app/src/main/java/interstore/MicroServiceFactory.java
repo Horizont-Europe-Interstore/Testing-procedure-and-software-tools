@@ -6,8 +6,6 @@ import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
 import interstore.DER.DERListManager;
 import interstore.DER.DERManager;
-import interstore.DERProgram.DERPListImpl;
-import interstore.DERProgram.DERPListManager;
 import interstore.DERProgram.DERProgramImpl;
 import interstore.DERProgram.DERProgramManager;
 import interstore.DeviceCapability.DcapManager;
@@ -61,8 +59,6 @@ public class MicroServiceFactory {
         FsaManager fsaManager = new FsaManager(fsaService);
         DERProgramImpl derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
-        DERPListImpl derpListImpl = serviceFactory.getDerpListProvider().get();
-        DERPListManager derpListManager = new DERPListManager(derpListImpl);
 
         this.microservices.put("getalldcapmanager", dcapManager); 
         this.microservices.put("selfdevicemanager", sdevManager);
@@ -83,7 +79,6 @@ public class MicroServiceFactory {
         this.microservices.put("createFsamanager", fsaManager);
         this.microservices.put("getASingleFsamanager", fsaManager);
         this.microservices.put("fsamanager", fsaManager);
-        this.microservices.put("derplistmanager", derpListManager);
         this.microservices.put("derprogrammanager", derProgramManager);
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);

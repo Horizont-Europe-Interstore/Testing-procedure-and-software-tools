@@ -3,12 +3,7 @@ import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Resource;
 import jakarta.persistence.*;
 import java.util.ArrayList;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
+import java.util.List; 
 
 @Entity
 @Table(name = "function_set_assignments")

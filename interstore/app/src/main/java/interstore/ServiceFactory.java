@@ -1,10 +1,8 @@
 package interstore;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
-import interstore.DERProgram.DERPListImpl;
 import interstore.DERProgram.DERProgramImpl;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
@@ -22,7 +20,6 @@ public class ServiceFactory {
     private final Provider<DERImpl> derProvider;
     private final Provider<FunctionSetAssignmentsService> fsaProvider;
     private final Provider<DERProgramImpl> derProgramProvider;
-    private final Provider<DERPListImpl> derpListProvider;
 
     private final Provider<DERListImpl> derListProvider;
 
@@ -31,7 +28,7 @@ public class ServiceFactory {
     public ServiceFactory(Provider<DeviceCapabilityImpl> deviceCapabilityProvider,
                           Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DERImpl> derProvider, 
                           Provider<FunctionSetAssignmentsService> fsaProvider,
-                           Provider<DERProgramImpl> derProgramProvider, Provider<DERPListImpl> derpListProvider, Provider<DERListImpl> derListProvider) {
+                           Provider<DERProgramImpl> derProgramProvider, Provider<DERListImpl> derListProvider) {
 
         this.deviceCapabilityProvider = deviceCapabilityProvider;
         this.endDeviceProvider = endDeviceProvider;
@@ -39,7 +36,6 @@ public class ServiceFactory {
         this.derProvider = derProvider;
         this.fsaProvider = fsaProvider;
         this.derProgramProvider = derProgramProvider;
-        this.derpListProvider = derpListProvider;
         this.derListProvider = derListProvider;
     }
     
@@ -62,9 +58,6 @@ public class ServiceFactory {
     
     public Provider<DERProgramImpl> getDerProgramProvider(){
         return derProgramProvider;
-    }
-    public Provider<DERPListImpl> getDerpListProvider(){
-        return derpListProvider;
     }
     public Provider<DERListImpl> getDERListProvider(){
         return derListProvider;

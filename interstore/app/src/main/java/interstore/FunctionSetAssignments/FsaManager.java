@@ -72,11 +72,8 @@ public class FsaManager {
        
          if (payload.has("endDeviceID") && payload.has("fsaID"))
         {      
-            
-              // String endDeviceId = payload.getString("endDeviceID");
-              // String fsaId = payload.getString("fsaID");
-               Long endDeviceIdLong =  payload.getLong("endDeviceID");      //Long.parseLong(endDeviceId);
-               Long fsaIdLong =  payload.getLong("fsaID");                                          //Long.parseLong(fsaId);
+               Long endDeviceIdLong =  payload.getLong("endDeviceID");     
+               Long fsaIdLong =  payload.getLong("fsaID");                                          
                LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
                LOGGER.info("fsaID in the FSA Manager" + fsaIdLong);
 
@@ -85,8 +82,7 @@ public class FsaManager {
 
         else if(payload.has("endDeviceID"))
         {
-           // String endDeviceId = payload.getString("endDeviceID");
-            Long endDeviceIdLong =   payload.getLong("endDeviceID"); //Long.parseLong(endDeviceId);
+            Long endDeviceIdLong =   payload.getLong("endDeviceID"); 
             LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
             return getEndDeviceById(endDeviceIdLong);
         }

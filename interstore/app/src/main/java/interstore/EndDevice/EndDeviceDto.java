@@ -1,16 +1,10 @@
 package interstore.EndDevice;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import interstore.AbstractDevice;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import jakarta.persistence.*;
-
 import java.util.List;
 import java.util.logging.Logger;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 
 @Entity

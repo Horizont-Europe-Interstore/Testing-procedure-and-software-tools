@@ -1,42 +1,18 @@
 package interstore.DERProgram;
-
-import interstore.Identity.SubscribableIdentifiedObject;
 import jakarta.persistence.*;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import interstore.Identity.*; 
 
 @Entity
-public class DERProgram extends SubscribableIdentifiedObject{
+@Table(name = "der_program")
+public class DERProgramEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "primacy")
     private String primacy;
-
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "m_RID")
-    private String mRID;
-
-    @Column(name = "version")
-    private String version;
-
-    @Column(name = "subscribable")
-    private String subscribable;
-
-    @ManyToOne
-    @JoinColumn(name = "derp_list_id")
-    private DERPList derpList;
-
-    @Column(name = "derp_list_link")
-    private String derpListLink;
-//    private ListLink link;
-//    private Link theLink;
-//    public String href;
 
     @Column(name = "derp_link")
     private String derpLink;
@@ -52,17 +28,22 @@ public class DERProgram extends SubscribableIdentifiedObject{
 
     @Column(name = "DER_Curve_List_Link")
     private String DERCurveListLink;
-//    private static Map<String, List<Object>> DERProgramDetailsMap = new HashMap<>();
-//    private static Map<String, List<Object>> DERProgramsByListLinkMap = new HashMap<>();
+     
+    @Column(name = "subscribabale_identified_object_list")
+    private List<SubscribableIdentifiedObjectEntity>subscribabaleIdentifiedObjectList = new ArrayList<>();
+    @Column(name = "subscribabale_resource_list")
+    private List<SubscribableResourceEntity> subscribableResourceList = new ArrayList<>();
 
-//    private Map<String, String> values;
 
-    public DERProgram(){
 
-    }
+     /*save the subscribabale identified object here which have attraibutes such as 
+      * description , mRID, version SubscribableIdentifiedObject
+      */
+  
 
-    public DERProgram(DERPList derpList){
-        this.derpList = derpList;
+
+    public DERProgramEntity(){
+
     }
 
     public Long getId() {
@@ -76,42 +57,22 @@ public class DERProgram extends SubscribableIdentifiedObject{
     public void setPrimacy(String primacy) {
         this.primacy = primacy;
     }
-
-    @Override
-    public String getDescription() {
-        return description;
+    
+   
+    public List<SubscribableIdentifiedObjectEntity> getSubscribableIdentifiedObject() {
+        return subscribabaleIdentifiedObjectList ;
     }
 
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSubscribableIdentifiedObject(List<SubscribableIdentifiedObjectEntity> subscribableIdentifiedObject) {
+        this.subscribabaleIdentifiedObjectList = subscribableIdentifiedObject;
+    }
+    public List<SubscribableResourceEntity> getSubscribableResource() {
+        return subscribableResourceList;
+    }
+    public void setSubscribableResource(List<SubscribableResourceEntity> subscribableResource) {
+        this.subscribableResourceList = subscribableResource;
     }
 
-    public String getmRID() {
-        return mRID;
-    }
-
-    public void setmRID(String mRID) {
-        this.mRID = mRID;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getSubscribable() {
-        return subscribable;
-    }
-
-    public void setSubscribable(String subscribable) {
-        this.subscribable = subscribable;
-    }
 
     public String getDerpLink() {
         return derpLink;
@@ -153,23 +114,102 @@ public class DERProgram extends SubscribableIdentifiedObject{
         this.DERCurveListLink = DERCurveListLink;
     }
 
-    public String getDerpListLink() {
-        return derpListLink;
+
+ 
+
+    
     }
 
-    public void setDerpListLink(String derpListLink) {
-        this.derpListLink = derpListLink;
+    
+    
+    /*
+       
+
+    
+     public void setsubscribableIdentifiedObject(SubscribableIdentifiedObject subscribableIdentifiedObject) {
+        this.subscribableIdentifiedObject = subscribableIdentifiedObject;
+    }
+    
+    public SubscribableIdentifiedObject getsubscribableIdentifiedObject() {
+        return subscribableIdentifiedObject;
+    }
+    public void setsubscribableResource(SubscribableResource subscribableResource) {
+        this.subscribableResource = subscribableResource;
+    }
+    public SubscribableResource getsubscribableResource() {
+        return subscribableResource;
     }
 
-    public DERPList getDerpList() {
+    
+
+
+
+    
+    @Column(name = "subscribable")
+    private String subscribable;
+    public String getSubscribable() {
+        return subscribable;
+    }
+
+    public void setSubscribable(String subscribable) {
+        this.subscribable = subscribable;
+    }
+    
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "m_RID")
+    private String mRID;
+
+    @Column(name = "version")
+    private String version;
+
+    
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    @Override
+    public String getmRID() {
+        return mRID;
+    }
+    @Override 
+    public void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+     * @ManyToOne
+    @JoinColumn(name = "derp_list_id")
+    private DERPList derpList;
+        public DERPList getDerpList() {
         return derpList;
     }
 
     public void setDerpList(DERPList derpList) {
         this.derpList = derpList;
     }
-
-    public Map<String, Object> getAll() {
+     * 
+     * 
+     * 
+    public DERProgram(DERPList derpList){
+        this.derpList = derpList;
+    }
+     public Map<String, Object> getAll() {
         Map<String, Object> attributes = new HashMap<>();
         Field[] fields = this.getClass().getDeclaredFields();
 
@@ -183,9 +223,16 @@ public class DERProgram extends SubscribableIdentifiedObject{
         }
 
         return attributes;
-    }
 
-    //    public DERProgram(mRIDType mRID, PrimacyType primacy,VersionType version, String32 description, SubscribableType subscribable, String generatedDerpListLink,String generatedLink){
+
+
+
+     */
+    
+    
+    
+    
+    //public DERProgram(mRIDType mRID, PrimacyType primacy,VersionType version, String32 description, SubscribableType subscribable, String generatedDerpListLink,String generatedLink){
 //        this.mRID = mRID;
 //        this.primacy = primacy;
 //        this.description = description;
@@ -325,4 +372,4 @@ public class DERProgram extends SubscribableIdentifiedObject{
 
 
 
-}
+

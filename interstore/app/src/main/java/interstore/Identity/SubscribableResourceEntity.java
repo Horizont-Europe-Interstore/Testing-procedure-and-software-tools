@@ -1,4 +1,49 @@
+
 package interstore.Identity;
+import jakarta.persistence.*;  
+
+@Entity
+@Table(name = "subscribable_resource")
+public class SubscribableResourceEntity {
+
+    @Column(name = "subscribable")
+    private Short subscribable;
+
+   
+    public SubscribableResourceEntity() {
+    }
+
+  
+    public Short getSubscribable() {
+        return subscribable;
+    }
+
+    public void setSubscribable(Short subscribable) {
+        this.subscribable = subscribable;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * package interstore.Identity;
 
 import interstore.Types.SubscribableType;
 
@@ -23,3 +68,7 @@ public class SubscribableResource extends Resource{
         this.subscribable = subscribable;
     }
 }
+
+ * 
+ * 
+  */

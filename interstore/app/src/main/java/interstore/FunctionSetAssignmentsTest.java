@@ -1,13 +1,8 @@
 package interstore;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl;
-import io.cucumber.core.gherkin.messages.internal.gherkin.internal.com.eclipsesource.json.JsonObject;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -163,12 +158,6 @@ public class FunctionSetAssignmentsTest {
         return responsePayload;
     }
 
-//    public Map<String, String> getDerpMap(){
-//        Map<String, String> derpMap = fsaImpl.getderpMap();
-//        return derpMap;
-//    }
-
-
     public static String getDerProgramInstance() {
         return derProgramInstance;
     }
@@ -178,52 +167,8 @@ public class FunctionSetAssignmentsTest {
     }
 
    
-    public static String  getFSAListQuery(String regPin, Long id){
-        String refClientPin = "111115";
-        if (regPin.equals(refClientPin)) {
-            LOGGER.info("PIN value is the same PIN value the REF-Client device has preregistered with pin: " + regPin);
-            return queryServiceFSAList("get", id);
-        } else {
-            LOGGER.info("PIN value is not the same PIN value the REF-Client device has preregistered." + id);
-            return queryServiceFSAList("get",  Integer.toUnsignedLong(0));
-        }
-    }
-    public static List<Integer> getPin(String payload) throws JSONException{
-        JSONObject jsonObject = new JSONObject(payload);
-        JSONObject registeredEndDevice = jsonObject.getJSONObject("RegisteredEndDevice");
-        int id = registeredEndDevice.getInt("id");
-        int pin = registeredEndDevice.getInt("pin");
-        List<Integer> values = new ArrayList<>();
-//        String regex = "\"http://localhost/interstore/edev/(\\d+)/rg\":\"(\\d+)\"";
-//        Pattern pattern = Pattern.compile(regex);
-//        Matcher matcher = pattern.matcher(regIDString);
-//        if(matcher.find()) {
-//            String edevID = matcher.group(1);
-//            String regID = matcher.group(2);
-//            values.add(edevID);
-//            values.add(regID);
-//        }
-        values.add(id);
-        values.add(pin);
-        return values;
-    }
+  
 
-//    public List<String> getDerpLinks(){
-//        Map<String, String> derpMap = this.getDerpMap();
-//        List<String> derplinks = new ArrayList<>();
-//        for (String fsaLink : extractFsaLinks(fsaList)) {
-//            if (derpMap.containsKey(fsaLink)) {
-//                String derpValue = derpMap.get(fsaLink);
-//                derplinks.add(derpValue);
-//
-//            } else {
-//                LOGGER.info("No corresponding value found for link: " + fsaLink);
-//            }
-//        }
-//        LOGGER.info("The DERProgramListLinks  for the EndDevice are: " + derplinks);
-//        return derplinks;
-//
-//    }
 
     public static String getDERProgramInstance(String responsePayload){
         derProgramInstance = responsePayload;
