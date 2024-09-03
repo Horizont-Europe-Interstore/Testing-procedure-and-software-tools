@@ -1,7 +1,7 @@
 package interstore;
 import com.google.inject.AbstractModule;
 import interstore.DER.DERImpl;
-import interstore.DERProgram.DERProgramImpl;
+import interstore.DERProgram.DERProgramService;
 import interstore.DER.DERListImpl;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
@@ -17,7 +17,7 @@ public class DependencyInjection extends AbstractModule {
         bind(DERImpl.class).toProvider(new SpringBeanProvider<>(DERImpl.class));
         bind(DERListImpl.class).toProvider(new SpringBeanProvider<>(DERListImpl.class));
         bind(FunctionSetAssignmentsService.class).toProvider(new SpringBeanProvider<>(FunctionSetAssignmentsService.class));
-        bind(DERProgramImpl.class).toProvider(new SpringBeanProvider<>(DERProgramImpl.class));
+        bind(DERProgramService.class).toProvider(new SpringBeanProvider<>(DERProgramService.class));
     }
 }
 

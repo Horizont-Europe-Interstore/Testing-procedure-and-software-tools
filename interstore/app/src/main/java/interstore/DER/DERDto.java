@@ -1,11 +1,12 @@
 package interstore.DER;
 
-import interstore.Identity.SubscribableResource;
+//import interstore.Identity.SubscribableResource;
+// extends  SubscribableResource
 import jakarta.persistence.*;
 
 import java.util.logging.Logger;
 @Entity
-public class DERDto extends SubscribableResource {
+public class DERDto  {
     private static final Logger LOGGER = Logger.getLogger(DERDto.class.getName());
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

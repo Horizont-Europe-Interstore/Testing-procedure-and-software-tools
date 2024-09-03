@@ -1,18 +1,20 @@
 package interstore.DERProgram;
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import interstore.Identity.*; 
 
 @Entity
 @Table(name = "der_program")
-public class DERProgramEntity {
+public class DERProgramEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "primacy")
-    private String primacy;
+    private Short primacy;
 
     @Column(name = "derp_link")
     private String derpLink;
@@ -29,10 +31,14 @@ public class DERProgramEntity {
     @Column(name = "DER_Curve_List_Link")
     private String DERCurveListLink;
      
-    @Column(name = "subscribabale_identified_object_list")
-    private List<SubscribableIdentifiedObjectEntity>subscribabaleIdentifiedObjectList = new ArrayList<>();
-    @Column(name = "subscribabale_resource_list")
-    private List<SubscribableResourceEntity> subscribableResourceList = new ArrayList<>();
+  
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "subscribabale_identified_Object")
+    private SubscribableIdentifiedObjectEntity subscribabaleIdentifiedObjectList;
+   
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "subscribabale_Resource") 
+    private SubscribableResourceEntity subscribableResourceList;
 
 
 
@@ -50,28 +56,29 @@ public class DERProgramEntity {
         return id;
     }
 
-    public String getPrimacy() {
+    public Short getPrimacy() {
         return primacy;
     }
 
-    public void setPrimacy(String primacy) {
+    public void setPrimacy(Short primacy) {
         this.primacy = primacy;
     }
     
    
-    public List<SubscribableIdentifiedObjectEntity> getSubscribableIdentifiedObject() {
+    public SubscribableIdentifiedObjectEntity getSubscribableIdentifiedObject() {
         return subscribabaleIdentifiedObjectList ;
     }
 
-    public void setSubscribableIdentifiedObject(List<SubscribableIdentifiedObjectEntity> subscribableIdentifiedObject) {
+    public void setSubscribableIdentifiedObject(SubscribableIdentifiedObjectEntity subscribableIdentifiedObject) {
         this.subscribabaleIdentifiedObjectList = subscribableIdentifiedObject;
     }
-    public List<SubscribableResourceEntity> getSubscribableResource() {
+    public SubscribableResourceEntity getSubscribableResource() {
         return subscribableResourceList;
     }
-    public void setSubscribableResource(List<SubscribableResourceEntity> subscribableResource) {
+    public void setSubscribableResource(SubscribableResourceEntity subscribableResource) {
         this.subscribableResourceList = subscribableResource;
     }
+
 
 
     public String getDerpLink() {
@@ -124,6 +131,12 @@ public class DERProgramEntity {
     
     /*
        
+     
+
+
+
+
+
 
     
      public void setsubscribableIdentifiedObject(SubscribableIdentifiedObject subscribableIdentifiedObject) {

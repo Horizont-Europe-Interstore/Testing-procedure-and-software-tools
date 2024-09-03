@@ -6,7 +6,7 @@ import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
 import interstore.DER.DERListManager;
 import interstore.DER.DERManager;
-import interstore.DERProgram.DERProgramImpl;
+import interstore.DERProgram.DERProgramService;
 import interstore.DERProgram.DERProgramManager;
 import interstore.DeviceCapability.DcapManager;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
@@ -57,7 +57,7 @@ public class MicroServiceFactory {
         DERListManager derListManager = new DERListManager(derListImpl);
         FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
         FsaManager fsaManager = new FsaManager(fsaService);
-        DERProgramImpl derProgramImpl = serviceFactory.getDerProgramProvider().get();
+        DERProgramService derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
 
         this.microservices.put("getalldcapmanager", dcapManager); 

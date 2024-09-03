@@ -2,17 +2,22 @@ package interstore.DERProgram;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.http.ResponseEntity;
 
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
+
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class DERProgramManager {
-    DERProgramImpl derProgramImpl;
+    DERProgramService derProgramService;
     private static final Logger LOGGER = Logger.getLogger(DERProgramManager.class.getName());
-    public DERProgramManager(DERProgramImpl derProgramImpl) {
-        this.derProgramImpl = derProgramImpl;
+    public DERProgramManager(DERProgramService derProgramService) {
+        this.derProgramService = derProgramService;
     }
 
-    public Object chooseMethod_basedOnAction(String payload) throws JSONException{
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException, NumberFormatException, NotFoundException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -28,7 +33,6 @@ public class DERProgramManager {
                 break;
             case "get":
                 return getDERProgramByListLinks(jsonObject.get("payload"));
-
             case "put":
                 updateDERProgram(jsonObject);
                 break;
@@ -39,14 +43,27 @@ public class DERProgramManager {
         }
         return "Operation completed successfully";
     }
-    public void addDERProgram( JSONObject jsonObject) {
+    public Map<String, Object> addDERProgram( JSONObject jsonObject) throws NumberFormatException, JSONException, NotFoundException {
         {
-            LOGGER.info("Returned a 400 or 405 status message");
+            LOGGER.info("the received payload in the DER program Manager class  is " + jsonObject);
+            DERProgramEntity derProgramEntity = this.derProgramService.createDerProgram(jsonObject);
+            return Map.of("id", derProgramEntity.getId(), "primacy", derProgramEntity.getPrimacy());
+            
         }
     }
+    
+    /*
+     * public DERProgramEntity getDERProgramById(String id) throws NumberFormatException, NotFoundException {
+        Long longId = Long.parseLong(id);
+        ResponseEntity<Map<String, Object>> derProgramEntity = this.derProgramService.getDerProgramById(longId);
+        return derProgramEntity;
+    }
+     */
+    
 
     public String getDERProgramByListLinks(Object payload) throws JSONException {
-        return derProgramImpl.getDerProgramByListLinks(payload);
+        return null; 
+       // return derProgramImpl.getDerProgramByListLinks(payload);
 //        return derProgramImpl.getDerProgramLists(payload);
 
     }

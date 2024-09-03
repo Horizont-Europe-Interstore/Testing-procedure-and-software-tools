@@ -1,10 +1,15 @@
 
 package interstore.Identity;
-import jakarta.persistence.*;  
+import java.io.Serializable;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "subscribable_resource")
-public class SubscribableResourceEntity {
+public class SubscribableResourceEntity implements Serializable {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "subscribable")
     private Short subscribable;
