@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import interstore.EndDevice.EndDeviceDto;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.Identity.*; 
 
 @Entity
@@ -31,6 +34,9 @@ public class DERProgramEntity  implements Serializable {
     @Column(name = "DER_Curve_List_Link")
     private String DERCurveListLink;
      
+    @ManyToOne 
+    @JoinColumn(name = "fsa_id", nullable = false)  
+    private FunctionSetAssignmentsEntity fsaEntity;
   
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "subscribabale_identified_Object")
@@ -64,6 +70,13 @@ public class DERProgramEntity  implements Serializable {
         this.primacy = primacy;
     }
     
+    public FunctionSetAssignmentsEntity getFunctionSetAssignmentsEntity() {
+        return fsaEntity;
+    }
+
+    public void setFunctionSetAssignmentEntity(FunctionSetAssignmentsEntity fsaEntity) {
+        this.fsaEntity = fsaEntity;
+    } 
    
     public SubscribableIdentifiedObjectEntity getSubscribableIdentifiedObject() {
         return subscribabaleIdentifiedObjectList ;

@@ -252,6 +252,34 @@ public class App {
         LOGGER.info("the deatils of the registered end device is " + singleFSA  );
         return singleFSA   ;
        }
+     
+     
+    public String createDerProgram(String natsSubject) throws Exception {
+        interstore.DerProgramTest.setServicename("createDerprogrammanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerProgramTest.createNewDerProgram( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest. getCreatedDerProgram();
+        return response;
+    }
+
+    
+
+
+
+
+    public String getAllDerPrograms(String natsSubject) throws Exception 
+     {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long fsaId = currentTest.getLong("fsaID");
+        interstore.DerProgramTest.setServicename("getallDerprogrammanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerProgramTest.getAllDerProgramRequest(fsaId));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getAllderPrograms();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+     }
 
 
 

@@ -1,4 +1,7 @@
 package interstore.DERProgram;
+import interstore.EndDevice.EndDeviceDto;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.*;
 import interstore.Types.*; 
@@ -16,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
@@ -30,6 +35,9 @@ public class DERProgramService {
     
     @Autowired
     SubscribableResourceRepository subscribableResourcRepository;
+
+    @Autowired
+    FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
    
 
       /* here i expect a json string here 
@@ -41,8 +49,9 @@ public class DERProgramService {
        *  {"payload" : { "subscribable" : "", "mRID": "", 
        *  "description": "", "version": "", "activeDERControlListLink": "", "defaultDERControlLink": ""
        *  "dERControlListLink": "", "dERCurveListLink": "", " primacy" : "" ,  "derpLink" : "" 
+       *  "fsaId" : ""   
        * }}
-       * 
+       *  here i have to get first corresponding end device and function set assignment 
        */
     @Transactional
     public DERProgramEntity createDerProgram(JSONObject payload )  throws NumberFormatException, JSONException, NotFoundException{
@@ -54,6 +63,7 @@ public class DERProgramService {
         Integer versionInt = Integer.parseInt(version );
         String primacy = DerProgrampayload.optString("primacy"); 
         Short primacyShort = Short.parseShort(primacy);
+        Long fsaId = (long) DerProgrampayload.optInt("fsaId");
         String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink");
         String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink");
         String dERControlListLink = DerProgrampayload.optString("dERControlListLink");
@@ -69,9 +79,19 @@ public class DERProgramService {
         subscribableResourceEntity.setSubscribable(subscribable);
         subscribableResourcRepository.save(subscribableResourceEntity); 
         
+
         DERProgramEntity derProgram = new DERProgramEntity();
         derProgramRepository.save(derProgram);
         derProgram.setPrimacy(primacyShort);
+        Optional<FunctionSetAssignmentsEntity> fsaEntityOptional = functionSetAssignmentsRepository.findById(fsaId);
+        if (fsaEntityOptional.isPresent()) {
+        FunctionSetAssignmentsEntity fsaEntity = fsaEntityOptional.get();
+        String derListLink = fsaEntity.getDERProgramListLink(); 
+        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+        LOGGER.log(Level.INFO, "DER Program List Link: " + derListLink);
+       } else {
+        LOGGER.log(Level.SEVERE, "Function Set Assignments Entity not found for ID: " + fsaId);  
+        }
         derProgram.setActiveDERControlListLink(activeDERControlListLink);
         derProgram.setDefaultDERControlLink(defaultDERControlLink);
         derProgram.setDERControlListLink(dERControlListLink);
@@ -105,9 +125,9 @@ public class DERProgramService {
         return ResponseEntity.ok(response);
     }
 
+    
 
-
-
+ 
 
 
 
@@ -121,6 +141,14 @@ public class DERProgramService {
 
 
      
+
+   
+
+   
+}
+
+
+
 /*  public void setDERP(DERProgramEntity derProgram){
         derProgram.setmRID("B01000000");
         derProgram.setPrimacy("89");
@@ -145,10 +173,9 @@ public class DERProgramService {
     } 
     
     */
-   
 
-   
-}
+
+
 
 
 

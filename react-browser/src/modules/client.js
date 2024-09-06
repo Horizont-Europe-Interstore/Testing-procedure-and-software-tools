@@ -167,6 +167,27 @@ export default class Client{
                 endDeviceId:'',
                 fsaID:''
             }
+        },
+
+        {
+            index:11,
+            test:'Create Der Program', //Create Der Program
+            desc:'description',
+            args: true,
+            object:{
+                fsaID:'',
+                mRID:'',
+                primacy:'',
+                description:'',
+                subscribable:'',
+                version:'',
+                activeDERControlListLink:'',
+                defaultDERControlLink:'',
+                dERControlListLink:'',
+                dERCurveListLink:'',
+                derpLink:''
+                
+            }
         }
 
     ];
@@ -205,8 +226,15 @@ export default class Client{
         'Get A Function Set Assignments':{
             endDeviceId:(field)=>{return !isNaN(field)},
             fsaID:(field)=>{return !isNaN(field)}
+        },
+        
+        'Create Der Program':{
+            fsaID:(field)=>{return !isNaN(field)},
+            mRID: (field) => field.trim() !== "",
+            primacy:(field)=>{return !isNaN(field)},
+            subscribable:(field)=>{return !isNaN(field)},
+            version:(field)=>{return !isNaN(field)}
         }
-       
     }
 
     static getValid(key){

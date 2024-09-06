@@ -32,23 +32,3 @@ public class DependencyInjection extends AbstractModule {
 
 
 
-
-/*
- * package interstore;
-import com.google.inject.AbstractModule;
-
-import interstore.DeviceCapability.DeviceCapabilityImpl;
-import interstore.EndDevice.EndDeviceImpl;
-import interstore.SelfDevice.SelfDeviceImpl;
-
-public class DependencyInjection extends AbstractModule{
-    @Override
-    protected void configure() {
-        bind(SelfDeviceImpl.class);
-        bind(DeviceCapabilityImpl.class); 
-        bind(EndDeviceImpl.class);
-    }
-}
- * 
- * 
- */

@@ -42,8 +42,7 @@ public class EndDeviceDto implements AbstractDevice{
     private String linkDerList;
     
 
-    @OneToMany(mappedBy = "endDevice", cascade = CascadeType.ALL)
-    private List<FunctionSetAssignmentsEntity> functionSetAssignments;
+   
 
     public EndDeviceDto() {
         
@@ -57,17 +56,6 @@ public class EndDeviceDto implements AbstractDevice{
         this.id = id;
     }
     
-    
-  public List<FunctionSetAssignmentsEntity> setFunctionSetAssignments(List<FunctionSetAssignmentsEntity> functionSetAssignments)
-  {
-      return this.functionSetAssignments = functionSetAssignments;
-  }
-  
-  public List<FunctionSetAssignmentsEntity> getFunctionSetAssignments()
-  {
-      return this.functionSetAssignments;
-  }
-
 
     public void setsfdi(long sfdi)
 
@@ -289,7 +277,19 @@ public class EndDeviceDto implements AbstractDevice{
 
 
 /*
-    
+     @OneToMany(mappedBy = "endDevice", cascade = CascadeType.ALL)
+    private List<FunctionSetAssignmentsEntity> functionSetAssignments;
+
+      public List<FunctionSetAssignmentsEntity> setFunctionSetAssignments(List<FunctionSetAssignmentsEntity> functionSetAssignments)
+  {
+      return this.functionSetAssignments = functionSetAssignments;
+  }
+  
+  public List<FunctionSetAssignmentsEntity> getFunctionSetAssignments()
+  {
+      return this.functionSetAssignments;
+  }
+
  */
 
 

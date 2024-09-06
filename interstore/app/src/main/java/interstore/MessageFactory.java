@@ -112,6 +112,18 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
+        
+        else if(serviceName.equals("createDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDERProgram", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getallDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setAllDERProgram", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
 
         else if(serviceName.equals("getDERListLink"))
         {

@@ -79,6 +79,9 @@ public class MicroServiceFactory {
         this.microservices.put("createFsamanager", fsaManager);
         this.microservices.put("getASingleFsamanager", fsaManager);
         this.microservices.put("fsamanager", fsaManager);
+        this.microservices.put("getallDerprogrammanager", derProgramManager );
+        this.microservices.put("createDerprogrammanager", derProgramManager);
+        this.microservices.put("getASingleDerprogrammanager", derProgramManager);
         this.microservices.put("derprogrammanager", derProgramManager);
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);
@@ -99,6 +102,7 @@ public class MicroServiceFactory {
         DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         EndDeviceTest endDeviceTest = new EndDeviceTest();
         FunctionSetAssignmentsTest functionSetAssignmentTest = new FunctionSetAssignmentsTest();
+        DerProgramTest DerProgramTest = new DerProgramTest();
         TimeTest timeTest = new TimeTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
@@ -118,7 +122,12 @@ public class MicroServiceFactory {
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("getASingleFsamanager", functionSetAssignmentTest); 
         this.dtoMap.put("fsamanager", functionSetAssignmentTest);
-        this.dtoMap.put("derplistmanager", functionSetAssignmentTest);
+
+
+        this.dtoMap.put("getallDerprogrammanager", DerProgramTest);
+        this.dtoMap.put("getASingleDerprogrammanager", DerProgramTest);
+        this.dtoMap.put("createDerprogrammanager", DerProgramTest);
+
         this.dtoMap.put("derprogrammanager", functionSetAssignmentTest);
         this.dtoMap.put("timemanager", timeTest);
         this.dtoMap.put("advancedtimemanager", timeTest);
