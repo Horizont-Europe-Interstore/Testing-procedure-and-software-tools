@@ -13,10 +13,14 @@ public interface FunctionSetAssignmentsRepository extends JpaRepository<Function
 List<FunctionSetAssignmentsEntity> findByEndDeviceId(Long endDeviceId);
 List<FunctionSetAssignmentsEntity> findByEndDevice(EndDeviceDto endDevice);
 Optional <FunctionSetAssignmentsEntity> findFirstByEndDeviceIdAndId(Long endDeviceId, Long functionSetAssignmentID); 
-
+FunctionSetAssignmentsEntity findFsaById(Long functionSetAssignmentID);
 
 @Query("SELECT MAX(fsa.id) FROM FunctionSetAssignmentsEntity fsa WHERE fsa.endDevice.id = :endDeviceId")
 Long findCurrentFsaIdByEndDeviceId(@Param("endDeviceId") Long endDeviceId);
+
+
+
+
 
 }
 

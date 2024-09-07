@@ -31,16 +31,15 @@ public class CreateDerProgramSteps {
         this.scenario = scenario;
     }
     
-    @Given("^I have a create create der program test setup$") 
+    @Given("^I have a create der program test setup$") 
     public void i_have_a_create_der_program_test_setup() throws Exception {
         app = (App) ApplicationContextProvider.getApplicationContext().getBean("app");
        
     }
 
-    @When("^I execute the create  create der program test test with subject \"([^\"]*)\"$")
+    @When("^I execute the create der program test with subject \"([^\"]*)\"$")
     public void i_execute_the_create_der_program_test_with_subject(String natsSubject) throws Exception {
-        LOGGER.info("Expected response");
-        response = app.createFunctionsetAssignments(natsSubject);
+         response = app.createDerProgram(natsSubject);
         LOGGER.info("Actual response: {}", response); 
         
     }

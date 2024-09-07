@@ -171,7 +171,7 @@ export default class Client{
 
         {
             index:11,
-            test:'Create Der Program', //Create Der Program
+            test:'Create Der Program', 
             desc:'description',
             args: true,
             object:{
@@ -185,7 +185,6 @@ export default class Client{
                 defaultDERControlLink:'',
                 dERControlListLink:'',
                 dERCurveListLink:'',
-                derpLink:''
                 
             }
         }
@@ -234,6 +233,11 @@ export default class Client{
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)}
+           // activeDERControlListLink: (field) => field === null || field === "",  
+           // defaultDERControlLink: (field) => field === null || field === "",  
+           // dERControlListLink: (field) => field === null || field === "",  
+           //  dERCurveListLink: (field) => field === null || field === "" 
+   
         }
     }
 

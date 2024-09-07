@@ -1,6 +1,5 @@
 package interstore.DERProgram;
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,20 +18,18 @@ public class DERProgramEntity  implements Serializable {
     @Column(name = "primacy")
     private Short primacy;
 
-    @Column(name = "derp_link")
-    private String derpLink;
-
+   
     @Column(name = "default_DER_Control_Link")
-    private String DefaultDERControlLink;
+    private String defaultDERControlLink;
 
     @Column(name = "active_DER_Control_List_Link")
-    private String ActiveDERControlListLink;
+    private String activeDERControlListLink;
 
     @Column(name = "DER_Control_List_Link")
-    private String DERControlListLink;
+    private String derControlListLink;
 
     @Column(name = "DER_Curve_List_Link")
-    private String DERCurveListLink;
+    private String derCurveListLink;
      
     @ManyToOne 
     @JoinColumn(name = "fsa_id", nullable = false)  
@@ -45,13 +42,6 @@ public class DERProgramEntity  implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "subscribabale_Resource") 
     private SubscribableResourceEntity subscribableResourceList;
-
-
-
-     /*save the subscribabale identified object here which have attraibutes such as 
-      * description , mRID, version SubscribableIdentifiedObject
-      */
-  
 
 
     public DERProgramEntity(){
@@ -92,46 +82,48 @@ public class DERProgramEntity  implements Serializable {
         this.subscribableResourceList = subscribableResource;
     }
 
-
-
-    public String getDerpLink() {
-        return derpLink;
-    }
-
-    public void setDerpLink(String derpLink) {
-        this.derpLink = derpLink;
-    }
-
     public String getDefaultDERControlLink() {
-        return DefaultDERControlLink;
+        return defaultDERControlLink;
     }
 
     public void setDefaultDERControlLink(String defaultDERControlLink) {
-        DefaultDERControlLink = defaultDERControlLink;
+        Resource resource = new Resource();
+        resource.setHref(defaultDERControlLink);
+        this.defaultDERControlLink = resource.getHref();
+        
     }
 
     public String getActiveDERControlListLink() {
-        return ActiveDERControlListLink;
+        return activeDERControlListLink;
     }
 
     public void setActiveDERControlListLink(String activeDERControlListLink) {
-        ActiveDERControlListLink = activeDERControlListLink;
+        Resource resource = new Resource();
+        resource.setHref(activeDERControlListLink);
+        this.activeDERControlListLink = resource.getHref();
+        
     }
 
     public String getDERControlListLink() {
-        return DERControlListLink;
+        return derControlListLink;
     }
 
-    public void setDERControlListLink(String DERControlListLink) {
-        this.DERControlListLink = DERControlListLink;
+    public void setDERControlListLink(String derControlListLink) {
+        Resource resource = new Resource();
+        resource.setHref(derControlListLink);
+        this.derControlListLink = resource.getHref();
+        
     }
 
     public String getDERCurveListLink() {
-        return DERCurveListLink;
+        return derCurveListLink;
     }
 
-    public void setDERCurveListLink(String DERCurveListLink) {
-        this.DERCurveListLink = DERCurveListLink;
+    public void setDERCurveListLink(String derCurveListLink) {
+        Resource resource = new Resource();
+        resource.setHref(derCurveListLink);
+        this.derCurveListLink = resource.getHref();
+        
     }
 
 
@@ -145,7 +137,17 @@ public class DERProgramEntity  implements Serializable {
     /*
        
      
+     
+    public String getDerpLink() {
+        return derpLink;
+    }
 
+    public void setDerpLink(String derpLink) {
+        this.derpLink = derpLink;
+    }
+
+     @Column(name = "derp_link")
+    private String derpLink;
 
 
 

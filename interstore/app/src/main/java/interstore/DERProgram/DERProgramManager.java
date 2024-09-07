@@ -30,8 +30,7 @@ public class DERProgramManager {
         String action = jsonObject.getString("action");
         switch(action){
             case"post":
-                addDERProgram(jsonObject);
-                break;
+                return addDERProgram(jsonObject);
             case "get":
                 return getDERPrograms(jsonObject);
             case "put":
@@ -44,13 +43,19 @@ public class DERProgramManager {
         }
         return "Operation completed successfully";
     }
+
+    /*the received payload in the DER program Manager class  is {"payload":{"activeDERControlListLink":"actderc","mRID":"B01000000","defaultDERControlLink":"dderc","dERCurveListLink":"dc","derpLink":"derp","description":"der program fsa","fsaID":"1","primacy":"89","subscribable":"1",
+    "version":"1","dERControlListLink":"derc"},"action":"post","servicename":"createDerprogrammanager"} */
+
     public Map<String, Object> addDERProgram( JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
-        {
+        
             LOGGER.info("the received payload in the DER program Manager class  is " +  payload);
             DERProgramEntity derProgramEntity = this.derProgramService.createDerProgram( payload);
+            LOGGER.info("the response from DER Program get ID is " +  derProgramEntity.getId()); 
+            LOGGER.info("the response from DER Program primacy " +  derProgramEntity.getPrimacy());
             return Map.of("id", derProgramEntity.getId(), "primacy", derProgramEntity.getPrimacy());
             
-        }
+        
     }
     
      

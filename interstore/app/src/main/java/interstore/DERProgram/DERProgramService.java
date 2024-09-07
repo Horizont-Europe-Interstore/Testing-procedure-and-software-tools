@@ -1,25 +1,17 @@
 package interstore.DERProgram;
-import interstore.EndDevice.EndDeviceDto;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.*;
-import interstore.Types.*; 
 import jakarta.transaction.Transactional;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,74 +30,89 @@ public class DERProgramService {
 
     @Autowired
     FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
-   
-
-      /* here i expect a json string here 
-       *  payload = {
-       *  "derpListLink": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-       *   ActiveDERControlListLink .subscribable is short 
-       *}
-       * 
-       *  {"payload" : { "subscribable" : "", "mRID": "", 
-       *  "description": "", "version": "", "activeDERControlListLink": "", "defaultDERControlLink": ""
-       *  "dERControlListLink": "", "dERCurveListLink": "", " primacy" : "" ,  "derpLink" : "" 
-       *  "fsaId" : ""   
-       * }}
-       *  here i have to get first corresponding end device and function set assignment 
-       */
+        
     @Transactional
-    public DERProgramEntity createDerProgram(JSONObject payload )  throws NumberFormatException, JSONException, NotFoundException{
+    public DERProgramEntity createDerProgram(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
+        Long fsaId = Long.parseLong(payload.getJSONObject("payload").getString("fsaID"));
+        FunctionSetAssignmentsEntity fsaEntity = functionSetAssignmentsRepository.findFsaById(fsaId);
+        DERProgramEntity derProgram = new DERProgramEntity();
+        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+        SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity = new SubscribableIdentifiedObjectEntity();
+        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
+    
+        try {
+            derProgramRepository.save(derProgram);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving der program entity", e);
+        }
+    
+        try {
+            subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableIdentifiedObjectEntity entity", e);
+        }
+    
+        try {
+            subscribableResourcRepository.save(subscribableResourceEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
+        }
+    
+        derProgram = setDerProgramEntity(payload, derProgram, subscribableIdentifiedObjectEntity, subscribableResourceEntity, fsaEntity);
+        return derProgram;
+    }
+    
+    public DERProgramEntity setDerProgramEntity(JSONObject payload, DERProgramEntity derProgram,
+                                                SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity,
+                                                SubscribableResourceEntity subscribableResourceEntity,
+                                                FunctionSetAssignmentsEntity fsaEntity) {
         JSONObject DerProgrampayload = payload.optJSONObject("payload");
+    
         short subscribable = (short) DerProgrampayload.optInt("subscribable");
         String mRID = DerProgrampayload.optString("mRID");
         String description = DerProgrampayload.optString("description");
         String version = DerProgrampayload.optString("version");
-        Integer versionInt = Integer.parseInt(version );
-        String primacy = DerProgrampayload.optString("primacy"); 
-        Short primacyShort = Short.parseShort(primacy);
-        Long fsaId = (long) DerProgrampayload.optInt("fsaId");
-        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink");
-        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink");
-        String dERControlListLink = DerProgrampayload.optString("dERControlListLink");
-        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink");
-       
-        SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity = new SubscribableIdentifiedObjectEntity();
-        subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
+        Integer versionInt = version.isEmpty() ? null : Integer.parseInt(version);
+        String primacy = DerProgrampayload.optString("primacy");
+        Short primacyShort = primacy.isEmpty() ? null : Short.parseShort(primacy);
+        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink", null);  // Default to null if missing
+        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink", null);        // Default to null if missing
+        String dERControlListLink = DerProgrampayload.optString("dERControlListLink", null);              // Default to null if missing
+        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink", null);                  // Default to null if missing
+    
         subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRID, description, versionInt);
         subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
-
-        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
-        subscribableResourcRepository.save(subscribableResourceEntity);
+    
         subscribableResourceEntity.setSubscribable(subscribable);
-        subscribableResourcRepository.save(subscribableResourceEntity); 
-        
-
-        DERProgramEntity derProgram = new DERProgramEntity();
-        derProgramRepository.save(derProgram);
-        derProgram.setPrimacy(primacyShort);
-        Optional<FunctionSetAssignmentsEntity> fsaEntityOptional = functionSetAssignmentsRepository.findById(fsaId);
-        if (fsaEntityOptional.isPresent()) {
-        FunctionSetAssignmentsEntity fsaEntity = fsaEntityOptional.get();
-        String derListLink = fsaEntity.getDERProgramListLink(); 
-        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+        subscribableResourcRepository.save(subscribableResourceEntity);
+    
+        String derListLink = fsaEntity.getDERProgramListLink();
         LOGGER.log(Level.INFO, "DER Program List Link: " + derListLink);
-       } else {
-        LOGGER.log(Level.SEVERE, "Function Set Assignments Entity not found for ID: " + fsaId);  
-        }
-        derProgram.setActiveDERControlListLink(activeDERControlListLink);
-        derProgram.setDefaultDERControlLink(defaultDERControlLink);
-        derProgram.setDERControlListLink(dERControlListLink);
-        derProgram.setDERCurveListLink(dERCurveListLink);
-        derProgram.setSubscribableIdentifiedObject( subscribableIdentifiedObjectEntity);
-        derProgram.setSubscribableResource( subscribableResourceEntity);
-        derProgramRepository.save(derProgram); 
-        
+        LOGGER.log(Level.INFO, "Function Set Assignments Entity: " + fsaEntity);
+    
+        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+        Long derId = derProgram.getId();
+        derProgram.setPrimacy(primacyShort);
+    
+        String idString = derListLink + "/" + String.valueOf(derId);
+    
+        derProgram.setActiveDERControlListLink(activeDERControlListLink != null ? idString + activeDERControlListLink : null);
+        derProgram.setDefaultDERControlLink(defaultDERControlLink != null ? idString + defaultDERControlLink : null);
+        derProgram.setDERControlListLink(dERControlListLink != null ? idString + dERControlListLink : null);
+        derProgram.setDERCurveListLink(dERCurveListLink != null ? idString + dERCurveListLink : null);
+    
+        derProgram.setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity);
+        derProgram.setSubscribableResource(subscribableResourceEntity);
+    
+        derProgramRepository.save(derProgram);
+    
         return derProgram;
     }
     
+
      public SubscribableIdentifiedObjectEntity  setSubscribableIdentifiedObject (SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity,
      String mRID, String description , Integer versionInt ){
-        subscribableIdentifiedObjectEntity.setmRID(mRID); //   setmRI(mRID);
+        subscribableIdentifiedObjectEntity.setmRID(mRID); 
         subscribableIdentifiedObjectEntity.setDescription(description);
         subscribableIdentifiedObjectEntity.setVersion(versionInt);
         return subscribableIdentifiedObjectEntity;
@@ -124,28 +131,89 @@ public class DERProgramService {
         response.put("derProgram", derProgram);
         return ResponseEntity.ok(response);
     }
-
-    
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-     
-
-   
-
-   
 }
+
+
+ /* here i expect a json string here 
+       * the received payload in the DER program Manager class  is {"payload":{"activeDERControlListLink":"actderc","mRID":"B01000000","defaultDERControlLink":"dderc",
+       * "dERCurveListLink":"dc","derpLink":"derp","description":"der program fsa","fsaID":"1","primacy":"89","subscribable":"1","version":"1","dERControlListLink":"derc"},
+       * "action":"post","servicename":"createDerprogrammanager"}
+       *  here i have to get first corresponding end device and function set assignment 
+       
+    @Transactional
+    public DERProgramEntity createDerProgram(JSONObject payload )  throws NumberFormatException, JSONException, NotFoundException{
+        Long fsaId = Long.parseLong(payload.getJSONObject("payload").getString("fsaID"));
+        FunctionSetAssignmentsEntity fsaEntity = functionSetAssignmentsRepository.findFsaById(fsaId);
+        DERProgramEntity derProgram = new DERProgramEntity();
+        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+        SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity = new SubscribableIdentifiedObjectEntity();
+        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity(); 
+        try {
+            
+            derProgramRepository.save(derProgram); 
+        } catch(Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving der program entity", e);
+        }
+        try {
+            subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableIdentifiedObjectEntity entity", e);
+        }
+        try{
+            subscribableResourcRepository.save(subscribableResourceEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
+        }
+        derProgram = setDerProgramEntity(payload, derProgram, subscribableIdentifiedObjectEntity,
+         subscribableResourceEntity, fsaEntity);
+        return derProgram;
+    }
+    
+    
+    public DERProgramEntity setDerProgramEntity(JSONObject payload, DERProgramEntity derProgram, 
+    SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity,
+    SubscribableResourceEntity subscribableResourceEntity , FunctionSetAssignmentsEntity fsaEntity )
+    {
+      
+        JSONObject DerProgrampayload = payload.optJSONObject("payload");
+        short subscribable = (short) DerProgrampayload.optInt("subscribable");
+        String mRID = DerProgrampayload.optString("mRID");
+        String description = DerProgrampayload.optString("description");
+        String version = DerProgrampayload.optString("version");
+        Integer versionInt = Integer.parseInt(version );
+        String primacy = DerProgrampayload.optString("primacy"); 
+        Short primacyShort = Short.parseShort(primacy);
+        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink");
+        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink");
+        String dERControlListLink = DerProgrampayload.optString("dERControlListLink");
+        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink");
+    
+        subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRID, description, versionInt);
+        subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
+        subscribableResourceEntity.setSubscribable(subscribable);
+        subscribableResourcRepository.save(subscribableResourceEntity); 
+    
+            String derListLink = fsaEntity.getDERProgramListLink();
+            LOGGER.log(Level.INFO, "DER Program List Link: " + derListLink);
+            LOGGER.log(Level.INFO, "Function Set Assignments Entity: " + fsaEntity); 
+            derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+            Long derId = derProgram.getId();
+            derProgram.setPrimacy(primacyShort);
+            String idString = derListLink + "/"+ String.valueOf(derId) ;
+            derProgram.setActiveDERControlListLink(idString + activeDERControlListLink);
+            derProgram.setDefaultDERControlLink(idString + defaultDERControlLink);
+            derProgram.setDERControlListLink(idString + dERControlListLink);
+            derProgram.setDERCurveListLink(idString + dERCurveListLink);
+            derProgram.setSubscribableIdentifiedObject( subscribableIdentifiedObjectEntity);
+            derProgram.setSubscribableResource( subscribableResourceEntity);
+            derProgramRepository.save(derProgram); 
+            return derProgram ;
+            
+        }
+       
+    */
+
+
 
 
 

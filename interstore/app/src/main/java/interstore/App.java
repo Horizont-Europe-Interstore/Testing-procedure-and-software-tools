@@ -260,15 +260,12 @@ public class App {
         this.messageToPublish.newStart(natsSubject ,
          interstore.DerProgramTest.createNewDerProgram( currentTest));
         Thread.sleep(300);
-        String response = interstore.DerProgramTest. getCreatedDerProgram();
+        String response = interstore.DerProgramTest.getCreatedDerProgram();
+        LOGGER.info("the response of DER is " + response);
         return response;
     }
 
     
-
-
-
-
     public String getAllDerPrograms(String natsSubject) throws Exception 
      {
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();

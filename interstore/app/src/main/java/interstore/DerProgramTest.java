@@ -12,7 +12,7 @@ public class DerProgramTest {
      private static final Logger LOGGER = Logger.getLogger(DerProgramTest.class.getName());
      private static String serviceName;
      static String listOfDerPrograms;
-     static String createdDerProgram ;
+     static String createdDerProgram;
 
  
 
@@ -90,10 +90,10 @@ public class DerProgramTest {
        }
        return null ;
    }
-  
+
    public static void  setCreatedDerProgram(String responseCreateDerProgram)
-   {
-       createdDerProgram = responseCreateDerProgram;
+   { 
+    createdDerProgram = responseCreateDerProgram;
        
    }
    
