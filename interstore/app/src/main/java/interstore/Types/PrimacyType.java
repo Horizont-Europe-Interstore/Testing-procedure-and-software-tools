@@ -1,5 +1,14 @@
 package interstore.Types;
 
+
+/* The Primacy values are 0:In home energy management system 
+ * 1: Contracted premises servcie provider 
+ * 2: Non-contractual servcie provider 
+ * 3-64 : Reserved
+ * 65-191 : User Defined 
+ * 192-255 : Reserved
+ * Lower Number indicate Higher Priortiy 
+ */
 public class PrimacyType extends UInt8 {
     private short PrimacyTypeValue;
     public PrimacyType(short value) {

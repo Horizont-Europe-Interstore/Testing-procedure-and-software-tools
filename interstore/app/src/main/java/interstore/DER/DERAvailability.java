@@ -1,10 +1,10 @@
 package interstore.DER;
 
-import interstore.Identity.SubscribableResource;
+//import interstore.Identity.SubscribableResource extends SubscribableResource ;
 import jakarta.persistence.*;
 
 @Entity
-public class DERAvailability extends SubscribableResource {
+public class DERAvailability {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

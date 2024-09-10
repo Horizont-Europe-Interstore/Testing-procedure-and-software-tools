@@ -3,7 +3,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
-import interstore.DERProgram.DERProgramImpl;
+import interstore.DERProgram.DERProgramService;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
@@ -19,7 +19,7 @@ public class ServiceFactory {
     private final Provider <SelfDeviceImpl> selfDeviceProvider;
     private final Provider<DERImpl> derProvider;
     private final Provider<FunctionSetAssignmentsService> fsaProvider;
-    private final Provider<DERProgramImpl> derProgramProvider;
+    private final Provider<DERProgramService> derProgramProvider;
 
     private final Provider<DERListImpl> derListProvider;
 
@@ -28,7 +28,7 @@ public class ServiceFactory {
     public ServiceFactory(Provider<DeviceCapabilityImpl> deviceCapabilityProvider,
                           Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DERImpl> derProvider, 
                           Provider<FunctionSetAssignmentsService> fsaProvider,
-                           Provider<DERProgramImpl> derProgramProvider, Provider<DERListImpl> derListProvider) {
+                           Provider<DERProgramService> derProgramProvider, Provider<DERListImpl> derListProvider) {
 
         this.deviceCapabilityProvider = deviceCapabilityProvider;
         this.endDeviceProvider = endDeviceProvider;
@@ -56,7 +56,7 @@ public class ServiceFactory {
         return fsaProvider;
     }
     
-    public Provider<DERProgramImpl> getDerProgramProvider(){
+    public Provider<DERProgramService> getDerProgramProvider(){
         return derProgramProvider;
     }
     public Provider<DERListImpl> getDERListProvider(){
