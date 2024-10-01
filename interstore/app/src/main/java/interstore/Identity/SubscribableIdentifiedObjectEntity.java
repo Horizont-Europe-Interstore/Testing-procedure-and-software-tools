@@ -2,6 +2,8 @@ package interstore.Identity;
 import jakarta.persistence.*;
 import java.io.Serializable;
 
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
+
 @Entity
 @Table(name = "subscribable_identified_object")
 public class SubscribableIdentifiedObjectEntity implements Serializable {
@@ -20,6 +22,11 @@ public class SubscribableIdentifiedObjectEntity implements Serializable {
 
     @Column(name = "mRID", unique = true)
     private String mRID;
+
+    @ManyToOne 
+    @JoinColumn(name = "fsa_id", nullable = false)  
+    private FunctionSetAssignmentsEntity fsaEntity;
+
 
     public SubscribableIdentifiedObjectEntity() {
     }
@@ -55,7 +62,16 @@ public class SubscribableIdentifiedObjectEntity implements Serializable {
     public void setmRID(String mRID) {
         this.mRID = mRID;
     }
+    
+    
+    public FunctionSetAssignmentsEntity getFunctionSetAssignmentsEntity() {
+        return fsaEntity;
+    }
 
+    public void setFunctionSetAssignmentEntity(FunctionSetAssignmentsEntity fsaEntity) {
+        this.fsaEntity = fsaEntity;
+    } 
+   
    
 }
 

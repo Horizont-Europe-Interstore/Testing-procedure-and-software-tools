@@ -17,15 +17,11 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class GetAllDerPrograms {
-      private App app; 
+    private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllFunctionSetAssignmentsSteps.class);
     private Object response;
     private Scenario scenario;
-    /*
-     *  Given I have a get all function set assignments test setup
-    When I execute the get all function set assignments test with subject "<natsSubject>"
-    Then the test should complete successfully with all function set assignemnts response containing:
-     */
+   
     @Before
     public void before(Scenario scenario) {
         this.scenario = scenario;
@@ -40,26 +36,24 @@ public class GetAllDerPrograms {
     @When("^I execute the get all der programs test with subject \"([^\"]*)\"$")
     public void i_execute_the_get_all_der_programs_test_with_subject(String natsSubject) throws Exception {
         LOGGER.info("Expected response");
-        response = app.getAllFsaTest(natsSubject);
-        //response = app.getAllEndDevicesTest(natsSubject);
+        response = app.getAllDerPrograms(natsSubject);
     }
 
- 
-    /* check out for the /edev is present in the endev return links , this can be use for validation while creatign the end device 
-     * the /edev has to stored in the front end to compare it with the result from the back end 
-     */
+    
     @Then("^the test should complete successfully with all der programs response containing:$")
     public  void the_test_should_complete_successfully_with_all_der_programs_response_containing(String expectedJson) throws Exception {
         Map<String, String > expectedNoFsaMap = new HashMap<>();
-        expectedNoFsaMap.put("message","No functionSetAssignments found."); 
+        expectedNoFsaMap.put("message","No DER Programs Found."); 
         Map<String, String> defaultFsaMap = new HashMap<>();
-        defaultFsaMap.put("enddeviceLink", "http://localhost/edev/1");
+        defaultFsaMap.put("activeDERControlListLink", "http://localhost/derp/1/actderc");
         defaultFsaMap.put("mRID", "A1000000");
         defaultFsaMap.put("description", "der program fsa");
-        defaultFsaMap.put("deviceCategory", "1");
+        defaultFsaMap.put("version", "1");
         defaultFsaMap.put("id", "1");
-        defaultFsaMap.put("functionSetAssignmentsLink", "http://localhost/edev/1/fsa/1");
-        defaultFsaMap.put("dERProgramListLink", "http://localhost/der"); 
+        defaultFsaMap.put("primacy", "89");
+        defaultFsaMap.put("derCurveListLink", "http://localhost/derp/1/dc");
+        defaultFsaMap.put("defaultDERControlLink", "http://localhost/derp/1/dderc"); 
+        defaultFsaMap.put("derControlListLink", "http://localhost/derp/1/derc");
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);

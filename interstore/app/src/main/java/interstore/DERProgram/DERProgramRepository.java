@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 public interface DERProgramRepository extends JpaRepository<DERProgramEntity, Long> {
-   // List<DERProgramEntity> findAllByDerpListLink(String derpListLink);
+   
+   List<DERProgramEntity>findByFsaEntity_Id(Long fsaID);
+  
 }
  

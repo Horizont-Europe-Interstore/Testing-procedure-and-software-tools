@@ -1,13 +1,9 @@
 package interstore.DERProgram;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
-
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -58,38 +54,22 @@ public class DERProgramManager {
         
     }
     
-     
-
-     /*  public static String EndDeviceListLinktest()
-    { 
-       expected payload is 
-       "payload" : {
-        derprogramLink :  }
-   */
-
-       public Map<String, Object> getDERPrograms(JSONObject payload) 
+    
+       public Map<String, Object> getDERPrograms(JSONObject payload) throws JSONException 
       {
-        if(payload.has("derprogramLink"))
-        {
-            return getAllDERProgramDetails();
+        if(payload.has("fsaID"))
+        {   Long fsaID = payload.getLong("fsaID");
+            LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
+            return getAllDERProgramDetails(fsaID);
         }
         
         return null ; 
       }
 
 
-
-    /*
-     * public DERProgramEntity getDERProgramById(String id) throws NumberFormatException, NotFoundException {
-        Long longId = Long.parseLong(id);
-        ResponseEntity<Map<String, Object>> derProgramEntity = this.derProgramService.getDerProgramById(longId);
-        return derProgramEntity;
-    }
-     */
-    
     @GetMapping("/derp")
-    public Map<String, Object> getAllDERProgramDetails() throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms();
+    public Map<String, Object> getAllDERProgramDetails(Long fsaID) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
         return  responseEntity.getBody(); 
 
     }
@@ -106,3 +86,25 @@ public class DERProgramManager {
         }
     }
 }
+
+
+
+
+
+
+
+ /*
+     * public DERProgramEntity getDERProgramById(String id) throws NumberFormatException, NotFoundException {
+        Long longId = Long.parseLong(id);
+        ResponseEntity<Map<String, Object>> derProgramEntity = this.derProgramService.getDerProgramById(longId);
+        return derProgramEntity;
+    }
+     */
+
+     
+     /*  public static String EndDeviceListLinktest()
+    { 
+       expected payload is 
+       "payload" : {
+        derprogramLink :  }
+   */

@@ -187,8 +187,17 @@ export default class Client{
                 dERCurveListLink:'',
                 
             }
+        },
+        
+        {
+            index:12,
+            test:'Get All Der Programs',
+            desc:'description',
+            args: true,
+            object:{
+                fsaID:'',
+            } 
         }
-
     ];
 
     static #validationObject={
@@ -232,12 +241,17 @@ export default class Client{
             mRID: (field) => field.trim() !== "",
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
-            version:(field)=>{return !isNaN(field)}
-           // activeDERControlListLink: (field) => field === null || field === "",  
-           // defaultDERControlLink: (field) => field === null || field === "",  
-           // dERControlListLink: (field) => field === null || field === "",  
-           //  dERCurveListLink: (field) => field === null || field === "" 
+            version:(field)=>{return !isNaN(field)}, 
+            activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',  
+            defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string', 
+            dERControlListLink: (field) => field === null || field === "" || typeof field === 'string', 
+            dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',  
+            derpLink: (field) => field === null || field === "" || typeof field === 'string' 
    
+        }
+        ,
+        'Get All Der Programs':{
+            fsaID:(field)=>{return !isNaN(field)}
         }
     }
 
