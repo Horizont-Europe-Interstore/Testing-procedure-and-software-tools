@@ -187,6 +187,44 @@ export default class Client{
                 dERCurveListLink:'',
                 
             }
+        },
+
+        {
+            index:12,
+            test:'Create Der Curve',
+            desc:'description',
+            args: true,
+            object:{
+                derProgramId:'',
+                mRID:'',
+                description:'',
+                version:'',
+                curveType:'',
+                x_multiplier_type: '',
+                y_multiplier_type: '',
+                y_ref_type: '',
+                x_value_1:'',
+                y_value_1:'',
+                x_value_2:'',
+                y_value_2:'',
+                x_value_3:'',
+                y_value_3:'',
+                x_value_4:'',
+                y_value_4:'',
+                x_value_5:'',
+                y_value_5:'',
+                x_value_6:'',
+                y_value_6:'',
+                x_value_7:'',
+                y_value_7:'',
+                x_value_8:'',
+                y_value_8:'',
+                x_value_9:'',
+                y_value_9:'',
+                x_value_10:'',
+                y_value_10:'',
+
+            }
         }
 
     ];

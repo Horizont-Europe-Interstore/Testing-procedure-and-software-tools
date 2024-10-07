@@ -14,5 +14,18 @@ public class TimeType extends Int64{
         this.Int64Value = value;
     }
 
+    // Static method to convert from long to TimeType
+    public static TimeType fromLong(long value) {
+        return new TimeType(value);
+    }
+
+    // Static method to convert from TimeType to long
+    public static long toLong(TimeType timeType) {
+        if (timeType == null) {
+            throw new IllegalArgumentException("TimeType cannot be null");
+        }
+        return timeType.getInt64Value();
+    }
+
 }
 

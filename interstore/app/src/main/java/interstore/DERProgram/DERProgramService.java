@@ -94,7 +94,7 @@ public class DERProgramService {
         Long derId = derProgram.getId();
         derProgram.setPrimacy(primacyShort);
     
-        String idString = derListLink + "/" + String.valueOf(derId);
+        String idString = derListLink + "/" + String.valueOf(derId) + "/";
     
         derProgram.setActiveDERControlListLink(activeDERControlListLink != null ? idString + activeDERControlListLink : null);
         derProgram.setDefaultDERControlLink(defaultDERControlLink != null ? idString + defaultDERControlLink : null);

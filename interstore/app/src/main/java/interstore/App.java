@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 @SpringBootApplication()
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
-, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments", "interstore.DERProgram", "interstore.Time"})
+, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments", "interstore.DERProgram", "interstore.Time", "interstore.DERCurve"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -352,6 +352,17 @@ public class App {
             }
         }
         return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
+    }
+
+    public String createDerCurve(String natsSubject) throws Exception {
+        interstore.DerCurveTest.setServicename("createDerCurveManager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+                interstore.DerCurveTest.createNewDerCurve( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getCreatedDerCurve();
+        LOGGER.info("the response of DERCurve is " + response);
+        return response;
     }
 
    

@@ -179,6 +179,12 @@ public class MessageFactory {
             Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
             method.invoke(microServiceObject, payLoad);
         }
+        else if(serviceName.equals("createDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDerCurve", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
 
 
         else if(serviceName.equals("dcapmanager")){

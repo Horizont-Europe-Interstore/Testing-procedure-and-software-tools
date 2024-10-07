@@ -6,6 +6,8 @@ import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
 import interstore.DER.DERListManager;
 import interstore.DER.DERManager;
+import interstore.DERCurve.DERCurveManager;
+import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
 import interstore.DERProgram.DERProgramManager;
 import interstore.DeviceCapability.DcapManager;
@@ -59,6 +61,8 @@ public class MicroServiceFactory {
         FsaManager fsaManager = new FsaManager(fsaService);
         DERProgramService derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
+        DERCurveService derCurveService = serviceFactory.getDerCurveServiceProvider().get();
+        DERCurveManager derCurveManager = new DERCurveManager(derCurveService);
 
         this.microservices.put("getalldcapmanager", dcapManager); 
         this.microservices.put("selfdevicemanager", sdevManager);
@@ -85,6 +89,7 @@ public class MicroServiceFactory {
         this.microservices.put("derprogrammanager", derProgramManager);
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);
+        this.microservices.put("createDerCurveManager", derCurveManager);
 
 
 
@@ -104,6 +109,7 @@ public class MicroServiceFactory {
         FunctionSetAssignmentsTest functionSetAssignmentTest = new FunctionSetAssignmentsTest();
         DerProgramTest DerProgramTest = new DerProgramTest();
         TimeTest timeTest = new TimeTest();
+        DerCurveTest derCurveTest = new DerCurveTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
@@ -131,7 +137,7 @@ public class MicroServiceFactory {
         this.dtoMap.put("derprogrammanager", functionSetAssignmentTest);
         this.dtoMap.put("timemanager", timeTest);
         this.dtoMap.put("advancedtimemanager", timeTest);
-
+        this.dtoMap.put("createDerCurveManager", derCurveTest);
     }
    
     public Map<String, Object> getDtoMap() {

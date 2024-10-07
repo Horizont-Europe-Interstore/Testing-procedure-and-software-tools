@@ -1,6 +1,7 @@
 import {GridItem} from '@chakra-ui/react'
 import {FormSubElement} from './main_tab_subelements/FormSubElement.jsx';
 import {ReportSubElement} from './main_tab_subelements/ReportSubElement.jsx';
+import { DerCurveForm } from './main_tab_subelements/DerCurveSubForm.jsx';
 
 function ReportViewer({toggleVar,
                        setToggle,
@@ -19,16 +20,33 @@ function ReportViewer({toggleVar,
                            toggleVar={toggleVar} 
                            setToggle={setToggle}
                            colors={colors}/>
-         <FormSubElement toggleVar={toggleVar} 
-                         setToggle={setToggle} 
-                         currentTest={currentTest} 
-                         setCurrentTest={setCurrentTest} 
-                         setTestState={setTestState}
-                         colors={colors}
-                         tests={tests}
-                         setReport={setReport}
-                         setHeaderState={setHeaderState}
-                         testState={testState}/>
+          {currentTest.test === "Create Der Curve" ? (
+              <DerCurveForm
+                  toggleVar={toggleVar}
+                  setToggle={setToggle}
+                  currentTest={currentTest}
+                  setCurrentTest={setCurrentTest}
+                  setTestState={setTestState}
+                  colors={colors}
+                  tests={tests}
+                  setReport={setReport}
+                  setHeaderState={setHeaderState}
+                  testState={testState}
+              />
+          ) : (
+              <FormSubElement
+                  toggleVar={toggleVar}
+                  setToggle={setToggle}
+                  currentTest={currentTest}
+                  setCurrentTest={setCurrentTest}
+                  setTestState={setTestState}
+                  colors={colors}
+                  tests={tests}
+                  setReport={setReport}
+                  setHeaderState={setHeaderState}
+                  testState={testState}
+              />
+          )}
         </GridItem>
     )
   }
