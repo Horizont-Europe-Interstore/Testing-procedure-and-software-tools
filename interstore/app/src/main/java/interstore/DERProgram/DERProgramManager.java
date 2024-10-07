@@ -57,7 +57,15 @@ public class DERProgramManager {
     
        public Map<String, Object> getDERPrograms(JSONObject payload) throws JSONException 
       {
-        if(payload.has("fsaID"))
+         if(payload.has("fsaID") && payload.has("derID"))
+         {  
+             Long fsaID = payload.getLong("fsaID");
+             Long derID = payload.getLong("derID");
+             LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
+             return getDerProgramDetails(fsaID, derID);
+         }
+
+        else if(payload.has("fsaID"))
         {   Long fsaID = payload.getLong("fsaID");
             LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
             return getAllDERProgramDetails(fsaID);
@@ -74,7 +82,12 @@ public class DERProgramManager {
 
     }
 
+    @GetMapping("/derp/id")
+    public Map<String, Object> getDerProgramDetails(Long fsaID, Long derID) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derID);
+        return  responseEntity.getBody();
 
+    }
     public void updateDERProgram( JSONObject jsonObject) {
         {
             LOGGER.info("Returned a 400 or 405 status message");

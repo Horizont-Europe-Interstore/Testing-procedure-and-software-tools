@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -172,15 +173,50 @@ public class DERProgramService {
         }
     }
 
-
-
-   public ResponseEntity<Map<String, Object>> getDerProgramById(Long id) {
-        DERProgramEntity derProgram = derProgramRepository.findById(id).orElse(null);
-        Map<String, Object> response = new HashMap<>();
-        response.put("derProgram", derProgram);
-        return ResponseEntity.ok(response);
-    }
     
+    
+
+
+    @SuppressWarnings("unused")
+    public ResponseEntity<Map<String, Object>> getDerProgram(Long derId, Long fsaId)
+
+    {
+        try {
+            Map<String, Object> result = new HashMap<>();
+           Optional <DERProgramEntity> derEntityOptional = derProgramRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
+           Optional <SubscribableIdentifiedObjectEntity> subscribableIdentifiedObjectOptional = subscribableIdentifiedObjectRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
+           DERProgramEntity derEntity = derEntityOptional.get();
+           SubscribableIdentifiedObjectEntity subscribableIdentifiedEntity = subscribableIdentifiedObjectOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity .getId());
+            entityMap.put("primacy", derEntity.getPrimacy());
+            entityMap.put("defaultDERControlLink", derEntity.getDefaultDERControlLink());
+            entityMap.put("activeDERControlListLink", derEntity.getActiveDERControlListLink());
+            entityMap.put("derControlListLink", derEntity.getDERControlListLink());
+            entityMap.put("derCurveListLink", derEntity.getDERCurveListLink());
+            entityMap.put("mRID", subscribableIdentifiedEntity .getmRID() != null ? subscribableIdentifiedEntity.getmRID() : "N/A");
+            entityMap.put("description", subscribableIdentifiedEntity.getDescription() != null ? subscribableIdentifiedEntity.getDescription() : "No description");
+           // entityMap.put("subscribable", subscribableIdentifiedEntity.getSubscribable());
+            entityMap.put("version", subscribableIdentifiedEntity .getVersion());
+
+            if (derEntity  == null) {
+                result.put("message", "No functionsetassignment found for Der Program ID " + derId  + " and FSA ID " +   fsaId );
+            } else {
+                result.put("FunctionSetAssignments", entityMap);
+            }
+            return ResponseEntity.ok( result );
+          } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
+            return ResponseEntity.status(404).body(null);
+        }
+
+       
+       
+    }
+
+
+
+ 
 }
 
 
@@ -188,6 +224,13 @@ public class DERProgramService {
  
  
 
+
+/*
+ *  
+ * 
+ * 
+ * 
+ */
 
 
 

@@ -1,10 +1,6 @@
 package interstore.DERProgram;
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import interstore.EndDevice.EndDeviceDto;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.Identity.*; 
 

@@ -197,7 +197,86 @@ export default class Client{
             object:{
                 fsaID:'',
             } 
-        }
+        }, 
+        {
+            index:13,
+            test:'Get A Der Program',
+            desc:'description',
+            args: true,
+            object:{
+                fsaID:'',
+                derID:'',
+            }
+        },
+        {
+            index:14,
+            test:'Create Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+                mRID:'',
+                description:'',
+                subscribable:'',
+                version:'',
+                activeDERCurveListLink:'',
+                dERCurveListLink:'',
+                derpLink:'',
+            }
+        },
+        {
+            index:15,
+            test:'Get All Der Controls',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+            }
+        },
+        {
+            index:16,
+            test:'Get A Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+                dercID:'',
+            }
+        },
+        {
+            index:17,
+            test:'Create Der Curve',
+            desc:'description',
+            args: true,
+            object:{
+                dercID:'',
+                mRID:'',
+                description:'',
+                subscribable:'',
+                version:'',
+                dERCurveLink:'',
+                derpLink:'',
+            }
+        },
+        {
+            index:18,
+            test:'Get All Der Curves',
+            desc:'description',
+            args: true,
+            object:{
+                dercID:'',
+            }
+        },
+        {
+            index:19,
+            test:'Get A Der Curve',
+            desc:'description',
+            args: true,
+            object:{
+                dercID:'',
+                dercID:'',
+            }   
+        }  
     ];
 
     static #validationObject={

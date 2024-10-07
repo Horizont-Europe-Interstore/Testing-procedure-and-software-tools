@@ -16,7 +16,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class GetAllDerPrograms {
+public class GetAllDerProgramsSteps {
     private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllFunctionSetAssignmentsSteps.class);
     private Object response;
