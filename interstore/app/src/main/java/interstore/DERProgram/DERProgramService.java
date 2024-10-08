@@ -163,7 +163,7 @@ public class DERProgramService {
             if (fsaDetails.isEmpty() && subscribableIdentifiedObjectDetails.isEmpty()) {
                 responseMap.put("message", "No functionSetAssignments found.");
             } else {
-                responseMap.put("functionSetAssignments", responseList);
+                responseMap.put("DERPrograms", responseList);
             }
     
             return ResponseEntity.ok(responseMap);
@@ -202,7 +202,7 @@ public class DERProgramService {
             if (derEntity  == null) {
                 result.put("message", "No functionsetassignment found for Der Program ID " + derId  + " and FSA ID " +   fsaId );
             } else {
-                result.put("FunctionSetAssignments", entityMap);
+                result.put("DERProgram", entityMap);
             }
             return ResponseEntity.ok( result );
           } catch (Exception e) {

@@ -62,7 +62,7 @@ public class DERProgramManager {
              Long fsaID = payload.getLong("fsaID");
              Long derID = payload.getLong("derID");
              LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
-             return getDerProgramDetails(fsaID, derID);
+             return getDerProgramDetails( derID, fsaID);
          }
 
         else if(payload.has("fsaID"))

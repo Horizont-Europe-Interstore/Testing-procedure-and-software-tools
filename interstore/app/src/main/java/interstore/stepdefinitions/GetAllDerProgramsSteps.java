@@ -67,7 +67,7 @@ public class GetAllDerProgramsSteps {
                 scenario.log("actual" + ":" +  actualMap);
                 scenario.log("expected" + ":" +  expectedNoFsaMap);
             }
-            else if( key.equals("functionSetAssignments"))
+            else if( key.equals("DERPrograms"))
             {  
                 {
                     scenario.log("actual" + ":" + entry.getValue());

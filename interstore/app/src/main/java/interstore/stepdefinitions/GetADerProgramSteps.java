@@ -57,7 +57,7 @@ public class GetADerProgramSteps {
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
-        LOGGER.info("the actaul get all functio set assignment response is ....." + actualMap);
+        LOGGER.info("the actaul get all function set assignment response is ....." + actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())
         {
             Object key = entry.getKey();
@@ -67,7 +67,7 @@ public class GetADerProgramSteps {
                 scenario.log("actual" + ":" +  actualMap);
                 scenario.log("expected" + ":" +  expectedNoFsaMap);
             }
-            else if( key.equals("functionSetAssignments"))
+            else if( key.equals("DERProgram"))
             {  
                 {
                     scenario.log("actual" + ":" + entry.getValue());
