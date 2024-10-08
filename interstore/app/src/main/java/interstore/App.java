@@ -278,7 +278,19 @@ public class App {
         return response;
      }
 
-
+    public String getADerProgram(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long fsaId = currentTest.getLong("fsaID");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + fsaId);
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerProgramTest.setServicename("getASingleDerprogrammanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerProgramTest.getADerProgramRequest(fsaId, derId));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getADerProgram();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
 
     public String TimeTest(String natsSubject) throws Exception {
         if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){

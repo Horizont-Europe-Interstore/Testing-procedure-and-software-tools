@@ -12,8 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 public class DERProgramService {
@@ -38,6 +41,7 @@ public class DERProgramService {
         DERProgramEntity derProgram = new DERProgramEntity();
         derProgram.setFunctionSetAssignmentEntity(fsaEntity);
         SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity = new SubscribableIdentifiedObjectEntity();
+        subscribableIdentifiedObjectEntity.setFunctionSetAssignmentEntity(fsaEntity);
         SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
     
         try {
@@ -75,11 +79,11 @@ public class DERProgramService {
         Integer versionInt = version.isEmpty() ? null : Integer.parseInt(version);
         String primacy = DerProgrampayload.optString("primacy");
         Short primacyShort = primacy.isEmpty() ? null : Short.parseShort(primacy);
-        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink", null);  // Default to null if missing
-        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink", null);        // Default to null if missing
-        String dERControlListLink = DerProgrampayload.optString("dERControlListLink", null);              // Default to null if missing
-        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink", null);                  // Default to null if missing
-    
+        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink", null);  
+        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink", null);        
+        String dERControlListLink = DerProgrampayload.optString("dERControlListLink", null);              
+        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink", null);                  
+        subscribableIdentifiedObjectEntity.setFunctionSetAssignmentEntity(fsaEntity);
         subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRID, description, versionInt);
         subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
     
@@ -91,6 +95,7 @@ public class DERProgramService {
         LOGGER.log(Level.INFO, "Function Set Assignments Entity: " + fsaEntity);
     
         derProgram.setFunctionSetAssignmentEntity(fsaEntity);
+
         Long derId = derProgram.getId();
         derProgram.setPrimacy(primacyShort);
     
@@ -118,158 +123,123 @@ public class DERProgramService {
         return subscribableIdentifiedObjectEntity;
      }
 
-   public ResponseEntity<Map<String, Object>> getAllDerPrograms() {
-        List<DERProgramEntity> derPrograms = derProgramRepository.findAll();
-        Map<String, Object> response = new HashMap<>();
-        response.put("derPrograms", derPrograms);
-        return ResponseEntity.ok(response);
+     public ResponseEntity<Map<String, Object>>getAllDerPrograms(Long fsaID) {
+        try {
+            Map<String, Object> responseMap = new HashMap<>();
+            List<DERProgramEntity> derEntityList = derProgramRepository.findByFsaEntity_Id(fsaID);
+            List<SubscribableIdentifiedObjectEntity> SubscribableIdentifiedObjectList = subscribableIdentifiedObjectRepository.findByFsaEntity_Id(fsaID);
+            List<Map<String, Object>> fsaDetails = derEntityList.stream()
+                .map(derEntity -> {
+                    Map<String, Object> entityMap = new HashMap<>();
+                    entityMap.put("id", derEntity .getId());
+                    entityMap.put("primacy", derEntity.getPrimacy());
+                    if (derEntity.getDefaultDERControlLink()!= null) {
+                        entityMap.put("defaultDERControlLink", derEntity.getDefaultDERControlLink());
+                    }
+                    if (derEntity.getActiveDERControlListLink()!= null) {
+                        entityMap.put("activeDERControlListLink", derEntity.getActiveDERControlListLink());
+                    }
+                    if (derEntity.getDERControlListLink() != null) {
+                        entityMap.put("derControlListLink", derEntity.getDERControlListLink());
+                    }
+                    if (derEntity.getDERCurveListLink() != null) {
+                        entityMap.put("derCurveListLink", derEntity.getDERCurveListLink());
+                    }
+                    return entityMap;
+                })
+                .collect(Collectors.toList());
+            List<Map<String, Object>> subscribableIdentifiedObjectDetails = SubscribableIdentifiedObjectList.stream()
+                .map(subscribableIdentifiedObject -> {
+                    Map<String, Object> entityMap = new HashMap<>();
+                    entityMap.put("mRID", subscribableIdentifiedObject.getmRID() != null ? subscribableIdentifiedObject.getmRID() : "N/A");
+                    entityMap.put("description", subscribableIdentifiedObject.getDescription() != null ? subscribableIdentifiedObject.getDescription() : "No description");
+                    entityMap.put("version", subscribableIdentifiedObject.getVersion());
+                    return entityMap;
+                })
+                .collect(Collectors.toList());
+            List<Map<String, Object>> responseList = new ArrayList<>(fsaDetails);
+            responseList.addAll(subscribableIdentifiedObjectDetails);
+            
+            if (fsaDetails.isEmpty() && subscribableIdentifiedObjectDetails.isEmpty()) {
+                responseMap.put("message", "No functionSetAssignments found.");
+            } else {
+                responseMap.put("DERPrograms", responseList);
+            }
+    
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
-   public ResponseEntity<Map<String, Object>> getDerProgramById(Long id) {
-        DERProgramEntity derProgram = derProgramRepository.findById(id).orElse(null);
-        Map<String, Object> response = new HashMap<>();
-        response.put("derProgram", derProgram);
-        return ResponseEntity.ok(response);
+    
+    
+
+
+    @SuppressWarnings("unused")
+    public ResponseEntity<Map<String, Object>> getDerProgram(Long derId, Long fsaId)
+
+    {
+        try {
+            Map<String, Object> result = new HashMap<>();
+           Optional <DERProgramEntity> derEntityOptional = derProgramRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
+           Optional <SubscribableIdentifiedObjectEntity> subscribableIdentifiedObjectOptional = subscribableIdentifiedObjectRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
+           DERProgramEntity derEntity = derEntityOptional.get();
+           SubscribableIdentifiedObjectEntity subscribableIdentifiedEntity = subscribableIdentifiedObjectOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity .getId());
+            entityMap.put("primacy", derEntity.getPrimacy());
+            entityMap.put("defaultDERControlLink", derEntity.getDefaultDERControlLink());
+            entityMap.put("activeDERControlListLink", derEntity.getActiveDERControlListLink());
+            entityMap.put("derControlListLink", derEntity.getDERControlListLink());
+            entityMap.put("derCurveListLink", derEntity.getDERCurveListLink());
+            entityMap.put("mRID", subscribableIdentifiedEntity .getmRID() != null ? subscribableIdentifiedEntity.getmRID() : "N/A");
+            entityMap.put("description", subscribableIdentifiedEntity.getDescription() != null ? subscribableIdentifiedEntity.getDescription() : "No description");
+           // entityMap.put("subscribable", subscribableIdentifiedEntity.getSubscribable());
+            entityMap.put("version", subscribableIdentifiedEntity .getVersion());
+
+            if (derEntity  == null) {
+                result.put("message", "No functionsetassignment found for Der Program ID " + derId  + " and FSA ID " +   fsaId );
+            } else {
+                result.put("DERProgram", entityMap);
+            }
+            return ResponseEntity.ok( result );
+          } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
+            return ResponseEntity.status(404).body(null);
+        }
+
+       
+       
     }
+
+
+
+ 
 }
 
 
- /* here i expect a json string here 
-       * the received payload in the DER program Manager class  is {"payload":{"activeDERControlListLink":"actderc","mRID":"B01000000","defaultDERControlLink":"dderc",
-       * "dERCurveListLink":"dc","derpLink":"derp","description":"der program fsa","fsaID":"1","primacy":"89","subscribable":"1","version":"1","dERControlListLink":"derc"},
-       * "action":"post","servicename":"createDerprogrammanager"}
-       *  here i have to get first corresponding end device and function set assignment 
-       
-    @Transactional
-    public DERProgramEntity createDerProgram(JSONObject payload )  throws NumberFormatException, JSONException, NotFoundException{
-        Long fsaId = Long.parseLong(payload.getJSONObject("payload").getString("fsaID"));
-        FunctionSetAssignmentsEntity fsaEntity = functionSetAssignmentsRepository.findFsaById(fsaId);
-        DERProgramEntity derProgram = new DERProgramEntity();
-        derProgram.setFunctionSetAssignmentEntity(fsaEntity);
-        SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity = new SubscribableIdentifiedObjectEntity();
-        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity(); 
-        try {
-            
-            derProgramRepository.save(derProgram); 
-        } catch(Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving der program entity", e);
-        }
-        try {
-            subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving subscribableIdentifiedObjectEntity entity", e);
-        }
-        try{
-            subscribableResourcRepository.save(subscribableResourceEntity);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
-        }
-        derProgram = setDerProgramEntity(payload, derProgram, subscribableIdentifiedObjectEntity,
-         subscribableResourceEntity, fsaEntity);
-        return derProgram;
-    }
-    
-    
-    public DERProgramEntity setDerProgramEntity(JSONObject payload, DERProgramEntity derProgram, 
-    SubscribableIdentifiedObjectEntity subscribableIdentifiedObjectEntity,
-    SubscribableResourceEntity subscribableResourceEntity , FunctionSetAssignmentsEntity fsaEntity )
-    {
-      
-        JSONObject DerProgrampayload = payload.optJSONObject("payload");
-        short subscribable = (short) DerProgrampayload.optInt("subscribable");
-        String mRID = DerProgrampayload.optString("mRID");
-        String description = DerProgrampayload.optString("description");
-        String version = DerProgrampayload.optString("version");
-        Integer versionInt = Integer.parseInt(version );
-        String primacy = DerProgrampayload.optString("primacy"); 
-        Short primacyShort = Short.parseShort(primacy);
-        String activeDERControlListLink = DerProgrampayload.optString("activeDERControlListLink");
-        String defaultDERControlLink = DerProgrampayload.optString("defaultDERControlLink");
-        String dERControlListLink = DerProgrampayload.optString("dERControlListLink");
-        String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink");
-    
-        subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRID, description, versionInt);
-        subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
-        subscribableResourceEntity.setSubscribable(subscribable);
-        subscribableResourcRepository.save(subscribableResourceEntity); 
-    
-            String derListLink = fsaEntity.getDERProgramListLink();
-            LOGGER.log(Level.INFO, "DER Program List Link: " + derListLink);
-            LOGGER.log(Level.INFO, "Function Set Assignments Entity: " + fsaEntity); 
-            derProgram.setFunctionSetAssignmentEntity(fsaEntity);
-            Long derId = derProgram.getId();
-            derProgram.setPrimacy(primacyShort);
-            String idString = derListLink + "/"+ String.valueOf(derId) ;
-            derProgram.setActiveDERControlListLink(idString + activeDERControlListLink);
-            derProgram.setDefaultDERControlLink(idString + defaultDERControlLink);
-            derProgram.setDERControlListLink(idString + dERControlListLink);
-            derProgram.setDERCurveListLink(idString + dERCurveListLink);
-            derProgram.setSubscribableIdentifiedObject( subscribableIdentifiedObjectEntity);
-            derProgram.setSubscribableResource( subscribableResourceEntity);
-            derProgramRepository.save(derProgram); 
-            return derProgram ;
-            
-        }
-       
-    */
 
-
-
-
-
-/*  public void setDERP(DERProgramEntity derProgram){
-        derProgram.setmRID("B01000000");
-        derProgram.setPrimacy("89");
-        derProgram.setDescription("SUBTX-A1-B1");
-        derProgram.setVersion("1");
-        derProgram.setSubscribable("0");
-    }
-        public String getDerProgramByListLinks(Object derpListLinks) throws JSONException {
-        Map<Long, Object> derProgramMap = new HashMap<>();
-        if (derpListLinks instanceof JSONArray) {
-            JSONArray linksArray = (JSONArray) derpListLinks;
-
-            for (int i = 0; i < linksArray.length(); i++) {
-                String link = linksArray.getString(i);
-                List<DERProgram> values = derProgramRepository.findAllByDerpListLink(link);
-                for (DERProgramEntity derProgram : values) {
-                    derProgramMap.put(derProgram.getId(), derProgram.getAll());
-                }
-            }
-        }
-        return derProgramMap.toString();
-    } 
-    
-    */
-
-
-
-
+ 
+ 
 
 
 /*
- * public void createDERP(DERPList derpList){
-        DERProgram derProgram = new DERProgram(derpList);
-        setDERP(derProgram);
-        derProgram = derProgramRepository.save(derProgram);
-        derpList.addDerpDto(derProgram);
-        setDERPLinks(derProgram, derpList);
-    }
- * 
- * 
-    public void setDERPLinks(DERProgram derProgram, DERPList derpList){
-        String derpListLink = derpList.getDerpListLink();
-        Long id = derProgram.getId();
-        derProgram.setDefaultDERControlLink(derpListLink+"/"+id.toString()+"/dderc");
-        derProgram.setActiveDERControlListLink(derpListLink+"/"+id.toString()+"/actderc");
-        derProgram.setDERControlListLink(derpListLink+"/"+id.toString()+"/derc");
-        derProgram.setDERCurveListLink(derpListLink+"/"+id.toString()+"/dc");
-        derProgram.setDerpLink(derpListLink+"/"+id.toString());
-        derProgram.setDerpListLink(derpListLink);
-    }
-
- * 
+ *  
  * 
  * 
  * 
  */
+
+
+
+
+
+
+
+
+
+
+
+

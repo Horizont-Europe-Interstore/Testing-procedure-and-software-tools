@@ -128,8 +128,6 @@ public class MicroServiceFactory {
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("getASingleFsamanager", functionSetAssignmentTest); 
         this.dtoMap.put("fsamanager", functionSetAssignmentTest);
-
-
         this.dtoMap.put("getallDerprogrammanager", DerProgramTest);
         this.dtoMap.put("getASingleDerprogrammanager", DerProgramTest);
         this.dtoMap.put("createDerprogrammanager", DerProgramTest);

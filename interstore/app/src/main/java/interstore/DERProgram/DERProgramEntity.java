@@ -1,10 +1,6 @@
 package interstore.DERProgram;
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import interstore.EndDevice.EndDeviceDto;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.Identity.*; 
 
@@ -60,6 +56,7 @@ public class DERProgramEntity  implements Serializable {
         this.primacy = primacy;
     }
     
+
     public FunctionSetAssignmentsEntity getFunctionSetAssignmentsEntity() {
         return fsaEntity;
     }
@@ -87,9 +84,7 @@ public class DERProgramEntity  implements Serializable {
     }
 
     public void setDefaultDERControlLink(String defaultDERControlLink) {
-        Resource resource = new Resource();
-        resource.setHref(defaultDERControlLink);
-        this.defaultDERControlLink = resource.getHref();
+        this.defaultDERControlLink = defaultDERControlLink;
         
     }
 
@@ -98,9 +93,7 @@ public class DERProgramEntity  implements Serializable {
     }
 
     public void setActiveDERControlListLink(String activeDERControlListLink) {
-        Resource resource = new Resource();
-        resource.setHref(activeDERControlListLink);
-        this.activeDERControlListLink = resource.getHref();
+        this.activeDERControlListLink = activeDERControlListLink;  
         
     }
 
@@ -109,9 +102,7 @@ public class DERProgramEntity  implements Serializable {
     }
 
     public void setDERControlListLink(String derControlListLink) {
-        Resource resource = new Resource();
-        resource.setHref(derControlListLink);
-        this.derControlListLink = resource.getHref();
+        this.derControlListLink = derControlListLink;
         
     }
 
@@ -120,9 +111,7 @@ public class DERProgramEntity  implements Serializable {
     }
 
     public void setDERCurveListLink(String derCurveListLink) {
-        Resource resource = new Resource();
-        resource.setHref(derCurveListLink);
-        this.derCurveListLink = resource.getHref();
+        this.derCurveListLink = derCurveListLink;
         
     }
 

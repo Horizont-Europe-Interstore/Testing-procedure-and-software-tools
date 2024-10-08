@@ -124,6 +124,13 @@ public class MessageFactory {
             Method method = microServiceClass.getMethod("setAllderPrograms", String.class);
             method.invoke(microServiceObject, payLoad);
         }
+        
+        else if(serviceName.equals("getASingleDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setADerprogram", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+
 
         else if(serviceName.equals("getDERListLink"))
         {
@@ -169,6 +176,8 @@ public class MessageFactory {
             Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
             method.invoke(microServiceObject, payLoad.toString());
         }
+
+
         else if (serviceName.equals("timemanager"))
         {
             Method method = microServiceClass.getMethod("getTimeResponse", String.class);
