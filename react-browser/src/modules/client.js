@@ -78,6 +78,7 @@ export default class Client{
                 'Subscription Link':'',
                 'Device Status Link':'',
                 'End Device List Link':'',
+                'DER List Link':'', 
             },
         },
         {

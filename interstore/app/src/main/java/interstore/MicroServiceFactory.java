@@ -1,11 +1,8 @@
 package interstore;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import interstore.DER.DERImpl;
-import interstore.DER.DERListImpl;
-import interstore.DER.DERListManager;
-import interstore.DER.DERManager;
+import interstore.DER.DerService;
+import interstore.DER.DerManager;
 import interstore.DERCurve.DERCurveManager;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
@@ -15,8 +12,6 @@ import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EdevManager;
 import interstore.EndDevice.EndDeviceImpl;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
-//import interstore.FunctionSetAssignments.FsaListImpl;
-//import interstore.FunctionSetAssignments.FsaListManager;
 import interstore.FunctionSetAssignments.FsaManager;
 import interstore.SelfDevice.SdevManager;
 import interstore.SelfDevice.SelfDeviceDto;
@@ -53,10 +48,8 @@ public class MicroServiceFactory {
         SdevManager sdevManager = new SdevManager(selfDev);
         EndDeviceImpl endDev = serviceFactory.getEndDeviceProvider().get();
         EdevManager edevManager = new EdevManager( endDev );
-        DERImpl derImpl = serviceFactory.getDERProvider().get();
-        DERManager derManager = new DERManager(derImpl);
-        DERListImpl derListImpl = serviceFactory.getDERListProvider().get();
-        DERListManager derListManager = new DERListManager(derListImpl);
+        DerService derImpl = serviceFactory.getDERProvider().get();
+        DerManager derManager = new DerManager(derImpl);
         FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
         FsaManager fsaManager = new FsaManager(fsaService);
         DERProgramService derProgramImpl = serviceFactory.getDerProgramProvider().get();
@@ -76,7 +69,6 @@ public class MicroServiceFactory {
         this.microservices.put("findallregistrededendevice", edevManager);
         this.microservices.put("findregistrededendevice", edevManager);
       
-        this.microservices.put("getDERList", derListManager);
         this.microservices.put("getDER_properties", derManager);
         this.microservices.put("update_DER_properties", derManager);
         this.microservices.put("getallFsamanager", fsaManager);    

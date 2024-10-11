@@ -1,12 +1,7 @@
 package interstore.DERCurve;
-
-import interstore.DERProgram.DERProgramEntity;
 import interstore.Identity.IdentifiedObjectEntity;
-import io.cucumber.java.hu.De;
+import interstore.DERProgram.DERProgramEntity;
 import jakarta.persistence.*;
-import interstore.Identity.SubscribableIdentifiedObjectEntity;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity

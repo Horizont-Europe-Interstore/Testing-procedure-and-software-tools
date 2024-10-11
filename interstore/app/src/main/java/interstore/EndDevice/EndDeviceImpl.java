@@ -55,7 +55,7 @@ public class EndDeviceImpl {
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
         String endDeviceLink =  endDeviceListLink +  idString;
         String functionsetAssignmentListLink =   endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
-        String derListLink = endDeviceListLink +  idString + payload.optString("derListLink", "defaultLink");
+        String derListLink = endDeviceListLink +  idString + payload.optString("dERListLink", "defaultLink");
         String deviceStatusLink =  endDeviceListLink  + idString + payload.optString("deviceStatusLink", "defaultLink");
         String registrationLink = endDeviceListLink  + idString + payload.optString("registrationLink", "defaultLink");
         String subscriptionLink =  endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
@@ -82,10 +82,7 @@ public class EndDeviceImpl {
         endDeviceDto.setDeviceStatusLink(link.getLink());
         link.setLink(registrationLink);
         endDeviceDto.setRegistrationLink(link.getLink());
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("payload",getDERPayload(link.getLink()));
-
-    
+       
         ListLink listLink = new ListLink();
         listLink.setListLink(functionsetAssignmentListLink);
         endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink());
@@ -115,20 +112,7 @@ public class EndDeviceImpl {
 
     }
    
-    public Map<String, String> getDERPayload(String derListLink){
-        Map<String, String> payload = new HashMap<>();
-        payload.put("DERListLink", derListLink);
-        payload.put("DERCapabilityLink", "/dercap");
-        payload.put("DERStatusLink", "/ders");
-        payload.put("DERAvailabilityLink", "/dera");
-        payload.put("DERSettingsLink", "/derg");
-        return payload;
-    }
-
-
-
-
-     /* this is not database id , this is the id of the device it'self like SFDI, LFDI */
+    
      public Map<String, Object> getEndDeviceID(EndDeviceDto endDeviceDto)
      {
         if (endDeviceDto == null || endDeviceDto.getId() == null) {
@@ -206,8 +190,6 @@ public class EndDeviceImpl {
     }
 
 
-    /*
-     */
     @Transactional
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
@@ -313,4 +295,15 @@ public class EndDeviceImpl {
 
 
 
+/*
+ *  Map<String, Object> attributes = new HashMap<>();
+        attributes.put("payload",getDERPayload(link.getLink()));
+ * 
+ * public Map<String, String> getDERPayload(String derListLink){
+        Map<String, String> payload = new HashMap<>();
+        payload.put("DERListLink", derListLink);
+        return payload;
+    }
+
+ */
 

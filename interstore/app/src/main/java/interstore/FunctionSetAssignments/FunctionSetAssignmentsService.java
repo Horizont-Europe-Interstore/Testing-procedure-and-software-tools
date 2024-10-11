@@ -32,7 +32,7 @@ public class FunctionSetAssignmentsService {
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
         EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
-        endDevice.getFunctionSetAssignmentsListLink();
+        //endDevice.getFunctionSetAssignmentsListLink();
         String fsaLink = endDevice.getFunctionSetAssignmentsListLink();
         FunctionSetAssignmentsEntity fsaEntity = new FunctionSetAssignmentsEntity(); 
         fsaEntity.setEndDevice(endDevice); 
