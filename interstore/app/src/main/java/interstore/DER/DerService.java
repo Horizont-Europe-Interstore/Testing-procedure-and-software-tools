@@ -82,53 +82,33 @@ public class DerService {
         derEntity.setAssociatedUsagePointLink(associatedUsagePointLink);
         derEntity.setAssociatedDERProgramListLink(associatedDERProgramListLink);
         derEntity.setCurrentDERProgramLink(currentDERProgramLink);
+        // DER Capabilities 
         String modesSupported = Derpayload.optString("modesSupported");
-        String rtgAbnormalCategory = Derpayload.optString("rtgAbnormalCategory");
-        Integer rtgAbnormalCategoryUINT8 = Derpayload.optInt(rtgAbnormalCategory);
-        String rtgMaxA = Derpayload.optString("rtgMaxA");
-        Double rtgMaxADouble = Derpayload.optDouble(rtgMaxA);
-        String rtgMaxAh =  Derpayload.optString("rtgMaxAh");
-        Double rtgMaxAhDouble = Derpayload.optDouble(rtgMaxAh);
-        String rtgMaxChargeRateVA = Derpayload.optString("rtgMaxChargeRateVA");
-        Double rtgMaxChargeRateDouble = Derpayload.optDouble(rtgMaxChargeRateVA);
-        String rtgMaxChargeRateW = Derpayload.optString("rtgMaxChargeRateW");
-        Double rtgMaxChargeRateWDouble = Derpayload.optDouble(rtgMaxChargeRateW);
-        String rtgMaxDischargeRateVA = Derpayload.optString("rtgMaxDischargeRateVA");
-        Double rtgMaxDischargeRateVADouble = Derpayload.optDouble(rtgMaxDischargeRateVA);
-        String rtgMaxDischargeRateW = Derpayload.optString("rtgMaxDischargeRateW");
-        Double rtgMaxDischargeRateWDouble = Derpayload.optDouble(rtgMaxDischargeRateW);
-        String rtgMaxV = Derpayload.optString("rtgMaxV");
-        Double rtgMaxVDouble = Derpayload.optDouble(rtgMaxV);
-        String rtgMaxVA = Derpayload.optString("rtgMaxVA");
-        Double rtgMaxVADouble = Derpayload.optDouble(rtgMaxVA);
-        String rtgMaxVar = Derpayload.optString("rtgMaxVar");
-        Double rtgMaxVarDouble = Derpayload.optDouble(rtgMaxVar);
-        String rtgMaxVarNeg = Derpayload.optString("rtgMaxVarNeg");
-        Double rtgMaxVarNegDouble = Derpayload.optDouble(rtgMaxVarNeg);
-        String rtgMaxW = Derpayload.optString("rtgMaxW");
-        Double rtgMaxWDouble = Derpayload.optDouble(rtgMaxW);
-        String rtgMaxWh = Derpayload.optString("rtgMaxWh");
-        Double rtgMaxWhDouble = Derpayload.optDouble(rtgMaxWh);
-        String rtgMinPFOverExcited =  Derpayload.optString("rtgMinPFOverExcited");
-        Double rtgMinPFOverExcitedDouble = Derpayload.optDouble(rtgMinPFOverExcited);
-        String rtgMinPFUnderExcited = Derpayload.optString("rtgMinPFUnderExcited");
-        Double rtgMinPFUnderExcitedDouble = Derpayload.optDouble(rtgMinPFUnderExcited);
-        String rtgMinV = Derpayload.optString("rtgMinV");
-        Double rtgMinVDouble = Derpayload.optDouble(rtgMinV);
-        String rtgNormalCategory = Derpayload.optString("rtgNormalCategory");
-        Integer rtgNormalCategoryUINT8 = Derpayload.optInt(rtgNormalCategory);
-        String rtgOverExcitedPF = Derpayload.optString("rtgOverExcitedPF");
-        Double rtgOverExcitedPFDouble = Derpayload.optDouble(rtgOverExcitedPF);
-        String rtgOverExcitedW = Derpayload.optString("rtgOverExcitedW");
-        Double rtgOverExcitedWDouble = Derpayload.optDouble(rtgOverExcitedW);
-        String rtgReactiveSusceptance = Derpayload.optString("rtgReactiveSusceptance");	
-        Double rtgReactiveSusceptanceDouble = Derpayload.optDouble(rtgReactiveSusceptance);
-        String rtgUnderExcitedPF = Derpayload.optString("rtgUnderExcitedPF");
-        Double rtgUnderExcitedPFDouble = Derpayload.optDouble(rtgUnderExcitedPF);
-        String rtgUnderExcitedW = Derpayload.optString("rtgUnderExcitedW");
-        Double rtgUnderExcitedWDouble = Derpayload.optDouble(rtgUnderExcitedW);
-        String rtgVNom = Derpayload.optString("rtgVNom");
-        Double rtgVNomDouble = Derpayload.optDouble(rtgVNom);
+        Integer rtgAbnormalCategoryUINT8 = Derpayload.optInt("rtgAbnormalCategory", 0);
+        Double rtgMaxADouble = Derpayload.optDouble("rtgMaxA", Double.NaN);
+        Double rtgMaxAhDouble = Derpayload.optDouble("rtgMaxAh", Double.NaN);
+        Double rtgMaxChargeRateDouble = Derpayload.optDouble("rtgMaxChargeRateVA", Double.NaN);
+        Double rtgMaxChargeRateWDouble = Derpayload.optDouble("rtgMaxChargeRateW", Double.NaN);
+        Double rtgMaxDischargeRateVADouble = Derpayload.optDouble("rtgMaxDischargeRateVA", Double.NaN);
+        Double rtgMaxDischargeRateWDouble = Derpayload.optDouble("rtgMaxDischargeRateW", Double.NaN);
+        Double rtgMaxVDouble = Derpayload.optDouble("rtgMaxV", Double.NaN);
+        Double rtgMaxVADouble = Derpayload.optDouble("rtgMaxVA", Double.NaN);
+        Double rtgMaxVarDouble = Derpayload.optDouble("rtgMaxVar", Double.NaN);
+        Double rtgMaxVarNegDouble = Derpayload.optDouble("rtgMaxVarNeg", Double.NaN);
+        Double rtgMaxWDouble = Derpayload.optDouble("rtgMaxW", Double.NaN);
+        Double rtgMaxWhDouble = Derpayload.optDouble("rtgMaxWh", Double.NaN);
+        Double rtgMinPFOverExcitedDouble = Derpayload.optDouble("rtgMinPFOverExcited", Double.NaN);
+        Double rtgMinPFUnderExcitedDouble = Derpayload.optDouble("rtgMinPFUnderExcited", Double.NaN);
+        Double rtgMinVDouble = Derpayload.optDouble("rtgMinV", Double.NaN);
+        Integer rtgNormalCategoryUINT8 = Derpayload.optInt("rtgNormalCategory", 0);
+        Double rtgOverExcitedPFDouble = Derpayload.optDouble("rtgOverExcitedPF", Double.NaN);
+        Double rtgOverExcitedWDouble = Derpayload.optDouble("rtgOverExcitedW", Double.NaN);
+        Double rtgReactiveSusceptanceDouble = Derpayload.optDouble("rtgReactiveSusceptance", Double.NaN);
+        Double rtgUnderExcitedPFDouble = Derpayload.optDouble("rtgUnderExcitedPF", Double.NaN);
+        Double rtgUnderExcitedWDouble = Derpayload.optDouble("rtgUnderExcitedW", Double.NaN);
+        Double rtgVNomDouble = Derpayload.optDouble("rtgVNom", Double.NaN);
+    
+
         // type is not implimented 
         derEntity.setModesSupported(modesSupported);
         derEntity.setRtgAbnormalCategory(rtgAbnormalCategoryUINT8);
@@ -157,45 +137,53 @@ public class DerService {
         
 
     }
+    public ResponseEntity<Map<String, Object>> getDerCapability(Long derID, Long EndDeviceId) {
+        try {
+            Map<String, Object> result = new HashMap<>();
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByIdAndEndDeviceId(derID, EndDeviceId);
+    
+            if (derEntityOptional.isPresent()) {
+                DerEntity derEntity = derEntityOptional.get();
+                Map<String, Object> entityMap = new HashMap<>();
+                entityMap.put("id", derEntity.getId());
+                entityMap.put("modesSupported", derEntity.getModesSupported());
+                entityMap.put("rtgAbnormalCategory", derEntity.getRtgAbnormalCategory());
+                entityMap.put("rtgMaxA", derEntity.getRtgMaxA());
+                entityMap.put("rtgMaxAh", derEntity.getRtgMaxAh());
+                entityMap.put("rtgMaxChargeRateVA", derEntity.getRtgMaxChargeRateVA());
+                entityMap.put("rtgMaxChargeRateW", derEntity.getRtgMaxChargeRateW());
+                entityMap.put("rtgMaxDischargeRateVA", derEntity.getRtgMaxDischargeRateVA());
+                entityMap.put("rtgMaxDischargeRateW", derEntity.getRtgMaxDischargeRateW());
+                entityMap.put("rtgMaxV", derEntity.getRtgMaxV());
+                entityMap.put("rtgMaxVA", derEntity.getRtgMaxVA());
+                entityMap.put("rtgMaxVar", derEntity.getRtgMaxVar());
+                entityMap.put("rtgMaxVarNeg", derEntity.getRtgMaxVarNeg());
+                entityMap.put("rtgMaxW", derEntity.getRtgMaxW());
+                entityMap.put("rtgMaxWh", derEntity.getRtgMaxWh());
+                entityMap.put("rtgMinPFOverExcited", derEntity.getRtgMinPFOverExcited());
+                entityMap.put("rtgMinPFUnderExcited", derEntity.getRtgMinPFUnderExcited());
+                entityMap.put("rtgMinV", derEntity.getRtgMinV());
+                entityMap.put("rtgNormalCategory", derEntity.getRtgNormalCategory());
+                entityMap.put("rtgOverExcitedPF", derEntity.getRtgOverExcitedPF());
+                entityMap.put("rtgOverExcitedW", derEntity.getRtgOverExcitedW());
+                entityMap.put("rtgReactiveSusceptance", derEntity.getRtgReactiveSusceptance());
+                entityMap.put("rtgUnderExcitedPF", derEntity.getRtgUnderExcitedPF());
+                entityMap.put("rtgUnderExcitedW", derEntity.getRtgUnderExcitedW());
+                entityMap.put("rtgVNom", derEntity.getRtgVNom());
+                entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
+    
+                result.put("DerCapability", entityMap);  
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.status(404).body(Map.of("error", "DER entity not found"));
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+        }
+    }
+    
+   
+}
 
-   public ResponseEntity<Map<String, Object>> getDerCapability(Long derID, Long EndDeviceId )
-    {
-   try {
-    Map<String, Object> result = new HashMap<>();
-    Optional <DerEntity> derEntityOptional   = derRepository.findFirstByIdAndEndDeviceId(derID, EndDeviceId);
-    DerEntity derEntity = derEntityOptional.get();
-    Map<String, Object> entityMap = new HashMap<>();
-    entityMap.put("id", derEntity.getId());
-    entityMap.put("modesSupported", derEntity.getModesSupported());
-    entityMap.put("rtgAbnormalCategory", derEntity.getRtgAbnormalCategory());
-    entityMap.put("rtgMaxA", derEntity.getRtgMaxA());
-    entityMap.put("rtgMaxAh", derEntity.getRtgMaxAh());
-    entityMap.put("rtgMaxChargeRateVA", derEntity.getRtgMaxChargeRateVA());
-    entityMap.put("rtgMaxChargeRateW", derEntity.getRtgMaxChargeRateW());
-    entityMap.put("rtgMaxDischargeRateVA", derEntity.getRtgMaxDischargeRateVA());
-    entityMap.put("rtgMaxDischargeRateW", derEntity.getRtgMaxDischargeRateW());
-    entityMap.put("rtgMaxV", derEntity.getRtgMaxV());
-    entityMap.put("rtgMaxVA", derEntity.getRtgMaxVA());
-    entityMap.put("rtgMaxVar", derEntity.getRtgMaxVar());
-    entityMap.put("rtgMaxVarNeg", derEntity.getRtgMaxVarNeg());
-    entityMap.put("rtgMaxW", derEntity.getRtgMaxW());
-    entityMap.put("rtgMaxWh", derEntity.getRtgMaxWh());
-    entityMap.put("rtgMinPFOverExcited", derEntity.getRtgMinPFOverExcited());
-    entityMap.put("rtgMinPFUnderExcited", derEntity.getRtgMinPFUnderExcited());
-    entityMap.put("rtgMinV", derEntity.getRtgMinV());
-    entityMap.put("rtgNormalCategory", derEntity.getRtgNormalCategory());
-    entityMap.put("rtgOverExcitedPF", derEntity.getRtgOverExcitedPF());
-    entityMap.put("rtgOverExcitedW", derEntity.getRtgOverExcitedW());
-    entityMap.put("rtgReactiveSusceptance", derEntity.getRtgReactiveSusceptance());
-    entityMap.put("rtgUnderExcitedPF", derEntity.getRtgUnderExcitedPF());
-    entityMap.put("rtgUnderExcitedW", derEntity.getRtgUnderExcitedW());
-    entityMap.put("rtgVNom", derEntity.getRtgVNom());
-    entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
-    result.put("DerCapability", derEntityOptional);
-    return ResponseEntity.ok(result);
-   } catch (Exception e) {
-    LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
-    return ResponseEntity.status(404).body(null);
-   } 
-}
-}
+

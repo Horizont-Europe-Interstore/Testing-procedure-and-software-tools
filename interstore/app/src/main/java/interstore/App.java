@@ -309,7 +309,7 @@ public class App {
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the fsa id is " + endDeviceId );
         LOGGER.info("the der id is " + derId);   
-        interstore.DerTest.setServicename("getASingleDerprogrammanager");
+        interstore.DerTest.setServicename("getDerCapabilitymanager");
         this.messageToPublish.newStart(natsSubject, interstore.DerTest.getADerCapabilityRequest( derId, endDeviceId));
         Thread.sleep(300);
         String response = interstore.DerTest.getADerCapability();
