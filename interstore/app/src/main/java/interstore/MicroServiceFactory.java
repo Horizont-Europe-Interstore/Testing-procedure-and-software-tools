@@ -4,7 +4,7 @@ import com.google.inject.Injector;
 import interstore.DER.DerService;
 import interstore.DER.DerManager;
 import interstore.DERControl.DERControlManager;
-import interstore.DERControl.DERControlService
+import interstore.DERControl.DERControlService;
 import interstore.DERCurve.DERCurveManager;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;

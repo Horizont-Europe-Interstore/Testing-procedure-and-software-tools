@@ -320,7 +320,6 @@ export default class Client{
             args: true,
             object:{
                 dercID:'',
-                dercID:'',
             }
         } ,
 
