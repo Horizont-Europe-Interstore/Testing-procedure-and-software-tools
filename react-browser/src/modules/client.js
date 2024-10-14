@@ -225,6 +225,43 @@ export default class Client{
                 y_value_10:'',
 
             }
+        },
+        {
+            index:13,
+            test:'Create Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derProgramId:'',
+                deviceCategory:'',
+                opModConnect: '',
+                opModEnergize: '',
+                opModFixedPFAbsorbW: '',
+                opModFixedPFInjectW: '',
+                opModFixedVar: '',
+                opModFixedW: '',
+                opModFreqDroop: '',
+                opModFreqWatt: '',
+                opModHFRTMayTrip: '',
+                opModHFRTMustTrip: '',
+                opModHVRTMayTrip: '',
+                opModHVRTMomentaryCessation: '',
+                opModHVRTMustTrip: '',
+                opModLFRTMayTrip: '',
+                opModLFRTMustTrip: '',
+                opModLVRTMayTrip: '',
+                opModLVRTMomentaryCessation: '',
+                opModLVRTMustTrip: '',
+                opModMaxLimW: '',
+                opModTargetVar: '',
+                opModTargetW: '',
+                opModVoltVar: '',
+                opModVoltWatt: '',
+                opModWattPF: '',
+                opModWattVar: '',
+                rampTms: '',
+
+            }
         }
 
     ];

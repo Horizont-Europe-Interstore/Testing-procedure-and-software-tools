@@ -3,6 +3,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import interstore.DER.DERImpl;
 import interstore.DER.DERListImpl;
+import interstore.DERControl.DERControlService;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
@@ -22,6 +23,7 @@ public class ServiceFactory {
     private final Provider<FunctionSetAssignmentsService> fsaProvider;
     private final Provider<DERProgramService> derProgramProvider;
     private final Provider<DERCurveService> derCurveServiceProvider;
+    private final Provider<DERControlService> derControlServiceProvider;
 
     private final Provider<DERListImpl> derListProvider;
 
@@ -30,7 +32,7 @@ public class ServiceFactory {
     public ServiceFactory(Provider<DeviceCapabilityImpl> deviceCapabilityProvider,
                           Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DERImpl> derProvider, 
                           Provider<FunctionSetAssignmentsService> fsaProvider,
-                           Provider<DERProgramService> derProgramProvider, Provider<DERListImpl> derListProvider, Provider<DERCurveService> derCurveServiceProvider) {
+                           Provider<DERProgramService> derProgramProvider, Provider<DERListImpl> derListProvider, Provider<DERCurveService> derCurveServiceProvider, Provider<DERControlService> derControlServiceProvider) {
 
         this.deviceCapabilityProvider = deviceCapabilityProvider;
         this.endDeviceProvider = endDeviceProvider;
@@ -40,6 +42,7 @@ public class ServiceFactory {
         this.derProgramProvider = derProgramProvider;
         this.derListProvider = derListProvider;
         this.derCurveServiceProvider = derCurveServiceProvider;
+        this.derControlServiceProvider = derControlServiceProvider;
     }
     
     public Provider<DeviceCapabilityImpl> getDeviceCapabilityProvider() {
@@ -67,6 +70,9 @@ public class ServiceFactory {
     }
     public Provider<DERCurveService> getDerCurveServiceProvider(){
         return derCurveServiceProvider;
+    }
+    public Provider<DERControlService> getDerControlServiceProvider(){
+        return derControlServiceProvider;
     }
 
 }

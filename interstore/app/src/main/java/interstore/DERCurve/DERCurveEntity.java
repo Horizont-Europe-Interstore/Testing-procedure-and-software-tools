@@ -52,7 +52,7 @@ public class DERCurveEntity {
     public IdentifiedObjectEntity identifiedObjectEntity;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "curve_data")
+    @JoinColumn(name = "curve_entity_id")
     public List<CurveData> curveData;
 
     public DERCurveEntity() {

@@ -8,6 +8,7 @@ import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.SelfDevice.SelfDeviceImpl;
+import interstore.DERControl.DERControlService;
 
 public class DependencyInjection extends AbstractModule {
     @Override
@@ -20,6 +21,8 @@ public class DependencyInjection extends AbstractModule {
         bind(FunctionSetAssignmentsService.class).toProvider(new SpringBeanProvider<>(FunctionSetAssignmentsService.class));
         bind(DERProgramService.class).toProvider(new SpringBeanProvider<>(DERProgramService.class));
         bind(DERCurveService.class).toProvider(new SpringBeanProvider<>(DERCurveService.class));
+        bind(DERControlService.class).toProvider(new SpringBeanProvider<>(DERControlService.class));
+
     }
 }
 

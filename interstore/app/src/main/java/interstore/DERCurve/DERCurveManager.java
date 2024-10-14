@@ -77,6 +77,7 @@ public class DERCurveManager {
                     .getBody();
         }
 
+
         return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
