@@ -3,7 +3,8 @@ import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Identity.SubscribableResourceEntity;
 import interstore.Identity.SubscribableResourceRepository;
-
+import interstore.Types.*;
+import interstore.Types.DERType; 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,14 +68,17 @@ public class DerService {
     {
         Long Derid = derEntity.getId();
         String DeridString = "/"+ String.valueOf(Derid);
+        String backslashUri = "/";
         JSONObject Derpayload = payload.optJSONObject("payload");
-        String derCapabilityLink = derListLink + DeridString + Derpayload.optString("DerCapabilityLink", "defaultLink");
-        String derStatusLink = derListLink + DeridString + Derpayload.optString("DerStatusLink", "defaultLink");
-        String derAvailabilityLink =  derListLink + DeridString+ Derpayload.optString("DerAvailabilityLink", "defaultLink");
-        String derSettingsLink =  derListLink + DeridString + Derpayload.optString("DerSettingsLink", "defaultLink");
-        String associatedUsagePointLink = derListLink + DeridString + Derpayload.optString("associatedUsagePointLink", "defaultLink");
-        String associatedDERProgramListLink = derListLink + DeridString + Derpayload.optString("associatedDERProgramListLink", "defaultLink");
-        String currentDERProgramLink = derListLink + DeridString + Derpayload.optString("currentDERProgramLink", "defaultLink"); 
+        String derLink = derListLink + DeridString ; 
+        String derCapabilityLink = derListLink + DeridString + backslashUri + Derpayload.optString("derCapabilityLink", null);
+        String derStatusLink = derListLink + DeridString + backslashUri + Derpayload.optString("derStatusLink", null);
+        String derAvailabilityLink =  derListLink + DeridString + backslashUri + Derpayload.optString("derAvailabilityLink", null);
+        String derSettingsLink =  derListLink + DeridString + backslashUri + Derpayload.optString("derSettingsLink", null);
+        String associatedUsagePointLink = derListLink + DeridString + backslashUri + Derpayload.optString("associatedUsagePointLink", null);
+        String associatedDERProgramListLink = derListLink + DeridString + backslashUri + Derpayload.optString("associatedDERProgramListLink", null);
+        String currentDERProgramLink = derListLink + DeridString + backslashUri + Derpayload.optString("currentDERProgramLink", null); 
+        derEntity.setDerLink(derLink); 
         derEntity.setDerCapabilityLink(derCapabilityLink);
         derEntity.setDerStatusLink(derStatusLink);
         derEntity.setDerAvailabilityLink(derAvailabilityLink);
@@ -107,9 +111,8 @@ public class DerService {
         Double rtgUnderExcitedPFDouble = Derpayload.optDouble("rtgUnderExcitedPF", Double.NaN);
         Double rtgUnderExcitedWDouble = Derpayload.optDouble("rtgUnderExcitedW", Double.NaN);
         Double rtgVNomDouble = Derpayload.optDouble("rtgVNom", Double.NaN);
-    
-
-        // type is not implimented 
+        Integer derType = Derpayload.optInt("derType", 0);
+        // calling setters from the entity class 
         derEntity.setModesSupported(modesSupported);
         derEntity.setRtgAbnormalCategory(rtgAbnormalCategoryUINT8);
         derEntity.setRtgMaxA(rtgMaxADouble);
@@ -134,12 +137,14 @@ public class DerService {
         derEntity.setRtgUnderExcitedPF(rtgUnderExcitedPFDouble);
         derEntity.setRtgUnderExcitedW(rtgUnderExcitedWDouble);
         derEntity.setRtgVNom(rtgVNomDouble);
+        derEntity.setDerType(derType); 
         
 
     }
     public ResponseEntity<Map<String, Object>> getDerCapability(Long derID, Long EndDeviceId) {
         try {
             Map<String, Object> result = new HashMap<>();
+            
             Optional<DerEntity> derEntityOptional = derRepository.findFirstByIdAndEndDeviceId(derID, EndDeviceId);
     
             if (derEntityOptional.isPresent()) {
@@ -170,8 +175,13 @@ public class DerService {
                 entityMap.put("rtgUnderExcitedPF", derEntity.getRtgUnderExcitedPF());
                 entityMap.put("rtgUnderExcitedW", derEntity.getRtgUnderExcitedW());
                 entityMap.put("rtgVNom", derEntity.getRtgVNom());
+                entityMap.put("derLink", derEntity.getDerLink()); 
                 entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
-    
+                Integer derTypeInt = derEntity.getDerType();
+                short derTypeshort = derTypeInt.shortValue();
+                DERType derType = new DERType(derTypeshort); 
+                String derTypeString = derType.getDescription();
+                entityMap.put("derType", derTypeString);
                 result.put("DerCapability", entityMap);  
                 return ResponseEntity.ok(result);
             } else {

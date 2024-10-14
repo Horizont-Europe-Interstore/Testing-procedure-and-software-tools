@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -77,8 +79,8 @@ public class DerManager {
       return null ; 
     }
 
-    @GetMapping("edev/{endDeviceId}/der/{derId}")
-    public Map<String, Object> getDerCapabilityDetails(Long endDeviceId, Long derId) throws JSONException {
+    @GetMapping("edev/{endDeviceId}/der/{derId}/dercap")
+    public Map<String, Object> getDerCapabilityDetails(@PathVariable Long endDeviceId, @PathVariable Long derId) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
         return  responseEntity.getBody();
 

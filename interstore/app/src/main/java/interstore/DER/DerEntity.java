@@ -18,6 +18,9 @@ public class DerEntity  {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "subscribabale_Resource") 
     private SubscribableResourceEntity subscribableResourceList;
+    
+    @Column(name="der_link")
+    private String derLink; 
 
     @Column(name = "der_capability_link")
     private String derCapabilityLink;
@@ -28,7 +31,6 @@ public class DerEntity  {
     @Column(name = "der_status_link")
     private String derStatusLink;
 
-    
     @Column(name = "der_availability_link")
     private String derAvailabilityLink;
 
@@ -200,6 +202,9 @@ public class DerEntity  {
     @Column(name = "rtgVNom")
     private Double rtgVNom;
 
+    @Column(name = "type")
+    private Integer derType;
+
      // Der Availability attributes 
     @Column(name = "availabilityDuration")
     private Long availabilityDuration;  
@@ -276,6 +281,13 @@ public class DerEntity  {
         this.endDevice = endDevice;
     } 
     
+    public void setDerLink(String derLink) {
+        this.derLink = derLink;
+    }
+
+    public String getDerLink() {
+        return derLink;
+    }
 
     public void setDerCapabilityLink(String derCapabilityLink) {
             
@@ -338,6 +350,23 @@ public class DerEntity  {
 
     public String getCurrentDERProgramLink() {
         return currentDERProgramLink;
+    }
+    
+
+    public Integer getDerType() {
+        return derType;
+    }
+
+    public void setDerType(Integer derType) {
+        if (!isValidDERType(derType)) {
+            throw new IllegalArgumentException("Invalid DERType value: " + derType);
+        }
+        this.derType = derType;
+    }
+
+    // Validation logic
+    private boolean isValidDERType(Integer value) {
+        return (value >= 0 && value <= 6) || (value >= 80 && value <= 83);
     }
 
     /* Here starts the getters and setters for DER Settings  */

@@ -340,7 +340,8 @@ export default class Client{
                 derSettingsLink:'',
                 associatedUsagePointLink:'',
                 associatedDERProgramListLink:'',
-                currentDERProgramLink:''
+                currentDERProgramLink:'',
+                derType:''
                 
             }
         }, 

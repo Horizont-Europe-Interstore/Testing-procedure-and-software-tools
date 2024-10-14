@@ -4,6 +4,8 @@ import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.Map;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.logging.Logger;
@@ -77,14 +79,14 @@ public class DERProgramManager {
 
 
     @GetMapping("/derp")
-    public Map<String, Object> getAllDERProgramDetails(Long fsaID) throws JSONException {
+    public Map<String, Object> getAllDERProgramDetails(@PathVariable Long fsaID) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
         return  responseEntity.getBody(); 
 
     }
 
     @GetMapping("/derp/id")
-    public Map<String, Object> getDerProgramDetails(Long fsaID, Long derID) throws JSONException {
+    public Map<String, Object> getDerProgramDetails(@PathVariable Long fsaID, @PathVariable Long derID) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derID);
         return  responseEntity.getBody();
 
