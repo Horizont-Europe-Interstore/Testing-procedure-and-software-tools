@@ -144,18 +144,22 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
-        else if(serviceName.equals("getDER_properties"))
+        
+        else if(serviceName.equals("createDerSettingsmanager"))
         {
-            Method method = microServiceClass.getMethod("getDER_properties", String.class);
+            Method method = microServiceClass.getMethod("setcreatedDerSettings", String.class);
             method.invoke(microServiceObject, payLoad);
 
         }
-        else if(serviceName.equals("update_DER_properties"))
+
+
+        else if(serviceName.equals("getDerSettingsmanager"))
         {
-            Method method = microServiceClass.getMethod("update_DER_properties", String.class);
+            Method method = microServiceClass.getMethod("setADerSettings", String.class);
             method.invoke(microServiceObject, payLoad);
 
         }
+        
         
          // #######################
 

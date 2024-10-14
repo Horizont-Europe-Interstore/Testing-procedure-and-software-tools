@@ -16,7 +16,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class CreateDerProgramSteps {
+public class CreateDerSettingsSteps {
     private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateDerProgramSteps.class);
     private Object response;
@@ -31,15 +31,15 @@ public class CreateDerProgramSteps {
         this.scenario = scenario;
     }
     
-    @Given("^I have a create der program test setup$") 
-    public void i_have_a_create_der_program_test_setup() throws Exception {
+    @Given("^I have a create der settings test setup$") 
+    public void i_have_a_create_der_settings_test_setup() throws Exception {
         app = (App) ApplicationContextProvider.getApplicationContext().getBean("app");
        
     }
 
-    @When("^I execute the create der program test with subject \"([^\"]*)\"$")
-    public void i_execute_the_create_der_program_test_with_subject(String natsSubject) throws Exception {
-         response = app.createDerProgram(natsSubject);
+    @When("^I execute the create der settings test with subject \"([^\"]*)\"$")
+    public void i_execute_the_create_der_settings_test_with_subject(String natsSubject) throws Exception {
+         response = app.createDerSettings(natsSubject);
         LOGGER.info("Actual response: {}", response); 
         
     }
@@ -47,14 +47,15 @@ public class CreateDerProgramSteps {
  
     /* check out for the /edev is present in the endev return links , this can be use for validation while creatign the end device 
      * the /edev has to stored in the front end to compare it with the result from the back end 
-     * return Map.of("id", derProgramEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(), "AmpereHour", derEntity.getRtgMaxAh())   
+     * return Map.of("id", derProgramEntity.getId(), "setMaxA", derEntity.getSetMaxA(),
+                "setMaxVA", derEntity.getSetMaxVA())   
      */
-    @Then("^the test should complete successfully with create a der program response containing:$")
-    public void the_test_should_complete_successfully_with_create_a_der_program_response_containing(String expectedJson) throws Exception  {
+    @Then("^the test should complete successfully with create a der settings response containing:$")
+    public void the_test_should_complete_successfully_with_create_a_der_settings_response_containing(String expectedJson) throws Exception  {
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "1");
-        expectedMap.put("CurrentRMS", "89");
-        expectedMap.put("AmpereHour", "89"); 
+        expectedMap.put("setMaxA", "89");
+        expectedMap.put("setMaxVA", "89"); 
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
@@ -73,6 +74,5 @@ public class CreateDerProgramSteps {
        
           
         }
-        
     
 }

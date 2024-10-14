@@ -298,8 +298,7 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
-                dercID:'',
-                dercID:'',
+                dercID:''
             }   
         } ,
         
@@ -349,6 +348,56 @@ export default class Client{
         {
             index:21,
             test:'Get A Der Capability',
+            desc:'description',
+            args: true,
+            object:{
+                derID:'',
+                endDeviceId:''
+
+            }
+        },
+        {
+            index:22,
+            test:'Create Der Settings',
+            desc:'description',
+            args: true,
+            object:{
+                   derID:'',
+                   endDeviceId:'',
+                   modesEnabled:'',
+                   setESDelay:'',
+                   setESHighFreq:'',
+                   setESHighVolt:'',
+                   setESLowVolt:'',
+                   setESRampTms:'',
+                   setESRandomDelay:'',
+                   setGradW:'',
+                   setSoftGradW:'',
+                   setMaxA:'',
+                   setMaxChargeRateVA:'',
+                   setMaxChargeRateW:'',
+                   setMaxDischargeRateVA:'',
+                   setMaxDischargeRateW:'',
+                   setMaxV:'',
+                   setMaxVA:'',
+                   setMaxVar:'',
+                   setMaxVarNeg:'',
+                   setMaxW:'',
+                   setMaxWh:'',
+                   setMinPFOverExcited:'',
+                   setMinPFUnderExcited:'',
+                   setMinV:'',
+                   setVNom:'',
+                   setVRef:'',
+                  
+
+            }
+
+        },
+
+        {
+            index:23,
+            test:'Get A Der Settings',
             desc:'description',
             args: true,
             object:{

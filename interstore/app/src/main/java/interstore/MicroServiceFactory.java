@@ -73,7 +73,8 @@ public class MicroServiceFactory {
          // #######################
         this.microservices.put("createDerCapabilitymanager", derManager);
         this.microservices.put("getDerCapabilitymanager", derManager);
-        
+        this.microservices.put("createDerSettingsmanager", derManager);
+        this.microservices.put("getDerSettingsmanager", derManager); 
          // #######################
         this.microservices.put("update_DER_properties", derManager);
         this.microservices.put("getallFsamanager", fsaManager);    
@@ -123,8 +124,8 @@ public class MicroServiceFactory {
          // #######################
         this.dtoMap.put("createDerCapabilitymanager", DerTest);  
         this.dtoMap.put("getDerCapabilitymanager", DerTest);
-       
-        
+        this.dtoMap.put("createDerSettingsmanager", DerTest);
+        this.dtoMap.put("getDerSettingsmanager", DerTest);
          // #######################
         this.dtoMap.put("getallFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);

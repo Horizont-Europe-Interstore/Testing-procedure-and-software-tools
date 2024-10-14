@@ -1,9 +1,6 @@
 package interstore.DER;
 
 import org.springframework.web.bind.annotation.RestController;
-
-import interstore.DERProgram.DERProgramEntity;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
@@ -53,10 +50,20 @@ public class DerManager {
     public Map<String, Object> addDerCapability( JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
         
             LOGGER.info("the received payload in the DER program Manager class  is " +  payload);
-            DerEntity derEntity = this.derService.createDer( payload);
-            LOGGER.info("the response from DER Program get ID is " +  derEntity.getId()); 
-            return Map.of("id", derEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(),
-            "AmpereHour", derEntity.getRtgMaxAh());
+            if(payload.has("derSettings"))
+            {
+                
+                DerEntity derEntity = this.derService.createDerSettings(payload);
+                LOGGER.info("the response from DER Program get ID is " +  derEntity.getId()); 
+                return Map.of("id", derEntity.getId(), "setMaxA", derEntity.getSetMaxA(),
+                "setMaxVA", derEntity.getSetMaxVA());
+            }
+            else{
+                DerEntity derEntity = this.derService.createDerCapability( payload);
+                LOGGER.info("the response from DER Program get ID is " +  derEntity.getId()); 
+                return Map.of("id", derEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(),
+                "AmpereHour", derEntity.getRtgMaxAh());
+            }
 
     }
 
@@ -67,15 +74,12 @@ public class DerManager {
            Long endDeviceId = payload.getLong("endDeviceId");
            Long derId = payload.getLong("derID");
            LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
+           if(payload.has("derSettings"))
+             {
+                return getDerSettingsDetails(derId, endDeviceId);
+             }
            return getDerCapabilityDetails( derId , endDeviceId );
        }
-
-      else if(payload.has("endDeviceId"))
-      {   Long EndDeviceId = payload.getLong("endDeviceId");
-          LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
-          //return getAllDERProgramDetails(fsaID);
-      }
-      
       return null ; 
     }
 
@@ -86,6 +90,12 @@ public class DerManager {
 
     }
     
+    @GetMapping("edev/{endDeviceId}/der/{derId}/derg")
+    public Map<String, Object> getDerSettingsDetails(@PathVariable Long endDeviceId, @PathVariable Long derId) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
+        return  responseEntity.getBody();
+
+    }
 
 
 }

@@ -316,8 +316,34 @@ public class App {
         LOGGER.info("the response of the der programs is in the app.java " + response);
         return response;
     }
+    
 
-
+    public String createDerSettings(String natsSubject) throws Exception {
+        interstore.DerTest.setServicename("createDerSettingsmanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.createNewDerSettings( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getCreatedDerSettings();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+    
+    public String getADerSettings(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerTest.setServicename("getDerSettingsmanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerTest.getADerSettingsRequest( derId, endDeviceId));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getADerSettings();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
+    
+  
     public String TimeTest(String natsSubject) throws Exception {
         if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
             String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();

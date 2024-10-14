@@ -30,7 +30,7 @@ public class DerService {
     private static final Logger LOGGER = Logger.getLogger(DerService.class.getName());
 
     @Transactional
-    public DerEntity createDer(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
+    public DerEntity createDerCapability(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
         LOGGER.info("Received DER payload is " + payload); 
         DerEntity derEntity = new DerEntity();
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
@@ -141,11 +141,131 @@ public class DerService {
         
 
     }
-    public ResponseEntity<Map<String, Object>> getDerCapability(Long derID, Long EndDeviceId) {
+ 
+    @Transactional
+    public  DerEntity createDerSettings(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException {
+        LOGGER.info("Received DER payload is in Der Settings " + payload); 
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
+        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        .orElseThrow(() -> new NotFoundException());
+        Long derID = Long.parseLong(payload.getJSONObject("payload").getString("derID")); 
+         DerEntity derEntity = derRepository.findById(derID)
+        .orElseThrow(() -> new NotFoundException());
+        derEntity.setEndDevice(endDevice); 
+        try {
+            derEntity  = derRepository.save(derEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        }
+
+        setDerSettings(derEntity  , payload);
+        derEntity = derRepository.save(derEntity);
+        return  derEntity;
+
+    }
+    
+
+    /*
+     * {"derSettings":"derSettings","payload":{"setESRampTms":"10","setMinPFUnderExcited":"0.95","setESHighVolt":"264","setESHighFreq":"60.5",
+     * "setMaxVarNeg":"-400","setMaxWh":"2640","setGradW":"10","setMinV":"208","setMaxDischargeRateW":"480","setSoftGradW":"2","setMaxA":"250","setMaxVA":"500",
+     * "setMaxChargeRateVA":"500","setMaxChargeRateW":"480","derID":"1","modesEnabled":"6","setESRandomDelay":"3","setMaxDischargeRateVA":"500","setVNom":"240",
+     * "setMinPFOverExcited":"0.95","setVRef":"240","setESDelay":"5",
+     * "endDeviceId":"1","setMaxW":"4800","setMaxV":"264","setESLowVolt":"208","setMaxVar":"400"},"action":"post","servicename":"createDerSettingsmanager"}
+     */
+    public void setDerSettings(DerEntity derEntity, JSONObject payload) {
+        LOGGER.info("Received payload inside Set DER Settings : " +  payload.toString());
+        JSONObject derSettingsPayload = payload.optJSONObject("payload");
+        Integer modesEnabled = derSettingsPayload.optInt("modesEnabled", 0);
+        Long setESDelay = parseLongFromPayload(derSettingsPayload, "setESDelay");
+        Long setESHighFreq = parseLongFromPayload(derSettingsPayload, "setESHighFreq");
+        Long setESLowFreq = parseLongFromPayload(derSettingsPayload, "setESLowFreq");
+        Long setESHighVolt = parseLongFromPayload(derSettingsPayload, "setESHighVolt");
+        Long setESLowVolt = parseLongFromPayload(derSettingsPayload, "setESLowVolt");
+        Long setESRampTms = parseLongFromPayload(derSettingsPayload, "setESRampTms");
+        Long setESRandomDelay = parseLongFromPayload(derSettingsPayload, "setESRandomDelay");
+        Long setGradW = parseLongFromPayload(derSettingsPayload, "setGradW");
+        Long setSoftGradW = parseLongFromPayload(derSettingsPayload, "setSoftGradW");
+        Double setMaxA = parseDoubleFromPayload(derSettingsPayload, "setMaxA");
+        Double setMaxChargeRateVA = parseDoubleFromPayload(derSettingsPayload, "setMaxChargeRateVA");
+        Double setMaxChargeRateW = parseDoubleFromPayload(derSettingsPayload, "setMaxChargeRateW");
+        Double setMaxDischargeRateVA = parseDoubleFromPayload(derSettingsPayload, "setMaxDischargeRateVA");
+        Double setMaxDischargeRateW = parseDoubleFromPayload(derSettingsPayload, "setMaxDischargeRateW");
+        Double setMaxV = parseDoubleFromPayload(derSettingsPayload, "setMaxV");
+        Double setMaxVA = parseDoubleFromPayload(derSettingsPayload, "setMaxVA");
+        Double setMaxVar = parseDoubleFromPayload(derSettingsPayload, "setMaxVar");
+        Double setMaxVarNeg = parseDoubleFromPayload(derSettingsPayload, "setMaxVarNeg");
+        Double setMaxW = parseDoubleFromPayload(derSettingsPayload, "setMaxW");
+        Double setMaxWh = parseDoubleFromPayload(derSettingsPayload, "setMaxWh");
+        Double setMinPFOverExcited = parseDoubleFromPayload(derSettingsPayload, "setMinPFOverExcited");
+        Double setMinPFUnderExcited = parseDoubleFromPayload(derSettingsPayload, "setMinPFUnderExcited");
+        Double setMinV = parseDoubleFromPayload(derSettingsPayload, "setMinV");
+        Double setVNom = parseDoubleFromPayload(derSettingsPayload, "setVNom");
+        Double setVRef = parseDoubleFromPayload(derSettingsPayload, "setVRef");
+        // Calling getters from enttiy class 
+        LOGGER.info("modes enabled"+ derEntity.getModesEnabled());
+        LOGGER.info("setESDelay"+ derEntity.getSetESDelay());
+        LOGGER.info("setESHighFreq"+ derEntity.getSetESHighFreq());
+        LOGGER.info("setESLowFreq"+ derEntity.getSetESLowFreq());
+        LOGGER.info("setESHighVolt"+ derEntity.getSetESHighVolt());
+
+
+        // Calling setters from the entity class
+        derEntity.setModesEnabled(modesEnabled);
+        derEntity.setSetESDelay(setESDelay);
+        derEntity.setSetESHighFreq(setESHighFreq);
+        derEntity.setSetESLowFreq(setESLowFreq);
+        derEntity.setSetESHighVolt(setESHighVolt);
+        derEntity.setSetESLowVolt(setESLowVolt);
+        derEntity.setSetESRampTms(setESRampTms);
+        derEntity.setSetESRandomDelay(setESRandomDelay);
+        derEntity.setSetGradW(setGradW);
+        derEntity.setSetSoftGradW(setSoftGradW);
+        derEntity.setSetMaxA(setMaxA);
+        derEntity.setSetMaxChargeRateVA(setMaxChargeRateVA);
+        derEntity.setSetMaxChargeRateW(setMaxChargeRateW);
+        derEntity.setSetMaxDischargeRateVA(setMaxDischargeRateVA);
+        derEntity.setSetMaxDischargeRateW(setMaxDischargeRateW);
+        derEntity.setSetMaxV(setMaxV);
+        derEntity.setSetMaxVA(setMaxVA);
+        derEntity.setSetMaxVar(setMaxVar);
+        derEntity.setSetMaxVarNeg(setMaxVarNeg);
+        derEntity.setSetMaxW(setMaxW);
+        derEntity.setSetMaxWh(setMaxWh);
+        derEntity.setSetMinPFOverExcited(setMinPFOverExcited);
+        derEntity.setSetMinPFUnderExcited(setMinPFUnderExcited);
+        derEntity.setSetMinV(setMinV);
+        derEntity.setSetVNom(setVNom);
+        derEntity.setSetVRef(setVRef);
+       
+        LOGGER.info("after modes enabled"+ derEntity.getModesEnabled());
+        LOGGER.info("after setESDelay"+ derEntity.getSetESDelay());
+        LOGGER.info("after setESHighFreq"+ derEntity.getSetESHighFreq());
+        LOGGER.info("after setESLowFreq"+ derEntity.getSetESLowFreq());
+        LOGGER.info("after setESHighVolt"+ derEntity.getSetESHighVolt());
+    
+    }
+    private Long parseLongFromPayload(JSONObject payload, String key) {
+        try {
+            return payload.has(key) ? payload.optLong(key, 0) : 0;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+    
+  
+    private Double parseDoubleFromPayload(JSONObject payload, String key) {
+        try {
+            return payload.has(key) ? payload.optDouble(key, Double.NaN) : Double.NaN;
+        } catch (Exception e) {
+            return Double.NaN;
+        }
+    }
+    
+
+    public ResponseEntity<Map<String, Object>> getDerCapability( Long EndDeviceId, Long derID) {
         try {
             Map<String, Object> result = new HashMap<>();
-            
-            Optional<DerEntity> derEntityOptional = derRepository.findFirstByIdAndEndDeviceId(derID, EndDeviceId);
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId( EndDeviceId , derID);
     
             if (derEntityOptional.isPresent()) {
                 DerEntity derEntity = derEntityOptional.get();
@@ -193,7 +313,120 @@ public class DerService {
         }
     }
     
-   
+    public ResponseEntity<Map<String, Object>> getDerSettings(Long EndDeviceId, Long derID)
+
+    {
+        try {
+            Map<String, Object> result = new HashMap<>();
+            
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId( EndDeviceId , derID);
+    
+            if (derEntityOptional.isPresent())
+            {
+                DerEntity derEntity = derEntityOptional.get();
+                Map<String, Object> entityMap = new HashMap<>();
+                entityMap.put("modesEnabled", derEntity.getModesEnabled());
+                entityMap.put("setESDelay", derEntity.getSetESDelay());
+                entityMap.put("setESHighFreq", derEntity.getSetESHighFreq());
+                entityMap.put("setESLowFreq", derEntity.getSetESLowFreq());
+                entityMap.put("setESHighVolt", derEntity.getSetESHighVolt());
+                entityMap.put("setESLowVolt", derEntity.getSetESLowVolt());
+                entityMap.put("setESRampTms", derEntity.getSetESRampTms());
+                entityMap.put("setESRandomDelay", derEntity.getSetESRandomDelay());
+                entityMap.put("setGradW", derEntity.getSetGradW());
+                entityMap.put("setSoftGradW", derEntity.getSetSoftGradW());
+                entityMap.put("setMaxA", derEntity.getSetMaxA());
+                entityMap.put("setMaxChargeRateVA", derEntity.getSetMaxChargeRateVA());
+                entityMap.put("setMaxChargeRateW", derEntity.getSetMaxChargeRateW());
+                entityMap.put("setMaxDischargeRateVA", derEntity.getSetMaxDischargeRateVA());
+                entityMap.put("setMaxDischargeRateW", derEntity.getSetMaxDischargeRateW());
+                entityMap.put("setMaxV", derEntity.getSetMaxV());
+                entityMap.put("setMaxVA", derEntity.getSetMaxVA());
+                entityMap.put("setMaxVar", derEntity.getSetMaxVar());
+                entityMap.put("setMaxVarNeg", derEntity.getSetMaxVarNeg());
+                entityMap.put("setMaxW", derEntity.getSetMaxW());
+                entityMap.put("setMaxWh", derEntity.getSetMaxWh());
+                entityMap.put("setMinPFOverExcited", derEntity.getSetMinPFOverExcited());
+                entityMap.put("setMinPFUnderExcited", derEntity.getSetMinPFUnderExcited());
+                entityMap.put("setMinV", derEntity.getSetMinV());
+                entityMap.put("setVNom", derEntity.getSetVNom());
+                entityMap.put("setVRef", derEntity.getSetVRef());
+                result.put("DerSettings", entityMap);
+                return ResponseEntity.ok(result);
+               }
+                else {
+                    return ResponseEntity.status(404).body(Map.of("error", "DER entity not found"));
+                }
+            }  catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
+                return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+            }     
+    }
 }
 
 
+
+/*
+ * 
+ * 
+     public void setDerSettings(DerEntity derEntity, JSONObject derSettingsPayload )
+     {
+        Integer modesEnabled = derSettingsPayload.optInt("modesEnabled");
+        Long setESDelay = derSettingsPayload.optLong("setESDelay", 0);
+        Long setESHighFreq = derSettingsPayload.optLong("setESHighFreq", 0L);
+        Long setESLowFreq = derSettingsPayload.optLong("setESLowFreq", 0L);
+        Long setESHighVolt = derSettingsPayload.optLong("setESHighVolt", 0L);
+        Long setESLowVolt = derSettingsPayload.optLong("setESLowVolt", 0L);
+        Long setESRampTms = derSettingsPayload.optLong("setESRampTms", 0L);
+        Long setESRandomDelay = derSettingsPayload.optLong("setESRandomDelay", 0L);
+        Long setGradW = derSettingsPayload.optLong("setGradW", 0L);
+        Long setSoftGradW = derSettingsPayload.optLong("setSoftGradW", 0L);
+        Double setMaxA = derSettingsPayload.optDouble("setMaxA", Double.NaN);
+        Double setMaxChargeRateVA = derSettingsPayload.optDouble("setMaxChargeRateVA", Double.NaN);
+        Double setMaxChargeRateW = derSettingsPayload.optDouble("setMaxChargeRateW", Double.NaN);
+        Double setMaxDischargeRateVA = derSettingsPayload.optDouble("setMaxDischargeRateVA", Double.NaN);
+        Double setMaxDischargeRateW = derSettingsPayload.optDouble("setMaxDischargeRateW", Double.NaN);
+        Double setMaxV = derSettingsPayload.optDouble("setMaxV", Double.NaN);
+        Double setMaxVA = derSettingsPayload.optDouble("setMaxVA", Double.NaN);
+        Double setMaxVar = derSettingsPayload.optDouble("setMaxVar", Double.NaN);
+        Double setMaxVarNeg = derSettingsPayload.optDouble("setMaxVarNeg", Double.NaN);
+        Double setMaxW = derSettingsPayload.optDouble("setMaxW", Double.NaN);
+        Double setMaxWh = derSettingsPayload.optDouble("setMaxWh", Double.NaN);
+        Double setMinPFOverExcited = derSettingsPayload.optDouble("setMinPFOverExcited", Double.NaN);
+        Double setMinPFUnderExcited = derSettingsPayload.optDouble("setMinPFUnderExcited", Double.NaN);
+        Double setMinV = derSettingsPayload.optDouble("setMinV", Double.NaN);
+        Double setVNom = derSettingsPayload.optDouble("setVNom", Double.NaN);
+        Double setVRef = derSettingsPayload.optDouble("setVRef", Double.NaN);
+        // calling setters from the entity class
+        derEntity.setModesEnabled(modesEnabled);
+        derEntity.setSetESDelay(setESDelay);
+        derEntity.setSetESHighFreq(setESHighFreq);
+        derEntity.setSetESLowFreq(setESLowFreq);
+        derEntity.setSetESHighVolt(setESHighVolt);
+        derEntity.setSetESLowVolt(setESLowVolt);
+        derEntity.setSetESRampTms(setESRampTms);
+        derEntity.setSetESRandomDelay(setESRandomDelay);
+        derEntity.setSetGradW(setGradW);
+        derEntity.setSetSoftGradW(setSoftGradW);
+        derEntity.setSetMaxA(setMaxA);
+        derEntity.setSetMaxChargeRateVA(setMaxChargeRateVA);
+        derEntity.setSetMaxChargeRateW(setMaxChargeRateW);
+        derEntity.setSetMaxDischargeRateVA(setMaxDischargeRateVA);
+        derEntity.setSetMaxDischargeRateW(setMaxDischargeRateW);
+        derEntity.setSetMaxV(setMaxV);
+        derEntity.setSetMaxVA(setMaxVA);
+        derEntity.setSetMaxVar(setMaxVar);
+        derEntity.setSetMaxVarNeg(setMaxVarNeg);
+        derEntity.setSetMaxW(setMaxW);
+        derEntity.setSetMaxWh(setMaxWh);
+        derEntity.setSetMinPFOverExcited(setMinPFOverExcited);
+        derEntity.setSetMinPFUnderExcited(setMinPFUnderExcited);
+        derEntity.setSetMinV(setMinV);
+        derEntity.setSetVNom(setVNom);
+        derEntity.setSetVRef(setVRef);
+        
+
+     }
+
+ * 
+ */

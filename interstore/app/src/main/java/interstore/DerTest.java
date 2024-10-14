@@ -11,6 +11,8 @@ public class DerTest {
    
     static String createdDerCapability;
     static String derCapability;
+    static String createdDerSettings;
+    static String derSettings; 
     
     public static String getserviceName(){
         return serviceName;
@@ -60,7 +62,6 @@ public class DerTest {
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
-           LOGGER.info("The payload for the get a Der Capability is " + postPayload);
            return postPayload;
 
        } catch (Exception e) {
@@ -78,5 +79,66 @@ public class DerTest {
    {
     return derCapability; 
    }
+  
+   public static String createNewDerSettings(JSONObject payload) 
+   {
+       try {
+           String attributes = new JSONObject()
+                   .put("servicename", getserviceName())
+                   .put("action", "post")
+                   .put("derSettings", "derSettings")
+                   .put("payload", (Object)payload)
+                   .toString();
+           LOGGER.info(attributes);
+           return attributes;
+
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return null ;
+   }
+
+   public static void setcreatedDerSettings(String responseCreateDerSettings)
+   {
+    createdDerSettings = responseCreateDerSettings;
+
+   }
+   
+   public static String getCreatedDerSettings()
+   {
+       return createdDerSettings;
+   }
+
+   public static String getADerSettingsRequest(Long derId , Long endDeviceId )
+   {
+       Map<String, Object> attributes = new HashMap<>();
+       attributes.put("servicename", getserviceName());
+       attributes.put("action", "get");
+       attributes.put("derSettings", "derSettings"); 
+       attributes.put("endDeviceId", endDeviceId);
+       attributes.put("derID", derId);
+       ObjectMapper objectMapper = new ObjectMapper();
+       try {
+           String postPayload = objectMapper.writeValueAsString(attributes);
+           return postPayload;
+
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return null;
+   }
+ 
+   
+   public static void setADerSettings(String responsederSettings)
+   {
+    derSettings = responsederSettings;
+   } 
+
+   public static String getADerSettings()
+   {
+    return derSettings; 
+   }
+  
+
 
 }
