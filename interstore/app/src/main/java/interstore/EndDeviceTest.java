@@ -113,7 +113,7 @@ public class EndDeviceTest {
    /* This method will create an end device in the server  */
    public static String createNewEndDevice(JSONObject PayLoad) throws JSONException  
    {  
-        System.out.println("++++++++++++++++++++++++"+String.valueOf(PayLoad));
+      
        String endDeviceendPoint = (String)PayLoad.get("endDeviceListLink");
        setEndDeviceEndPoint(endDeviceendPoint);
        String registrationLink = (String)PayLoad.get("registrationLink");

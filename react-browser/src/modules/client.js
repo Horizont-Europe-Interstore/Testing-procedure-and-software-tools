@@ -78,6 +78,7 @@ export default class Client{
                 'Subscription Link':'',
                 'Device Status Link':'',
                 'End Device List Link':'',
+                'DER List Link':'',
             },
         },
         {
@@ -191,6 +192,83 @@ export default class Client{
 
         {
             index:12,
+            test:'Get All Der Programs',
+            desc:'description',
+            args: true,
+            object:{
+                fsaID:'',
+            }
+        },
+        {
+            index:13,
+            test:'Get A Der Program',
+            desc:'description',
+            args: true,
+            object:{
+                fsaID:'',
+                derID:'',
+            }
+        },
+
+        {
+            index:14,
+            test:'Create Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derProgramId:'',
+                deviceCategory:'',
+                opModConnect: '',
+                opModEnergize: '',
+                opModFixedPFAbsorbW: '',
+                opModFixedPFInjectW: '',
+                opModFixedVar: '',
+                opModFixedW: '',
+                opModFreqDroop: '',
+                opModFreqWatt: '',
+                opModHFRTMayTrip: '',
+                opModHFRTMustTrip: '',
+                opModHVRTMayTrip: '',
+                opModHVRTMomentaryCessation: '',
+                opModHVRTMustTrip: '',
+                opModLFRTMayTrip: '',
+                opModLFRTMustTrip: '',
+                opModLVRTMayTrip: '',
+                opModLVRTMomentaryCessation: '',
+                opModLVRTMustTrip: '',
+                opModMaxLimW: '',
+                opModTargetVar: '',
+                opModTargetW: '',
+                opModVoltVar: '',
+                opModVoltWatt: '',
+                opModWattPF: '',
+                opModWattVar: '',
+                rampTms: '',
+
+            }
+        },
+        {
+            index:15,
+            test:'Get All Der Controls',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+            }
+        },
+        {
+            index:16,
+            test:'Get A Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+                dercID:'',
+            }
+        },
+
+        {
+            index:17,
             test:'Create Der Curve',
             desc:'description',
             args: true,
@@ -227,43 +305,79 @@ export default class Client{
             }
         },
         {
-            index:13,
-            test:'Create Der Control',
+            index:18,
+            test:'Get All Der Curves',
             desc:'description',
             args: true,
             object:{
-                derProgramId:'',
-                deviceCategory:'',
-                opModConnect: '',
-                opModEnergize: '',
-                opModFixedPFAbsorbW: '',
-                opModFixedPFInjectW: '',
-                opModFixedVar: '',
-                opModFixedW: '',
-                opModFreqDroop: '',
-                opModFreqWatt: '',
-                opModHFRTMayTrip: '',
-                opModHFRTMustTrip: '',
-                opModHVRTMayTrip: '',
-                opModHVRTMomentaryCessation: '',
-                opModHVRTMustTrip: '',
-                opModLFRTMayTrip: '',
-                opModLFRTMustTrip: '',
-                opModLVRTMayTrip: '',
-                opModLVRTMomentaryCessation: '',
-                opModLVRTMustTrip: '',
-                opModMaxLimW: '',
-                opModTargetVar: '',
-                opModTargetW: '',
-                opModVoltVar: '',
-                opModVoltWatt: '',
-                opModWattPF: '',
-                opModWattVar: '',
-                rampTms: '',
+                dercID:'',
+            }
+        },
+        {
+            index:19,
+            test:'Get A Der Curve',
+            desc:'description',
+            args: true,
+            object:{
+                dercID:'',
+                dercID:'',
+            }
+        } ,
+
+        {
+            index:20,
+            test:'Create Der Capability',
+            desc:'description',
+            args: true,
+            object:{
+                endDeviceId:'',
+                modesSupported:'',
+                rtgAbnormalCategory:'',
+                rtgMaxA:'',
+                rtgMaxAh:'',
+                rtgMaxChargeRateVA:'',
+                rtgMaxChargeRateW:'',
+                rtgMaxDischargeRateVA:'',
+                rtgMaxDischargeRateW:'',
+                rtgMaxV:'',
+                rtgMaxVA:'',
+                rtgMaxVar:'',
+                rtgMaxVarNeg:'',
+                rtgMaxW:'',
+                rtgMaxWh:'',
+                rtgMinPFOverExcited:'',
+                rtgMinPFUnderExcited:'',
+                rtgMinV:'',
+                rtgNormalCategory:'',
+                rtgOverExcitedPF:'',
+                rtgOverExcitedW:'',
+                rtgReactiveSusceptance:'',
+                rtgUnderExcitedPF:'',
+                rtgUnderExcitedW:'',
+                rtgVNom:'',
+                derCapabilityLink:'',
+                derStatusLink:'',
+                derAvailabilityLink:'',
+                derSettingsLink:'',
+                associatedUsagePointLink:'',
+                associatedDERProgramListLink:'',
+                currentDERProgramLink:'',
+                derType:''
+
+            }
+        },
+
+        {
+            index:21,
+            test:'Get A Der Capability',
+            desc:'description',
+            args: true,
+            object:{
+                derID:'',
+                endDeviceId:''
 
             }
         }
-
     ];
 
     static #validationObject={
@@ -307,13 +421,19 @@ export default class Client{
             mRID: (field) => field.trim() !== "",
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
-            version:(field)=>{return !isNaN(field)}
-           // activeDERControlListLink: (field) => field === null || field === "",  
-           // defaultDERControlLink: (field) => field === null || field === "",  
-           // dERControlListLink: (field) => field === null || field === "",  
-           //  dERCurveListLink: (field) => field === null || field === "" 
+            version:(field)=>{return !isNaN(field)},
+            activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
+            dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
+            derpLink: (field) => field === null || field === "" || typeof field === 'string'
    
         }
+        ,
+        'Get All Der Programs':{
+            fsaID:(field)=>{return !isNaN(field)}
+        }
+
     }
 
     static getValid(key){

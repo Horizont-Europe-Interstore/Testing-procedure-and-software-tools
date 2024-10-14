@@ -1,13 +1,10 @@
 package interstore;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import interstore.DER.DERImpl;
-import interstore.DER.DERListImpl;
-import interstore.DER.DERListManager;
-import interstore.DER.DERManager;
+import interstore.DER.DerService;
+import interstore.DER.DerManager;
 import interstore.DERControl.DERControlManager;
-import interstore.DERControl.DERControlService;
+import interstore.DERControl.DERControlService
 import interstore.DERCurve.DERCurveManager;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
@@ -17,13 +14,10 @@ import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EdevManager;
 import interstore.EndDevice.EndDeviceImpl;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
-//import interstore.FunctionSetAssignments.FsaListImpl;
-//import interstore.FunctionSetAssignments.FsaListManager;
 import interstore.FunctionSetAssignments.FsaManager;
 import interstore.SelfDevice.SdevManager;
 import interstore.SelfDevice.SelfDeviceDto;
 import interstore.SelfDevice.SelfDeviceImpl;
-import io.cucumber.java.hu.De;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,10 +50,8 @@ public class MicroServiceFactory {
         SdevManager sdevManager = new SdevManager(selfDev);
         EndDeviceImpl endDev = serviceFactory.getEndDeviceProvider().get();
         EdevManager edevManager = new EdevManager( endDev );
-        DERImpl derImpl = serviceFactory.getDERProvider().get();
-        DERManager derManager = new DERManager(derImpl);
-        DERListImpl derListImpl = serviceFactory.getDERListProvider().get();
-        DERListManager derListManager = new DERListManager(derListImpl);
+        DerService derService = serviceFactory.getDERProvider().get();
+        DerManager derManager = new DerManager(derService );
         FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
         FsaManager fsaManager = new FsaManager(fsaService);
         DERProgramService derProgramImpl = serviceFactory.getDerProgramProvider().get();
@@ -81,8 +73,11 @@ public class MicroServiceFactory {
         this.microservices.put("findallregistrededendevice", edevManager);
         this.microservices.put("findregistrededendevice", edevManager);
       
-        this.microservices.put("getDERList", derListManager);
-        this.microservices.put("getDER_properties", derManager);
+         // #######################
+        this.microservices.put("createDerCapabilitymanager", derManager);
+        this.microservices.put("getDerCapabilitymanager", derManager);
+
+         // #######################
         this.microservices.put("update_DER_properties", derManager);
         this.microservices.put("getallFsamanager", fsaManager);    
         this.microservices.put("createFsamanager", fsaManager);
@@ -116,11 +111,12 @@ public class MicroServiceFactory {
         DerProgramTest DerProgramTest = new DerProgramTest();
         TimeTest timeTest = new TimeTest();
         DerCurveTest derCurveTest = new DerCurveTest();
+        DerTest DerTest = new DerTest();
         DerControlTest derControlTest = new DerControlTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
-        this.dtoMap.put("selfdevicemanager", selfDeviceDto);  // this is because there is no test class for selfDevice 
+        this.dtoMap.put("selfdevicemanager", selfDeviceDto);
         this.dtoMap.put("selfenddevicemanager", deviceCapabilitytest);
         this.dtoMap.put("enddevicelinkmanager", endDeviceTest); 
         this.dtoMap.put("enddeviceregistrationmanager", endDeviceTest); 
@@ -128,15 +124,17 @@ public class MicroServiceFactory {
         this.dtoMap.put("enddeviceinstancemanager", endDeviceTest);
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
-        this.dtoMap.put("getDERList", endDeviceTest);
-        this.dtoMap.put("getDER_properties", endDeviceTest);
-        this.dtoMap.put("update_DER_properties", endDeviceTest);
+
+         // #######################
+        this.dtoMap.put("createDerCapabilitymanager", DerTest);
+        this.dtoMap.put("getDerCapabilitymanager", DerTest);
+
+
+         // #######################
         this.dtoMap.put("getallFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("getASingleFsamanager", functionSetAssignmentTest); 
         this.dtoMap.put("fsamanager", functionSetAssignmentTest);
-
-
         this.dtoMap.put("getallDerprogrammanager", DerProgramTest);
         this.dtoMap.put("getASingleDerprogrammanager", DerProgramTest);
         this.dtoMap.put("createDerprogrammanager", DerProgramTest);

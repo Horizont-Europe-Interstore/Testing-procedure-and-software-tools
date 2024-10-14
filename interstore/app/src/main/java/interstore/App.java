@@ -279,6 +279,44 @@ public class App {
         return response;
      }
 
+    public String getADerProgram(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long fsaId = currentTest.getLong("fsaID");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + fsaId);
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerProgramTest.setServicename("getASingleDerprogrammanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerProgramTest.getADerProgramRequest(fsaId, derId));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getADerProgram();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
+
+    public String createDerCapability(String natsSubject) throws Exception {
+        interstore.DerTest.setServicename("createDerCapabilitymanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.createNewDerCapability( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getCreatedDerCapability();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+
+    public String getADerCapability(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerTest.setServicename("getDerCapabilitymanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerTest.getADerCapabilityRequest( derId, endDeviceId));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getADerCapability();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
 
 
     public String TimeTest(String natsSubject) throws Exception {

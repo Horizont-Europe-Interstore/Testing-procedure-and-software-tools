@@ -1,6 +1,5 @@
 package interstore.DERCurve;
 
-
 import interstore.DERProgram.DERProgramEntity;
 import interstore.DERProgram.DERProgramRepository;
 import interstore.Identity.IdentifiedObjectEntity;
@@ -8,8 +7,6 @@ import interstore.Identity.IdentifiedObjectRepository;
 import interstore.Types.DERCurveType;
 import interstore.Types.DERUnitRefType;
 import interstore.Types.PowerOfTenMultiplierType;
-import interstore.Types.TimeType;
-import org.checkerframework.checker.units.qual.C;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

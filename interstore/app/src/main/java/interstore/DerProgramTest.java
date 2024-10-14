@@ -13,6 +13,7 @@ public class DerProgramTest {
      private static String serviceName;
      static String listOfDerPrograms;
      static String createdDerProgram;
+     static String derProgram;
 
  
 
@@ -101,7 +102,38 @@ public class DerProgramTest {
    {
        return createdDerProgram;
    }    
+   
+    public static String  getADerProgramRequest(Long fsaId, Long derId)
+    {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("servicename", getserviceName());
+        attributes.put("action", "get");
+        attributes.put("fsaID", fsaId);
+        attributes.put("derID", derId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("The payload for the get all Der Program is " + postPayload);
+            return postPayload;
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+   
+
+   public static void setADerprogram(String responseDerProgram)
+   {
+    derProgram = responseDerProgram;
+   } 
+
+   public static String getADerProgram()
+   {
+    return derProgram; 
+   }
 
    }
    

@@ -8,5 +8,5 @@ Feature: Create Function Set Assignments
       Test Description : This test is a part of the basic function set assignments 
       test to create a function set assignments for an end device and it returns 
       the id of the created function set assignemnts
-      
+      SV.CreateFunctionSetAssignments
     """ 
