@@ -201,6 +201,12 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
+        else if(serviceName.equals("createDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDerControl", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
 
 
         else if(serviceName.equals("dcapmanager")){

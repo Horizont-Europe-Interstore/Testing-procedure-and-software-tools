@@ -3,6 +3,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import interstore.DER.DerService;
 import interstore.DER.DerManager;
+import interstore.DERControl.DERControlManager;
+import interstore.DERControl.DERControlService;
 import interstore.DERCurve.DERCurveManager;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
@@ -56,7 +58,8 @@ public class MicroServiceFactory {
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
         DERCurveService derCurveService = serviceFactory.getDerCurveServiceProvider().get();
         DERCurveManager derCurveManager = new DERCurveManager(derCurveService);
-        
+        DERControlService derControlService = serviceFactory.getDerControlServiceProvider().get();
+        DERControlManager derControlManager = new DERControlManager(derControlService);
 
         this.microservices.put("getalldcapmanager", dcapManager); 
         this.microservices.put("selfdevicemanager", sdevManager);
@@ -88,6 +91,7 @@ public class MicroServiceFactory {
         this.microservices.put("timemanager", dcapManager);
         this.microservices.put("advancedtimemanager", dcapManager);
         this.microservices.put("createDerCurveManager", derCurveManager);
+        this.microservices.put("createDerControlManager", derControlManager);
 
 
 
@@ -109,10 +113,11 @@ public class MicroServiceFactory {
         TimeTest timeTest = new TimeTest();
         DerCurveTest derCurveTest = new DerCurveTest();
         DerTest DerTest = new DerTest();
+        DerControlTest derControlTest = new DerControlTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
-        this.dtoMap.put("selfdevicemanager", selfDeviceDto);  
+        this.dtoMap.put("selfdevicemanager", selfDeviceDto);
         this.dtoMap.put("selfenddevicemanager", deviceCapabilitytest);
         this.dtoMap.put("enddevicelinkmanager", endDeviceTest); 
         this.dtoMap.put("enddeviceregistrationmanager", endDeviceTest); 
@@ -120,12 +125,12 @@ public class MicroServiceFactory {
         this.dtoMap.put("enddeviceinstancemanager", endDeviceTest);
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
-        
+
          // #######################
-        this.dtoMap.put("createDerCapabilitymanager", DerTest);  
+        this.dtoMap.put("createDerCapabilitymanager", DerTest);
         this.dtoMap.put("getDerCapabilitymanager", DerTest);
-        this.dtoMap.put("createDerSettingsmanager", DerTest);
-        this.dtoMap.put("getDerSettingsmanager", DerTest);
+       
+        
          // #######################
         this.dtoMap.put("getallFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
@@ -139,6 +144,7 @@ public class MicroServiceFactory {
         this.dtoMap.put("timemanager", timeTest);
         this.dtoMap.put("advancedtimemanager", timeTest);
         this.dtoMap.put("createDerCurveManager", derCurveTest);
+        this.dtoMap.put("createDerControlManager", derControlTest);
     }
    
     public Map<String, Object> getDtoMap() {

@@ -2,6 +2,7 @@ package interstore;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import interstore.DER.DerService;
+import interstore.DERControl.DERControlService;
 import interstore.DERCurve.DERCurveService;
 import interstore.DERProgram.DERProgramService;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
@@ -20,15 +21,16 @@ public class ServiceFactory {
     private final Provider<FunctionSetAssignmentsService> fsaProvider;
     private final Provider<DERProgramService> derProgramProvider;
     private final Provider<DERCurveService> derCurveServiceProvider;
+    private final Provider<DERControlService> derControlServiceProvider;
 
-    
+
 
     
     @Inject
     public ServiceFactory(Provider<DeviceCapabilityImpl> deviceCapabilityProvider,
-                          Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DerService> derProvider, 
+                          Provider<EndDeviceImpl> endDeviceProvider, Provider<SelfDeviceImpl> selfDeviceProvider, Provider<DerService> derProvider,
                           Provider<FunctionSetAssignmentsService> fsaProvider,
-                           Provider<DERProgramService> derProgramProvider, Provider<DERCurveService> derCurveServiceProvider) {
+                           Provider<DERProgramService> derProgramProvider, Provider<DERCurveService> derCurveServiceProvider, Provider<DERControlService> derControlServiceProvider) {
 
         this.deviceCapabilityProvider = deviceCapabilityProvider;
         this.endDeviceProvider = endDeviceProvider;
@@ -37,6 +39,7 @@ public class ServiceFactory {
         this.fsaProvider = fsaProvider;
         this.derProgramProvider = derProgramProvider;
         this.derCurveServiceProvider = derCurveServiceProvider;
+        this.derControlServiceProvider = derControlServiceProvider;
     }
     
     public Provider<DeviceCapabilityImpl> getDeviceCapabilityProvider() {
@@ -59,9 +62,12 @@ public class ServiceFactory {
     public Provider<DERProgramService> getDerProgramProvider(){
         return derProgramProvider;
     }
-   
+
     public Provider<DERCurveService> getDerCurveServiceProvider(){
         return derCurveServiceProvider;
+    }
+    public Provider<DERControlService> getDerControlServiceProvider(){
+        return derControlServiceProvider;
     }
 
 }

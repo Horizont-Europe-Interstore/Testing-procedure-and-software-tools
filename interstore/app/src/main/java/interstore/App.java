@@ -17,7 +17,8 @@ import java.util.logging.Logger;
 
 @SpringBootApplication()
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
-, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments", "interstore.DERProgram", "interstore.Time", "interstore.DERCurve"})
+, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments"
+        ,"interstore.DERProgram", "interstore.Time", "interstore.DERCurve", "interstore.Events", "interstore.DERControl"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -426,6 +427,17 @@ public class App {
         Thread.sleep(300);
         String response = interstore.DerCurveTest.getCreatedDerCurve();
         LOGGER.info("the response of DERCurve is " + response);
+        return response;
+    }
+
+    public String createDerControl(String natsSubject) throws Exception {
+        interstore.DerControlTest.setServicename("createDerControlManager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+                interstore.DerControlTest.createNewDerControl( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getCreatedDerControl();
+        LOGGER.info("the response of DERControl is " + response);
         return response;
     }
 

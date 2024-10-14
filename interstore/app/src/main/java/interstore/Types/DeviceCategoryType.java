@@ -17,12 +17,13 @@ public class DeviceCategoryType extends HexBinary32 implements AbstractDevice {
     {
         return super.getHexValue32value();
     } 
-    private void validateDeviceCategory(String hexValue) {
+    public boolean validateDeviceCategory(String hexValue) {
         // Check if the value is within the allowed range (0 to 25)
         int decimalValue = Integer.parseInt(hexValue, 16);
         if (decimalValue < 0 || decimalValue > 25) {
             throw new IllegalArgumentException("Invalid DeviceCategoryType value: " + hexValue);
         }
+        return true;
     }
 
     @Converter(autoApply = true)

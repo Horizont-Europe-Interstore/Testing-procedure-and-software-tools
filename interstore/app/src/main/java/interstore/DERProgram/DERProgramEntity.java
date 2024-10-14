@@ -1,4 +1,5 @@
 package interstore.DERProgram;
+import interstore.DERControl.DERControlEntity;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
@@ -40,6 +41,8 @@ public class DERProgramEntity  implements Serializable {
     @JoinColumn(name = "subscribabale_Resource") 
     private SubscribableResourceEntity subscribableResourceList;
 
+//    @OneToMany(mappedBy = "derProgram", cascade = CascadeType.ALL)
+//    private List<DERControlEntity> derControls;
 
     public DERProgramEntity(){
 

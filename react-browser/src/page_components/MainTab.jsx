@@ -2,6 +2,7 @@ import {GridItem} from '@chakra-ui/react'
 import {FormSubElement} from './main_tab_subelements/FormSubElement.jsx';
 import {ReportSubElement} from './main_tab_subelements/ReportSubElement.jsx';
 import { DerCurveForm } from './main_tab_subelements/DerCurveSubForm.jsx';
+import {DerControlSubForm} from "./main_tab_subelements/DerControlSubForm";
 
 function ReportViewer({toggleVar,
                        setToggle,
@@ -33,7 +34,19 @@ function ReportViewer({toggleVar,
                   setHeaderState={setHeaderState}
                   testState={testState}
               />
-          ) : (
+          ) : currentTest.test === "Create Der Control" ? (
+              <DerControlSubForm
+                  toggleVar={toggleVar}
+                  currentTest={currentTest}
+                  setToggle={setToggle}
+                  setTestState={setTestState}
+                  setCurrentTest={setCurrentTest}
+                  setReport={setReport}
+                  setHeaderState={setHeaderState}
+                  testState={testState}
+                  tests={tests}
+              />
+              ) : (
               <FormSubElement
                   toggleVar={toggleVar}
                   setToggle={setToggle}

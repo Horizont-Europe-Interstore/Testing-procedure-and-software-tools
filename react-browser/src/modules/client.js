@@ -78,7 +78,7 @@ export default class Client{
                 'Subscription Link':'',
                 'Device Status Link':'',
                 'End Device List Link':'',
-                'DER List Link':'', 
+                'DER List Link':'',
             },
         },
         {
@@ -189,7 +189,7 @@ export default class Client{
                 
             }
         },
-        
+
         {
             index:12,
             test:'Get All Der Programs',
@@ -197,8 +197,8 @@ export default class Client{
             args: true,
             object:{
                 fsaID:'',
-            } 
-        }, 
+            }
+        },
         {
             index:13,
             test:'Get A Der Program',
@@ -209,21 +209,42 @@ export default class Client{
                 derID:'',
             }
         },
-  
+
         {
             index:14,
             test:'Create Der Control',
             desc:'description',
             args: true,
             object:{
-                derpID:'',
-                mRID:'',
-                description:'',
-                subscribable:'',
-                version:'',
-                activeDERCurveListLink:'',
-                dERCurveListLink:'',
-                derpLink:'',
+                derProgramId:'',
+                deviceCategory:'',
+                opModConnect: '',
+                opModEnergize: '',
+                opModFixedPFAbsorbW: '',
+                opModFixedPFInjectW: '',
+                opModFixedVar: '',
+                opModFixedW: '',
+                opModFreqDroop: '',
+                opModFreqWatt: '',
+                opModHFRTMayTrip: '',
+                opModHFRTMustTrip: '',
+                opModHVRTMayTrip: '',
+                opModHVRTMomentaryCessation: '',
+                opModHVRTMustTrip: '',
+                opModLFRTMayTrip: '',
+                opModLFRTMustTrip: '',
+                opModLVRTMayTrip: '',
+                opModLVRTMomentaryCessation: '',
+                opModLVRTMustTrip: '',
+                opModMaxLimW: '',
+                opModTargetVar: '',
+                opModTargetW: '',
+                opModVoltVar: '',
+                opModVoltWatt: '',
+                opModWattPF: '',
+                opModWattVar: '',
+                rampTms: '',
+
             }
         },
         {
@@ -245,7 +266,7 @@ export default class Client{
                 dercID:'',
             }
         },
-        
+
         {
             index:17,
             test:'Create Der Curve',
@@ -301,7 +322,7 @@ export default class Client{
                 dercID:''
             }   
         } ,
-        
+
         {
             index:20,
             test:'Create Der Capability',
@@ -341,9 +362,9 @@ export default class Client{
                 associatedDERProgramListLink:'',
                 currentDERProgramLink:'',
                 derType:''
-                
+
             }
-        }, 
+        },
 
         {
             index:21,
@@ -449,19 +470,19 @@ export default class Client{
             mRID: (field) => field.trim() !== "",
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
-            version:(field)=>{return !isNaN(field)}, 
-            activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',  
-            defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string', 
-            dERControlListLink: (field) => field === null || field === "" || typeof field === 'string', 
-            dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',  
-            derpLink: (field) => field === null || field === "" || typeof field === 'string' 
+            version:(field)=>{return !isNaN(field)},
+            activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
+            dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
+            derpLink: (field) => field === null || field === "" || typeof field === 'string'
    
         }
         ,
         'Get All Der Programs':{
             fsaID:(field)=>{return !isNaN(field)}
         }
-        
+
     }
 
     static getValid(key){
