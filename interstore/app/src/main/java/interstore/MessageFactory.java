@@ -131,16 +131,16 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
         }
 
-
-        else if(serviceName.equals("getDERListLink"))
+         // #######################
+        else if(serviceName.equals("createDerCapabilitymanager"))
         {
-            Method method = microServiceClass.getMethod("getDERListLink", String.class);
+            Method method = microServiceClass.getMethod("setcreatedDerCapability", String.class);  
             method.invoke(microServiceObject, payLoad);
 
         }
-        else if(serviceName.equals("getDERList"))
+        else if(serviceName.equals("getDerCapabilitymanager"))
         {
-            Method method = microServiceClass.getMethod("getDERList", String.class);
+            Method method = microServiceClass.getMethod("setADerCapability", String.class);
             method.invoke(microServiceObject, payLoad);
 
         }
@@ -156,6 +156,9 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
+        
+         // #######################
+
         else if(serviceName.equals("fsalistmanager"))
         {
             Method method = microServiceClass.getMethod("getFSAList", String.class);
@@ -176,7 +179,7 @@ public class MessageFactory {
             Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
             method.invoke(microServiceObject, payLoad.toString());
         }
-
+      
 
         else if (serviceName.equals("timemanager"))
         {
@@ -220,14 +223,7 @@ public class MessageFactory {
 
 
 
-/*
- *  JSONObject jsonObject = new JSONObject(payLoad);
-             String jsonpayload = jsonObject.getString("payload");
-             if(jsonpayload.endsWith("/edev")) 
-             LOGGER.info("the pyload is for all endevices present " + payLoad); 
- * 
- * 
- */
+
 
 
     

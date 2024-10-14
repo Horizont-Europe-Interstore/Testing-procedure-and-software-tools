@@ -4,6 +4,7 @@ import java.io.Serializable;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.Identity.*; 
 
+
 @Entity
 @Table(name = "der_program")
 public class DERProgramEntity  implements Serializable {

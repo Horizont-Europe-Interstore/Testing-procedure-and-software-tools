@@ -19,8 +19,5 @@ FunctionSetAssignmentsEntity findFsaById(Long functionSetAssignmentID);
 Long findCurrentFsaIdByEndDeviceId(@Param("endDeviceId") Long endDeviceId);
 
 
-
-
-
 }
 

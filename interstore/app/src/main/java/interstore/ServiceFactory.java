@@ -7,7 +7,6 @@ import interstore.DERProgram.DERProgramService;
 import interstore.DeviceCapability.DeviceCapabilityImpl;
 import interstore.EndDevice.EndDeviceImpl;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
-//import interstore.FunctionSetAssignments.FsaListImpl;
 import interstore.SelfDevice.SelfDeviceImpl;
 
 

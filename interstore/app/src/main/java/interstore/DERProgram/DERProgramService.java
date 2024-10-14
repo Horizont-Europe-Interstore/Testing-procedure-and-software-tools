@@ -29,7 +29,7 @@ public class DERProgramService {
     SubscribableIdentifiedObjectRepository subscribableIdentifiedObjectRepository;
     
     @Autowired
-    SubscribableResourceRepository subscribableResourcRepository;
+    SubscribableResourceRepository subscribableResourceRepository;
 
     @Autowired
     FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
@@ -57,7 +57,7 @@ public class DERProgramService {
         }
     
         try {
-            subscribableResourcRepository.save(subscribableResourceEntity);
+            subscribableResourceRepository.save(subscribableResourceEntity);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
         }
@@ -88,7 +88,7 @@ public class DERProgramService {
         subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
     
         subscribableResourceEntity.setSubscribable(subscribable);
-        subscribableResourcRepository.save(subscribableResourceEntity);
+        subscribableResourceRepository.save(subscribableResourceEntity);
     
         String derListLink = fsaEntity.getDERProgramListLink();
         LOGGER.log(Level.INFO, "DER Program List Link: " + derListLink);
@@ -177,7 +177,7 @@ public class DERProgramService {
     
 
 
-    @SuppressWarnings("unused")
+  
     public ResponseEntity<Map<String, Object>> getDerProgram(Long derId, Long fsaId)
 
     {
@@ -198,23 +198,14 @@ public class DERProgramService {
             entityMap.put("description", subscribableIdentifiedEntity.getDescription() != null ? subscribableIdentifiedEntity.getDescription() : "No description");
            // entityMap.put("subscribable", subscribableIdentifiedEntity.getSubscribable());
             entityMap.put("version", subscribableIdentifiedEntity .getVersion());
-
-            if (derEntity  == null) {
-                result.put("message", "No functionsetassignment found for Der Program ID " + derId  + " and FSA ID " +   fsaId );
-            } else {
-                result.put("DERProgram", entityMap);
-            }
+            result.put("DERProgram", entityMap);
             return ResponseEntity.ok( result );
           } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
             return ResponseEntity.status(404).body(null);
-        }
-
-       
+        }   
        
     }
-
-
 
  
 }

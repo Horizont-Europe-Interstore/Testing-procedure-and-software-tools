@@ -301,7 +301,61 @@ export default class Client{
                 dercID:'',
                 dercID:'',
             }   
-        }  
+        } ,
+        
+        {
+            index:20,
+            test:'Create Der Capability',
+            desc:'description',
+            args: true,
+            object:{
+                endDeviceId:'',
+                modesSupported:'',
+                rtgAbnormalCategory:'',
+                rtgMaxA:'',
+                rtgMaxAh:'',
+                rtgMaxChargeRateVA:'',
+                rtgMaxChargeRateW:'',
+                rtgMaxDischargeRateVA:'',
+                rtgMaxDischargeRateW:'',
+                rtgMaxV:'',
+                rtgMaxVA:'',
+                rtgMaxVar:'',
+                rtgMaxVarNeg:'',
+                rtgMaxW:'',
+                rtgMaxWh:'',
+                rtgMinPFOverExcited:'',
+                rtgMinPFUnderExcited:'',
+                rtgMinV:'',
+                rtgNormalCategory:'',
+                rtgOverExcitedPF:'',
+                rtgOverExcitedW:'',
+                rtgReactiveSusceptance:'',
+                rtgUnderExcitedPF:'',
+                rtgUnderExcitedW:'',
+                rtgVNom:'',
+                derCapabilityLink:'',
+                derStatusLink:'',
+                derAvailabilityLink:'',
+                derSettingsLink:'',
+                associatedUsagePointLink:'',
+                associatedDERProgramListLink:'',
+                currentDERProgramLink:''
+                
+            }
+        }, 
+
+        {
+            index:21,
+            test:'Get A Der Capability',
+            desc:'description',
+            args: true,
+            object:{
+                derID:'',
+                endDeviceId:''
+
+            }
+        }
     ];
 
     static #validationObject={
@@ -357,6 +411,7 @@ export default class Client{
         'Get All Der Programs':{
             fsaID:(field)=>{return !isNaN(field)}
         }
+        
     }
 
     static getValid(key){

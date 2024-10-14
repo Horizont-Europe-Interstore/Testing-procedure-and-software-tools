@@ -48,14 +48,15 @@ public class MicroServiceFactory {
         SdevManager sdevManager = new SdevManager(selfDev);
         EndDeviceImpl endDev = serviceFactory.getEndDeviceProvider().get();
         EdevManager edevManager = new EdevManager( endDev );
-        DerService derImpl = serviceFactory.getDERProvider().get();
-        DerManager derManager = new DerManager(derImpl);
+        DerService derService = serviceFactory.getDERProvider().get();
+        DerManager derManager = new DerManager(derService );
         FunctionSetAssignmentsService fsaService = serviceFactory.getFsaProvider().get();
         FsaManager fsaManager = new FsaManager(fsaService);
         DERProgramService derProgramImpl = serviceFactory.getDerProgramProvider().get();
         DERProgramManager derProgramManager = new DERProgramManager(derProgramImpl);
         DERCurveService derCurveService = serviceFactory.getDerCurveServiceProvider().get();
         DERCurveManager derCurveManager = new DERCurveManager(derCurveService);
+        
 
         this.microservices.put("getalldcapmanager", dcapManager); 
         this.microservices.put("selfdevicemanager", sdevManager);
@@ -69,7 +70,11 @@ public class MicroServiceFactory {
         this.microservices.put("findallregistrededendevice", edevManager);
         this.microservices.put("findregistrededendevice", edevManager);
       
-        this.microservices.put("getDER_properties", derManager);
+         // #######################
+        this.microservices.put("createDerCapabilitymanager", derManager);
+        this.microservices.put("getDerCapabilitymanager", derManager);
+        
+         // #######################
         this.microservices.put("update_DER_properties", derManager);
         this.microservices.put("getallFsamanager", fsaManager);    
         this.microservices.put("createFsamanager", fsaManager);
@@ -102,10 +107,11 @@ public class MicroServiceFactory {
         DerProgramTest DerProgramTest = new DerProgramTest();
         TimeTest timeTest = new TimeTest();
         DerCurveTest derCurveTest = new DerCurveTest();
+        DerTest DerTest = new DerTest();
         this.dtoMap.put("getalldcapmanager", deviceCapabilitytest);
         this.dtoMap.put("dcapmanager", deviceCapabilitytest); 
         this.dtoMap.put("enddevicemanager", endDeviceTest); 
-        this.dtoMap.put("selfdevicemanager", selfDeviceDto);  // this is because there is no test class for selfDevice 
+        this.dtoMap.put("selfdevicemanager", selfDeviceDto);  
         this.dtoMap.put("selfenddevicemanager", deviceCapabilitytest);
         this.dtoMap.put("enddevicelinkmanager", endDeviceTest); 
         this.dtoMap.put("enddeviceregistrationmanager", endDeviceTest); 
@@ -113,9 +119,13 @@ public class MicroServiceFactory {
         this.dtoMap.put("enddeviceinstancemanager", endDeviceTest);
         this.dtoMap.put("findallregistrededendevice", endDeviceTest);
         this.dtoMap.put("findregistrededendevice", endDeviceTest);
-        this.dtoMap.put("getDERList", endDeviceTest);
-        this.dtoMap.put("getDER_properties", endDeviceTest);
-        this.dtoMap.put("update_DER_properties", endDeviceTest);
+        
+         // #######################
+        this.dtoMap.put("createDerCapabilitymanager", DerTest);  
+        this.dtoMap.put("getDerCapabilitymanager", DerTest);
+       
+        
+         // #######################
         this.dtoMap.put("getallFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("createFsamanager", functionSetAssignmentTest);
         this.dtoMap.put("getASingleFsamanager", functionSetAssignmentTest); 

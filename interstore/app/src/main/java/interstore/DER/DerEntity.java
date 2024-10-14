@@ -1,11 +1,9 @@
 package interstore.DER;
 
 import jakarta.persistence.*;
-
 import java.util.logging.Logger;
-
 import interstore.EndDevice.EndDeviceDto;
-import interstore.Identity.Resource;
+import interstore.Identity.SubscribableResourceEntity;
 @Entity
 public class DerEntity  {
     private static final Logger LOGGER = Logger.getLogger(DerEntity .class.getName());
@@ -16,6 +14,10 @@ public class DerEntity  {
     @ManyToOne 
     @JoinColumn(name = "end_device_id", nullable = false)  
     private EndDeviceDto endDevice;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "subscribabale_Resource") 
+    private SubscribableResourceEntity subscribableResourceList;
 
     @Column(name = "der_capability_link")
     private String derCapabilityLink;
@@ -29,7 +31,16 @@ public class DerEntity  {
     
     @Column(name = "der_availability_link")
     private String derAvailabilityLink;
-    
+
+    @Column(name = "associated_usage_point_link")
+    private String associatedUsagePointLink;
+
+    @Column(name= "associated_der_program_list_link")
+    private String associatedDERProgramListLink;
+
+    @Column(name = "current_der_program_link")
+    private String currentDERProgramLink;
+
    // Here Starts  DER settings Attributes 
     @Column(name="modesEnabled")
     private Integer modesEnabled;
@@ -121,7 +132,7 @@ public class DerEntity  {
     private String modesSupported;  
 
     @Column(name = "rtgAbnormalCategory")
-    private Short rtgAbnormalCategory; 
+    private Integer rtgAbnormalCategory; 
 
     @Column(name = "rtgMaxA")
     private Double rtgMaxA;  
@@ -169,7 +180,7 @@ public class DerEntity  {
     private Double rtgMinV;  
 
     @Column(name = "rtgNormalCategory")
-    private Short rtgNormalCategory;
+    private Integer rtgNormalCategory;
 
     @Column(name = "rtgOverExcitedPF")
     private Double rtgOverExcitedPF;
@@ -185,6 +196,9 @@ public class DerEntity  {
 
     @Column(name = "rtgUnderExcitedW")
     private Double rtgUnderExcitedW;
+
+    @Column(name = "rtgVNom")
+    private Double rtgVNom;
 
      // Der Availability attributes 
     @Column(name = "availabilityDuration")
@@ -273,9 +287,7 @@ public class DerEntity  {
     }
    // no need of resource use derlink from end devcie . 
     public void setDerSettingsLink(String derSettingsLink) {
-        Resource resource = new Resource();
-        resource.setHref(derSettingsLink);  
-        this.derSettingsLink = resource.getHref();  
+        this.derSettingsLink = derSettingsLink ;  
     }
 
     public String getDerSettingsLink() {
@@ -284,9 +296,7 @@ public class DerEntity  {
 
 
     public void setDerStatusLink(String derStatusLink) {
-        Resource resource = new Resource();
-        resource.setHref(derStatusLink);
-        this.derStatusLink = resource.getHref();
+        this.derStatusLink = derStatusLink;
         
     }
 
@@ -295,9 +305,6 @@ public class DerEntity  {
     }
 
     public void setDerAvailabilityLink(String derAvailabilityLink) {
-        Resource resource = new Resource();
-        resource.setHref(derAvailabilityLink);
-        this.derAvailabilityLink = resource.getHref();
         this.derAvailabilityLink = derAvailabilityLink;
     }
     
@@ -306,8 +313,34 @@ public class DerEntity  {
         return derAvailabilityLink;
     }
 
-    /* Here starts the getters and setters for DER Settings  */
+    public void setAssociatedUsagePointLink(String associatedUsagePointLink)
+    {
+        this.associatedUsagePointLink = associatedUsagePointLink;
+    }
 
+    public String getAssociatedUsagePointLink() {
+        return associatedUsagePointLink;
+    }
+
+    public void setAssociatedDERProgramListLink(String associatedDERProgramListLink)
+    {
+        this.associatedDERProgramListLink = associatedDERProgramListLink;
+    }
+
+    public String getAssociatedDERProgramListLink() {
+        return associatedDERProgramListLink;
+    }
+
+    public void setCurrentDERProgramLink(String currentDERProgramLink)
+    {
+        this.currentDERProgramLink = currentDERProgramLink;
+    }
+
+    public String getCurrentDERProgramLink() {
+        return currentDERProgramLink;
+    }
+
+    /* Here starts the getters and setters for DER Settings  */
 
     public Integer getModesEnabled() {
         return modesEnabled;
@@ -526,11 +559,11 @@ public class DerEntity  {
         this.modesSupported = modesSupported;
     }
 
-    public Short getRtgAbnormalCategory() {
+    public Integer getRtgAbnormalCategory() {
         return rtgAbnormalCategory;
     }
 
-    public void setRtgAbnormalCategory(Short rtgAbnormalCategory) {
+    public void setRtgAbnormalCategory(Integer rtgAbnormalCategory) {
         this.rtgAbnormalCategory = rtgAbnormalCategory;
     }
 
@@ -654,11 +687,11 @@ public class DerEntity  {
         this.rtgMinV = rtgMinV;
     }
 
-    public short getRtgNormalCategory() {
+    public Integer getRtgNormalCategory() {
         return rtgNormalCategory;
     }
 
-    public void setRtgNormalCategory(short rtgNormalCategory) {
+    public void setRtgNormalCategory(Integer rtgNormalCategory) {
         this.rtgNormalCategory = rtgNormalCategory;
     }
 
@@ -701,7 +734,13 @@ public class DerEntity  {
     public void setRtgUnderExcitedW(Double rtgUnderExcitedW) {
         this.rtgUnderExcitedW = rtgUnderExcitedW;
     }
-   
+     
+    public Double getRtgVNom() {
+        return rtgVNom;
+    }
+    public void setRtgVNom(Double rtgVNom) {
+        this.rtgVNom = rtgVNom;
+    } 
      /* Here starts the getters and setters for DER Availability  */
 
 

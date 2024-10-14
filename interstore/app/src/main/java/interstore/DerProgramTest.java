@@ -98,6 +98,11 @@ public class DerProgramTest {
        
    }
    
+   public static String getCreatedDerProgram()
+   {
+       return createdDerProgram;
+   }    
+   
     public static String  getADerProgramRequest(Long fsaId, Long derId)
     {
         Map<String, Object> attributes = new HashMap<>();
@@ -118,10 +123,6 @@ public class DerProgramTest {
     }
 
 
-   public static String getCreatedDerProgram()
-   {
-       return createdDerProgram;
-   }    
    
 
    public static void setADerprogram(String responseDerProgram)

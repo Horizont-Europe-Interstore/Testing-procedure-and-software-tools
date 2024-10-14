@@ -1,17 +1,22 @@
 package interstore.DER;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceRepository;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
-import interstore.Identity.Link;
+import interstore.Identity.SubscribableResourceEntity;
+import interstore.Identity.SubscribableResourceRepository;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.HashMap;
 
 @Service
 public class DerService {
@@ -19,27 +24,35 @@ public class DerService {
     private DerRepository derRepository;
     @Autowired
     private EndDeviceRepository endDeviceRepository;
+    @Autowired
+    SubscribableResourceRepository subscribableResourceRepository;
     private static final Logger LOGGER = Logger.getLogger(DerService.class.getName());
 
     @Transactional
     public DerEntity createDer(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
+        LOGGER.info("Received DER payload is " + payload); 
         DerEntity derEntity = new DerEntity();
-        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
         EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
+        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
         String derListLink = endDevice.getDERListLink();
-        String endDeviceLink = endDevice.getEndDeviceLink();
+        LOGGER.info("the DER listlink is " + derListLink);
         derEntity.setEndDevice(endDevice); 
         try {
             derEntity  = derRepository.save(derEntity);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
         }
-        setDerCapability(derEntity  , payload,  derListLink , endDeviceLink, endDeviceId );
+        try {
+            subscribableResourceRepository.save(subscribableResourceEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
+        }
+        setDerCapability(derEntity  , payload,  derListLink);
         derEntity = derRepository.save(derEntity);
         return  derEntity;
-        
-        
+       
     }
     /*The DER Availability is a unique profile that each end device has when it's manufactured 
      * this can't be changed because these are the rated values of an End Device , In the test 
@@ -50,30 +63,139 @@ public class DerService {
      * DER resource intialized as null but later the values intailised as null has to editable  , 
      *  
      */
-    @SuppressWarnings("null")
-    public void setDerCapability(DerEntity derEntity, JSONObject payloadWrapper, String derListLink , String endDeviceLink ,Long endDeviceId)
+    public void setDerCapability(DerEntity derEntity, JSONObject payload, String derListLink )
     {
-        
         Long Derid = derEntity.getId();
         String DeridString = "/"+ String.valueOf(Derid);
-        String EndDeviceIdString  = "/"+ String.valueOf(endDeviceId);
-        JSONObject payload = payloadWrapper.optJSONObject("payload");
-        String derCapabilityLink = endDeviceLink + EndDeviceIdString + derListLink + DeridString+ payload.optString("DerCapabilityLink", "defaultLink");
-        String derStatusLink = endDeviceLink + EndDeviceIdString + derListLink + DeridString + payload.optString("DerStatusLink", "defaultLink");
-        String derAvailabilityLink = endDeviceLink +EndDeviceIdString + derListLink + DeridString+ payload.optString("DerAvailabilityLink", "defaultLink");
-        String derSettingsLink = endDeviceLink + EndDeviceIdString + derListLink + DeridString + payload.optString("DerSettingsLink", "defaultLink");
+        JSONObject Derpayload = payload.optJSONObject("payload");
+        String derCapabilityLink = derListLink + DeridString + Derpayload.optString("DerCapabilityLink", "defaultLink");
+        String derStatusLink = derListLink + DeridString + Derpayload.optString("DerStatusLink", "defaultLink");
+        String derAvailabilityLink =  derListLink + DeridString+ Derpayload.optString("DerAvailabilityLink", "defaultLink");
+        String derSettingsLink =  derListLink + DeridString + Derpayload.optString("DerSettingsLink", "defaultLink");
+        String associatedUsagePointLink = derListLink + DeridString + Derpayload.optString("associatedUsagePointLink", "defaultLink");
+        String associatedDERProgramListLink = derListLink + DeridString + Derpayload.optString("associatedDERProgramListLink", "defaultLink");
+        String currentDERProgramLink = derListLink + DeridString + Derpayload.optString("currentDERProgramLink", "defaultLink"); 
         derEntity.setDerCapabilityLink(derCapabilityLink);
-        Link link = new Link();
-
-       
-
-        link.setLink(derCapabilityLink);
-       
-      
-  
-
+        derEntity.setDerStatusLink(derStatusLink);
+        derEntity.setDerAvailabilityLink(derAvailabilityLink);
+        derEntity.setDerSettingsLink(derSettingsLink); 
+        derEntity.setAssociatedUsagePointLink(associatedUsagePointLink);
+        derEntity.setAssociatedDERProgramListLink(associatedDERProgramListLink);
+        derEntity.setCurrentDERProgramLink(currentDERProgramLink);
+        String modesSupported = Derpayload.optString("modesSupported");
+        String rtgAbnormalCategory = Derpayload.optString("rtgAbnormalCategory");
+        Integer rtgAbnormalCategoryUINT8 = Derpayload.optInt(rtgAbnormalCategory);
+        String rtgMaxA = Derpayload.optString("rtgMaxA");
+        Double rtgMaxADouble = Derpayload.optDouble(rtgMaxA);
+        String rtgMaxAh =  Derpayload.optString("rtgMaxAh");
+        Double rtgMaxAhDouble = Derpayload.optDouble(rtgMaxAh);
+        String rtgMaxChargeRateVA = Derpayload.optString("rtgMaxChargeRateVA");
+        Double rtgMaxChargeRateDouble = Derpayload.optDouble(rtgMaxChargeRateVA);
+        String rtgMaxChargeRateW = Derpayload.optString("rtgMaxChargeRateW");
+        Double rtgMaxChargeRateWDouble = Derpayload.optDouble(rtgMaxChargeRateW);
+        String rtgMaxDischargeRateVA = Derpayload.optString("rtgMaxDischargeRateVA");
+        Double rtgMaxDischargeRateVADouble = Derpayload.optDouble(rtgMaxDischargeRateVA);
+        String rtgMaxDischargeRateW = Derpayload.optString("rtgMaxDischargeRateW");
+        Double rtgMaxDischargeRateWDouble = Derpayload.optDouble(rtgMaxDischargeRateW);
+        String rtgMaxV = Derpayload.optString("rtgMaxV");
+        Double rtgMaxVDouble = Derpayload.optDouble(rtgMaxV);
+        String rtgMaxVA = Derpayload.optString("rtgMaxVA");
+        Double rtgMaxVADouble = Derpayload.optDouble(rtgMaxVA);
+        String rtgMaxVar = Derpayload.optString("rtgMaxVar");
+        Double rtgMaxVarDouble = Derpayload.optDouble(rtgMaxVar);
+        String rtgMaxVarNeg = Derpayload.optString("rtgMaxVarNeg");
+        Double rtgMaxVarNegDouble = Derpayload.optDouble(rtgMaxVarNeg);
+        String rtgMaxW = Derpayload.optString("rtgMaxW");
+        Double rtgMaxWDouble = Derpayload.optDouble(rtgMaxW);
+        String rtgMaxWh = Derpayload.optString("rtgMaxWh");
+        Double rtgMaxWhDouble = Derpayload.optDouble(rtgMaxWh);
+        String rtgMinPFOverExcited =  Derpayload.optString("rtgMinPFOverExcited");
+        Double rtgMinPFOverExcitedDouble = Derpayload.optDouble(rtgMinPFOverExcited);
+        String rtgMinPFUnderExcited = Derpayload.optString("rtgMinPFUnderExcited");
+        Double rtgMinPFUnderExcitedDouble = Derpayload.optDouble(rtgMinPFUnderExcited);
+        String rtgMinV = Derpayload.optString("rtgMinV");
+        Double rtgMinVDouble = Derpayload.optDouble(rtgMinV);
+        String rtgNormalCategory = Derpayload.optString("rtgNormalCategory");
+        Integer rtgNormalCategoryUINT8 = Derpayload.optInt(rtgNormalCategory);
+        String rtgOverExcitedPF = Derpayload.optString("rtgOverExcitedPF");
+        Double rtgOverExcitedPFDouble = Derpayload.optDouble(rtgOverExcitedPF);
+        String rtgOverExcitedW = Derpayload.optString("rtgOverExcitedW");
+        Double rtgOverExcitedWDouble = Derpayload.optDouble(rtgOverExcitedW);
+        String rtgReactiveSusceptance = Derpayload.optString("rtgReactiveSusceptance");	
+        Double rtgReactiveSusceptanceDouble = Derpayload.optDouble(rtgReactiveSusceptance);
+        String rtgUnderExcitedPF = Derpayload.optString("rtgUnderExcitedPF");
+        Double rtgUnderExcitedPFDouble = Derpayload.optDouble(rtgUnderExcitedPF);
+        String rtgUnderExcitedW = Derpayload.optString("rtgUnderExcitedW");
+        Double rtgUnderExcitedWDouble = Derpayload.optDouble(rtgUnderExcitedW);
+        String rtgVNom = Derpayload.optString("rtgVNom");
+        Double rtgVNomDouble = Derpayload.optDouble(rtgVNom);
+        // type is not implimented 
+        derEntity.setModesSupported(modesSupported);
+        derEntity.setRtgAbnormalCategory(rtgAbnormalCategoryUINT8);
+        derEntity.setRtgMaxA(rtgMaxADouble);
+        derEntity.setRtgMaxAh(rtgMaxAhDouble);
+        derEntity.setRtgMaxChargeRateVA(rtgMaxChargeRateDouble);
+        derEntity.setRtgMaxChargeRateW(rtgMaxChargeRateWDouble);
+        derEntity.setRtgMaxDischargeRateVA(rtgMaxDischargeRateVADouble);
+        derEntity.setRtgMaxDischargeRateW(rtgMaxDischargeRateWDouble);
+        derEntity.setRtgMaxV(rtgMaxVDouble);
+        derEntity.setRtgMaxVA(rtgMaxVADouble);
+        derEntity.setRtgMaxVar(rtgMaxVarDouble);
+        derEntity.setRtgMaxVarNeg(rtgMaxVarNegDouble);
+        derEntity.setRtgMaxW(rtgMaxWDouble);
+        derEntity.setRtgMaxWh(rtgMaxWhDouble);
+        derEntity.setRtgMinPFOverExcited(rtgMinPFOverExcitedDouble);
+        derEntity.setRtgMinPFUnderExcited(rtgMinPFUnderExcitedDouble);
+        derEntity.setRtgMinV(rtgMinVDouble);
+        derEntity.setRtgNormalCategory(rtgNormalCategoryUINT8);
+        derEntity.setRtgOverExcitedPF(rtgOverExcitedPFDouble);
+        derEntity.setRtgOverExcitedW(rtgOverExcitedWDouble);
+        derEntity.setRtgReactiveSusceptance(rtgReactiveSusceptanceDouble);
+        derEntity.setRtgUnderExcitedPF(rtgUnderExcitedPFDouble);
+        derEntity.setRtgUnderExcitedW(rtgUnderExcitedWDouble);
+        derEntity.setRtgVNom(rtgVNomDouble);
+        
 
     }
 
-   
+   public ResponseEntity<Map<String, Object>> getDerCapability(Long derID, Long EndDeviceId )
+    {
+   try {
+    Map<String, Object> result = new HashMap<>();
+    Optional <DerEntity> derEntityOptional   = derRepository.findFirstByIdAndEndDeviceId(derID, EndDeviceId);
+    DerEntity derEntity = derEntityOptional.get();
+    Map<String, Object> entityMap = new HashMap<>();
+    entityMap.put("id", derEntity.getId());
+    entityMap.put("modesSupported", derEntity.getModesSupported());
+    entityMap.put("rtgAbnormalCategory", derEntity.getRtgAbnormalCategory());
+    entityMap.put("rtgMaxA", derEntity.getRtgMaxA());
+    entityMap.put("rtgMaxAh", derEntity.getRtgMaxAh());
+    entityMap.put("rtgMaxChargeRateVA", derEntity.getRtgMaxChargeRateVA());
+    entityMap.put("rtgMaxChargeRateW", derEntity.getRtgMaxChargeRateW());
+    entityMap.put("rtgMaxDischargeRateVA", derEntity.getRtgMaxDischargeRateVA());
+    entityMap.put("rtgMaxDischargeRateW", derEntity.getRtgMaxDischargeRateW());
+    entityMap.put("rtgMaxV", derEntity.getRtgMaxV());
+    entityMap.put("rtgMaxVA", derEntity.getRtgMaxVA());
+    entityMap.put("rtgMaxVar", derEntity.getRtgMaxVar());
+    entityMap.put("rtgMaxVarNeg", derEntity.getRtgMaxVarNeg());
+    entityMap.put("rtgMaxW", derEntity.getRtgMaxW());
+    entityMap.put("rtgMaxWh", derEntity.getRtgMaxWh());
+    entityMap.put("rtgMinPFOverExcited", derEntity.getRtgMinPFOverExcited());
+    entityMap.put("rtgMinPFUnderExcited", derEntity.getRtgMinPFUnderExcited());
+    entityMap.put("rtgMinV", derEntity.getRtgMinV());
+    entityMap.put("rtgNormalCategory", derEntity.getRtgNormalCategory());
+    entityMap.put("rtgOverExcitedPF", derEntity.getRtgOverExcitedPF());
+    entityMap.put("rtgOverExcitedW", derEntity.getRtgOverExcitedW());
+    entityMap.put("rtgReactiveSusceptance", derEntity.getRtgReactiveSusceptance());
+    entityMap.put("rtgUnderExcitedPF", derEntity.getRtgUnderExcitedPF());
+    entityMap.put("rtgUnderExcitedW", derEntity.getRtgUnderExcitedW());
+    entityMap.put("rtgVNom", derEntity.getRtgVNom());
+    entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
+    result.put("DerCapability", derEntityOptional);
+    return ResponseEntity.ok(result);
+   } catch (Exception e) {
+    LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
+    return ResponseEntity.status(404).body(null);
+   } 
+}
 }
