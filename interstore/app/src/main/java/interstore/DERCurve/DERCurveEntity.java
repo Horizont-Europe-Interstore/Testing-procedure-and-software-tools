@@ -46,7 +46,7 @@ public class DERCurveEntity {
     @JoinColumn(name = "identified_object_entity")
     public IdentifiedObjectEntity identifiedObjectEntity;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "curve_entity_id")
     public List<CurveData> curveData;
 

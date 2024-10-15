@@ -201,6 +201,11 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
+        else if(serviceName.equals("getASingleDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setADerCurve", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
         else if(serviceName.equals("createDerControlManager"))
         {
             Method method = microServiceClass.getMethod("setCreatedDerControl", String.class);

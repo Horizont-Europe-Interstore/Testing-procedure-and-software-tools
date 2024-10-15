@@ -263,6 +263,7 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
+                derpID:'',
                 dercID:''
             }   
         } ,

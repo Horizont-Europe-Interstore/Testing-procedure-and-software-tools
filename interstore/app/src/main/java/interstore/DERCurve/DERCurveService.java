@@ -165,6 +165,7 @@ public class DERCurveService {
         return ResponseEntity.ok(responseMap);
     }
 
+    @Transactional
     public ResponseEntity<Map<String, Object>> getAllDERCurves(Long derProgramId) {
         try {
             Map<String, Object> responseMap = new HashMap<>();
@@ -201,7 +202,9 @@ public class DERCurveService {
         }
     }
 
+    @Transactional
     public ResponseEntity<Map<String, Object>> getDERCurve(Long derProgramId, Long derCurveId) {
+        LOGGER.info("Reached here in DerCurve Service Class");
         try {
             Map<String, Object> result = new HashMap<>();
             Optional<DERCurveEntity> derCurveEntityOptional = derCurveRepository.findFirstByDerProgramIdAndId(derProgramId, derCurveId);
@@ -224,6 +227,7 @@ public class DERCurveService {
             entityMap.put("curveData", derCurveEntity.getCurveData());
 
             result.put("DERCurve", entityMap);
+            LOGGER.info("Leaving DERCurveService class");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving DERCurve", e);
