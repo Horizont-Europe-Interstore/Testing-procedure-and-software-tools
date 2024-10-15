@@ -210,65 +210,9 @@ export default class Client{
             }
         },
 
+        
         {
             index:14,
-            test:'Create Der Control',
-            desc:'description',
-            args: true,
-            object:{
-                derProgramId:'',
-                deviceCategory:'',
-                opModConnect: '',
-                opModEnergize: '',
-                opModFixedPFAbsorbW: '',
-                opModFixedPFInjectW: '',
-                opModFixedVar: '',
-                opModFixedW: '',
-                opModFreqDroop: '',
-                opModFreqWatt: '',
-                opModHFRTMayTrip: '',
-                opModHFRTMustTrip: '',
-                opModHVRTMayTrip: '',
-                opModHVRTMomentaryCessation: '',
-                opModHVRTMustTrip: '',
-                opModLFRTMayTrip: '',
-                opModLFRTMustTrip: '',
-                opModLVRTMayTrip: '',
-                opModLVRTMomentaryCessation: '',
-                opModLVRTMustTrip: '',
-                opModMaxLimW: '',
-                opModTargetVar: '',
-                opModTargetW: '',
-                opModVoltVar: '',
-                opModVoltWatt: '',
-                opModWattPF: '',
-                opModWattVar: '',
-                rampTms: '',
-
-            }
-        },
-        {
-            index:15,
-            test:'Get All Der Controls',
-            desc:'description',
-            args: true,
-            object:{
-                derpID:'',
-            }
-        },
-        {
-            index:16,
-            test:'Get A Der Control',
-            desc:'description',
-            args: true,
-            object:{
-                derpID:'',
-                dercID:'',
-            }
-        },
-
-        {
-            index:17,
             test:'Create Der Curve',
             desc:'description',
             args: true,
@@ -305,7 +249,7 @@ export default class Client{
             }
         },
         {
-            index:18,
+            index:15,
             test:'Get All Der Curves',
             desc:'description',
             args: true,
@@ -314,7 +258,7 @@ export default class Client{
             }
         },
         {
-            index:19,
+            index:16,
             test:'Get A Der Curve',
             desc:'description',
             args: true,
@@ -322,6 +266,64 @@ export default class Client{
                 dercID:''
             }   
         } ,
+        
+        {
+            index:17,
+            test:'Create Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derProgramId:'',
+                deviceCategory:'',
+                opModConnect: '',
+                opModEnergize: '',
+                opModFixedPFAbsorbW: '',
+                opModFixedPFInjectW: '',
+                opModFixedVar: '',
+                opModFixedW: '',
+                opModFreqDroop: '',
+                opModFreqWatt: '',
+                opModHFRTMayTrip: '',
+                opModHFRTMustTrip: '',
+                opModHVRTMayTrip: '',
+                opModHVRTMomentaryCessation: '',
+                opModHVRTMustTrip: '',
+                opModLFRTMayTrip: '',
+                opModLFRTMustTrip: '',
+                opModLVRTMayTrip: '',
+                opModLVRTMomentaryCessation: '',
+                opModLVRTMustTrip: '',
+                opModMaxLimW: '',
+                opModTargetVar: '',
+                opModTargetW: '',
+                opModVoltVar: '',
+                opModVoltWatt: '',
+                opModWattPF: '',
+                opModWattVar: '',
+                rampTms: '',
+
+            }
+        },
+        {
+            index:18,
+            test:'Get All Der Controls',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+            }
+        },
+        {
+            index:19,
+            test:'Get A Der Control',
+            desc:'description',
+            args: true,
+            object:{
+                derpID:'',
+                dercID:'',
+            }
+        },
+
 
         {
             index:20,

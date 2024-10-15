@@ -262,7 +262,7 @@ public class App {
          interstore.DerProgramTest.createNewDerProgram( currentTest));
         Thread.sleep(300);
         String response = interstore.DerProgramTest.getCreatedDerProgram();
-        LOGGER.info("the response of DER is " + response);
+        LOGGER.info("the response of DER Program is " + response);
         return response;
     }
 

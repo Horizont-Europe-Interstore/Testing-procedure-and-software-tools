@@ -53,8 +53,8 @@ public class CreateDerProgramSteps {
     public void the_test_should_complete_successfully_with_create_a_der_program_response_containing(String expectedJson) throws Exception  {
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "1");
-        expectedMap.put("CurrentRMS", "89");
-        expectedMap.put("AmpereHour", "89"); 
+        expectedMap.put("mRID", "B01000000");
+        expectedMap.put("primacy", "89"); 
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
