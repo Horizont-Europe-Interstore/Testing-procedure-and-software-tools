@@ -344,6 +344,16 @@ public class App {
         return response;
     }
     
+    public String PowerGenerationtest(String natsSubject)throws Exception{
+        interstore.DerTest.setServicename("PowerGenerationTestmanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.powerGenerationDeviceTest( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getEditedpowerGeneration();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
   
     public String TimeTest(String natsSubject) throws Exception {
         if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){

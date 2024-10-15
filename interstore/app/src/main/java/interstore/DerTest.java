@@ -13,6 +13,8 @@ public class DerTest {
     static String derCapability;
     static String createdDerSettings;
     static String derSettings; 
+    static String editedpowerGeneration;
+    static String powerGeneration;
     
     public static String getserviceName(){
         return serviceName;
@@ -139,6 +141,31 @@ public class DerTest {
     return derSettings; 
    }
   
+   public static String powerGenerationDeviceTest(JSONObject payload) 
+   {
+       try {
+           String attributes = new JSONObject()
+                   .put("servicename", getserviceName())
+                   .put("action", "put")
+                   .put("powergeneration", "powergeneration")
+                   .put("payload", (Object)payload)
+                   .toString();
+           LOGGER.info(attributes);
+           return attributes;
 
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return null ;
+   }
+   public static void setEditedpowerGeneration(String responsepowerGeneration)
+   {
+    editedpowerGeneration = responsepowerGeneration;
+
+   }
+   public static String getEditedpowerGeneration()
+   {
+       return editedpowerGeneration;
+   }
 
 }

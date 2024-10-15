@@ -160,6 +160,12 @@ public class MessageFactory {
 
         }
         
+        else if(serviceName.equals("PowerGenerationTestmanager"))
+        {
+            Method method = microServiceClass.getMethod("setEditedpowerGeneration", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
         
          // #######################
 

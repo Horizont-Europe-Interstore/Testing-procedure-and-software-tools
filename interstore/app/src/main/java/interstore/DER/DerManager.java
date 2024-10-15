@@ -7,6 +7,8 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -37,7 +39,7 @@ public class DerManager {
             case "get":
                 return getDer(jsonObject);
             case "put":
-                return null ; //updateDERProgram(jsonObject);
+                return updateDERProgram(jsonObject);
             case "delete":
                 //deleteDERProgram(jsonObject);
                 break;
@@ -75,13 +77,31 @@ public class DerManager {
            Long derId = payload.getLong("derID");
            LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
            if(payload.has("derSettings"))
-             {
+             {  
                 return getDerSettingsDetails(derId, endDeviceId);
              }
            return getDerCapabilityDetails( derId , endDeviceId );
        }
       return null ; 
     }
+    
+   public Map<String, Object> updateDERProgram(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
+    {
+        if(payload.has("endDeviceId") && payload.has("derID"))
+         { 
+            Long endDeviceId = payload.getLong("endDeviceId");
+            Long derId = payload.getLong("derID");
+            if(payload.has("powergeneration"))
+            {
+                return updatePowerGenerationTest( endDeviceId,  derId ,payload);
+            }
+         }
+          
+        return null;
+    }
+
+
+
 
     @GetMapping("edev/{endDeviceId}/der/{derId}/dercap")
     public Map<String, Object> getDerCapabilityDetails(@PathVariable Long endDeviceId, @PathVariable Long derId) throws JSONException {
@@ -96,6 +116,12 @@ public class DerManager {
         return  responseEntity.getBody();
 
     }
+   
+    @PutMapping("edev/{endDeviceId}/der/{derId}/derg")
+    public Map<String, Object> updatePowerGenerationTest(@PathVariable Long endDeviceId, @PathVariable Long derId , JSONObject payload) throws JSONException, NotFoundException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, payload);
+        return  responseEntity.getBody();
 
+    }
 
 }

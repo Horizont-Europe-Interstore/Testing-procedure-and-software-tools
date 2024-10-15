@@ -201,14 +201,7 @@ public class DerService {
         Double setMinV = parseDoubleFromPayload(derSettingsPayload, "setMinV");
         Double setVNom = parseDoubleFromPayload(derSettingsPayload, "setVNom");
         Double setVRef = parseDoubleFromPayload(derSettingsPayload, "setVRef");
-        // Calling getters from enttiy class 
-        LOGGER.info("modes enabled"+ derEntity.getModesEnabled());
-        LOGGER.info("setESDelay"+ derEntity.getSetESDelay());
-        LOGGER.info("setESHighFreq"+ derEntity.getSetESHighFreq());
-        LOGGER.info("setESLowFreq"+ derEntity.getSetESLowFreq());
-        LOGGER.info("setESHighVolt"+ derEntity.getSetESHighVolt());
-
-
+      
         // Calling setters from the entity class
         derEntity.setModesEnabled(modesEnabled);
         derEntity.setSetESDelay(setESDelay);
@@ -237,11 +230,7 @@ public class DerService {
         derEntity.setSetVNom(setVNom);
         derEntity.setSetVRef(setVRef);
        
-        LOGGER.info("after modes enabled"+ derEntity.getModesEnabled());
-        LOGGER.info("after setESDelay"+ derEntity.getSetESDelay());
-        LOGGER.info("after setESHighFreq"+ derEntity.getSetESHighFreq());
-        LOGGER.info("after setESLowFreq"+ derEntity.getSetESLowFreq());
-        LOGGER.info("after setESHighVolt"+ derEntity.getSetESHighVolt());
+     
     
     }
     private Long parseLongFromPayload(JSONObject payload, String key) {
@@ -319,7 +308,7 @@ public class DerService {
         try {
             Map<String, Object> result = new HashMap<>();
             
-            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId( EndDeviceId , derID);
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(EndDeviceId , derID);
     
             if (derEntityOptional.isPresent())
             {
@@ -362,71 +351,50 @@ public class DerService {
                 return ResponseEntity.status(500).body(Map.of("error", "Server error"));
             }     
     }
+    @Transactional
+     public ResponseEntity<Map<String, Object>> updatePowerGenerationTest(Long endDeviceID, Long derId,JSONObject payload)throws NumberFormatException, JSONException, NotFoundException 
+     {
+        LOGGER.info("Received DER payload is " + payload); 
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
+        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        .orElseThrow(() -> new NotFoundException());
+        Long derID = Long.parseLong(payload.getJSONObject("payload").getString("derID")); 
+        DerEntity derEntity = derRepository.findById(derID)
+        .orElseThrow(() -> new NotFoundException());
+        derEntity.setEndDevice(endDevice); 
+        try {
+            derEntity  = derRepository.save(derEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        }
+
+        setPowerGeneration(derEntity  , payload);
+        derEntity = derRepository.save(derEntity);
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derID);
+            Map<String, Object> result = new HashMap<>();
+            derEntity = derEntityOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity.getId());
+            entityMap.put("setMaxW", derEntity.getSetMaxW());
+            entityMap.put("setMaxVA", derEntity.getSetMaxVA());
+            result.put("DerPowerGenerationTest", entityMap);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+    
+     }
+    }
+
+     public void setPowerGeneration(DerEntity derEntity, JSONObject payload)
+     {  JSONObject DerPowerGenerationpayload = payload.optJSONObject("payload");
+        Double setMaxW = parseDoubleFromPayload(  DerPowerGenerationpayload, "setMaxW");
+        Double setMaxVA = parseDoubleFromPayload(  DerPowerGenerationpayload, "setMaxVA");
+        derEntity.setSetMaxW(setMaxW);
+        derEntity.setSetMaxVA(setMaxVA);
+     }
 }
 
 
 
-/*
- * 
- * 
-     public void setDerSettings(DerEntity derEntity, JSONObject derSettingsPayload )
-     {
-        Integer modesEnabled = derSettingsPayload.optInt("modesEnabled");
-        Long setESDelay = derSettingsPayload.optLong("setESDelay", 0);
-        Long setESHighFreq = derSettingsPayload.optLong("setESHighFreq", 0L);
-        Long setESLowFreq = derSettingsPayload.optLong("setESLowFreq", 0L);
-        Long setESHighVolt = derSettingsPayload.optLong("setESHighVolt", 0L);
-        Long setESLowVolt = derSettingsPayload.optLong("setESLowVolt", 0L);
-        Long setESRampTms = derSettingsPayload.optLong("setESRampTms", 0L);
-        Long setESRandomDelay = derSettingsPayload.optLong("setESRandomDelay", 0L);
-        Long setGradW = derSettingsPayload.optLong("setGradW", 0L);
-        Long setSoftGradW = derSettingsPayload.optLong("setSoftGradW", 0L);
-        Double setMaxA = derSettingsPayload.optDouble("setMaxA", Double.NaN);
-        Double setMaxChargeRateVA = derSettingsPayload.optDouble("setMaxChargeRateVA", Double.NaN);
-        Double setMaxChargeRateW = derSettingsPayload.optDouble("setMaxChargeRateW", Double.NaN);
-        Double setMaxDischargeRateVA = derSettingsPayload.optDouble("setMaxDischargeRateVA", Double.NaN);
-        Double setMaxDischargeRateW = derSettingsPayload.optDouble("setMaxDischargeRateW", Double.NaN);
-        Double setMaxV = derSettingsPayload.optDouble("setMaxV", Double.NaN);
-        Double setMaxVA = derSettingsPayload.optDouble("setMaxVA", Double.NaN);
-        Double setMaxVar = derSettingsPayload.optDouble("setMaxVar", Double.NaN);
-        Double setMaxVarNeg = derSettingsPayload.optDouble("setMaxVarNeg", Double.NaN);
-        Double setMaxW = derSettingsPayload.optDouble("setMaxW", Double.NaN);
-        Double setMaxWh = derSettingsPayload.optDouble("setMaxWh", Double.NaN);
-        Double setMinPFOverExcited = derSettingsPayload.optDouble("setMinPFOverExcited", Double.NaN);
-        Double setMinPFUnderExcited = derSettingsPayload.optDouble("setMinPFUnderExcited", Double.NaN);
-        Double setMinV = derSettingsPayload.optDouble("setMinV", Double.NaN);
-        Double setVNom = derSettingsPayload.optDouble("setVNom", Double.NaN);
-        Double setVRef = derSettingsPayload.optDouble("setVRef", Double.NaN);
-        // calling setters from the entity class
-        derEntity.setModesEnabled(modesEnabled);
-        derEntity.setSetESDelay(setESDelay);
-        derEntity.setSetESHighFreq(setESHighFreq);
-        derEntity.setSetESLowFreq(setESLowFreq);
-        derEntity.setSetESHighVolt(setESHighVolt);
-        derEntity.setSetESLowVolt(setESLowVolt);
-        derEntity.setSetESRampTms(setESRampTms);
-        derEntity.setSetESRandomDelay(setESRandomDelay);
-        derEntity.setSetGradW(setGradW);
-        derEntity.setSetSoftGradW(setSoftGradW);
-        derEntity.setSetMaxA(setMaxA);
-        derEntity.setSetMaxChargeRateVA(setMaxChargeRateVA);
-        derEntity.setSetMaxChargeRateW(setMaxChargeRateW);
-        derEntity.setSetMaxDischargeRateVA(setMaxDischargeRateVA);
-        derEntity.setSetMaxDischargeRateW(setMaxDischargeRateW);
-        derEntity.setSetMaxV(setMaxV);
-        derEntity.setSetMaxVA(setMaxVA);
-        derEntity.setSetMaxVar(setMaxVar);
-        derEntity.setSetMaxVarNeg(setMaxVarNeg);
-        derEntity.setSetMaxW(setMaxW);
-        derEntity.setSetMaxWh(setMaxWh);
-        derEntity.setSetMinPFOverExcited(setMinPFOverExcited);
-        derEntity.setSetMinPFUnderExcited(setMinPFUnderExcited);
-        derEntity.setSetMinV(setMinV);
-        derEntity.setSetVNom(setVNom);
-        derEntity.setSetVRef(setVRef);
-        
-
-     }
-
- * 
- */

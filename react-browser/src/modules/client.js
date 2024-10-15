@@ -428,6 +428,20 @@ export default class Client{
                 endDeviceId:''
 
             }
+        },
+
+        {
+            index:24,
+            test:'Power Generation Test',
+            desc:'description',
+            args:true,
+            object:{
+                endDeviceId:'',
+                derID:'',
+                setMaxW:'',
+                setMaxVA:''
+
+            }
         }
     ];
 
