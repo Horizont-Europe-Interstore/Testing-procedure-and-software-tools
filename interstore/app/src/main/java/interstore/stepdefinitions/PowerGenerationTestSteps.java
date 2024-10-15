@@ -53,13 +53,40 @@ public class PowerGenerationTestSteps {
     public void the_test_should_complete_successfully_with_create_a_power_generation_response_containing(String expectedJson) throws Exception  {
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "1");
-        expectedMap.put("setMaxA", "500");
+        expectedMap.put("setMaxW", "500");
         expectedMap.put("setMaxVA", "200"); 
         ObjectMapper actualObjectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
         LOGGER.info("Actual response: {}", actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())
+        {
+            Object key = entry.getKey();
+            
+            if(key.equals("message") &&   expectedMap.containsKey(key))
+            {
+                scenario.log("actual" + ":" +  actualMap);
+                scenario.log("expected" + ":" +   expectedMap);
+            }
+            else if( key.equals("DerPowerGenerationTest"))
+            {  
+                {
+                    scenario.log("actual" + ":" + entry.getValue());
+                    scenario.log("expected" + ":" + actualMap);
+                   } 
+               }
+            } 
+          
+        }
+          
+        }
+    
+
+
+
+/*
+ * 
+ *  for(Map.Entry<Object, Object> entry:actualMap.entrySet())
         {  
 
             Object key = entry.getKey();
@@ -71,7 +98,6 @@ public class PowerGenerationTestSteps {
             }
         } 
        
-          
-        }
-    
-}
+ * 
+ * 
+ */

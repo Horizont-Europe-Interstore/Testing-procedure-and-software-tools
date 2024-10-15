@@ -354,11 +354,12 @@ public class DerService {
     @Transactional
      public ResponseEntity<Map<String, Object>> updatePowerGenerationTest(Long endDeviceID, Long derId,JSONObject payload)throws NumberFormatException, JSONException, NotFoundException 
      {
-        LOGGER.info("Received DER payload is " + payload); 
-        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
+        LOGGER.info("Received DER power generation payload is " + payload); 
+        Long endDeviceId = Long.parseLong(payload.getString("endDeviceId")); 
         EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
-        Long derID = Long.parseLong(payload.getJSONObject("payload").getString("derID")); 
+        Long derID = Long.parseLong(payload.getString("derID")); 
+        LOGGER.info("DER service Power generation test is " + endDeviceId  + " and " + derID );
         DerEntity derEntity = derRepository.findById(derID)
         .orElseThrow(() -> new NotFoundException());
         derEntity.setEndDevice(endDevice); 
@@ -378,6 +379,7 @@ public class DerService {
             entityMap.put("id", derEntity.getId());
             entityMap.put("setMaxW", derEntity.getSetMaxW());
             entityMap.put("setMaxVA", derEntity.getSetMaxVA());
+            LOGGER.info("DER service Power generation test is " + derEntity.getSetMaxW() + " and " + derEntity.getSetMaxVA());
             result.put("DerPowerGenerationTest", entityMap);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -387,10 +389,11 @@ public class DerService {
      }
     }
 
-     public void setPowerGeneration(DerEntity derEntity, JSONObject payload)
-     {  JSONObject DerPowerGenerationpayload = payload.optJSONObject("payload");
-        Double setMaxW = parseDoubleFromPayload(  DerPowerGenerationpayload, "setMaxW");
-        Double setMaxVA = parseDoubleFromPayload(  DerPowerGenerationpayload, "setMaxVA");
+     public void setPowerGeneration(DerEntity derEntity, JSONObject derPowerGenerationpayload)
+     {  
+        //JSONObject DerPowerGenerationpayload = payload.optJSONObject("payload");
+        Double setMaxW = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxW");
+        Double setMaxVA = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxVA");
         derEntity.setSetMaxW(setMaxW);
         derEntity.setSetMaxVA(setMaxVA);
      }

@@ -27,6 +27,7 @@ public class DerManager {
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
+        LOGGER.info("the received payload in DER .....POwer " +  payload);
         JSONObject jsonObject = new JSONObject(payload);
         if(!jsonObject.has("action"))
         {
@@ -34,14 +35,14 @@ public class DerManager {
         }
         String action = jsonObject.getString("action");
         switch(action){
-            case"post":
+            case "post":
                 return addDerCapability(jsonObject);
             case "get":
                 return getDer(jsonObject);
             case "put":
-                return updateDERProgram(jsonObject);
+                LOGGER.info("the received payload inside switch case DER .....POwer " +  payload);
+                return updateDerSettings(jsonObject);
             case "delete":
-                //deleteDERProgram(jsonObject);
                 break;
 
         }
@@ -85,21 +86,25 @@ public class DerManager {
       return null ; 
     }
     
-   public Map<String, Object> updateDERProgram(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
-    {
-        if(payload.has("endDeviceId") && payload.has("derID"))
-         { 
-            Long endDeviceId = payload.getLong("endDeviceId");
-            Long derId = payload.getLong("derID");
-            if(payload.has("powergeneration"))
-            {
-                return updatePowerGenerationTest( endDeviceId,  derId ,payload);
+    public Map<String, Object> updateDerSettings(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
+{
+    
+    if (payload.has("payload")) {
+        JSONObject innerPayload = payload.getJSONObject("payload");
+        
+        if (innerPayload.has("endDeviceId") && innerPayload.has("derID")) {
+            Long endDeviceId = innerPayload.getLong("endDeviceId");
+            Long derId = innerPayload.getLong("derID");
+            if (payload.has("powergeneration")) {
+                return updatePowerGenerationTest(endDeviceId, derId, innerPayload);
             }
-         }
-          
-        return null;
+        }
     }
 
+    return null;
+}
+
+   
 
 
 
@@ -125,3 +130,27 @@ public class DerManager {
     }
 
 }
+
+
+/*
+ *  public Map<String, Object> updateDerSettings(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
+    {    
+        LOGGER.info("the received payload of DER Settings .. if " +  payload);
+        if(payload.has("endDeviceId") && payload.has("derID"))
+         { 
+          
+            Long endDeviceId = payload.getLong("endDeviceId");
+            Long derId = payload.getLong("derID");
+            LOGGER.info("the received payload in the DER program Manager for Update A DER Program is outside inner if " +  payload);
+            if(payload.has("powergeneration"))
+            {    
+                LOGGER.info("the received payload in the DER program Manager for Update A DER Settings is " +  payload);
+                return updatePowerGenerationTest( endDeviceId,  derId ,payload);
+            }
+         }
+          
+       return null; 
+    }
+ * 
+ * 
+ */
