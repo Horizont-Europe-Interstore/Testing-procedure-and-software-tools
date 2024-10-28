@@ -212,7 +212,21 @@ public class MessageFactory {
             method.invoke(microServiceObject, payLoad);
 
         }
-
+        else if(serviceName.equals("getallDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setAllderCurves", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("getASingleDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setADerControl", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("getallDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setAllDerControls", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
 
         else if(serviceName.equals("dcapmanager")){
             Method method = microServiceClass.getMethod("DeviceCapability", String.class);

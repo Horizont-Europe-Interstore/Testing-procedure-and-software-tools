@@ -57,18 +57,35 @@ public class DERControlManager {
 
     }
 
+    @GetMapping("/derp/{id1}/derc/{id2}")
     public Map<String, Object> getDERControl(JSONObject payload)
     {
-        if(payload.has("derControlLink"))
+        LOGGER.info("Response received in DERControlManager: "+payload);
+        if(payload.has("derpID") && payload.has("derControlID"))
         {
-            return this.derControlService.
-                    getDERControl(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")),
-                            Long.parseLong(payload.getJSONObject("payload").getString("der_control_id")))
-                    .getBody();
+            Long derpID = payload.getLong("derpID");
+            Long derControlID = payload.getLong("derControlID");
+            ResponseEntity<Map<String, Object>> response = this.derControlService.getDERControl(derpID, derControlID);
+            return response.getBody();
         }
 
+        else if(payload.has("derpID"))
+        {   Long derpID = payload.getLong("derpID");
 
-        return getAllDERControlDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
+            return getAllDERControlDetails(derpID);
+        }
+
+        return null ;
+//        if(payload.has("derControlLink"))
+//        {
+//            return this.derControlService.
+//                    getDERControl(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")),
+//                            Long.parseLong(payload.getJSONObject("payload").getString("der_control_id")))
+//                    .getBody();
+//        }
+//
+//
+//        return getAllDERControlDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
     @GetMapping("/derp/{id}/derc")

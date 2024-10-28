@@ -12,6 +12,7 @@ public class DerCurveTest {
     private static String serviceName;
     static String createdDerCurve;
     static String derCurve;
+    static String listOfDerCurves;
 
     public static String getserviceName(){
         return serviceName;
@@ -77,4 +78,35 @@ public class DerCurveTest {
     {
         return createdDerCurve;
     }
+
+    public static String getAllDerCurveRequest(Long derpID)
+    {
+
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("servicename", getserviceName());
+        attributes.put("action", "get");
+        attributes.put("derpID", derpID);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("The payload for the get all Der Curve is " + postPayload);
+            return postPayload;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String setAllderCurves(String responseAllDerCurves) {
+        LOGGER.info("The DerCurves for the given derProgram is "+ responseAllDerCurves);
+        listOfDerCurves = responseAllDerCurves;
+        return responseAllDerCurves;
+    }
+
+    public static String getAllderCurves(){
+        return listOfDerCurves;
+    }
+
+
 }

@@ -208,7 +208,7 @@ public class DERControlService {
             if (derControlDetails.isEmpty()) {
                 responseMap.put("message", "No DERControls found.");
             } else {
-                responseMap.put("derControls", derControlDetails);
+                responseMap.put("DERControls", derControlDetails);
             }
 
             return ResponseEntity.ok(responseMap);
@@ -219,6 +219,7 @@ public class DERControlService {
     }
 
     public ResponseEntity<Map<String, Object>> getDERControl(Long derProgramId, Long derControlId) {
+        LOGGER.info("Reached in get a single der control service class");
         try {
             Map<String, Object> result = new HashMap<>();
             Optional<DERControlEntity> derControlEntityOptional = derControlRepository.findFirstByDerProgramIdAndId(derProgramId, derControlId);
@@ -271,6 +272,7 @@ public class DERControlService {
             }
 
             result.put("DERControl", entityMap);
+            LOGGER.info("Leaving get a single der control service class");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving DERControl", e);

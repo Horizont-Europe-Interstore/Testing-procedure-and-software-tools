@@ -88,9 +88,9 @@ public class DERCurveManager {
 //        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
-    @GetMapping("/derp/{id}/dc")
-    public Map<String, Object> getAllDERCurveDetails(@PathVariable Long id){
-        ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(id);
+    @GetMapping("/derp/{derpId}/dc")
+    public Map<String, Object> getAllDERCurveDetails(@PathVariable Long derpId){
+        ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
         return  responseEntity.getBody();
     }
 
