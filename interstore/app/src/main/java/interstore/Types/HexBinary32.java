@@ -2,22 +2,22 @@ package interstore.Types;
 
 
 public class HexBinary32 {
-    private  String hexValue;
+    private  String hexValue32value;
 
     
 
-    public String getHexValue() {
-        return hexValue;
+    public String getHexValue32value() {
+        return hexValue32value;
     }
     
-    public void setHexValue(String hexValue) {
+    public void setHexValue32value(String hexValue) {
         // Ensure that the hex string is valid
         if (!isValidHexBinary32(hexValue)) {
             throw new IllegalArgumentException("Invalid HexBinary32 value: " + hexValue);
         }
 
      
-        this.hexValue = hexValue.length() % 2 == 0 ? hexValue : "0" + hexValue;
+        this.hexValue32value = hexValue.length() % 2 == 0 ? hexValue : "0" + hexValue;
     }
 
 

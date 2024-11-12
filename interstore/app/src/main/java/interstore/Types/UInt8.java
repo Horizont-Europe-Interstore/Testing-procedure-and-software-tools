@@ -3,25 +3,25 @@ package interstore.Types;
 import java.util.logging.Logger;
 
 public class UInt8 {
-    private final short value;
+    private final short Uint8Value;
     private static final Logger LOGGER = Logger.getLogger(UInt8.class.getName());
 
     public UInt8(short value) {
         if (value < 0 || value > 0xFF) {
             throw new IllegalArgumentException("Value must be between 0 and 255");
         }
-        this.value = value;
+        this.Uint8Value = value;
     }
 
-    public short getValue() {
-        return this.value;
+    public short getUint8Value() {
+        return this.Uint8Value;
     }
 
     // Add methods for arithmetic operations, comparison, etc., as needed
 
     @Override
     public String toString() {
-        return Short.toString(value);
+        return Short.toString(Uint8Value);
     }
 
     public static UInt8 toUInt8(String value) {

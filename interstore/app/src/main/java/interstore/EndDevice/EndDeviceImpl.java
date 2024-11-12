@@ -3,6 +3,7 @@ package interstore.EndDevice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Registration.RegistrationDto;
@@ -30,11 +31,8 @@ public class EndDeviceImpl {
     @Autowired
     private RegistrationRepository registrationRepository;
 
-    @Autowired
-    private DERRepository derRepository;
+   
 
-    @Autowired
-    private DERListRepository derListRepository;
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
 
@@ -48,23 +46,20 @@ public class EndDeviceImpl {
     }
 
 
-    @SuppressWarnings("null")
     public void setEndDevice(EndDeviceDto endDeviceDto, JSONObject payloadWrapper)
     {   
         Long id = endDeviceDto.getId(); 
-        String idString = "/"+ String.valueOf(id);
+        String idString = "/"+ String.valueOf(id) + "/";
         JSONObject payload = payloadWrapper.optJSONObject("payload");
         setEndDeviceAttributesEndPoints(payload);
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
-        String endDeviceLink = endDeviceListLink + idString;
-        String functionsetAssignmentListLink =  endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
-        String derListLink = endDeviceListLink + idString + payload.optString("derListLink");
-        String deviceStatusLink = endDeviceListLink + idString + payload.optString("deviceStatusLink", "defaultLink");
-        String registrationLink = endDeviceListLink + idString + payload.optString("registrationLink", "defaultLink");
-        String subscriptionLink = endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
-        String deviceCategory = payload.optString("deviceCategory", "defaultDeviceCategory");
-        
-       // System.out.println(derListLink);
+        String endDeviceLink =  endDeviceListLink +  idString;
+        String functionsetAssignmentListLink =   endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
+        String derListLink = endDeviceListLink +  idString + payload.optString("dERListLink", "defaultLink");
+        String deviceStatusLink =  endDeviceListLink  + idString + payload.optString("deviceStatusLink", "defaultLink");
+        String registrationLink = endDeviceListLink  + idString + payload.optString("registrationLink", "defaultLink");
+        String subscriptionLink =  endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
+        String deviceCategory =  payload.optString("deviceCategory", "defaultDeviceCategory");
         String sfdiString = payload.optString("sfdi", null);
         Long sfdi = null; 
         sfdiString = sfdiString.replaceAll("\\D", ""); 
@@ -79,6 +74,7 @@ public class EndDeviceImpl {
         endDeviceDto.setDeviceCategory(deviceCategory);
         endDeviceDto.setsfdi(sfdi);
         endDeviceDto.sethexBinary160(lfdi);
+
         Link link = new Link(); 
         link.setLink(endDeviceLink);
         endDeviceDto.setEndDeviceLink(link.getLink());
@@ -86,30 +82,18 @@ public class EndDeviceImpl {
         endDeviceDto.setDeviceStatusLink(link.getLink());
         link.setLink(registrationLink);
         endDeviceDto.setRegistrationLink(link.getLink());
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("payload",getDERPayload(link.getLink()));
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String postPayload = objectMapper.writeValueAsString(attributes);
-            JSONObject jsonPayloadWrapper = new JSONObject(postPayload);
-            DERList derList = new DERList(link.getLink());
-            derList = derListRepository.save(derList);
-            generateDER(jsonPayloadWrapper, derList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+       
         ListLink listLink = new ListLink();
         listLink.setListLink(functionsetAssignmentListLink);
-        endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink()); 
+        endDeviceDto.setFunctionSetAssignmentsListLink(listLink.getListLink());
         listLink.setListLink(derListLink);
-        endDeviceDto.setDERListLink(listLink.getListLink()); 
+        endDeviceDto.setDERListLink(listLink.getListLink());
         listLink.setListLink(subscriptionLink);
         endDeviceDto.setSubscriptionListLink(listLink.getListLink());
 
 
     }
+    
 
     public void setEndDeviceAttributesEndPoints(JSONObject payload)
     {
@@ -127,30 +111,8 @@ public class EndDeviceImpl {
         }
 
     }
-    public void generateDER(JSONObject jsonPayloadWrapper, DERList derList){
-        for(int i = 0; i < 3; i++) {
-            DERDto derDto = new DERDto(derList);
-            derDto = derRepository.save(derDto);
-            derList.addDerDto(derDto);
-            DERImpl derImpl = ApplicationContextProvider.getApplicationContext().getBean(DERImpl.class);
-            derImpl.setDER(derDto, jsonPayloadWrapper);
-        }
-    }
-
-    public Map<String, String> getDERPayload(String derListLink){
-        Map<String, String> payload = new HashMap<>();
-        payload.put("DERListLink", derListLink);
-        payload.put("DERCapabilityLink", "/dercap");
-        payload.put("DERStatusLink", "/ders");
-        payload.put("DERAvailabilityLink", "/dera");
-        payload.put("DERSettingsLink", "/derg");
-        return payload;
-    }
-
-
-
-
-     /* this is not database id , this is the id of the device it'self like SFDI, LFDI */
+   
+    
      public Map<String, Object> getEndDeviceID(EndDeviceDto endDeviceDto)
      {
         if (endDeviceDto == null || endDeviceDto.getId() == null) {
@@ -184,17 +146,28 @@ public class EndDeviceImpl {
         }
 
     } 
-
+    /*get all end devices has two outcomes one is no end devices found
+     * and other one is end devices found, among the end devcies found
+     * the end devices found shall response the list of the end devices
+     * those are only with the uri , the list of uri of the end devices .
+     * the list of EndDevices are {"endDevices":[{"id":1,"deviceCategory":"0","hexBinary160":"3E4F45","endDeviceLink":"http://localhost/edev/1","deviceStatusLink":"http://localhost/edev/1/dstat",
+     * "registrationLink":"http://localhost/edev/1/rg","functionSetAssignmentsListLink":"http://localhost/edev/1/fsa","derlistLink":"http://localhost/edev/1","subscriptionListLink":"http://localhost/edev/1/sub","sfdi":16726121139},
+     * {"id":2,"deviceCategory":"1","hexBinary160":"3E4F46","endDeviceLink":"http://localhost/edev/2","deviceStatusLink":"http://localhost/edev/2/dstat","registrationLink":"http://localhost/edev/2/rg",
+     * "functionSetAssignmentsListLink":"http://localhost/edev/2/fsa","derlistLink":"http://localhost/edev/2","subscriptionListLink":"http://localhost/edev/2/sub","sfdi":16726121111}]}
+     *
+     */
+    @SuppressWarnings("unlikely-arg-type")
     public ResponseEntity<Map<String, Object>> getAllEndDevices() {
         Map<String, Object> responseMap = new HashMap<>();
         try {
            
-            List<EndDeviceDto> endDeviceDtos  = endDeviceRepository.findAll(); 
+            List<EndDeviceDto> endDeviceDtos  = endDeviceRepository.findAll();
             if(endDeviceDtos.isEmpty()) {
                 responseMap.put("message", "No endDevices found.");
             }
             else {
                 responseMap.put("endDevices", endDeviceDtos);
+
             }
             
             return ResponseEntity.ok(responseMap);
@@ -217,25 +190,11 @@ public class EndDeviceImpl {
     }
 
 
-    /*
-     */
     @Transactional
-    public Map<String, Object> registerEndDevice(JSONObject  registrationPayload, Long endDeviceID)
+    public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
-        JSONObject payload = registrationPayload.optJSONObject("payload");
-        String registrationPin = (payload != null) ? payload.optString("pin", "null") : "null";
 
-        Long registrationPinLong = null;
-        try {
-           if (!"null".equals(registrationPin)) {
-             registrationPinLong = Long.parseLong(registrationPin);
-        }  else {
-            LOGGER.log(Level.WARNING, "No PIN provided in the payload.");
-        }
-       } catch (NumberFormatException e) {
-          LOGGER.log(Level.SEVERE, "Invalid PIN format: " + registrationPin, e);
-         throw new IllegalArgumentException("PIN must be a numeric value.");
-        }
+
         EndDeviceDto endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
         RegistrationDto registrationDto = new RegistrationDto();
@@ -275,11 +234,6 @@ public class EndDeviceImpl {
    */
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
-    ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-    Map<String, Object> responseMap = responseEntity.getBody();
-    if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-    }
         try {
             List<RegistrationDto> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
             LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
@@ -312,14 +266,9 @@ public class EndDeviceImpl {
      */
     public ResponseEntity<Map<String, Object>>getRegisterdEndDeviceDetails(Long endDeviceID, Long registrationID)
     {
-        ResponseEntity<Map<String, Object>> responseEntity =  this.getEndDevice(endDeviceID);
-        Map<String, Object> responseMap = responseEntity.getBody();
-        if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
-            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-        }
-
+        
         try {
-            Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceId(endDeviceID);
+            Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
             if (registrationDto == null) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);
@@ -336,19 +285,25 @@ public class EndDeviceImpl {
 
 }
 
+    public EndDeviceDto getEndDeviceByRegistrationID(Long id){
+        Optional<RegistrationDto> registrationDto = registrationRepository.findById(id);
+        EndDeviceDto endDeviceDto = registrationDto.get().getEndDevice();
+        return endDeviceDto;
+    }
+
 }
 
 
 
+/*
+ *  Map<String, Object> attributes = new HashMap<>();
+        attributes.put("payload",getDERPayload(link.getLink()));
+ * 
+ * public Map<String, String> getDERPayload(String derListLink){
+        Map<String, String> payload = new HashMap<>();
+        payload.put("DERListLink", derListLink);
+        return payload;
+    }
 
+ */
 
-
-
-
-
-
-
-
-
-
-    

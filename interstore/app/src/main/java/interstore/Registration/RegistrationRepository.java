@@ -8,7 +8,9 @@ public interface RegistrationRepository extends JpaRepository<RegistrationDto, L
    // RegistrationDto findTopByEndDeviceId(Long endDeviceId);
     //RegistrationDto findTopByEndDeviceId(Long endDeviceId); 
    // RegistrationDto findById(Long registrationID);
-    Optional<RegistrationDto> findFirstByEndDeviceId(Long registrationID);
+    //Optional<RegistrationDto> findFirstByEndDeviceId(Long registrationID);
+    //RegistrationDto findByEndDeviceIDAndRegistrationId(Long endDeviceId, Long registrationID);
+    Optional<RegistrationDto> findFirstByEndDeviceIdAndId(Long endDeviceId, Long registrationID); 
 
 }
 

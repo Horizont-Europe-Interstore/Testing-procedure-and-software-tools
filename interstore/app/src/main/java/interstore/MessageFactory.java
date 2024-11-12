@@ -1,10 +1,10 @@
 package interstore;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger; 
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 public class MessageFactory {
     String action;
     String natssubject;
@@ -32,69 +32,212 @@ public class MessageFactory {
 
     Object microServiceObject = getMicroservice(this.microServiceFactory.getDtoMap(), serviceName); 
     Class<?> microServiceClass = microServiceObject.getClass(); 
-    //LOGGER.info("microservice name is " + serviceName); 
+    LOGGER.info("microservice name is " + serviceName); 
     try {
-          if(serviceName.equals("selfenddevicemanager") )  
-          {
-             
-              Method method = microServiceClass.getMethod("forwardResponse", String.class);
-              method.invoke(microServiceObject, payLoad);
+        if(serviceName.equals("selfenddevicemanager") )
+        {
 
-          }
-          else if(serviceName.equals("enddevicemanager"))  
-          {
-            
-             Method method = microServiceClass.getMethod("setEndDevices", String.class);
-             method.invoke(microServiceObject, payLoad);
-            
-          }
-          
-          else if(serviceName.equals("createnewenddevice"))
-          {
+            Method method = microServiceClass.getMethod("forwardResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-              Method method = microServiceClass.getMethod("setEndDevices", String.class); 
-              method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("enddevicemanager"))
+        {
 
-          }
-          
-          else if(serviceName.equals("enddeviceinstancemanager"))
-          {
+            Method method = microServiceClass.getMethod("setEndDevices", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-              Method method = microServiceClass.getMethod("setEndDeviceInstance", String.class);
-              method.invoke(microServiceObject, payLoad);
+        }
 
-          }
+        else if(serviceName.equals("createnewenddevice"))
+        {
 
-          else if(serviceName.equals("enddevicelinkmanager"))
-          {
-              Method method = microServiceClass.getMethod("getEndDevice", String.class);
-              method.invoke(microServiceObject, payLoad);
+            Method method = microServiceClass.getMethod("setEndDevices", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-          }
-         
-         else if(serviceName.equals("enddeviceregistrationmanager"))
-         {
-             Method method = microServiceClass.getMethod("verifyRegisteredEndDevice", String.class);
-             method.invoke(microServiceObject, payLoad);
+        }
 
-         }
+        else if(serviceName.equals("enddeviceinstancemanager"))
+        {
+
+            Method method = microServiceClass.getMethod("setEndDeviceInstance", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("enddevicelinkmanager"))
+        {
+            Method method = microServiceClass.getMethod("getEndDevice", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("enddeviceregistrationmanager"))
+        {
+            Method method = microServiceClass.getMethod("verifyRegisteredEndDevice", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
         else if(serviceName.equals("getalldcapmanager"))
-          {
-             Method method = microServiceClass.getMethod("AllDeviceCapablity", String.class);
-             method.invoke(microServiceObject, payLoad);
+        {
+            Method method = microServiceClass.getMethod("AllDeviceCapablity", String.class);
+            method.invoke(microServiceObject, payLoad);
 
-          } 
+        }
 
-          else if(serviceName.equals("findallregistrededendevice"))
-          {
-             Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class);  //   , registeredEndDevice
-             method.invoke(microServiceObject, payLoad);
+        else if(serviceName.equals("findallregistrededendevice"))
+        {
+            Method method = microServiceClass.getMethod("setregisteredEndDeviceDetails", String.class); 
+            method.invoke(microServiceObject, payLoad);
 
-          }
-        else{ 
-             Method method = microServiceClass.getMethod("DeviceCapability", String.class);
-             method.invoke(microServiceObject, payLoad);
-          }
+        }
+
+        else if(serviceName.equals("getallFsamanager"))  
+        {
+            Method method = microServiceClass.getMethod("setAllFsa", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+        else if(serviceName.equals("createFsamanager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedFunctionSetAssignment", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        } 
+           
+        else if(serviceName.equals("getASingleFsamanager"))
+        {
+            Method method = microServiceClass.getMethod("setSingleFunctionSetAssignments", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        
+        else if(serviceName.equals("createDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDerProgram", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getallDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setAllderPrograms", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        
+        else if(serviceName.equals("getASingleDerprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("setADerprogram", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+
+         // #######################
+        else if(serviceName.equals("createDerCapabilitymanager"))
+        {
+            Method method = microServiceClass.getMethod("setcreatedDerCapability", String.class);  
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getDerCapabilitymanager"))
+        {
+            Method method = microServiceClass.getMethod("setADerCapability", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        
+        else if(serviceName.equals("createDerSettingsmanager"))
+        {
+            Method method = microServiceClass.getMethod("setcreatedDerSettings", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+
+
+        else if(serviceName.equals("getDerSettingsmanager"))
+        {
+            Method method = microServiceClass.getMethod("setADerSettings", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        
+        else if(serviceName.equals("PowerGenerationTestmanager"))
+        {
+            Method method = microServiceClass.getMethod("setEditedpowerGeneration", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        
+         // #######################
+
+        else if(serviceName.equals("fsalistmanager"))
+        {
+            Method method = microServiceClass.getMethod("getFSAList", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("fsamanager"))
+        {
+            Method method = microServiceClass.getMethod("getFSAInstance", Object.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("derplistmanager"))
+        {
+            Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+            method.invoke(microServiceObject, payLoad.toString());
+        }
+        else if (serviceName.equals("derprogrammanager"))
+        {
+            Method method = microServiceClass.getMethod("getDERProgramInstance", String.class);
+            method.invoke(microServiceObject, payLoad.toString());
+        }
+      
+
+        else if (serviceName.equals("timemanager"))
+        {
+            Method method = microServiceClass.getMethod("getTimeResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if (serviceName.equals("advancedtimemanager"))
+        {
+            Method method = microServiceClass.getMethod("getUpdatedTimeResponse", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("createDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDerCurve", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getASingleDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setADerCurve", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("createDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setCreatedDerControl", String.class);
+            method.invoke(microServiceObject, payLoad);
+
+        }
+        else if(serviceName.equals("getallDerCurveManager"))
+        {
+            Method method = microServiceClass.getMethod("setAllderCurves", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("getASingleDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setADerControl", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+        else if(serviceName.equals("getallDerControlManager"))
+        {
+            Method method = microServiceClass.getMethod("setAllDerControls", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
+
+        else if(serviceName.equals("dcapmanager")){
+            Method method = microServiceClass.getMethod("DeviceCapability", String.class);
+            method.invoke(microServiceObject, payLoad);
+        }
         
           
            
@@ -115,14 +258,7 @@ public class MessageFactory {
 
 
 
-/*
- *  JSONObject jsonObject = new JSONObject(payLoad);
-             String jsonpayload = jsonObject.getString("payload");
-             if(jsonpayload.endsWith("/edev")) 
-             LOGGER.info("the pyload is for all endevices present " + payLoad); 
- * 
- * 
- */
+
 
 
     

@@ -9,20 +9,21 @@ public class DeviceCategoryType extends HexBinary32 implements AbstractDevice {
     {
        // write super to acces the class HexBinary32
         validateDeviceCategory(hexValue);
-        super.setHexValue(hexValue);
+        super.setHexValue32value(hexValue);
       
 
     }
     public String getDeviceCategory()
     {
-        return super.getHexValue();
+        return super.getHexValue32value();
     } 
-    private void validateDeviceCategory(String hexValue) {
+    public boolean validateDeviceCategory(String hexValue) {
         // Check if the value is within the allowed range (0 to 25)
         int decimalValue = Integer.parseInt(hexValue, 16);
         if (decimalValue < 0 || decimalValue > 25) {
             throw new IllegalArgumentException("Invalid DeviceCategoryType value: " + hexValue);
         }
+        return true;
     }
 
     @Converter(autoApply = true)
@@ -33,7 +34,7 @@ public class DeviceCategoryType extends HexBinary32 implements AbstractDevice {
             if (attribute == null) {
                 return null;
             }
-            return attribute.getHexValue();
+            return attribute.getHexValue32value();
         }
 
         @Override

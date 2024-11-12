@@ -1,24 +1,21 @@
 package interstore;
-import io.vertx.core.AbstractVerticle;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.MessageHandler;
 import io.nats.client.Nats;
-import io.vertx.core.json.JsonObject;
-import jakarta.annotation.PostConstruct;
+import io.vertx.core.AbstractVerticle;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
-import com.fasterxml.jackson.databind.ObjectMapper; 
-import com.fasterxml.jackson.core.JsonProcessingException; 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class ServiceDiscoveryVerticle extends AbstractVerticle {
@@ -147,6 +144,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
          try {
                 Class<?> microServiceClass = microServiceObject.getClass();
                 Method method = microServiceClass.getMethod("chooseMethod_basedOnAction", String.class);
+                LOGGER.info("the nats message in the service discovery verticle is " + natsmsg);
                 Object response = method.invoke(microServiceObject, natsmsg);
                 this.sendResponseToNats( natsmsg,response);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -159,8 +157,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     public void sendResponseToNats(String natsSubject ,Object response) throws JsonProcessingException {
                ObjectMapper objectMapper = new ObjectMapper();
                 String responseMessage = objectMapper.writeValueAsString(response);
-                //String responseMessage = response.toString();
-                //LOGGER.info("Response message in  service verticle : " + responseMessage);
+                LOGGER.info("Response message in  service verticle : " + responseMessage);
                 this.messageToPublish.reSubscribeMessage(getNatsMatter(), this.natsUrl , getServiceName()); 
                 // Use  NATS connection to publish the response
                 natsConnection.publish(getNatsMatter(), responseMessage.getBytes(StandardCharsets.UTF_8));
@@ -175,19 +172,7 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
     
 
     /*
-     * @PostConstruct
-       public void postConstruct(){
-
-       }
-       
-
-        public ServiceDiscoveryVerticle() throws Exception{  
-        this.natsUrl = System.getenv("NATS_URL"); 
-        this.natsConnection = Nats.connect(natsUrl);
-        this.microServiceFactory = new MicroServiceFactory(); 
-        this.messageToPublish = new MessageToPublish(); 
-        this.serviceName = null; 
-       }
+     *
 
      * 
      */

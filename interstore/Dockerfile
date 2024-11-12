@@ -1,23 +1,9 @@
-# Use an official OpenJDK runtime as a parent image
 FROM openjdk:17-slim
-
-# Set the working directory in the container
 WORKDIR /app
-RUN apt-get update && apt-get install -y netcat wget unzip entr
-COPY gradlew /app/
-COPY gradle /app/gradle
-COPY app/build.gradle /app/
-RUN chmod +x ./gradlew
-COPY . /app
-#RUN ./gradlew build --no-daemon || return 0
-COPY . /app
-#COPY . .
-
-#RUN ./gradlew build --no-daemon
-
-# Expose the port the app runs on
+RUN apt-get update && apt-get install 
+COPY . .
 EXPOSE 8080
-CMD ["sh", "-c", "find src -type f | entr -r ./gradlew bootRun"]
+
 
 
 

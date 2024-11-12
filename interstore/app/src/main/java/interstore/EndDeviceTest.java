@@ -1,14 +1,16 @@
 package interstore;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 public class EndDeviceTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
      private static String endDeviceListLink; 
@@ -95,7 +97,8 @@ public class EndDeviceTest {
        Map<String, Object> attributes = new HashMap<>(); 
       attributes.put("servicename", getserviceName());
       attributes.put("action", "get");
-      attributes.put("payload", getEndDeviceListLink()); 
+      attributes.put("payload", getEndDeviceListLink());
+      attributes.put("endDeviceLink", getEndDeviceListLink());
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes); 
@@ -110,7 +113,7 @@ public class EndDeviceTest {
    /* This method will create an end device in the server  */
    public static String createNewEndDevice(JSONObject PayLoad) throws JSONException  
    {  
-
+      
        String endDeviceendPoint = (String)PayLoad.get("endDeviceListLink");
        setEndDeviceEndPoint(endDeviceendPoint);
        String registrationLink = (String)PayLoad.get("registrationLink");
@@ -130,12 +133,14 @@ public class EndDeviceTest {
        return null ; 
    }
    
-   public static String createEndDeviceRegistration(Map<String, String> PayLoad)
+   public static String createEndDeviceRegistration(Long EndDeviceID, Long pin)
    {
        Map<String, Object> attributes = new HashMap<>();
        attributes.put("servicename", getserviceName());
        attributes.put("action", "post");
-       attributes.put("payload", PayLoad);
+       attributes.put("endDeviceID", EndDeviceID);
+       attributes.put("pin", pin); 
+       attributes.put("payload", endDeviceID);
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
@@ -165,24 +170,25 @@ public class EndDeviceTest {
    }
 
     /* This method will get the end device instance from the server */ 
-    public static String getEndDeviceInstancetest()
+    public static String getEndDeviceInstancetest(Long endDeviceID)
     {  
         
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
-        attributes.put("payload", getendDeviceLink());
-        attributes.put("sfdi", getSfdi());
+        //attributes.put("payload", endDeviceID);
+        attributes.put("endDeviceID", endDeviceID); 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("the instance that we are looking is " + postPayload);
             return postPayload;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null ;
-    }
+    }  
     /* the list of end devices will list all end devices present on 
      * the server among the end devices the user shall choose one 
      * end device , the end device is identified with sfdi and lfdi
@@ -193,7 +199,58 @@ public class EndDeviceTest {
      */
      public static String setsfdi(String Sfdi) throws JSONException
      {
-        LOGGER.info("the sfdi is here in form payload  " + Sfdi);
+         try{
+             LOGGER.info("the sfdi is here in form payload  " + Sfdi);
+             Long requestedSfdi = Long.parseLong(Sfdi);
+             String EndDevices = getEndDevices();
+             JSONObject jsonObject = new JSONObject(EndDevices);
+             JSONArray jsonArray = jsonObject.getJSONArray("endDevices");
+             for(int i = 0 ; i < jsonArray.length() ; i++)
+             {
+                 JSONObject endDevice = jsonArray.getJSONObject(i);
+                 Long sfdi = endDevice.getLong("sfdi");
+                 if(sfdi == requestedSfdi)
+                 {   String sfdiString = sfdi.toString();
+                     setSfdi(sfdiString);
+                     LOGGER.info("the sfdi is which is set and geeting from getter " + getSfdi());
+                     Long endDeviceID = endDevice.getLong("id");
+                     String endDeviceIDString = endDeviceID.toString();
+                     setendDeviceID(endDeviceIDString);
+                     String endDeviceLink = endDevice.getString("endDeviceLink");
+                     setendDeviceLink(endDeviceLink);
+
+                 }
+             }
+         }
+         catch (Exception e){
+             JSONObject myjsonObject = new JSONObject(Sfdi);
+             JSONObject payload = myjsonObject.getJSONObject("payload");
+             Long requestedSfdi = Long.parseLong(payload.getString("sfdi"));
+             LOGGER.info("..............."+requestedSfdi);
+             String EndDevices = getEndDevices();
+             JSONObject jsonObject = new JSONObject(EndDevices);
+             JSONArray jsonArray = jsonObject.getJSONArray("endDevices");
+             for(int i = 0 ; i < jsonArray.length() ; i++)
+             {
+                 JSONObject endDevice = jsonArray.getJSONObject(i);
+                 Long sfdi = endDevice.getLong("sfdi");
+                 LOGGER.info("..............."+sfdi);
+                 if(sfdi.equals(requestedSfdi))
+                 {   LOGGER.info("insideeeeee...............");
+                     String sfdiString = sfdi.toString();
+                     setSfdi(sfdiString);
+                     LOGGER.info("the sfdi is which is set and geeting from getter " + getSfdi());
+                     Long endDeviceID = endDevice.getLong("id");
+                     String endDeviceIDString = endDeviceID.toString();
+                     setendDeviceID(endDeviceIDString);
+                     String endDeviceLink = endDevice.getString("endDeviceLink");
+                     setendDeviceLink(endDeviceLink);
+
+                 }
+             }
+         }
+
+        LOGGER.info("the sfdi is in the end device test class in form payload  " + Sfdi);
         Long requestedSfdi = Long.parseLong(Sfdi); 
        String EndDevices = getEndDevices(); 
        JSONObject jsonObject = new JSONObject(EndDevices);
@@ -240,7 +297,7 @@ public class EndDeviceTest {
      * interest is needed */  
     public static void setEndDeviceInstance(String EndDevice)
        { 
-         endDeviceInstance = EndDevice;  
+        endDeviceInstance = EndDevice;  
          
        }
    
@@ -267,7 +324,7 @@ public class EndDeviceTest {
      */
    public static void getRegisteredEndDevice(String endDeviceResponsePayLoad)
     { 
-       String endDevice = interstore.DeviceCapabilitytest.getEndDeviceEndPoint(); 
+       String endDevice = interstore.DeviceCapabilityTest.getEndDeviceEndPoint(); 
        String registeredEndDevice = getRegistrationLinkEndPoint();
        String patternString =  endDevice + "/(\\d+)" + registeredEndDevice ;  
        Pattern pattern = Pattern.compile(patternString);
@@ -312,12 +369,14 @@ public static String getEndDeviceregisteredwithId()
     return tmpregistrationLinkId;
 }
 
-public static String findRegisteredEndDevice()
+public static String findRegisteredEndDevice(Long endDeviceID, Long  registrationID)
 {
     Map<String, Object> attributes = new HashMap<>();
     attributes.put("servicename", getserviceName());
     attributes.put("action", "get");
-    attributes.put("payload",  getEndDeviceregisteredwithId());
+    //attributes.put("payload",  getEndDeviceregisteredwithId());
+    attributes.put("endDeviceID", endDeviceID);
+    attributes.put("registrationID", registrationID);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
         String postPayload = objectMapper.writeValueAsString(attributes);
@@ -332,7 +391,7 @@ public static String findRegisteredEndDevice()
 
 public static void setregisteredEndDeviceDetails(String instanceofRegisteredEndDevice)
 {
-   
+    LOGGER.info("Yaha aagaya........"+instanceofRegisteredEndDevice);
     registeredEndDeviceDetails = instanceofRegisteredEndDevice; 
 }
 
@@ -347,19 +406,3 @@ public static String getregisteredEndDeviceDetails()
 
   
 
-/*
- *  if(jsonArray.length() > 0)
-       {
-           JSONObject endDevice = jsonArray.getJSONObject(jsonArray.length() - 1);
-            Long sfdi = endDevice.getLong("sfdi");
-            String sfdiString = sfdi.toString();
-            setSfdi(sfdiString);
-            Long endDeviceID = endDevice.getLong("id");
-            String endDeviceIDString = endDeviceID.toString();
-            setendDeviceID(endDeviceIDString); 
-            String endDeviceLink = endDevice.getString("endDeviceLink");
-            setendDeviceLink(endDeviceLink); 
-            
-       }
- * 
- */

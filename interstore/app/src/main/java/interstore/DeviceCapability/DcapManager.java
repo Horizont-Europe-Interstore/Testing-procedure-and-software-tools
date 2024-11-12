@@ -1,13 +1,14 @@
 package interstore.DeviceCapability;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.logging.Logger;
-import java.net.MalformedURLException;
-import java.util.Map; 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.MalformedURLException;
+import java.util.Map;
+import java.util.logging.Logger;
 
 @RestController
 public class DcapManager {
@@ -30,10 +31,14 @@ if (payload == null || payload.isEmpty()) {
         case"post":
         return  addDeviceCapability(jsonObject);
         case "get":
-        return getDeviceCapability(); 
+        return getDeviceCapability();
+        case "get-time":
+        return getTime(jsonObject.getString("payload"));
         case "put":
         updateDeviceCapability(jsonObject);
-        break; 
+        case "update-time":
+        updateTime(jsonObject.getString("payload"));
+        break;
       }
       return "Operation completed successfully"; 
    }
@@ -82,6 +87,14 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 { 
     LOGGER.info("Returned a 400 or 405 status message"); 
 }
+}
+
+public String getTime(String payload) throws JSONException{
+    return deviceCapabilityImpl.getTime(payload);
+}
+
+public void updateTime(String payload) throws JSONException{
+    deviceCapabilityImpl.updateTime(payload);
 }
 
 }

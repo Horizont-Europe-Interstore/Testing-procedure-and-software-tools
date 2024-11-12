@@ -1,4 +1,5 @@
 package interstore;
+import interstore.Types.TimeType;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,14 +9,16 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
-
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 @SpringBootApplication()
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
-, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER"})
+, "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments"
+        ,"interstore.DERProgram", "interstore.Time", "interstore.DERCurve", "interstore.Events", "interstore.DERControl"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -38,40 +41,16 @@ public class App {
 
     }
 
-    public Map<String , String> postPayLoad()
-    {
-        Map<String, String> payload = new HashMap<>(); 
-        payload.put("lfdi", "3E4F45");
-        payload.put("deviceCategory", "0");
-        payload.put("sfdi", "16726121139L");
-        payload.put("registrationLink", "/rg");
-        payload.put("functionsetAssignmentLink", "/fsa");
-        payload.put("subscriptionLink", "/sub");
-        payload.put("deviceStatusLink", "/dstat");
-        payload.put("endDeviceListLink", "/edev");
-        payload.put("derlistlink", "/der");
-        return payload;
-    }
-  
-    
-    
 
-    public Map<String, String> createRegisterEndDevice() throws Exception
-    {
-        
-         Map<String, String> payLoad = new HashMap<>();
-         payLoad.put("pin", "111115");
-         return payLoad; 
-        
-    }
 
     public Map<String, String> postDeviceCapablity()
     {
         Map<String, String> payload = new HashMap<>();
        
-        payload.put("mirrorUsagePointListLink", "/mup");
-        payload.put("selfDeviceLink", "/sdev");
-        payload.put("endDeviceListLink", "/edev");
+        payload.put("mirrorUsagePointListLink", "mup");
+        payload.put("selfDeviceLink", "sdev");
+        payload.put("endDeviceListLink", "edev");
+        payload.put("timeLink", "tm");
 
         return payload;
     }
@@ -82,10 +61,7 @@ public class App {
     //needs persistence
      public String findDeviceCapability(String natsSubject) throws Exception
      {
-        /*DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
-        deviceCapabilitytest.setserviceName("getalldcapmanager" );
-         Thread.sleep(100);*/
-         String deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
+         String deviceCapabilityResponse = DeviceCapabilityTest.getDeviceCapabilityresponse();
          LOGGER.info("the device capability response is  " + deviceCapabilityResponse);
          return  deviceCapabilityResponse;
      }
@@ -95,17 +71,17 @@ public class App {
     /*This method is to create a device capablity in the server */
     public String CreateDeviceCapabilityTest(String natsSubject) throws Exception {
         String deviceCapabilityResponse = findDeviceCapability(natsSubject);
+        LOGGER.info("CreateDeviceCapability response: "+deviceCapabilityResponse);
         if(deviceCapabilityResponse != null){
             return deviceCapabilityResponse;
         }
 
-        DeviceCapabilitytest deviceCapabilitytest = new DeviceCapabilitytest();
+        DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         deviceCapabilitytest.setserviceName("dcapmanager" ); 
         String Payload =  deviceCapabilitytest.setPostQuery(postDeviceCapablity());
         this.messageToPublish.newStart(natsSubject, Payload );
         Thread.sleep(300);
-        deviceCapabilityResponse = interstore.DeviceCapabilitytest.getDeviceCapabilityresponse();
-        LOGGER.info("the device capability response is  " + deviceCapabilityResponse);    
+        deviceCapabilityResponse = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
         return  deviceCapabilityResponse;
     }
    
@@ -117,21 +93,17 @@ public class App {
     */
 
     public Object DeviceCapabilitygetAllEndDevice(String natsSubject) throws Exception {
-        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
-        if(endDeviceList != null){
-            return endDeviceList;
-        }
-        String deviceCapabilityResponse = CreateDeviceCapabilityTest(natsSubject);
-        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+
+        String endDeviceListLink = interstore.DeviceCapabilityTest.getEndDeviceListLink(); 
         Thread.sleep(100);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
         interstore.EndDeviceTest.EndDeviceListLinktest()); 
         Thread.sleep(100);
-        endDeviceList = interstore.EndDeviceTest.getEndDevices();
+        Object endDeviceList = interstore.EndDeviceTest.getEndDevices();
         LOGGER.info("the list of EndDevices are " + endDeviceList);
-       
+
         return endDeviceList;
     }
     
@@ -162,8 +134,10 @@ public class App {
      */
      public Object getAllEndDevicesTest(String natsSubject)throws Exception {
         Thread.sleep(300);
+
         // impliment a different logic for get all end device . ///
-        String endDeviceListLink = interstore.DeviceCapabilitytest.getEndDeviceListLink(); 
+        String endDeviceListLink = interstore.DeviceCapabilityTest.getEndDeviceListLink(); 
+        LOGGER.info("the end device list link is " + endDeviceListLink);
         interstore.EndDeviceTest.setServicename("enddevicemanager");
         interstore.EndDeviceTest.setEndDeviceListLink(endDeviceListLink);
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
@@ -186,18 +160,15 @@ public class App {
        */
       
     public Object getEndDeviceTest(String natsSubject)throws Exception{
-        getAllEndDevicesTest("getAllEndDevicesTest");
-        Thread.sleep(300);
-        interstore.EndDeviceTest.setServicename("enddeviceinstancemanager"); // enddeviceinstancemanager
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        String Payload =  interstore.EndDeviceTest.createNewEndDevice(currentTest);
-        LOGGER.info("the sfdi payload is " + Payload); 
-        interstore.EndDeviceTest.setsfdi( Payload );  // needs to supply an sfdi 
+        Long endDeviceID = currentTest.getLong("id");
+        LOGGER.info("the current test object is which is the id .. " + endDeviceID );
+        interstore.EndDeviceTest.setServicename("enddeviceinstancemanager");
         this.messageToPublish.newStart(natsSubject+ "EndDevice",
-        interstore.EndDeviceTest.getEndDeviceInstancetest());
+        interstore.EndDeviceTest.getEndDeviceInstancetest(endDeviceID));
         Thread.sleep(300);
         Object endDevice = interstore.EndDeviceTest.getEndDeviceInstance();
-        LOGGER.info("the end device instance is " + endDevice); 
+        LOGGER.info("the end device instance is in app class " + endDevice);
        return endDevice; 
     }
 
@@ -205,66 +176,343 @@ public class App {
     /*
      first needs to check that the device has registered or not if it registered
      this will return  pin as the attribute if not it returns device not registered message
+     this method needs needs a form with end device id and registration pin "pin"
     */
     
-     public Long createEndDeviceRegistrationTest(String natsSubject) throws Exception
+     public Object createEndDeviceRegistrationTest(String natsSubject) throws Exception
      {
-        Object response = getEndDeviceTest("EndDevice");
-        Thread.sleep(300);
-        interstore.EndDeviceTest.getRegisteredEndDevice(response.toString()); 
-        String registrationLink = interstore.EndDeviceTest.getRegistrationLink();
-        Map<String, String> payload = createRegisterEndDevice();
-        payload.put("registrationLink", registrationLink);
+
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long pin = currentTest.getLong("registrationPin");
+
         interstore.EndDeviceTest.setServicename("enddeviceregistrationmanager");
-        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(payload));
+        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.createEndDeviceRegistration(endDeviceID, pin ));
         Thread.sleep(300);
-       // LOGGER.info("the registration pin " + interstore.EndDeviceTest.getRegistrationPin());
-       // LOGGER.info("the registration link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
-        return interstore.EndDeviceTest.getRegistrationPin();
+       LOGGER.info("the registration pin " + interstore.EndDeviceTest.getRegistrationPin());
+        Long pinRegistered = interstore.EndDeviceTest.getRegistrationPin();
+        Map<String, Long> registration = new HashMap<String , Long>();
+        registration.put("pin", pinRegistered);
+        return registration;
 
      }
 
     
-
+    /* to find the regisered end device we need to provide the id of the end device
+     * and the registration pin , thee shall be a form in the front end
+     */
      public String findRegisterdEndDeviceTest(String natsSubject)throws Exception
      {
-        Long rgPin  = createEndDeviceRegistrationTest("CreateaRegisteredEndDevice");
-        LOGGER.info("the pin is  rttt" + rgPin);
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long registrationID = currentTest.getLong("registrationID");
         Thread.sleep(300);
-        LOGGER.info("the end device registerd link is " + interstore.EndDeviceTest.getEndDeviceregisteredwithId());
-       // String  interstore.EndDeviceTest.getEndDeviceregisteredwithId();
+
         interstore.EndDeviceTest.setServicename("findallregistrededendevice");
-        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice());
+        this.messageToPublish.newStart(natsSubject, interstore.EndDeviceTest.findRegisteredEndDevice(endDeviceID,  registrationID));
         Thread.sleep(300);
         String detailsOfEndDeviceRegistration = interstore.EndDeviceTest.getregisteredEndDeviceDetails();
         LOGGER.info("the deatils of the registered end device is " + detailsOfEndDeviceRegistration );
         return detailsOfEndDeviceRegistration ;
      }
 
+    public String getAllFsaTest(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        LOGGER.info("the current test object is which is the id .. " + endDeviceID ); 
+        interstore.FunctionSetAssignmentsTest.setServicename("getallFsamanager");
+        this.messageToPublish.newStart(natsSubject+ "getAllFunctionSetAssignments",
+        interstore.FunctionSetAssignmentsTest.getAllFsa(endDeviceID)); 
+        Thread.sleep(300);
+        String response = interstore.FunctionSetAssignmentsTest.getAllFsa();
+        LOGGER.info("the response of the function set assignment is in the app.java " + response);
+        return response;
+    }
+
+        public String createFunctionsetAssignments(String natsSubject) throws Exception {
+            interstore.FunctionSetAssignmentsTest.setServicename("createFsamanager");
+            JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+            this.messageToPublish.newStart(natsSubject , 
+             interstore.FunctionSetAssignmentsTest.createNewFunctionsetAssignments( currentTest));
+            Thread.sleep(300);
+            String response = interstore.FunctionSetAssignmentsTest.getCreatedFunctionSetAssignment();
+            return response;
+        }
+
+       public String getAFunctionSetAssignments(String natsSubject) throws Exception {
+
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceID = currentTest.getLong("endDeviceId");
+        Long fsaID = currentTest.getLong("fsaID");
+        Thread.sleep(300);
+        interstore.FunctionSetAssignmentsTest.setServicename("getASingleFsamanager");
+        this.messageToPublish.newStart(natsSubject, interstore.FunctionSetAssignmentsTest.findAFunctionSetAssignments(endDeviceID, fsaID));
+        Thread.sleep(300);
+        String singleFSA = interstore.FunctionSetAssignmentsTest.getSingleFSA();
+        LOGGER.info("the deatils of the registered end device is " + singleFSA  );
+        return singleFSA   ;
+       }
+     
+     
+    public String createDerProgram(String natsSubject) throws Exception {
+        interstore.DerProgramTest.setServicename("createDerprogrammanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerProgramTest.createNewDerProgram( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getCreatedDerProgram();
+        LOGGER.info("the response of DER Program is " + response);
+        return response;
+    }
+
+    
+    public String getAllDerPrograms(String natsSubject) throws Exception 
+     {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long fsaId = currentTest.getLong("fsaID");
+        interstore.DerProgramTest.setServicename("getallDerprogrammanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerProgramTest.getAllDerProgramRequest(fsaId));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getAllderPrograms();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+     }
+
+    public String getADerProgram(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long fsaId = currentTest.getLong("fsaID");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + fsaId);
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerProgramTest.setServicename("getASingleDerprogrammanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerProgramTest.getADerProgramRequest(fsaId, derId));
+        Thread.sleep(300);
+        String response = interstore.DerProgramTest.getADerProgram();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
+
+    public String createDerCapability(String natsSubject) throws Exception {
+        interstore.DerTest.setServicename("createDerCapabilitymanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.createNewDerCapability( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getCreatedDerCapability();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+
+    public String getADerCapability(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerTest.setServicename("getDerCapabilitymanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerTest.getADerCapabilityRequest( derId, endDeviceId));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getADerCapability();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
+    
+
+    public String createDerSettings(String natsSubject) throws Exception {
+        interstore.DerTest.setServicename("createDerSettingsmanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.createNewDerSettings( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getCreatedDerSettings();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+    
+    public String getADerSettings(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the der id is " + derId);   
+        interstore.DerTest.setServicename("getDerSettingsmanager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerTest.getADerSettingsRequest( derId, endDeviceId));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getADerSettings();
+        LOGGER.info("the response of the der programs is in the app.java " + response);
+        return response;
+    }
+    
+    public String PowerGenerationtest(String natsSubject)throws Exception{
+        interstore.DerTest.setServicename("PowerGenerationTestmanager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+         interstore.DerTest.powerGenerationDeviceTest( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerTest.getEditedpowerGeneration();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+  
+    public String TimeTest(String natsSubject) throws Exception {
+        if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
+            LOGGER.info("the device capability response is  " + response);
+            Thread.sleep(300);
+            String timeLink = interstore.TimeTest.getTimeLink(response);
+            LOGGER.info("the timelink response is  " + timeLink);
+            interstore.TimeTest.setserviceName("timemanager");
+            this.messageToPublish.newStart(natsSubject, interstore.TimeTest.getTimeQuery(timeLink));
+            Thread.sleep(300);
+            String timeListResponse = interstore.TimeTest.getTimeResponse();
+
+            timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+            timeListResponse = timeListResponse.replace("\\", "");
+            JSONObject object = new JSONObject(timeListResponse);
+            String timeInstance = object.getString("time_instance");
+            String quality = object.getString("quality");
+            Thread.sleep(500);
+            Instant instant = Instant.now();
+            long currentTime =  instant.getEpochSecond();
+            TimeType REF_Client_TimeInstance = new TimeType(currentTime);
+            if (quality!=null && timeInstance!=null) {
+                if(quality.equals("7")){
+                    LOGGER.info("Quality metric matched with Client with value: "+quality);
+                    LOGGER.info("REF-Client Time: "+ REF_Client_TimeInstance.getInt64Value());
+                    LOGGER.info("Synchronized REF-Client Time: " + timeInstance);
+                    return "Synchronized the REF-Client Time with the Device Capability";
+                }
+                else {
+                    LOGGER.info("Wrong quality metric value of "+quality);
+                    return "Wrong quality metric value of "+quality;
+                }
+            } else {
+                LOGGER.info("Quality value not found.");
+                return "Quality value not found.";
+            }
+        }
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
+    }
+
+    public String AdvancedTimeTest(String natsSubject) throws Exception {
+        if(interstore.DeviceCapabilityTest.getDeviceCapabilityresponse() != null){
+            String response = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
+            LOGGER.info("the device capability response is  " + response);
+            String timeLink = interstore.TimeTest.getTimeLink(response);
+            LOGGER.info("the timelink response is  " + timeLink);
+            interstore.TimeTest.setserviceName("timemanager");
+            this.messageToPublish.newStart(natsSubject+"_Get_Time", interstore.TimeTest.getTimeQuery(timeLink));
+            Thread.sleep(300);
+            String timeListResponse = interstore.TimeTest.getTimeResponse();
+            timeListResponse = timeListResponse.substring(1, timeListResponse.length() - 1);
+            timeListResponse = timeListResponse.replace("\\", "");
+            JSONObject object = new JSONObject(timeListResponse);
+            String timeInstance = object.getString("time_instance");
+            if (timeInstance!=null) {
+                long updatedTime = Long.parseLong(timeInstance) + 3600;
+                JSONObject payload = new JSONObject();
+                payload.put("updated_time_instance", updatedTime);
+                payload.put("timeLink", timeLink);
+                interstore.TimeTest.setserviceName("advancedtimemanager");
+                this.messageToPublish.newStart(natsSubject+"_update_time", interstore.TimeTest.updateTimeQuery(payload.toString()));
+                Thread.sleep(1000);
+                interstore.TimeTest.setserviceName("timemanager");
+                this.messageToPublish.newStart(natsSubject+"_validate_updated_time", interstore.TimeTest.getTimeQuery(timeLink));
+                Thread.sleep(100);
+                return "The Time resource was updated successfully by 1 hour.";
+            } else {
+                System.out.println("Time Instance value not found.");
+                return "Time Instance value not found.";
+            }
+        }
+        return "Please run Device Capability Test first because the DeviceCapabilityResponse is " + interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
+    }
+
+    public String createDerCurve(String natsSubject) throws Exception {
+        interstore.DerCurveTest.setServicename("createDerCurveManager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+                interstore.DerCurveTest.createNewDerCurve( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getCreatedDerCurve();
+        LOGGER.info("the response of DERCurve is " + response);
+        return response;
+    }
+
+    public String getADerCurve(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        Long dercId = currentTest.getLong("dercID");
+        LOGGER.info("the derp id is " + derpId);
+        LOGGER.info("the derc id is " + dercId);
+        interstore.DerCurveTest.setServicename("getASingleDerCurveManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerCurveTest.getADerCurveRequest(derpId, dercId));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getADerCurve();
+        LOGGER.info("the response of the der curve is in the app.java " + response);
+        return response;
+    }
+
+    public String getAllDerCurves(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        interstore.DerCurveTest.setServicename("getallDerCurveManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerCurveTest.getAllDerCurveRequest(derpId));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getAllderCurves();
+        LOGGER.info("the response of the der curves is in the app.java " + response);
+        return response;
+    }
+
+    public String createDerControl(String natsSubject) throws Exception {
+        interstore.DerControlTest.setServicename("createDerControlManager");
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        this.messageToPublish.newStart(natsSubject ,
+                interstore.DerControlTest.createNewDerControl( currentTest));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getCreatedDerControl();
+        LOGGER.info("the response of DERControl is " + response);
+        return response;
+    }
+
+    public String getAllDerControls(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        interstore.DerControlTest.setServicename("getallDerControlManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerControlTest.getAllDerControlRequest(derpId));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getAllderControls();
+        LOGGER.info("the response of the der controls is in the app.java " + response);
+        return response;
+    }
+
+    public String getADerControl(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        Long derControlId = currentTest.getLong("derControlID");
+        LOGGER.info("the derp id is " + derpId);
+        LOGGER.info("the derControl id is " + derControlId);
+        interstore.DerControlTest.setServicename("getASingleDerControlManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerControlTest.getADerControlRequest(derpId, derControlId));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getADerControl();
+        LOGGER.info("the response of the der control is in the app.java " + response);
+        return response;
+    }
+
+   
+    
+
     public void start(String natsUrl) throws Exception
     {    
         this.serviceDiscoveryVerticle = new ServiceDiscoveryVerticle(natsUrl);
         this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
         this.uiControleHandler = new UIControleHandler();
-        this.uiControleHandler.setupBridge();                                                                                                                      
-        //findDeviceCapability("Adam");
-        // CreateDeviceCapabilityTest("vinay"); // returns the device capability in the server . 
-          // DeviceCapabilitygetAllEndDevice("enddevicemanager"); 
-          // CreateEndDeviceTest("Nithin");
-           //this.multipleEndDeviceCreateTest();
-//         getAllEndDevicesTest("Nithin");
-          // getEndDeviceTest("EndDeviceInstanceTest");
-//         createEndDeviceRegistrationTest("RegistrationLink");
-       //findRegisterdEndDeviceTest("RegisteredEndDevice");
-         // this.EndDeviceTest("enddevicemanager"); // returns all enddevices present in the server
-//       this.EndDeviceRegistrationTest("enddeviceregistration"); // return particular enddevice with it's registration link
-       // Thread.sleep(100);
-        //this.messageToPublish.closeConnection();
-        // needs to write a new test case for returnig the attribute of particular end device registered the output is this 
-          // { "registered PIN": "111112" } 
-              //this.DeviceCapblityendDeviceTest("enddevicemanager"); 
+        this.uiControleHandler.setupBridge();
 
-       // LOGGER.info("Publisher connection closed");
           
     }
    
@@ -273,7 +521,7 @@ public class App {
    
     public static void main(String[] args) throws Exception {
         String natsUrl = System.getenv("NATS_URL");
-        //String natsUrl = "nats://localhost:4222"; 
+      
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
@@ -288,6 +536,54 @@ public class App {
 
 /*
  *
-     export NATS_URL=nats://localhost:4222 
+ String natsUrl = "nats://localhost:4222";   
  *
+ *  public Object functionSetAssignmentTest (String natsSubject) throws Exception
+    {
+        if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilityTest.getEndDeviceListLink() != null){
+            String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
+            List<Integer> values = interstore.FunctionSetAssignmentTest.getPin(response);
+            int regID = values.get(0);
+            int pin = values.get(1);
+            interstore.FunctionSetAssignmentTest.setServicename("fsalistmanager");
+            this.messageToPublish.newStart(natsSubject+ "_FSAListLink",
+                    interstore.FunctionSetAssignmentTest.getFSAListQuery(String.valueOf(pin), Integer.toUnsignedLong(regID)));
+            Thread.sleep(100);
+            interstore.FunctionSetAssignmentTest.setServicename("fsamanager");
+            this.messageToPublish.newStart(natsSubject+ "_FSAInstances",
+                    interstore.FunctionSetAssignmentTest.getFSAQuery(interstore.FunctionSetAssignmentTest.fsaIds));
+            Thread.sleep(100);
+//        List<String> derpLinks = functionSetAssignmentTest.getDerpLinks();
+            interstore.FunctionSetAssignmentTest.setDERPListLinks();
+            interstore.FunctionSetAssignmentTest.setServicename("derprogrammanager");
+            this.messageToPublish.newStart(natsSubject+ "_DERPrograms",
+                    interstore.FunctionSetAssignmentTest.getDERProgramQuery(FunctionSetAssignmentTest.derpListLinks));
+            Thread.sleep(300);
+            //LOGGER.info("DERProgram Instance: ### " + interstore.FunctionSetAssignmentTest.getDerProgramInstance());
+            String der_response = interstore.FunctionSetAssignmentTest.getDerProgramInstance();
+            if (der_response.length() > 0){
+                String truncatedString = der_response.substring(0,500) + "...";
+                return truncatedString;
+            }
+           return der_response;
+//            return "Found DERPrograms instances";
+        }
+        return "No EndDevices found or the DeviceCapabilityResponse is null";
+
+//        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
+//
+
+ * 
+ * 
+ * 
+ * 
+ * 
+
+
+
+
+
+
+
+
  */

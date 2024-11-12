@@ -1,10 +1,11 @@
 package interstore.EndDevice;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import interstore.AbstractDevice;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import jakarta.persistence.*;
-
+import java.util.List;
 import java.util.logging.Logger;
+
 
 @Entity
 public class EndDeviceDto implements AbstractDevice{ 
@@ -39,6 +40,8 @@ public class EndDeviceDto implements AbstractDevice{
 
     @Column(name= "link_der_list")
     private String linkDerList;
+    
+
 
     public EndDeviceDto() {
         
@@ -52,7 +55,7 @@ public class EndDeviceDto implements AbstractDevice{
         this.id = id;
     }
     
-    
+
     public void setsfdi(long sfdi)
 
    {   
@@ -273,34 +276,19 @@ public class EndDeviceDto implements AbstractDevice{
 
 
 /*
+     @OneToMany(mappedBy = "endDevice", cascade = CascadeType.ALL)
+    private List<FunctionSetAssignmentsEntity> functionSetAssignments;
 
-   
-    // Assuming you want to store a list of links in a separate table
-   // @ElementCollection
-    //@CollectionTable(name = "end_device_links")
-   // private Set<String> endDeviceLinks = new HashSet<>();
- * public Set<String> getLinks() {
-        return endDeviceLinks;
-    }
+      public List<FunctionSetAssignmentsEntity> setFunctionSetAssignments(List<FunctionSetAssignmentsEntity> functionSetAssignments)
+  {
+      return this.functionSetAssignments = functionSetAssignments;
+  }
+  
+  public List<FunctionSetAssignmentsEntity> getFunctionSetAssignments()
+  {
+      return this.functionSetAssignments;
+  }
 
-    public void setLinks(Set<String> links) {
-        this.endDeviceLinks = links;
-    }
-
-    public void addLink(String link) {
-        this.endDeviceLinks.add(link);
-    }
-    
-  import java.util.Set;
-  import java.util.HashSet; 
- 
-  import interstore.Identity.Link;
-import interstore.Identity.ListLink;
-import interstore.Types.DeviceCategoryType;
-import interstore.Types.HexBinary160;
-import interstore.Types.SFDIType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
  */
 
 

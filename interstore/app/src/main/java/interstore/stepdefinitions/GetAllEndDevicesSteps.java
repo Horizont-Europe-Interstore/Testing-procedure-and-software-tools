@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
 public class GetAllEndDevicesSteps {
     private App app; 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllEndDevicesSteps.class);
@@ -36,27 +34,20 @@ public class GetAllEndDevicesSteps {
         response = app.getAllEndDevicesTest(natsSubject);
     }
 
-
-
+ 
+    /* check out for the /edev is present in the endev return links , this can be use for validation while creatign the end device 
+     * the /edev has to stored in the front end to compare it with the result from the back end 
+     */
     @Then("^the test should complete successfully with EndDevice response containing:$")
     public  void then_the_test_should_complete_successfully_with_EndDevice_response_containing(String expectedJson) throws Exception {
         Map<String, String > expectedNoEndDeviceFoundMap = new HashMap<>();
-        expectedNoEndDeviceFoundMap.put("message", "No endDevices found."); 
+        expectedNoEndDeviceFoundMap.put("message", "No FunctionSetAssignments found."); 
         Map<String, String> defaultexpectedEndDeviceMap = new HashMap<>();
-        defaultexpectedEndDeviceMap.put("id", "1");
-        defaultexpectedEndDeviceMap.put("sfdi", "16726121139");
-        defaultexpectedEndDeviceMap.put("deviceCategory", "1");
-        defaultexpectedEndDeviceMap.put("registrationLink", "/rg");
-        defaultexpectedEndDeviceMap.put("endDeviceLink", "/edev/1");
-        defaultexpectedEndDeviceMap.put("functionSetAssignmentsListLink", "/fsa");
-        defaultexpectedEndDeviceMap.put("subscriptionListLink", "/sub");
-        defaultexpectedEndDeviceMap.put("derlistLink", "/der");
-        defaultexpectedEndDeviceMap.put("deviceCategory", "1");
-        defaultexpectedEndDeviceMap.put("hexBinary160", "3E4F45");
-        defaultexpectedEndDeviceMap.put("deviceStatusLink", "/dstat"); 
-        LOGGER.info("Expected No Device Message : {} ", expectedNoEndDeviceFoundMap); 
+        defaultexpectedEndDeviceMap.put("functionsetassignmentslink", "http://localhost/edev/1/fsa"); 
         LOGGER.info("Expected End Devices present response : {} ", defaultexpectedEndDeviceMap);
         ObjectMapper actualObjectMapper = new ObjectMapper();
+
+
         Map<Object, Object> actualMap = actualObjectMapper.readValue((String) response, Map.class);
         LOGGER.info("the actaul  response is ....." + actualMap);
         for(Map.Entry<Object, Object> entry:actualMap.entrySet())
@@ -65,7 +56,7 @@ public class GetAllEndDevicesSteps {
             
             if(key.equals("message") &&  expectedNoEndDeviceFoundMap.containsKey(key))
             {
-                scenario.log("expected" + ":" +  actualMap);
+                scenario.log("actual" + ":" +  actualMap);
                 scenario.log("expected" + ":" +  expectedNoEndDeviceFoundMap);
             }
             else if( key.equals("endDevices"))

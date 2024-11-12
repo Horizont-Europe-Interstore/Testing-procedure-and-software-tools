@@ -14,9 +14,11 @@ function App(){
   const colors = themeObject.colors;
   const tests = Client.getTests();
   const [testState,setTestState] = React.useState(true)
+  const [headerState,setHeaderState] = React.useState({text:'Ready',
+                                                       visElemIdx:0})
   const [toggleVar,setToggle] = React.useState(true)
   const [currentTest,setCurrentTest] = React.useState(tests[0])
-  const [isReport,setReport] = React.useState({
+  const [report,setReport] = React.useState({
     'Feature':'...',
     'Tag':'...',
     'End result':'...',
@@ -31,7 +33,7 @@ function App(){
                 templateRows='repeat(30, 1fr)'
                 templateColumns='repeat(30, 1fr)'>
             <Header colors={colors}
-                    testState={testState}/>
+                    headerState={headerState}/>
             <Controle setTestState={setTestState}
                       testState={testState}
                       setToggle={setToggle}
@@ -39,7 +41,9 @@ function App(){
                       setCurrentTest={setCurrentTest}
                       colors={colors}
                       tests={tests}
-                      setReport={setReport}/>
+                      setReport={setReport}
+                      setHeaderState={setHeaderState}
+                      headerState={headerState}/>
             <ReportViewer toggleVar={toggleVar}
                           setToggle={setToggle}
                           currentTest={currentTest}
@@ -48,7 +52,9 @@ function App(){
                           colors={colors}
                           tests={tests}
                           setReport={setReport}
-                          isReport={isReport}/> 
+                          report={report}
+                          setHeaderState={setHeaderState}
+                          testState={testState}/> 
           </Grid>
         </Box>
       </Flex>
