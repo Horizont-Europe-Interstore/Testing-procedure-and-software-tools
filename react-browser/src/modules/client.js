@@ -254,7 +254,7 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
-                dercID:'',
+                derpID:'',
             }
         },
         {
@@ -263,6 +263,7 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
+                derpID:'',
                 dercID:''
             }   
         } ,
@@ -320,7 +321,7 @@ export default class Client{
             args: true,
             object:{
                 derpID:'',
-                dercID:'',
+                derControlID:'',
             }
         },
 

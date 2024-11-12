@@ -1,13 +1,18 @@
 package interstore;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class DerCurveTest {
     private static final Logger LOGGER = Logger.getLogger(DerCurveTest.class.getName());
     private static String serviceName;
     static String createdDerCurve;
+    static String derCurve;
+    static String listOfDerCurves;
 
     public static String getserviceName(){
         return serviceName;
@@ -34,6 +39,35 @@ public class DerCurveTest {
         return null ;
     }
 
+    public static String  getADerCurveRequest(Long derpId, Long dercId)
+    {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("servicename", getserviceName());
+        attributes.put("action", "get");
+        attributes.put("derpID", derpId);
+        attributes.put("dercID", dercId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("The payload for the get a Der Curve is " + postPayload);
+            return postPayload;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void setADerCurve(String responseDerCurve)
+    {
+        derCurve = responseDerCurve;
+    }
+
+    public static String getADerCurve()
+    {
+        return derCurve;
+    }
+
     public static void  setCreatedDerCurve(String responseCreateDerCurve)
     {
         createdDerCurve = responseCreateDerCurve;
@@ -44,4 +78,35 @@ public class DerCurveTest {
     {
         return createdDerCurve;
     }
+
+    public static String getAllDerCurveRequest(Long derpID)
+    {
+
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("servicename", getserviceName());
+        attributes.put("action", "get");
+        attributes.put("derpID", derpID);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String postPayload = objectMapper.writeValueAsString(attributes);
+            LOGGER.info("The payload for the get all Der Curve is " + postPayload);
+            return postPayload;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String setAllderCurves(String responseAllDerCurves) {
+        LOGGER.info("The DerCurves for the given derProgram is "+ responseAllDerCurves);
+        listOfDerCurves = responseAllDerCurves;
+        return responseAllDerCurves;
+    }
+
+    public static String getAllderCurves(){
+        return listOfDerCurves;
+    }
+
+
 }

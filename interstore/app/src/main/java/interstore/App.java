@@ -440,6 +440,32 @@ public class App {
         return response;
     }
 
+    public String getADerCurve(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        Long dercId = currentTest.getLong("dercID");
+        LOGGER.info("the derp id is " + derpId);
+        LOGGER.info("the derc id is " + dercId);
+        interstore.DerCurveTest.setServicename("getASingleDerCurveManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerCurveTest.getADerCurveRequest(derpId, dercId));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getADerCurve();
+        LOGGER.info("the response of the der curve is in the app.java " + response);
+        return response;
+    }
+
+    public String getAllDerCurves(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        interstore.DerCurveTest.setServicename("getallDerCurveManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerCurveTest.getAllDerCurveRequest(derpId));
+        Thread.sleep(300);
+        String response = interstore.DerCurveTest.getAllderCurves();
+        LOGGER.info("the response of the der curves is in the app.java " + response);
+        return response;
+    }
+
     public String createDerControl(String natsSubject) throws Exception {
         interstore.DerControlTest.setServicename("createDerControlManager");
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
@@ -448,6 +474,32 @@ public class App {
         Thread.sleep(300);
         String response = interstore.DerControlTest.getCreatedDerControl();
         LOGGER.info("the response of DERControl is " + response);
+        return response;
+    }
+
+    public String getAllDerControls(String natsSubject) throws Exception
+    {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        interstore.DerControlTest.setServicename("getallDerControlManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerControlTest.getAllDerControlRequest(derpId));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getAllderControls();
+        LOGGER.info("the response of the der controls is in the app.java " + response);
+        return response;
+    }
+
+    public String getADerControl(String natsSubject) throws Exception {
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long derpId = currentTest.getLong("derpID");
+        Long derControlId = currentTest.getLong("derControlID");
+        LOGGER.info("the derp id is " + derpId);
+        LOGGER.info("the derControl id is " + derControlId);
+        interstore.DerControlTest.setServicename("getASingleDerControlManager");
+        this.messageToPublish.newStart(natsSubject, interstore.DerControlTest.getADerControlRequest(derpId, derControlId));
+        Thread.sleep(300);
+        String response = interstore.DerControlTest.getADerControl();
+        LOGGER.info("the response of the der control is in the app.java " + response);
         return response;
     }
 

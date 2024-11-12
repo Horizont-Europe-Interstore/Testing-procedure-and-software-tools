@@ -93,6 +93,10 @@ public class MicroServiceFactory {
         this.microservices.put("advancedtimemanager", dcapManager);
         this.microservices.put("createDerCurveManager", derCurveManager);
         this.microservices.put("createDerControlManager", derControlManager);
+        this.microservices.put("getASingleDerCurveManager", derCurveManager);
+        this.microservices.put("getallDerCurveManager", derCurveManager );
+        this.microservices.put("getallDerControlManager", derControlManager );
+        this.microservices.put("getASingleDerControlManager", derControlManager);
 
 
 
@@ -149,6 +153,11 @@ public class MicroServiceFactory {
         this.dtoMap.put("advancedtimemanager", timeTest);
         this.dtoMap.put("createDerCurveManager", derCurveTest);
         this.dtoMap.put("createDerControlManager", derControlTest);
+        this.dtoMap.put("getASingleDerCurveManager", derCurveTest);
+        this.dtoMap.put("getallDerCurveManager", derCurveTest);
+        this.dtoMap.put("getallDerControlManager", derControlTest);
+        this.dtoMap.put("getASingleDerControlManager", derControlTest);
+
     }
    
     public Map<String, Object> getDtoMap() {

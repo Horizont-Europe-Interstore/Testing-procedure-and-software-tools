@@ -68,22 +68,29 @@ public class DERCurveManager {
     }
 
     public Map<String, Object> getDERCurve(JSONObject payload)
-    {
-        if(payload.has("derCurveLink"))
+    {   LOGGER.info("Response received in DERCurveManager: "+payload);
+        if(payload.has("derpID") && payload.has("dercID"))
         {
-            return this.derCurveService.
-                    getDERCurve(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")),
-                            Long.parseLong(payload.getJSONObject("payload").getString("der_curve_id")))
-                    .getBody();
+            Long derpID = payload.getLong("derpID");
+            Long dercID = payload.getLong("dercID");
+            ResponseEntity<Map<String, Object>> response = this.derCurveService.getDERCurve(derpID, dercID);
+            return response.getBody();
         }
 
+        else if(payload.has("derpID"))
+        {   Long derpID = payload.getLong("derpID");
 
-        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
+            return getAllDERCurveDetails(derpID);
+        }
+
+        return null ;
+
+//        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
-    @GetMapping("/derp/{id}/dc")
-    public Map<String, Object> getAllDERCurveDetails(@PathVariable Long id){
-        ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(id);
+    @GetMapping("/derp/{derpId}/dc")
+    public Map<String, Object> getAllDERCurveDetails(@PathVariable Long derpId){
+        ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
         return  responseEntity.getBody();
     }
 
