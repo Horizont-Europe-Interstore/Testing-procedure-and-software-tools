@@ -1,6 +1,9 @@
 package interstore.DER;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.SubscribableResourceEntity;
@@ -130,8 +133,13 @@ public class DerEntity  {
     private String updatedTime;
   
     // Here Starts  DER Capability  Attributes 
+    //@ElementCollection
+   // @CollectionTable(name = "der_capability_modes_supported", joinColumns = @JoinColumn(name = "der_entity_id", referencedColumnName = "id"))
+    //@Column(name = "mode")
+   // private List<String> modesSupported = new ArrayList<>();
+    
     @Column(name = "modesSupported")
-    private String modesSupported;  
+    private String modesSupported;
 
     @Column(name = "rtgAbnormalCategory")
     private Integer rtgAbnormalCategory; 

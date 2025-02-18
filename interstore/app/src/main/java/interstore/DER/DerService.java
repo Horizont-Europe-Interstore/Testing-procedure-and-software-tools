@@ -87,6 +87,9 @@ public class DerService {
         derEntity.setAssociatedDERProgramListLink(associatedDERProgramListLink);
         derEntity.setCurrentDERProgramLink(currentDERProgramLink);
         // DER Capabilities 
+        // Der control type has to be avialable from the Der controls which is allready created 
+        // the payload will have the informationof the type of the DER control , it has to pick the 
+        // corresponding object with the der control type from the data base . 
         String modesSupported = Derpayload.optString("modesSupported");
         Integer rtgAbnormalCategoryUINT8 = Derpayload.optInt("rtgAbnormalCategory", 0);
         Double rtgMaxADouble = Derpayload.optDouble("rtgMaxA", Double.NaN);
@@ -329,6 +332,7 @@ public class DerService {
                 entityMap.put("setMaxChargeRateW", derEntity.getSetMaxChargeRateW());
                 entityMap.put("setMaxDischargeRateVA", derEntity.getSetMaxDischargeRateVA());
                 entityMap.put("setMaxDischargeRateW", derEntity.getSetMaxDischargeRateW());
+                
                 entityMap.put("setMaxV", derEntity.getSetMaxV());
                 entityMap.put("setMaxVA", derEntity.getSetMaxVA());
                 entityMap.put("setMaxVar", derEntity.getSetMaxVar());
@@ -397,6 +401,42 @@ public class DerService {
         derEntity.setSetMaxW(setMaxW);
         derEntity.setSetMaxVA(setMaxVA);
      }
+
+    
+     //public void reactivePoweropModFixedVAr( Long EndDeviceId, Long derID)
+     /*check that opModFixedVAr is present or not 
+     multiple modes can be supported in the der capability 
+          {
+        "DERCapability": {
+        "modesSupported": ["opModFixedVAr", "opModVoltVar"],
+        "rtgMaxVar": 100,
+        "rtgMaxVarNeg": -100,
+        "rtgVNom": 240,
+        "type": "Battery"
+        }
+      }
+        {  
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId( EndDeviceId , derID);
+            DerEntity derEntity = derEntityOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity.getId());
+            entityMap.put("modesSupported", derEntity.getModesSupported());
+            entityMap.put("rtgMaxVar", derEntity.getRtgMaxVar());
+        //}   
+       
+    
+       // LOGGER.info("Received payload inside Set DER Settings : " +  payload.toString());
+        //JSONObject derSettingsPayload = payload.optJSONObject("payload");
+       // Integer modesEnabled = derSettingsPayload.optInt("modesEnabled", 0);
+       // Double setMaxW = parseDoubleFromPayload(derPowerGenerationpayload, "setMaxW");
+        //Double setMaxVA = parseDoubleFromPayload(derPowerGenerationpayload, "setMaxVA");
+        //derEntity.setSetMaxW(setMaxW);
+        //derEntity.setSetMaxVA(setMaxVA);
+     }
+      *  
+      */
+     
 }
 
 

@@ -4,6 +4,14 @@ import java.util.logging.Logger;
 
 public class DERUnitRefType extends UInt8{
     private static final Logger LOGGER = Logger.getLogger(DERUnitRefType.class.getName());
+   
+    private short percentageSetMaxW;
+    private short percentageSetMaxVar;
+    private short percentageStatVarAvail;
+    private short percentageSetEffectiveV;
+    private short percentageSetMaxChargeRateW;
+    private short percentageSetMaxDischargeRateW;
+    private short percentageStatWAvail;
 
     // Constructor ensuring that the value is between 0 and 7
     public DERUnitRefType(short value) {
@@ -31,4 +39,52 @@ public class DERUnitRefType extends UInt8{
     public String toString(DERUnitRefType value) {
         return String.valueOf(value);
     }
+    /*write setters and getters for the private members and the 
+     * setters and getters has to vheck that there are UInt so the 
+     * extends super class to be called 
+     */
+
+     public short getPercentageSetMaxW() {
+        return percentageSetMaxW;
+    }
+    public void setPercentageSetMaxW(String percentageSetMaxW) {
+        this.percentageSetMaxW =  UInt8.isValidUInt8(percentageSetMaxW);
+    }
+    public short getPercentageSetMaxVar() {
+        return percentageSetMaxVar;
+    }
+    public void setPercentageSetMaxVar(String percentageSetMaxVar) {
+        this.percentageSetMaxVar = UInt8.isValidUInt8(percentageSetMaxVar);
+    }
+    public short getPercentageStatVarAvail() {
+        return percentageStatVarAvail;
+    }
+    public void setPercentageStatVarAvail(String percentageStatVarAvail) {
+        this.percentageStatVarAvail = UInt8.isValidUInt8(percentageStatVarAvail);
+    }
+    public short getPercentageSetEffectiveV() {
+        return percentageSetEffectiveV;
+    }
+    public void setPercentageSetEffectiveV(String percentageSetEffectiveV) {
+        this.percentageSetEffectiveV = UInt8.isValidUInt8(percentageSetEffectiveV);
+    }
+    public short getPercentageSetMaxChargeRateW() {
+        return percentageSetMaxChargeRateW;
+    }
+    public void setPercentageSetMaxChargeRateW(String percentageSetMaxChargeRateW) {
+        this.percentageSetMaxChargeRateW = UInt8.isValidUInt8(percentageSetMaxChargeRateW);
+    }
+    public short getPercentageSetMaxDischargeRateW() {
+        return percentageSetMaxDischargeRateW;
+    }
+    public void setPercentageSetMaxDischargeRateW(String percentageSetMaxDischargeRateW) {
+        this.percentageSetMaxDischargeRateW = UInt8.isValidUInt8(percentageSetMaxDischargeRateW);
+    }
+    public short getPercentageStatWAvail() {
+        return percentageStatWAvail;
+    }
+    public void setPercentageStatWAvail(String percentageStatWAvail) {
+        this.percentageStatWAvail = UInt8.isValidUInt8(percentageStatWAvail);
+    }
+
 }

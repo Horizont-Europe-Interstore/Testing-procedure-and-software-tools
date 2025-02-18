@@ -67,7 +67,7 @@ public class DERCurveManager {
 
     }
 
-    public Map<String, Object> getDERCurve(JSONObject payload)
+    public Map<String, Object> getDERCurve(JSONObject payload) throws JSONException
     {   LOGGER.info("Response received in DERCurveManager: "+payload);
         if(payload.has("derpID") && payload.has("dercID"))
         {

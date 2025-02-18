@@ -1,6 +1,5 @@
 package interstore.Identity;
 
-import interstore.Types.SubscribableType;
 import jakarta.persistence.*;
 
 import java.io.Serializable;

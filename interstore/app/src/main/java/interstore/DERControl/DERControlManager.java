@@ -58,7 +58,7 @@ public class DERControlManager {
     }
 
     @GetMapping("/derp/{id1}/derc/{id2}")
-    public Map<String, Object> getDERControl(JSONObject payload)
+    public Map<String, Object> getDERControl(JSONObject payload) throws JSONException
     {
         LOGGER.info("Response received in DERControlManager: "+payload);
         if(payload.has("derpID") && payload.has("derControlID"))

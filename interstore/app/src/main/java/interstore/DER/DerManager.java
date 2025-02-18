@@ -27,7 +27,7 @@ public class DerManager {
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
-        LOGGER.info("the received payload in DER .....POwer " +  payload);
+        LOGGER.info("the received payload in DER .....power " +  payload);
         JSONObject jsonObject = new JSONObject(payload);
         if(!jsonObject.has("action"))
         {
@@ -40,7 +40,7 @@ public class DerManager {
             case "get":
                 return getDer(jsonObject);
             case "put":
-                LOGGER.info("the received payload inside switch case DER .....POwer " +  payload);
+                LOGGER.info("the received payload inside switch case DER .....Power " +  payload);
                 return updateDerSettings(jsonObject);
             case "delete":
                 break;
