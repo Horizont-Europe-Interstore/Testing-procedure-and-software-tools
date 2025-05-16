@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class DeviceCapabilityTest {
     private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
     private static String endDeviceListLink;
-    private String serviceName;
+    private static String serviceName;
     public static String DeviceCapabilityResponse;
     public static String DeviceCapablities ;   // this may be change into map  
     private static String endDeviceListLinkEndPoint; 
@@ -44,9 +44,9 @@ public class DeviceCapabilityTest {
     } 
  
     
-    public String getServiceName(){
+    public static String getServiceName(){
 
-        return this.serviceName;
+        return serviceName;
     }
      
    public  static void setDeviceCapablities(String deviceCapablities) {
@@ -87,6 +87,25 @@ public class DeviceCapabilityTest {
         return null;
     }
 
+    public static String createNewDeviceCapability(JSONObject PayLoad) throws JSONException
+    {
+
+        String endDeviceendPoint = (String)PayLoad.get("endDeviceListLink");
+        setEndDeviceEndPoint(endDeviceendPoint);
+        String attributes = new JSONObject()
+                .put("servicename", getServiceName())
+                .put("action", "post")
+                .put("payload", (Object)PayLoad)
+                .toString();
+        try {
+            LOGGER.info(attributes);
+            return attributes;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null ;
+    }
 
 
     public String getQuery()

@@ -75,10 +75,11 @@ public class App {
         if(deviceCapabilityResponse != null){
             return deviceCapabilityResponse;
         }
-
+        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         deviceCapabilitytest.setserviceName("dcapmanager" ); 
-        String Payload =  deviceCapabilitytest.setPostQuery(postDeviceCapablity());
+//        String Payload =  deviceCapabilitytest.setPostQuery(postDeviceCapablity());
+        String Payload =  interstore.DeviceCapabilityTest.createNewDeviceCapability(currentTest);
         this.messageToPublish.newStart(natsSubject, Payload );
         Thread.sleep(300);
         deviceCapabilityResponse = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();

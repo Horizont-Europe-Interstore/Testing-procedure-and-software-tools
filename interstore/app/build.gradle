@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.json:json:20210307'
     implementation 'io.vertx:vertx-service-discovery:4.5.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.modelmapper:modelmapper:2.4.5'
     implementation 'com.h2database:h2'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

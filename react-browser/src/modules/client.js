@@ -53,8 +53,13 @@ export default class Client{
             index:0,
             test:'Device Capability', 
             desc:'description',
-            args: false,
-            object:{},
+            args: true,
+            object:{
+                'endDeviceListLink':'',
+                'selfDeviceLink':'',
+                'mirrorUsagePointListLink':'',
+                'timeLink':'',
+            },
         },
         {
             index:1,

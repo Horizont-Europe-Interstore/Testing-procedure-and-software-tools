@@ -1,9 +1,12 @@
 package interstore.DeviceCapability;
 
+import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
+import interstore.JsonToXmlConverter;
 import interstore.Time.TimeDto;
 import interstore.Time.TimeDtoRepository;
+import io.cucumber.java.hu.De;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,7 +37,8 @@ public class DeviceCapabilityImpl {
 
     @Transactional
     public DeviceCapabilityDto createDeviceCapability(JSONObject jsonObject) throws MalformedURLException, JSONException {
-       
+        LOGGER.info("Inside DcapImpl: " + jsonObject);
+        JSONObject payload = jsonObject.getJSONObject("payload");
         DeviceCapabilityDto deviceCapabilityDto = new DeviceCapabilityDto();
         try {
             deviceCapabilityDto = deviceCapabilityRepository.save(deviceCapabilityDto);
@@ -41,9 +47,84 @@ public class DeviceCapabilityImpl {
             throw e; 
         }
          
-        setDeviceCapability(deviceCapabilityDto, jsonObject);
+        setDeviceCapability(deviceCapabilityDto, payload);
+        LOGGER.info("Leaving DcapImpl");
         return deviceCapabilityDto;
     }
+
+    private String stripHost(String url) {
+        if (url == null) return null;
+        try {
+            String path = new java.net.URL(url).getPath(); // e.g. "/2030.5/dcap/tm"
+            int index = path.indexOf("/2030.5");
+            if (index != -1) {
+                return path.substring(index + "/2030.5".length()); // skip the "/2030.5"
+            }
+            return path;
+        } catch (Exception e) {
+            // If already relative or invalid URL, try trimming manually
+            int index = url.indexOf("/2030.5");
+            if (index != -1) {
+                return url.substring(index + "/2030.5".length());
+            }
+            return url;
+        }
+    }
+
+    public String getDeviceCapability(DeviceCapabilityDto dcap)
+    {
+        JsonToXmlConverter jsonToXmlConverter = new JsonToXmlConverter();
+        if (dcap == null || dcap.getId() == null) {
+            throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("xmlns", "http://ieee.org/2030.5");
+        result.put("href", dcap.getHref());
+
+        for (Field field : DeviceCapabilityDto.class.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(dcap);
+                if (value != null && value instanceof String && !"href".equals(field.getName())) {
+                    String fieldName = field.getName();
+
+                    // Capitalize first letter (for XML element names)
+                    String xmlElementName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+
+                    if (fieldName.endsWith("ListLink")) {
+                        result.put(xmlElementName, Map.of(
+                                "href", stripHost((String) value),
+                                "all", 0
+                        ));
+                    } else {
+                        result.put(xmlElementName, Map.of(
+                                "href", stripHost((String) value)
+                        ));
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to access field: " + field.getName(), e);
+            }
+        }
+//        if (dcap.getTimeLink() != null) {
+//            result.put("TimeLink", Map.of("href", stripHost(dcap.getTimeLink())));
+//        }
+//        if (dcap.getSelfDeviceLink() != null) {
+//            result.put("SelfDeviceLink", Map.of("href", stripHost(dcap.getSelfDeviceLink())));
+//        }
+//
+//        if (dcap.getEndDevicelistLink() != null) {
+//            result.put("EndDeviceListLink", Map.of("href", stripHost(dcap.getEndDevicelistLink())));
+//        }
+//
+//        if (dcap.getMirrorUsagePointListLink() != null) {
+//            result.put("MirrorUsagePointListLink", Map.of("href", stripHost(dcap.getMirrorUsagePointListLink())));
+//        }
+        LOGGER.log(Level.INFO, "the result from getDeviceCapability: " + result.toString());
+        return jsonToXmlConverter.buildXml(result, "DeviceCapability");
+    }
+
 
     
            
@@ -51,8 +132,8 @@ public class DeviceCapabilityImpl {
 
 
     public void setDeviceCapability(DeviceCapabilityDto deviceCapabilityDto, JSONObject jsonObject) throws JSONException
-    {  
-        
+    {
+        LOGGER.info("Inside DcapImpl -> setDeviceCapability: " + jsonObject);
         if(deviceCapabilityDto.getId() == null)
         {
             throw new IllegalStateException("DeviceCapabilityDto must be persisted before adding links.");  
@@ -62,24 +143,27 @@ public class DeviceCapabilityImpl {
         Link link = new Link(); 
         String selfDevcieLink = jsonObject.getString("selfDeviceLink");  
         link.setLink(selfDevcieLink); 
-        deviceCapabilityDto.addLink(link.getLink()); 
+        deviceCapabilityDto.addLink(link.getLink());
+        deviceCapabilityDto.setSelfDeviceLink(link.getLink());
         
          ListLink listLink = new ListLink(); 
          String endDeviceListLink = jsonObject.getString("endDeviceListLink");
          listLink.setListLink(endDeviceListLink);
          deviceCapabilityDto.addLink(listLink.getListLink());
+        deviceCapabilityDto.setEndDeviceListLink(listLink.getListLink());
          String mirrorUsagePointListLink = jsonObject.getString("mirrorUsagePointListLink");
          listLink.setListLink(mirrorUsagePointListLink );
          deviceCapabilityDto.addLink(listLink.getListLink());
-
+        deviceCapabilityDto.setMirrorUsagePointListLink(listLink.getListLink());
         String timeLink = jsonObject.getString("timeLink");
-        link.setLink(timeLink);
+        link.setLink("dcap/"+timeLink);
         deviceCapabilityDto.addLink(link.getLink());
-        //deviceCapabilityDto.setTimeLink(link.getLink());
+        deviceCapabilityDto.setTimeLink(link.getLink());
 
         TimeDto time = new TimeDto();
         time.setTimeLink(link.getLink());
         timeDtoRepository.save(time);
+        LOGGER.info("Leaving DcapImpl -> setDeviceCapability");
     }
 
     public Map<Long, Object> getAllLinks(DeviceCapabilityDto deviceCapabilityDto) {
