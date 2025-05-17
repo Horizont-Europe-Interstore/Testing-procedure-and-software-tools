@@ -18,11 +18,6 @@ public class DcapManager {
     private  DeviceCapabilityImpl deviceCapabilityImpl;
 //    private final JsonToXmlConverter converter = new JsonToXmlConverter();
     private static final Logger LOGGER = Logger.getLogger(DcapManager.class.getName());
-    private static final String DCAP_XML =
-        "<DeviceCapability xmlns=\"http://ieee.org/2030.5\" href=\"/dcap\">\n" +
-        "  <EndDeviceListLink href=\"/edev\" />\n" +
-        "  <SelfDeviceLink href=\"/sdev\" />\n" +
-        "</DeviceCapability>";
     public DcapManager(DeviceCapabilityImpl deviceCapabilityImpl) {
         this.deviceCapabilityImpl = deviceCapabilityImpl;
     } 
@@ -40,7 +35,7 @@ if (payload == null || payload.isEmpty()) {
         case"post":
         return addDeviceCapability(jsonObject);
         case "get":
-        return getDeviceCapabilityXml();
+        return getDeviceCapability();
         case "get-time":
         return getTime(jsonObject.getString("payload"));
         case "put":
@@ -91,7 +86,7 @@ public Object getDeviceCapability() throws MalformedURLException, InterruptedExc
         return responseEntity.getBody();
     }
 
-
+} 
 
 
 
@@ -100,23 +95,6 @@ public Object getDeviceCapability() throws MalformedURLException, InterruptedExc
    //Thread.sleep(100);
    // LOGGER.info(" the response to nats from the server " + deviceCapabilityImpl.getAllLinks(deviceCapabilityDto));
    // return deviceCapabilityImpl.getAllLinks(deviceCapabilityDto);
-
-   
-
-
-
-@GetMapping(path = "/dcap", produces = "application/sep+xml")
-public ResponseEntity<String> getDeviceCapabilityXml(){
-    System.out.println("/dcap hit for xml");
-    return ResponseEntity.ok().contentType(MediaType.valueOf("application/sep+xml;level=-S1")).body(DCAP_XML);
-}
-
-
-
-
-
- 
-
 
 
 
