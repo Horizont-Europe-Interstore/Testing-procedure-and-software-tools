@@ -18,6 +18,11 @@ public class DcapManager {
     private  DeviceCapabilityImpl deviceCapabilityImpl;
 //    private final JsonToXmlConverter converter = new JsonToXmlConverter();
     private static final Logger LOGGER = Logger.getLogger(DcapManager.class.getName());
+    private static final String DCAP_XML =
+        "<DeviceCapability xmlns=\"http://ieee.org/2030.5\" href=\"/dcap\">\n" +
+        "  <EndDeviceListLink href=\"/edev\" />\n" +
+        "  <SelfDeviceLink href=\"/sdev\" />\n" +
+        "</DeviceCapability>";
     public DcapManager(DeviceCapabilityImpl deviceCapabilityImpl) {
         this.deviceCapabilityImpl = deviceCapabilityImpl;
     } 
@@ -33,9 +38,9 @@ if (payload == null || payload.isEmpty()) {
       String action = jsonObject.getString("action");
       switch(action){
         case"post":
-        return  addDeviceCapability(jsonObject);
+        return addDeviceCapability(jsonObject);
         case "get":
-        return getDeviceCapability();
+        return getDeviceCapabilityXml();
         case "get-time":
         return getTime(jsonObject.getString("payload"));
         case "put":
@@ -46,7 +51,6 @@ if (payload == null || payload.isEmpty()) {
       }
       return "Operation completed successfully"; 
    }
-
 
 
 
@@ -98,9 +102,14 @@ public Object getDeviceCapability() throws MalformedURLException, InterruptedExc
    // return deviceCapabilityImpl.getAllLinks(deviceCapabilityDto);
 
    
+
+
+
+@GetMapping(path = "/dcap", produces = "application/sep+xml")
+public ResponseEntity<String> getDeviceCapabilityXml(){
+    System.out.println("/dcap hit for xml");
+    return ResponseEntity.ok().contentType(MediaType.valueOf("application/sep+xml;level=-S1")).body(DCAP_XML);
 }
-
-
 
 
 
@@ -132,6 +141,10 @@ public void updateTime(String payload) throws JSONException{
 
 /*
  *  
+   @GetMapping("/dcap")
+public  Map<String, Object> getDeviceCapability() throws MalformedURLException, InterruptedException {
+    ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityImpl.getDeviceCapabilities();
+    return responseEntity.getBody(); }
 
  * 
  * 

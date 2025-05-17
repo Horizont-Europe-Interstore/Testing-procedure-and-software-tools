@@ -1,7 +1,7 @@
 version: '3.8'
 services: 
   nats: 
-    image : nats:latest
+    image: nats:latest
     container_name: nats-server
     hostname: nats-server
     ports:
@@ -21,8 +21,22 @@ services:
     command: ["npm","start"]
     networks:
       - mid-front
-  
-  
+
+  java-backend:
+    build: 
+      context: ./interstore
+      dockerfile: Dockerfile
+    container_name: java-backend 
+    environment:
+       - NATS_URL=nats://nats-server:4222
+    ports:
+      - "134.130.169.111:8443:8443"
+    networks:
+      - back-nats
+      - mid-front
+    depends_on:
+      - nats          
+      
   express-mid:
     build: ./express-mid
     hostname: express-mid
