@@ -535,50 +535,6 @@ public class App {
 
 
 
-/*
- *
- String natsUrl = "nats://localhost:4222";   
- *
- *  public Object functionSetAssignmentTest (String natsSubject) throws Exception
-    {
-        if(interstore.EndDeviceTest.getEndDeviceListLink() != null && interstore.DeviceCapabilityTest.getEndDeviceListLink() != null){
-            String response = findRegisterdEndDeviceTest("RegisteredEndDevice");
-            List<Integer> values = interstore.FunctionSetAssignmentTest.getPin(response);
-            int regID = values.get(0);
-            int pin = values.get(1);
-            interstore.FunctionSetAssignmentTest.setServicename("fsalistmanager");
-            this.messageToPublish.newStart(natsSubject+ "_FSAListLink",
-                    interstore.FunctionSetAssignmentTest.getFSAListQuery(String.valueOf(pin), Integer.toUnsignedLong(regID)));
-            Thread.sleep(100);
-            interstore.FunctionSetAssignmentTest.setServicename("fsamanager");
-            this.messageToPublish.newStart(natsSubject+ "_FSAInstances",
-                    interstore.FunctionSetAssignmentTest.getFSAQuery(interstore.FunctionSetAssignmentTest.fsaIds));
-            Thread.sleep(100);
-//        List<String> derpLinks = functionSetAssignmentTest.getDerpLinks();
-            interstore.FunctionSetAssignmentTest.setDERPListLinks();
-            interstore.FunctionSetAssignmentTest.setServicename("derprogrammanager");
-            this.messageToPublish.newStart(natsSubject+ "_DERPrograms",
-                    interstore.FunctionSetAssignmentTest.getDERProgramQuery(FunctionSetAssignmentTest.derpListLinks));
-            Thread.sleep(300);
-            //LOGGER.info("DERProgram Instance: ### " + interstore.FunctionSetAssignmentTest.getDerProgramInstance());
-            String der_response = interstore.FunctionSetAssignmentTest.getDerProgramInstance();
-            if (der_response.length() > 0){
-                String truncatedString = der_response.substring(0,500) + "...";
-                return truncatedString;
-            }
-           return der_response;
-//            return "Found DERPrograms instances";
-        }
-        return "No EndDevices found or the DeviceCapabilityResponse is null";
-
-//        FunctionSetAssignmentTest functionSetAssignmentTest = new FunctionSetAssignmentTest();
-//
-
- * 
- * 
- * 
- * 
- * 
 
 
 
@@ -587,4 +543,4 @@ public class App {
 
 
 
- */
+ 

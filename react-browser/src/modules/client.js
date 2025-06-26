@@ -1,5 +1,5 @@
 export default class Client{
-    static #baseUrl='/api'  //FOR WITHOUT DOCKER: 'http://fedora-gna-1.acs-lab.eonerc.rwth-aachen.de:5000/api'
+    static #baseUrl='/api' 
     static async sendTest(testObject){
         try{
             let argsObject = {}

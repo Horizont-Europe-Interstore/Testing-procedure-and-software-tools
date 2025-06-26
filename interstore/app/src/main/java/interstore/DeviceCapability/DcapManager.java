@@ -7,11 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class DcapManager {
@@ -21,7 +29,7 @@ public class DcapManager {
     public DcapManager(DeviceCapabilityImpl deviceCapabilityImpl) {
         this.deviceCapabilityImpl = deviceCapabilityImpl;
     } 
-public Object chooseMethod_basedOnAction(String payload) throws MalformedURLException, InterruptedException, JSONException{
+public Object chooseMethod_basedOnAction(String payload) throws InterruptedException, JSONException, IOException{
 if (payload == null || payload.isEmpty()) {
         throw new IllegalArgumentException("payload cannot be null or empty");
     }
@@ -35,7 +43,7 @@ if (payload == null || payload.isEmpty()) {
         case"post":
         return addDeviceCapability(jsonObject);
         case "get":
-        return getDeviceCapability();
+        return getDeviceCapability(null);
         case "get-time":
         return getTime(jsonObject.getString("payload"));
         case "put":
@@ -59,9 +67,9 @@ if (payload == null || payload.isEmpty()) {
 
 
 // check that the device capability exist or not if not create one . 
-//@GetMapping("/dcap")
-@GetMapping(value = "/dcap", produces = MediaType.APPLICATION_XML_VALUE)
-public Object getDeviceCapability() throws MalformedURLException, InterruptedException {
+//@GetMapping("/dcap") produces = MediaType.APPLICATION_XML_VALUE
+@GetMapping(value = "/dcap")
+public Object getDeviceCapability(HttpServletResponse response) throws InterruptedException, IOException {
 
     if (RequestContextHolder.getRequestAttributes() != null) {
         // It's an HTTP call
@@ -72,7 +80,20 @@ public Object getDeviceCapability() throws MalformedURLException, InterruptedExc
             DeviceCapabilityDto dcap = dcapList.get(0); // or loop if there are multiple
             String dcap_val = this.deviceCapabilityImpl.getDeviceCapability(dcap);
             LOGGER.info("Response from getDeviceCapability: " + dcap_val);
-            return dcap_val;
+           // response.setHeader(HttpHeaders.CONTENT_TYPE, "application/sep+xml;level=S1");
+            byte[] bytes = dcap_val.getBytes(StandardCharsets.ISO_8859_1);
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/sep+xml;level=S1");
+            response.setContentLength(bytes.length);
+           //response.setCharacterEncoding(null);
+           ServletOutputStream out = response.getOutputStream();
+           out.write(bytes);
+           //out.write(dcap_val.getBytes("ISO-8859-1")); // Match charset if needed
+           out.flush();
+            //response.getWriter().write(dcap_val);
+            //response.getWriter().flush();
+            //return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/sep+xml;level=S1").body(dcap_val);
+            //return dcap_val;
 //            try {
 //                return converter.convertMapToXml(dcap_val, "dcap");
 //            } catch (Exception e) {

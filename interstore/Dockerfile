@@ -5,7 +5,7 @@ FROM gradle:8.0.2-jdk17 AS builder
 WORKDIR /home/gradle/project
 
 # Copy everything (including gradlew, build.gradle, settings.gradle, src/, etc)
-COPY --chown=gradle:gradle . .
+COPY . .
 
 # Build the fat‐JAR for the `app` subproject (skipping tests for speed)
 RUN gradle clean app:bootJar -x test --no-daemon

@@ -9,9 +9,26 @@ services:
     networks:
       - back-nats
       - nats-mid
+  
+  java-backend:
+    build: 
+      context: ./interstore
+      dockerfile: Dockerfile
+    container_name: java-backend 
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats-server:4222 
+    ports:
+      - "8443:8443"
+    networks:
+      - back-nats
+      - nats-mid
 
   react-browser:
-    build: ./react-browser
+    build:
+      context: ./react-browser
+      dockerfile: Dockerfile
     hostname: react-browser
     container_name: react-browser
     environment:
@@ -22,19 +39,19 @@ services:
     networks:
       - mid-front
 
- 
-  java-backend:
-    build: ./interstore
-    ports:
-      - "8443:8443"
-    environment:
-      - EXPRESS_URL=http://express-mid:5000
-    networks:
-      - back-nats
-      - mid-front
+  ieee2030-client-browser:
+    build: ./IEEE-2030.5-Client-Browser
+    container_name: ieee2030-client-browser
     depends_on:
-      - nats
-      
+      - express-mid  
+    environment:
+      - EXPRESS_URL=http://express-mid:5000 
+    ports:
+       - "3002:3002"      
+    networks:
+      - mid-front
+    command: ["npm", "start"]  
+            
   express-mid:
     build: ./express-mid
     hostname: express-mid
@@ -51,27 +68,20 @@ services:
       - nats-mid
       - mid-front
     command: ["node","index.js"]
-
-  java-backend:
-    build: 
-      context: ./interstore
-      dockerfile: Dockerfile
-    container_name: java-backend 
-    environment:
-       - NATS_URL=nats://nats-server:4222
-    ports:
-      - "134.130.169.111:8443:8443"
+       
+  ieee2030-client:
+    build: ./IEEE-2030.5-Client
+    container_name: ieee2030-client
+    hostname: ieee2030-client
+    depends_on:
+      - java-backend
     networks:
       - back-nats
-      - mid-front  
-    
+      - nats-mid
+    command: ["sleep", "infinity"]
+
 networks:
   back-nats:
   nats-mid:
   mid-front:
 
-
-# export NATS_URL=nats://nats-server:4222
-# export NATS_URL=0.0.0.0:4222 # use this docker file 
-# sudo NATS_URL=0.0.0.0:4222 ./gradlew run -x test
-# ./gradlew run -x test 
