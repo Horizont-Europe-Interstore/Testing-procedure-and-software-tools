@@ -24,11 +24,17 @@ RUN apt-get update \
 # Copy the one fat‐JAR from the builder stage (from the `app` subproject)
 COPY --from=builder /home/gradle/project/app/build/libs/*.jar app.jar
 
+# Copy test resources (feature files) for Cucumber execution
+COPY --from=builder /home/gradle/project/app/src/test/resources/ /app/src/test/resources/
+
+# Create build directory structure for reports
+RUN mkdir -p /app/build/reports/cucumber
+
 # Expose your HTTPS port
 EXPOSE 8443
 
 # Run it with your Spring profile and server.port
-ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=dev","--server.port=8443"]
+ENTRYPOINT ["java","-Dspring.main.class=interstore.App","-jar","app.jar","--server.port=8443"]
 
 
 
@@ -47,7 +53,7 @@ ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=dev","--server.por
 #EXPOSE 8443
 #ENTRYPOINT ["sh", "-c", "java -jar build/libs/*.jar"]
 
-
+# ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=dev","--server.port=8443"]
 
 
 

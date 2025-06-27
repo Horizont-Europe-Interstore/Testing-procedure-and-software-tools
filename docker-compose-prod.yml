@@ -6,6 +6,8 @@ services:
     hostname: nats-server
     ports:
       - "4222:4222"
+      - "8222:8222" # HTTP monitoring port
+    command: ["-m", "8222", "--jetstream"] # Enable monitoring and JetStream
     networks:
       - back-nats
       - nats-mid
@@ -18,12 +20,13 @@ services:
     depends_on:
       - nats
     environment:
-      - NATS_URL=nats-server:4222 
+      - NATS_URL=nats://nats-server:4222
     ports:
       - "8443:8443"
     networks:
       - back-nats
       - nats-mid
+  
 
   react-browser:
     build:
@@ -38,9 +41,10 @@ services:
     command: ["npm","start"]
     networks:
       - mid-front
+      - nats-mid
 
   ieee2030-client-browser:
-    build: ./IEEE-2030.5-Client-Browser
+    build: ./ieee2030-client-browser
     container_name: ieee2030-client-browser
     depends_on:
       - express-mid  
@@ -67,6 +71,7 @@ services:
     networks:
       - nats-mid
       - mid-front
+      - back-nats
     command: ["node","index.js"]
        
   ieee2030-client:
@@ -75,10 +80,11 @@ services:
     hostname: ieee2030-client
     depends_on:
       - java-backend
+    environment:
+      - NATS_URL=nats://nats-server:4222
     networks:
       - back-nats
       - nats-mid
-    command: ["sleep", "infinity"]
 
 networks:
   back-nats:

@@ -38,6 +38,7 @@ public class DeviceCapabilitySteps {
         response = app.CreateDeviceCapabilityTest(natsSubject); 
     }
 
+    @SuppressWarnings("rawtypes")
     @Then("^the test should complete successfully with DeviceCapability response containing:$")
     public void the_test_should_complete_successfully_with_DeviceCapability_response_containing(String expectedJson) throws Exception {
         Map<String, List<String>> expectedMap = new HashMap<>();	
@@ -48,6 +49,7 @@ public class DeviceCapabilitySteps {
         expectedResponseList.add("http://localhost/tm");
         expectedMap.put("1", expectedResponseList);
         ObjectMapper actualObjectMapper = new ObjectMapper();
+        @SuppressWarnings("unchecked")
         Map<Object, Object>actaulMap = actualObjectMapper.readValue((String)response, Map.class);
         LOGGER.info("Expected response: {}", expectedMap ); 
         LOGGER.info("Actual response: {}", actaulMap); 

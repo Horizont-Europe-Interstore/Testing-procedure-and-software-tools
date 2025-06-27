@@ -53,6 +53,10 @@ application {
     mainClass = 'interstore.App'
 }
 
+springBoot {
+    mainClass = 'interstore.App'
+}
+
 run {
     jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
 }

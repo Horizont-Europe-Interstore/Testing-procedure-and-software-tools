@@ -2,6 +2,7 @@ package interstore;
 
 import io.nats.client.Connection;
 import io.nats.client.Nats;
+import io.nats.client.Options;
 
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
@@ -21,18 +22,33 @@ public class MessageToPublish {
     public MessageToPublish(String natsUrl,ServiceDiscoveryVerticle serviceDiscoveryVerticle ) {
 
         this.serviceDiscoveryVerticle = serviceDiscoveryVerticle;
-        LOGGER.info("Servcie discovery verticle is : " + this.serviceDiscoveryVerticle);
-        try
-        {
-            this.natsConnection = Nats.connect(natsUrl);
-        } catch(Exception e)
-        {
-            LOGGER.severe("Error connecting to nats server: " + e.getMessage());
+        LOGGER.info("Service discovery verticle is : " + this.serviceDiscoveryVerticle);
+        
+        // Configure NATS connection options
+        Options options = new Options.Builder()
+            .server(natsUrl)
+            .connectionTimeout(java.time.Duration.ofSeconds(10))
+            .pingInterval(java.time.Duration.ofSeconds(2))
+            .reconnectWait(java.time.Duration.ofSeconds(1))
+            .maxReconnects(5)
+            .build();
+            
+        LOGGER.info("MessageToPublish attempting to connect to NATS at: " + natsUrl);
+        
+        try {
+            this.natsConnection = Nats.connect(options);
+            
+            if (this.natsConnection.getStatus() == Connection.Status.CONNECTED) {
+                LOGGER.info("MessageToPublish successfully connected to NATS server at: " + natsUrl);
+            } else {
+                LOGGER.warning("MessageToPublish NATS connection status: " + this.natsConnection.getStatus());
+            }
+            
+        } catch(Exception e) {
+            LOGGER.severe("MessageToPublish failed to connect to NATS server at " + natsUrl + ": " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("NATS connection failed in MessageToPublish", e);
         }
-       
-       
     }
 
     
@@ -49,9 +65,17 @@ public class MessageToPublish {
     public void PublishToSubject(String natSubject, String message)
     
     {   
+        // Check connection health before publishing
+        if (this.natsConnection == null || this.natsConnection.getStatus() != Connection.Status.CONNECTED) {
+            LOGGER.severe("NATS connection is not available for publishing. Status: " + 
+                         (this.natsConnection != null ? this.natsConnection.getStatus() : "null"));
+            throw new RuntimeException("NATS connection not available");
+        }
         
+        LOGGER.info("Publishing message to subject: " + natSubject + ", message: " + message);
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
         natsConnection.publish(natSubject, messageBytes);
+        LOGGER.info("Message published successfully to: " + natSubject);
     }
         
     public void closeConnection() throws Exception 

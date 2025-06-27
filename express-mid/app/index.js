@@ -15,7 +15,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post("/api", (req, res) => {
+    console.log('EXPRESS-MID: API endpoint hit with payload:', JSON.stringify(req.body));
     natsInterface.handleSetTest(req.body, res);
+});
+
+// Add a test endpoint to verify API is accessible
+app.get("/api/health", (req, res) => {
+    console.log('EXPRESS-MID: Health check endpoint hit');
+    res.status(200).json({ status: 'ok', message: 'Express-Mid API is running' });
 });
 
 // New endpoint to run IEEE2030.5 client commands

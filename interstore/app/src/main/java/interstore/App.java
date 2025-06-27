@@ -43,18 +43,6 @@ public class App {
 
 
 
-    public Map<String, String> postDeviceCapablity()
-    {
-        Map<String, String> payload = new HashMap<>();
-       
-        payload.put("mirrorUsagePointListLink", "mup");
-        payload.put("selfDeviceLink", "sdev");
-        payload.put("endDeviceListLink", "edev");
-        payload.put("timeLink", "tm");
-
-        return payload;
-    }
-    
     
     /* This method checks for the device capability found in the server or not  */
 
@@ -76,12 +64,13 @@ public class App {
             return deviceCapabilityResponse;
         }
         JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        LOGGER.info("the current test is " + currentTest);
         DeviceCapabilityTest deviceCapabilitytest = new DeviceCapabilityTest();
         deviceCapabilitytest.setserviceName("dcapmanager" ); 
-//        String Payload =  deviceCapabilitytest.setPostQuery(postDeviceCapablity());
+
         String Payload =  interstore.DeviceCapabilityTest.createNewDeviceCapability(currentTest);
         this.messageToPublish.newStart(natsSubject, Payload );
-        Thread.sleep(300);
+        Thread.sleep(100);
         deviceCapabilityResponse = interstore.DeviceCapabilityTest.getDeviceCapabilityresponse();
         return  deviceCapabilityResponse;
     }
@@ -508,11 +497,12 @@ public class App {
     
 
     public void start(String natsUrl) throws Exception
-    {    
+    {    LOGGER.info("the nats url is " + natsUrl);
         this.serviceDiscoveryVerticle = new ServiceDiscoveryVerticle(natsUrl);
         this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
         this.uiControleHandler = new UIControleHandler();
         this.uiControleHandler.setupBridge();
+        LOGGER.info("everything is intailized ");
 
           
     }
@@ -521,8 +511,8 @@ public class App {
   
    
     public static void main(String[] args) throws Exception {
-        String natsUrl = System.getenv("NATS_URL");
-      
+        // String natsUrl = "nats://nats-server:4222";
+        String natsUrl = "nats://nats-server:4222";
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");

@@ -6,6 +6,7 @@ import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.MessageHandler;
 import io.nats.client.Nats;
+import io.nats.client.Options;
 import io.vertx.core.AbstractVerticle;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +33,33 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
 
     public ServiceDiscoveryVerticle(String natsUrl) throws Exception{  
         this.natsUrl = natsUrl; 
-        this.natsConnection = Nats.connect(natsUrl);
+        
+        // Configure NATS connection options with timeout and retry settings
+        Options options = new Options.Builder()
+            .server(natsUrl)
+            .connectionTimeout(java.time.Duration.ofSeconds(10))
+            .pingInterval(java.time.Duration.ofSeconds(2))
+            .reconnectWait(java.time.Duration.ofSeconds(1))
+            .maxReconnects(5)
+            .build();
+            
+        LOGGER.info("Attempting to connect to NATS at: " + natsUrl);
+        
+        try {
+            this.natsConnection = Nats.connect(options);
+            
+            // Verify connection is established
+            if (this.natsConnection.getStatus() == Connection.Status.CONNECTED) {
+                LOGGER.info("Successfully connected to NATS server at: " + natsUrl);
+            } else {
+                LOGGER.warning("NATS connection status: " + this.natsConnection.getStatus());
+            }
+            
+        } catch (Exception e) {
+            LOGGER.severe("Failed to connect to NATS server at " + natsUrl + ": " + e.getMessage());
+            throw new Exception("NATS connection failed", e);
+        }
+        
         this.microServiceFactory = new MicroServiceFactory(); 
         this.messageToPublish = new MessageToPublish(); 
         this.serviceName = null; 
@@ -44,17 +71,19 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
        {
          return msg -> {
                String messageContent = new String(msg.getData(), StandardCharsets.UTF_8 );
-               LOGGER.info("Received message from NATS" + messageContent);
+               LOGGER.info("JAVA-BACKEND: Received message from NATS: " + messageContent);
                try {
+                LOGGER.info("JAVA-BACKEND: Unsubscribing from subject: " + natssubject);
                 this.dispatcher.unsubscribe(natssubject);
             } catch (Exception e) {
-                LOGGER.info(String.valueOf(e)); 
+                LOGGER.info("JAVA-BACKEND: Error unsubscribing: " + String.valueOf(e)); 
             
             }
                try {
+                LOGGER.info("JAVA-BACKEND: Processing message with vertxSetUp");
                 this.vertxSetUp(messageContent);
             } catch (JsonProcessingException | JSONException e) {
-                
+                LOGGER.severe("JAVA-BACKEND: Error processing message: " + e.getMessage());
                 e.printStackTrace();
             } 
            };
@@ -158,11 +187,45 @@ public class ServiceDiscoveryVerticle extends AbstractVerticle {
                ObjectMapper objectMapper = new ObjectMapper();
                 String responseMessage = objectMapper.writeValueAsString(response);
                 LOGGER.info("Response message in  service verticle : " + responseMessage);
+                
+                // Check connection health before publishing
+                if (!isNatsConnected()) {
+                    LOGGER.warning("NATS connection lost, attempting to reconnect...");
+                    try {
+                        reconnectToNats();
+                    } catch (Exception e) {
+                        LOGGER.severe("Failed to reconnect to NATS: " + e.getMessage());
+                        throw new RuntimeException("NATS connection failed", e);
+                    }
+                }
+                
                 this.messageToPublish.reSubscribeMessage(getNatsMatter(), this.natsUrl , getServiceName()); 
                 // Use  NATS connection to publish the response
                 natsConnection.publish(getNatsMatter(), responseMessage.getBytes(StandardCharsets.UTF_8));
               
             }
+            
+    public boolean isNatsConnected() {
+        return this.natsConnection != null && 
+               this.natsConnection.getStatus() == Connection.Status.CONNECTED;
+    }
+    
+    public void reconnectToNats() throws Exception {
+        if (this.natsConnection != null && !this.natsConnection.getStatus().equals(Connection.Status.CLOSED)) {
+            this.natsConnection.close();
+        }
+        
+        Options options = new Options.Builder()
+            .server(this.natsUrl)
+            .connectionTimeout(java.time.Duration.ofSeconds(10))
+            .pingInterval(java.time.Duration.ofSeconds(2))
+            .reconnectWait(java.time.Duration.ofSeconds(1))
+            .maxReconnects(5)
+            .build();
+            
+        this.natsConnection = Nats.connect(options);
+        LOGGER.info("Reconnected to NATS server at: " + this.natsUrl);
+    }
 
     
   

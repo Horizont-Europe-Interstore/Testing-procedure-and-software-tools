@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import java.nio.file.Files;
-
+import java.util.logging.Logger;
 
 public class UIControleHandler {
     private JSONObject currentTestObject;
@@ -19,9 +19,15 @@ public class UIControleHandler {
     private  MessageHandler controleMessageHandler;
     private static final String responseTopic = "ControleResponse";
     private static final String instructionsTopic = "ControleInstructions";
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     public UIControleHandler() throws Exception{
-        this.natsConnection = Nats.connect(System.getenv("NATS_URL"));
+       // String natsUrl = System.getenv("NATS_URL");
+       String natsUrl = "nats://nats-server:4222";
+        //if (natsUrl == null || natsUrl.trim().isEmpty()) {
+           // natsUrl = "nats://nats-server:4222";
+       // }
+        this.natsConnection = Nats.connect(natsUrl);
     }
 
     public void setupBridge(){
@@ -39,12 +45,10 @@ public class UIControleHandler {
                 if((boolean)testObject.get("args")){
                    this.setCurrentTestObject(testObject.getJSONObject("object"));
                 }
-                this.runTest((String)testObject.getString("test"));
-                Thread.sleep(2000);
-                Path reportPath = Paths.get("build/reports/cucumber/report.json").toAbsolutePath();
-                String file = new String(Files.readAllBytes(reportPath), StandardCharsets.UTF_8);
-                System.out.println(file); 
-                this.publishMsg(file);
+                String result = (String)this.runTest((String)testObject.getString("test"));
+                Thread.sleep(1000);
+                System.out.println("Test result: " + result); 
+                this.publishMsg(result);
                 
             }
             catch(Exception exception){
@@ -91,7 +95,46 @@ public class UIControleHandler {
        }
 
        public Object runTest(String testName){
-           return  io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
+           try {
+               LOGGER.info("Running Cucumber test for: " + testName);
+               
+               // Create reports directory if it doesn't exist
+               Path reportsDir = Paths.get("/app/build/reports/cucumber");
+               Files.createDirectories(reportsDir);
+               
+               // Run Cucumber test with proper configuration
+               String[] args = {
+                   "--glue", "interstore.stepdefinitions",
+                   "--plugin", "json:/app/build/reports/cucumber/report.json",
+                   "--plugin", "pretty",
+                   "/app/src/test/resources/interstore/" + testName + ".feature"
+               };
+               
+               LOGGER.info("Cucumber args: " + String.join(" ", args));
+               
+               // Run Cucumber
+               byte exitCode = io.cucumber.core.cli.Main.run(args, Thread.currentThread().getContextClassLoader());
+               LOGGER.info("Cucumber exit code: " + exitCode);
+               
+               // Wait for report to be generated
+               Thread.sleep(2000);
+               
+               // Read the Cucumber JSON report
+               Path reportPath = Paths.get("/app/build/reports/cucumber/report.json");
+               if (Files.exists(reportPath)) {
+                   String cucumberReport = new String(Files.readAllBytes(reportPath), StandardCharsets.UTF_8);
+                   LOGGER.info("Cucumber report generated successfully");
+                   return cucumberReport;
+               } else {
+                   LOGGER.warning("Cucumber report not found at: " + reportPath.toString());
+                   return "[]";
+               }
+               
+           } catch (Exception e) {
+               LOGGER.severe("Error running Cucumber test: " + e.getMessage());
+               e.printStackTrace();
+               return "Error executing test: " + e.getMessage();
+           }
        }
        public void runTestWithArgs(String testName){
         io.cucumber.core.cli.Main.run(constructCommandArgument(testName));
