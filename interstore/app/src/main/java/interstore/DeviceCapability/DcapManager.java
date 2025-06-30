@@ -1,13 +1,9 @@
 package interstore.DeviceCapability;
-
-import interstore.JsonToXmlConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.MediaType;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -15,17 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
-
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class DcapManager {
     private  DeviceCapabilityImpl deviceCapabilityImpl;
-//    private final JsonToXmlConverter converter = new JsonToXmlConverter();
     private static final Logger LOGGER = Logger.getLogger(DcapManager.class.getName());
+    
     public DcapManager(DeviceCapabilityImpl deviceCapabilityImpl) {
         this.deviceCapabilityImpl = deviceCapabilityImpl;
     } 
@@ -72,33 +65,22 @@ if (payload == null || payload.isEmpty()) {
 public Object getDeviceCapability(HttpServletResponse response) throws InterruptedException, IOException {
 
     if (RequestContextHolder.getRequestAttributes() != null) {
-        // It's an HTTP call
         Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
-        LOGGER.info("Response body: " + body);
+        @SuppressWarnings("unchecked")
         List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
         if (dcapList != null && !dcapList.isEmpty()) {
-            DeviceCapabilityDto dcap = dcapList.get(0); // or loop if there are multiple
-            String dcap_val = this.deviceCapabilityImpl.getDeviceCapability(dcap);
-            LOGGER.info("Response from getDeviceCapability: " + dcap_val);
-           // response.setHeader(HttpHeaders.CONTENT_TYPE, "application/sep+xml;level=S1");
-            byte[] bytes = dcap_val.getBytes(StandardCharsets.ISO_8859_1);
+            DeviceCapabilityDto dcapDto = dcapList.get(0);
+           
+            String dcap_val = this.deviceCapabilityImpl.getDeviceCapability(dcapDto);
+            
+            LOGGER.info("the dcap_val is " + dcap_val);
+            byte[] bytes = dcap_val.getBytes(StandardCharsets.UTF_8);
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/sep+xml;level=S1");
             response.setContentLength(bytes.length);
-           //response.setCharacterEncoding(null);
-           ServletOutputStream out = response.getOutputStream();
-           out.write(bytes);
-           //out.write(dcap_val.getBytes("ISO-8859-1")); // Match charset if needed
-           out.flush();
-            //response.getWriter().write(dcap_val);
-            //response.getWriter().flush();
-            //return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/sep+xml;level=S1").body(dcap_val);
-            //return dcap_val;
-//            try {
-//                return converter.convertMapToXml(dcap_val, "dcap");
-//            } catch (Exception e) {
-//                return "<error>Unable to convert to XML</error>";
-//            }
+            ServletOutputStream out = response.getOutputStream();
+            out.write(bytes);
+            out.flush();
         }
         return null;
     } else {
@@ -111,11 +93,6 @@ public Object getDeviceCapability(HttpServletResponse response) throws Interrupt
 
 
 
-    //DeviceCapabilityDto deviceCapabilityDto = deviceCapabilityImpl.createDeviceCapability();
-   
-   //Thread.sleep(100);
-   // LOGGER.info(" the response to nats from the server " + deviceCapabilityImpl.getAllLinks(deviceCapabilityDto));
-   // return deviceCapabilityImpl.getAllLinks(deviceCapabilityDto);
 
 
 
@@ -133,18 +110,9 @@ public void updateTime(String payload) throws JSONException{
     deviceCapabilityImpl.updateTime(payload);
 }
 
+
+
 }
 
 
 
-
-/*
- *  
-   @GetMapping("/dcap")
-public  Map<String, Object> getDeviceCapability() throws MalformedURLException, InterruptedException {
-    ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityImpl.getDeviceCapabilities();
-    return responseEntity.getBody(); }
-
- * 
- * 
- */

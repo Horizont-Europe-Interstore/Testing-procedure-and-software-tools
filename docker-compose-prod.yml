@@ -6,8 +6,8 @@ services:
     hostname: nats-server
     ports:
       - "4222:4222"
-      - "8222:8222" # HTTP monitoring port
-    command: ["-m", "8222", "--jetstream"] # Enable monitoring and JetStream
+      - "8222:8222" 
+    command: ["-m", "8222", "--jetstream"]
     networks:
       - back-nats
       - nats-mid
@@ -82,10 +82,14 @@ services:
       - java-backend
     environment:
       - NATS_URL=nats://nats-server:4222
+      - SERVER_URL=${SERVER_URL:-https://java-backend:8443/dcap}
+      - RUN_INTERVAL=${RUN_INTERVAL:-300}
+      - RUN_ONCE=${RUN_ONCE:-false}
     networks:
       - back-nats
       - nats-mid
-
+    command: ["${COMMAND:-all}"]
+  
 networks:
   back-nats:
   nats-mid:

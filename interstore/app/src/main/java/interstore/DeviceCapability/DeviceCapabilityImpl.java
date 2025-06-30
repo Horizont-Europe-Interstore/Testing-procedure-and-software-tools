@@ -1,23 +1,17 @@
 package interstore.DeviceCapability;
-
-import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
-import interstore.JsonToXmlConverter;
 import interstore.Time.TimeDto;
 import interstore.Time.TimeDtoRepository;
-import io.cucumber.java.hu.De;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -71,64 +65,47 @@ public class DeviceCapabilityImpl {
         }
     }
 
-    public String getDeviceCapability(DeviceCapabilityDto dcap)
-    {
-        JsonToXmlConverter jsonToXmlConverter = new JsonToXmlConverter();
-        if (dcap == null || dcap.getId() == null) {
+     public String getDeviceCapability(DeviceCapabilityDto dcap) {
+         if (dcap == null || dcap.getId() == null) {
             throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
         }
-
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("xmlns", "http://ieee.org/2030.5");
-        result.put("href", dcap.getHref());
-
-        for (Field field : DeviceCapabilityDto.class.getDeclaredFields()) {
-            field.setAccessible(true);
+        
+        StringBuilder xml = new StringBuilder();
+        xml.append("<DeviceCapability xmlns=\"http://ieee.org/2030.5\" href=\"/dcap\">\n");
+        
+        // IEEE 2030.5 requires specific element order
+        String[] elementOrder = {"timeLink", "endDeviceListLink", "mirrorUsagePointListLink", "selfDeviceLink"};
+        String[] xmlNames = {"TimeLink", "EndDeviceListLink", "MirrorUsagePointListLink", "SelfDeviceLink"};
+        
+        for (int i = 0; i < elementOrder.length; i++) {
+            String fieldName = elementOrder[i];
+            String xmlName = xmlNames[i];
+            
             try {
+                Field field = DeviceCapabilityDto.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
                 Object value = field.get(dcap);
-                if (value != null && value instanceof String && !"href".equals(field.getName())) {
-                    String fieldName = field.getName();
-
-                    // Capitalize first letter (for XML element names)
-                    String xmlElementName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-
+                
+                if (value != null && value instanceof String) {
+                    xml.append("<").append(xmlName);
+                    xml.append(" href=\"").append(stripHost((String) value)).append("\"");
+                    
+                    // Add 'all' attribute for ListLink elements
                     if (fieldName.endsWith("ListLink")) {
-                        result.put(xmlElementName, Map.of(
-                                "href", stripHost((String) value),
-                                "all", 0
-                        ));
-                    } else {
-                        result.put(xmlElementName, Map.of(
-                                "href", stripHost((String) value)
-                        ));
+                        xml.append(" all=\"0\"");
                     }
+                    
+                    xml.append(" />\n");
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to access field: " + field.getName(), e);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
             }
         }
-//        if (dcap.getTimeLink() != null) {
-//            result.put("TimeLink", Map.of("href", stripHost(dcap.getTimeLink())));
-//        }
-//        if (dcap.getSelfDeviceLink() != null) {
-//            result.put("SelfDeviceLink", Map.of("href", stripHost(dcap.getSelfDeviceLink())));
-//        }
-//
-//        if (dcap.getEndDevicelistLink() != null) {
-//            result.put("EndDeviceListLink", Map.of("href", stripHost(dcap.getEndDevicelistLink())));
-//        }
-//
-//        if (dcap.getMirrorUsagePointListLink() != null) {
-//            result.put("MirrorUsagePointListLink", Map.of("href", stripHost(dcap.getMirrorUsagePointListLink())));
-//        }
-        LOGGER.log(Level.INFO, "the result from getDeviceCapability: " + result.toString());
-        return jsonToXmlConverter.buildXml(result, "DeviceCapability");
-    }
+        
+        xml.append("</DeviceCapability>");
+        return xml.toString();
+     }
 
-
-    
-           
-   
 
 
     public void setDeviceCapability(DeviceCapabilityDto deviceCapabilityDto, JSONObject jsonObject) throws JSONException
@@ -234,43 +211,6 @@ public class DeviceCapabilityImpl {
 }
 
 
-
-
-
-/*
- *  public List<String> getDefaultDeviceCapabilityListLink()
-    { 
-       List<String> defaultEndPointsList = new ArrayList<>();
-       defaultEndPointsList.add("/edev");
-       defaultEndPointsList.add("/mup");
-       return defaultEndPointsList; 
- 
-    }
-   
-    public List<String> getDefaultCapabilityLink()
-    {
-        List<String> defaultEndPointsLink = new ArrayList<>();
-        
-        defaultEndPointsLink.add("/sdev");
-        return defaultEndPointsLink;
-
-    }
- * 
- * 
- *  for (String defaultendPointLink:  getDefaultCapabilityLink()) {
-             link.setLink(defaultendPointLink);  
-             deviceCapabilityDto.addLink(link.getLink());  
-        }
-       
-         ListLink listLink = new ListLink(); 
-        for(String defaultendPointListLink: getDefaultDeviceCapabilityListLink()) {
-            listLink.setListLink(defaultendPointListLink);
-            LOGGER.log(Level.INFO, "ListLink from device capability Implimentation: " + listLink.getListLink());
-            deviceCapabilityDto.addLink(listLink.getListLink());
-        } 
- * 
- * 
- */
 
 
 
