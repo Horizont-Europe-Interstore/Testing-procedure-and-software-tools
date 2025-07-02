@@ -3,9 +3,11 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV OPENSSL_1_1_VERSION=1.1.0l
 
-# Install build tools and OpenSSL 3 (for runtime)
-RUN apt-get update && \
-    apt-get install -y \
+# Use alternative mirrors and install build tools
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://mirror.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://mirror.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
+    apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     openssl \
     libssl3 \
