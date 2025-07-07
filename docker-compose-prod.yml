@@ -85,6 +85,9 @@ services:
       - SERVER_URL=${SERVER_URL:-https://java-backend:8443/dcap}
       - RUN_INTERVAL=${RUN_INTERVAL:-300}
       - RUN_ONCE=${RUN_ONCE:-false}
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     networks:
       - back-nats
       - nats-mid

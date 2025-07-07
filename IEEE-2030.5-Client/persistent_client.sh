@@ -26,7 +26,7 @@ fi
 # Default values
 DEVICE_CERT="${DEVICE_CERT:-pti_dev.x509}"
 CA_CERT="${CA_CERT:-./certs/my_ca.pem}"
-SERVER_URL="${SERVER_URL:-https://134.130.169.111:8443/}"
+SERVER_URL="${SERVER_URL:-https://0.0.0.0:8443/}"
 
 echo "IEEE 2030.5 Client Thread Started"
 echo "Interface: $INTERFACE"
@@ -47,6 +47,11 @@ execute_url() {
   /app/build/client_test $INTERFACE $DEVICE_CERT $CA_CERT $url
   echo "[$(date)] Execution completed with exit code: $?"
 }
+
+# Execute initial connection to server
+if [ -n "$SERVER_URL" ]; then
+  execute_url "$SERVER_URL"
+fi
 
 # Main loop - check for commands
 while true; do

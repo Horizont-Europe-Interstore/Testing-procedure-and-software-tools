@@ -3,10 +3,8 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV OPENSSL_1_1_VERSION=1.1.0l
 
-# Use alternative mirrors and install build tools
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://mirror.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
-    sed -i 's|http://security.ubuntu.com/ubuntu|http://mirror.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
-    apt-get update --fix-missing && \
+# Install packages with retry logic
+RUN apt-get update || apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     openssl \
@@ -46,7 +44,8 @@ WORKDIR /app
 COPY . .
 
 # Build with OpenSSL 1.1.0
-RUN chmod +x ./build.sh && \
+RUN sed -i 's/\r$//' ./build.sh && \
+    chmod +x ./build.sh && \
     ./build.sh
 
 # Debug: Check versions and linking
@@ -54,9 +53,8 @@ RUN echo "System OpenSSL:" && openssl version
 RUN echo "OpenSSL 1.1.0 installed at:" && ls -la /usr/local/openssl-1.1.0/lib/
 RUN echo "Binary linking:" && ldd /app/build/client_test
 
-RUN chmod +x /app/run_client.sh
-RUN chmod +x /app/persistent_client.sh
-RUN chmod +x /app/send_command.sh
+RUN sed -i 's/\r$//' /app/run_client.sh /app/persistent_client.sh /app/send_command.sh && \
+    chmod +x /app/run_client.sh /app/persistent_client.sh /app/send_command.sh
 
 # Set runtime library path
 ENV LD_LIBRARY_PATH=/usr/local/openssl-1.1.0/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
