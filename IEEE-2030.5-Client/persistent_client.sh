@@ -26,7 +26,7 @@ fi
 # Default values
 DEVICE_CERT="${DEVICE_CERT:-pti_dev.x509}"
 CA_CERT="${CA_CERT:-./certs/my_ca.pem}"
-SERVER_URL="${SERVER_URL:-https://134.130.169.111:8443/}"
+SERVER_URL="${SERVER_URL:-https://xxx.xxx.xxx.xxx:8443/}"
 
 echo "IEEE 2030.5 Client Thread Started"
 echo "Interface: $INTERFACE"
