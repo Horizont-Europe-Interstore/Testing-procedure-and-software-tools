@@ -207,6 +207,31 @@ public class DeviceCapabilityImpl {
         timeDtoRepository.save(timeDto);
         return "";
     }
+
+    @Transactional
+    public DeviceCapabilityDto createDefaultDeviceCapability() {
+        DeviceCapabilityDto defaultDcap = new DeviceCapabilityDto();
+        defaultDcap.setSelfDeviceLink("/edev");
+        defaultDcap.setEndDeviceListLink("/edev");
+        defaultDcap.setMirrorUsagePointListLink("/mup");
+        defaultDcap.setTimeLink("/tm");
+        
+        try {
+            defaultDcap = deviceCapabilityRepository.save(defaultDcap);
+            
+            TimeDto time = new TimeDto();
+            time.setTimeLink("/tm");
+            time.setCurrentTime(String.valueOf(System.currentTimeMillis() / 1000));
+            time.setQuality("7");
+            timeDtoRepository.save(time);
+            
+            LOGGER.info("Created default device capability for polling");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating default device capability", e);
+        }
+        
+        return defaultDcap;
+    }
    
 }
 

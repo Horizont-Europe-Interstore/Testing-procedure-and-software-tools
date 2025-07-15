@@ -41,9 +41,10 @@ if (payload == null || payload.isEmpty()) {
         return getTime(jsonObject.getString("payload"));
         case "put":
         updateDeviceCapability(jsonObject);
+        return "Device capability updated";
         case "update-time":
         updateTime(jsonObject.getString("payload"));
-        break;
+        return "Time updated";
       }
       return "Operation completed successfully"; 
    }
@@ -59,32 +60,43 @@ if (payload == null || payload.isEmpty()) {
 }
 
 
-// check that the device capability exist or not if not create one . 
-//@GetMapping("/dcap") produces = MediaType.APPLICATION_XML_VALUE
 @GetMapping(value = "/dcap")
 public Object getDeviceCapability(HttpServletResponse response) throws InterruptedException, IOException {
 
     if (RequestContextHolder.getRequestAttributes() != null) {
-        Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
-        @SuppressWarnings("unchecked")
-        List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
-        if (dcapList != null && !dcapList.isEmpty()) {
-            DeviceCapabilityDto dcapDto = dcapList.get(0);
+        try {
+            Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+            @SuppressWarnings("unchecked")
+            List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
+            
+            DeviceCapabilityDto dcapDto;
+            if (dcapList == null || dcapList.isEmpty()) {
+                LOGGER.info("No device capabilities found, creating default one for Schneider polling");
+                dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+            } else {
+                dcapDto = dcapList.get(0);
+            }
            
             String dcap_val = this.deviceCapabilityImpl.getDeviceCapability(dcapDto);
             
             LOGGER.info("the dcap_val is " + dcap_val);
             byte[] bytes = dcap_val.getBytes(StandardCharsets.UTF_8);
+            
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/sep+xml;level=S1");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Connection", "keep-alive");
             response.setContentLength(bytes.length);
+            
             ServletOutputStream out = response.getOutputStream();
             out.write(bytes);
             out.flush();
+        } catch (Exception e) {
+            LOGGER.severe("Error retrieving device capabilities: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return null;
     } else {
-        // It's a NATS or internal call
         ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityImpl.getDeviceCapabilities();
         return responseEntity.getBody();
     }
