@@ -9,9 +9,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
+import org.springframework.core.env.Environment;
+import java.net.InetAddress;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -506,18 +507,42 @@ public class App {
 
           
     }
-   
+     private static void displayServerInfo(ApplicationContext context) {
+        Environment env = context.getEnvironment();
+        String port = env.getProperty("server.port", "8443");
+        
+        System.out.println();
+        System.out.println("✅ IEEE 2030.5 Server Started Successfully!");
+        System.out.println("📡 HTTPS Listener: https://" + getLocalIPAddress() + ":" + port);
+        System.out.println("🔗 NATS Integration: ACTIVE");
+        System.out.println("🔒 TLS Client Auth: REQUIRED");
+        System.out.println();
+        System.out.println("🎯 Configure InsightHome Gateway:");
+        System.out.println("   Server IP: " + getLocalIPAddress());
+        System.out.println("   Server Port: " + port);
+        System.out.println("   Protocol: HTTPS with client certificate");
+        System.out.println();
+        System.out.println("⏳ Waiting for gateway connections...");
+        System.out.println("Press Ctrl+C to stop server");
+        System.out.println("==========================================");
+    }
 
-  
+    private static String getLocalIPAddress() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            return "localhost";
+        }
+    }
    
     public static void main(String[] args) throws Exception {
-        // String natsUrl = "nats://nats-server:4222";
         String natsUrl = "nats://nats-server:4222";
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
         mainApp.start(natsUrl);
-
+        displayServerInfo(context);
+       
     }
     
 }
