@@ -40,7 +40,8 @@ dependencies {
     implementation 'io.cucumber:cucumber-java:7.1.0'
     implementation 'io.cucumber:cucumber-junit:7.1.0'
     implementation 'io.cucumber:cucumber-core:7.1.0'
-
+     implementation 'org.jmdns:jmdns:3.5.8'
+     implementation 'org.json:json:20230227'
     // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
