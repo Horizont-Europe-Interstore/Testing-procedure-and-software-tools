@@ -79,7 +79,7 @@ public class App {
     public App() throws Exception {
     }
 
-    // Step 2: Start IEEE 2030.5 service discovery
+   
     public void startIeee2030ServiceDiscovery() {
         try {
             // Initialize mDNS
@@ -266,7 +266,7 @@ public class App {
     
             String deviceName = extractDeviceNameFromCertificate(clientCert);
             
-            LOGGER.info("🔢 Calculated from client certificate:");
+            LOGGER.info(" Calculated from client certificate:");
             LOGGER.info("   Client SFDI: " + clientSfdi);
             LOGGER.info("   Client LFDI: " + clientLfdi);
             
@@ -310,7 +310,7 @@ public class App {
             String fullHash = bytesToHex(sha256Hash);
             String sfdi = fullHash.substring(fullHash.length() - 10).toUpperCase();
             
-            LOGGER.info("🔐 SFDI calculation: SHA256=" + fullHash + " -> SFDI=" + sfdi);
+            LOGGER.info(" SFDI calculation: SHA256=" + fullHash + " -> SFDI=" + sfdi);
             return sfdi;
             
         } catch (Exception e) {
@@ -374,7 +374,7 @@ public class App {
                 response.append(line).append("\n");
             }
             
-            LOGGER.info("📨 Client response from " + client.deviceName + ": " + response.toString());
+            LOGGER.info(" Client response from " + client.deviceName + ": " + response.toString());
             
             
         } catch (Exception e) {
@@ -382,7 +382,7 @@ public class App {
         } finally {
             try {
                 socket.close();
-                LOGGER.info("🔌 Connection closed with " + client.deviceName);
+                LOGGER.info(" Connection closed with " + client.deviceName);
             } catch (Exception e) {
                 LOGGER.severe("Error closing socket: " + e.getMessage());
             }
@@ -534,29 +534,31 @@ public class App {
         // Start IEEE 2030.5 mDNS service discovery
         startIeee2030ServiceDiscovery();
         
-        LOGGER.info("✅ Everything is initialized including IEEE 2030.5 Windows discovery");
+        LOGGER.info(" Everything is initialized including IEEE 2030.5 Windows discovery");
     }
 
     private static void displayServerInfo(ApplicationContext context) {
         Environment env = context.getEnvironment();
+        //String port = env.getProperty("server.port", "1900");  // Default to 1900 now
+        //String serverIP = env.getProperty("server.address", "10.40.160.10");
         String port = env.getProperty("server.port", "1900");  // Changed to 1900 for IEEE 2030.5
         
         System.out.println();
-        System.out.println("✅ IEEE 2030.5 Server Started Successfully!");
-        System.out.println("📡 HTTPS Listener: https://" + getLocalIPAddress() + ":" + port);
-        System.out.println("🔗 NATS Integration: ACTIVE");
-        System.out.println("🔒 TLS Client Auth: REQUIRED");
-        System.out.println("📢 mDNS Service Discovery: ENABLED");
-        System.out.println("🖥️  Windows Network Scanning: ACTIVE");
-        System.out.println("🔍 Scanning for IEEE 2030.5 clients...");
+        System.out.println(" IEEE 2030.5 Server Started Successfully!");
+        System.out.println(" HTTPS Listener: https://" + getLocalIPAddress() + ":" + port);
+        System.out.println(" NATS Integration: ACTIVE");
+        System.out.println(" TLS Client Auth: REQUIRED");
+        System.out.println(" mDNS Service Discovery: ENABLED");
+        System.out.println("  Windows Network Scanning: ACTIVE");
+        System.out.println(" Scanning for IEEE 2030.5 clients...");
         System.out.println();
-        System.out.println("🎯 Configure InsightHome Gateway:");
+        System.out.println(" Configure InsightHome Gateway:");
         System.out.println("   Server IP: " + getLocalIPAddress());
         System.out.println("   Server Port: " + port);
         System.out.println("   Server SLFDI: " + "392440693763");
         System.out.println("   Protocol: HTTPS with mutual TLS authentication");
         System.out.println();
-        System.out.println("⏳ Server will automatically discover and connect to clients...");
+        System.out.println(" Server will automatically discover and connect to clients...");
         System.out.println("   - mDNS discovery every 30 seconds");
         System.out.println("   - Windows ARP/netstat scanning every 2 minutes");
         System.out.println("   - Schindler Gateway (10.40.160.174) priority scanning");
@@ -575,6 +577,8 @@ public class App {
    
     public static void main(String[] args) throws Exception {
         String natsUrl = "nats://nats-server:4222";
+        //System.setProperty("server.port", "1900");
+        //System.setProperty("server.address", "10.40.160.10");
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
@@ -585,7 +589,7 @@ public class App {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\n🔌 Shutting down IEEE 2030.5 server...");
             mainApp.stopIeee2030ServiceDiscovery();
-            System.out.println("✅ Server shutdown complete");
+            System.out.println(" Server shutdown complete");
         }));
     }
 
