@@ -1,0 +1,6 @@
+# Security - Never commit certificates/keys
+*.key
+*.p12
+certs/
+*.pem
+*.crt
