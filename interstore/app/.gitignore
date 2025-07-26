@@ -4,3 +4,16 @@
 certs/
 *.pem
 *.crt
+# Security - Never commit certificates, keys, or keystores
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+certs/
+othercerts/
+truststore.*
+keystore.*
+mykeystore.*
+*.keystore
+*.truststore
