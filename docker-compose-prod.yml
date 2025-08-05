@@ -11,29 +11,39 @@ services:
     networks:
       - back-nats
       - nats-mid
-  
+    restart: unless-stopped 
+
   java-backend:
     build: 
       context: ./interstore
       dockerfile: Dockerfile
+    image: nithinmanuel9/interstoretestieee2030-server:1.0  
     container_name: java-backend 
     depends_on:
       - nats
     environment:
       - NATS_URL=nats://nats-server:4222
+      - SERVER_PORT=1900
+      - SERVER_ADDRESS=0.0.0.0
+
+    secrets:
+      - server-keystore
+      - truststore
     ports:
       - "8443:8443"
-      #- "10.40.160.14:8443:8443"
-      # - "10.40.160.10:1900:1900"
+      - "1900:1900"
+      
     networks:
       - back-nats
       - nats-mid
+    restart: unless-stopped   
   
 
   react-browser:
     build:
       context: ./react-browser
       dockerfile: Dockerfile
+    image: nithinmanuel9/interstoretestreact-browser:1.0  
     hostname: react-browser
     container_name: react-browser
     environment:
@@ -44,9 +54,11 @@ services:
     networks:
       - mid-front
       - nats-mid
+    restart: unless-stopped   
             
   express-mid:
     build: ./express-mid
+    image: nithinmanuel9/interstoretestexpress-mid:1.0
     hostname: express-mid
     container_name: express-mid
     environment:
@@ -61,15 +73,18 @@ services:
       - nats-mid
       - mid-front
       - back-nats
+    restart: unless-stopped   
     command: ["node","index.js"]
-       
- 
-  
+
+secrets:
+  server-keystore:
+    file: ./server-keystore.p12
+  truststore:
+    file: ./truststore.p12
+
+
 networks:
   back-nats:
   nats-mid:
   mid-front:
-
-#extra_hosts:
- # - "host.docker.internal:host-gateway"
 

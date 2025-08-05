@@ -10,6 +10,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
+
+import com.google.common.net.InetAddresses;
+
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -83,7 +86,9 @@ public class App {
     public void startIeee2030ServiceDiscovery() {
         try {
             // Initialize mDNS
-            jmdns = JmDNS.create(InetAddress.getLocalHost());
+            InetAddress serverAddress = InetAddress.getByName("10.40.160.14");
+           // jmdns = JmDNS.create(InetAddress.getLocalHost());
+           jmdns = JmDNS.create(serverAddress);
             
             // Register our IEEE 2030.5 server service
             String serviceText = "sfdi=" + serverSfdi + ",lfdi=" + serverLfdi + ",version=2030.5,path=/edev";

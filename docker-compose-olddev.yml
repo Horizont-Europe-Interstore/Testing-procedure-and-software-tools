@@ -1,0 +1,50 @@
+version: '3.8'
+services: 
+  nats: 
+    image: nats:latest
+    container_name: nats-server
+    hostname: nats-server
+    ports:
+      - "4222:4222"
+    networks:
+      - back-nats
+      - nats-mid
+
+  react-browser:
+    build: ./react-browser
+    hostname: react-browser
+    container_name: react-browser
+    environment:
+      - EXPRESS_URL=http://express-mid:5000
+    ports:
+      - 3001:3001
+    command: ["npm","start"]
+    networks:
+      - mid-front
+            
+  express-mid:
+    build: ./express-mid
+    hostname: express-mid
+    container_name: express-mid
+    environment:
+      - NATS_URL=nats://nats-server:4222
+    volumes:
+      - type: bind
+        source: ./express-mid
+        target: /express
+    ports:
+      - 5000:5000
+    networks:
+      - nats-mid
+      - mid-front
+    command: ["node","index.js"]
+    
+networks:
+  back-nats:
+  nats-mid:
+  mid-front:
+
+
+# use below commands while running this docker compose
+# export NATS_URL=0.0.0.0:4222 , ./gradlew run -x test  
+
