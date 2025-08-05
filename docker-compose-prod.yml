@@ -14,9 +14,6 @@ services:
     restart: unless-stopped 
 
   java-backend:
-    build: 
-      context: ./interstore
-      dockerfile: Dockerfile
     image: nithinmanuel9/interstoretestieee2030-server:1.0  
     container_name: java-backend 
     depends_on:
@@ -40,9 +37,6 @@ services:
   
 
   react-browser:
-    build:
-      context: ./react-browser
-      dockerfile: Dockerfile
     image: nithinmanuel9/interstoretestreact-browser:1.0  
     hostname: react-browser
     container_name: react-browser
@@ -57,7 +51,6 @@ services:
     restart: unless-stopped   
             
   express-mid:
-    build: ./express-mid
     image: nithinmanuel9/interstoretestexpress-mid:1.0
     hostname: express-mid
     container_name: express-mid
