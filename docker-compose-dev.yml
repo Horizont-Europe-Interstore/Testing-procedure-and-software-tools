@@ -75,12 +75,13 @@ services:
     restart: unless-stopped   
     command: ["node","index.js"]
 
+
 secrets:
   server-keystore:
     file: ./interstore/app/server-keystore.p12
   truststore:
-    file: ./interstore/app/truststore.p12  
- 
+    file: ./interstore/app/truststore.p12
+
 networks:
   back-nats:
   nats-mid:

@@ -22,7 +22,7 @@ services:
       - NATS_URL=nats://nats-server:4222
       - SERVER_PORT=1900
       - SERVER_ADDRESS=0.0.0.0
-
+      - JAVA_OPTS=-Xms512m -Xmx1024m
     secrets:
       - server-keystore
       - truststore
@@ -56,10 +56,7 @@ services:
     container_name: express-mid
     environment:
       - NATS_URL=nats://nats-server:4222
-    volumes:
-      - type: bind
-        source: ./express-mid
-        target: /express
+
     ports:
       - 5000:5000
     networks:
@@ -69,12 +66,12 @@ services:
     restart: unless-stopped   
     command: ["node","index.js"]
 
+
 secrets:
   server-keystore:
     file: ./server-keystore.p12
   truststore:
     file: ./truststore.p12
-
 
 networks:
   back-nats:

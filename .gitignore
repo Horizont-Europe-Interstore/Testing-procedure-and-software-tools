@@ -1,2 +1,9 @@
 docker-compose-enelxdev.yml
 docker-compose-enelxprod.yml
+
+# Certificate files - do not commit secrets
+*.p12
+*.jks
+*.key
+*.crt
+*.pem
