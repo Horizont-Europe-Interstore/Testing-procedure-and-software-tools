@@ -14,27 +14,28 @@ services:
     restart: unless-stopped 
 
   java-backend:
-    image: nithinmanuel9/interstoretestieee2030-server:1.0  
+    image: nithinmanuel9/interstoretestieee2030-server:1.9
     container_name: java-backend 
     depends_on:
       - nats
     environment:
       - NATS_URL=nats://nats-server:4222
-      - SERVER_PORT=1900
+      - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
-
-    secrets:
-      - server-keystore
-      - truststore
-    ports:
-      - "8443:8443"
-      - "1900:1900"
-      
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
+      - VIRTUAL_HOST=java-backend.local
+      - VIRTUAL_PORT=8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1   
+    expose:
+      - "8080"
     networks:
       - back-nats
       - nats-mid
     restart: unless-stopped   
-  
+    
 
   react-browser:
     image: nithinmanuel9/interstoretestreact-browser:1.0  
@@ -56,10 +57,6 @@ services:
     container_name: express-mid
     environment:
       - NATS_URL=nats://nats-server:4222
-    volumes:
-      - type: bind
-        source: ./express-mid
-        target: /express
     ports:
       - 5000:5000
     networks:
@@ -69,15 +66,23 @@ services:
     restart: unless-stopped   
     command: ["node","index.js"]
 
-secrets:
-  server-keystore:
-    file: ./server-keystore.p12
-  truststore:
-    file: ./truststore.p12
-
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/conf.d/interstore.conf:/etc/nginx/nginx.conf:ro   
+      - ./nginx/certs:/etc/nginx/certs:ro   
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro      
+    ports:
+      - "443:443"
+    depends_on:
+      - java-backend
+    networks:
+      - nats-mid
+      - back-nats
+    restart: unless-stopped  
 
 networks:
   back-nats:
   nats-mid:
   mid-front:
-

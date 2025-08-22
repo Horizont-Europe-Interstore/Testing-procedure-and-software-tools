@@ -1,0 +1,24 @@
+# Certificate files
+*.crt
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+
+# Certificate directories
+nginx/certs/
+p12/
+pem/
+
+# Specific certificate files
+cb-BC2111003569.crt
+my_ca.key
+my_ca.pem
+sat-key_dev_63989-1-1_utilityserver-ieee2030.5.pem
+sat-svr_mca-mica-dev_63989-1-1_utilityserver-ieee2030.5.p12
+sat-svr_mca-mica-dev_63989-1-1_utilityserver-ieee2030.5.pem
+server-keystore.p12
+truststore.p12
