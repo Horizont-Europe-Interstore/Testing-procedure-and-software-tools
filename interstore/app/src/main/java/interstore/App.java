@@ -181,43 +181,7 @@ public class App {
         LOGGER.info(" Everything is initialized including IEEE 2030.5 Windows discovery");
     }
 
-    private static void displayServerInfo(ApplicationContext context) {
-        Environment env = context.getEnvironment();
-        //String port = env.getProperty("server.port", "1900");  // Default to 1900 now
-        //String serverIP = env.getProperty("server.address", "10.40.160.10");
-        String port = env.getProperty("server.port", "1900");  // Changed to 1900 for IEEE 2030.5
-        
-        System.out.println();
-        System.out.println(" IEEE 2030.5 Server Started Successfully!");
-        System.out.println(" HTTPS Listener: https://" + getLocalIPAddress() + ":" + port);
-        System.out.println(" NATS Integration: ACTIVE");
-        System.out.println(" TLS Client Auth: REQUIRED");
-        System.out.println(" mDNS Service Discovery: ENABLED");
-        System.out.println("  Windows Network Scanning: ACTIVE");
-        System.out.println(" Scanning for IEEE 2030.5 clients...");
-        System.out.println();
-        System.out.println(" Configure InsightHome Gateway:");
-        System.out.println("   Server IP: " + getLocalIPAddress());
-        System.out.println("   Server Port: " + port);
-        System.out.println("   Server SLFDI: " + "392440693763");
-        System.out.println("   Protocol: HTTPS with mutual TLS authentication");
-        System.out.println();
-        System.out.println(" Server will automatically discover and connect to clients...");
-        System.out.println("   - mDNS discovery every 30 seconds");
-        System.out.println("   - Windows ARP/netstat scanning every 2 minutes");
-        System.out.println("   - Schindler Gateway (10.40.160.174) priority scanning");
-        System.out.println();
-        System.out.println("Press Ctrl+C to stop server");
-        System.out.println("==========================================");
-    }
-
-    private static String getLocalIPAddress() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (Exception e) {
-            return "localhost";
-        }
-    }
+   
    
     public static void main(String[] args) throws Exception {
         String natsUrl = "nats://nats-server:4222";
@@ -227,7 +191,7 @@ public class App {
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
         mainApp.start(natsUrl);
-        displayServerInfo(context);
+       
         
         // Add shutdown hook to properly cleanup mDNS
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

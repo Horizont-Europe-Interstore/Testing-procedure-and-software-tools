@@ -17,7 +17,7 @@ services:
     build: 
       context: ./interstore
       dockerfile: Dockerfile
-    image: nithinmanuel9/interstoretestieee2030-server:1.0  
+    image: nithinmanuel9/interstoretestieee2030-server:1.1  
     container_name: java-backend 
     depends_on:
       - nats
@@ -25,9 +25,8 @@ services:
       - NATS_URL=nats://nats-server:4222
       - SERVER_PORT=1900
       - SERVER_ADDRESS=0.0.0.0
-    secrets:
-      - server-keystore
-      - truststore
+    volumes:
+      - ./interstore/app/certs:/app/certs:ro
     ports:
       - "8443:8443"
       - "1900:1900"
@@ -76,11 +75,12 @@ services:
     command: ["node","index.js"]
 
 
-secrets:
-  server-keystore:
-    file: ./interstore/app/server-keystore.p12
-  truststore:
-    file: ./interstore/app/truststore.p12
+# Commented out secrets - now using volumes for .pem files
+# secrets:
+#   server-keystore:
+#     file: ./interstore/app/server-keystore.p12
+#   truststore:
+#     file: ./interstore/app/truststore.p12
 
 networks:
   back-nats:
