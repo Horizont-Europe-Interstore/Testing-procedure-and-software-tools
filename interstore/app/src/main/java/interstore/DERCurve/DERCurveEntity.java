@@ -66,7 +66,7 @@ public class DERCurveEntity {
         this.creationTime = creationTime;
     }
 
-    public int getCurveType() {
+    public Integer getCurveType() {
         return curveType;
     }
 
@@ -90,7 +90,7 @@ public class DERCurveEntity {
         this.derCurveLink = derCurveLink;
     }
 
-    public int getxMultiplier() {
+    public Integer getxMultiplier() {
         return xMultiplier;
     }
 
@@ -98,7 +98,7 @@ public class DERCurveEntity {
         this.xMultiplier = xMultiplier;
     }
 
-    public int getyMultiplier() {
+    public Integer getyMultiplier() {
         return yMultiplier;
     }
 
@@ -106,7 +106,7 @@ public class DERCurveEntity {
         this.yMultiplier = yMultiplier;
     }
 
-    public int getyRefType() {
+    public Integer getyRefType() {
         return yRefType;
     }
 

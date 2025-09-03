@@ -138,6 +138,37 @@ public class FsaManager {
     }
     
     @GetMapping("/edev/{endDeviceID}/fsa/{fsaID}")
+     public Map<String, Object> getFunctionSetAssignmentsDetailsHttp(@PathVariable Long endDeviceID, @PathVariable Long fsaID, HttpServletRequest request, HttpServletResponse response)
+      {
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceID, fsaID);
+        
+                LOGGER.info("the fsa_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving FSA value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getFunctionsetAssignments(endDeviceID, fsaID);
+            return  responseEntity.getBody(); 
+        }
+     }
+
      public Map<String, Object> getFunctionSetAssignmentsDetails(@PathVariable Long endDeviceID, @PathVariable Long fsaID)
       {
         ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getFunctionsetAssignments(endDeviceID, fsaID);

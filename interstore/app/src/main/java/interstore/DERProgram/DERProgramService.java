@@ -279,7 +279,7 @@ public class DERProgramService {
 
 
   
-    public ResponseEntity<Map<String, Object>> getDerProgram(Long derId, Long fsaId)
+    public ResponseEntity<Map<String, Object>> getDerProgram(Long fsaId, Long derId)
 
     {
         try {
@@ -306,6 +306,70 @@ public class DERProgramService {
             return ResponseEntity.status(404).body(null);
         }   
        
+    }
+
+    public String getDerProgramHttp(Long fsaID, Long derProgramId) {
+        try {
+            Optional<DERProgramEntity> derProgramEntityOptional = derProgramRepository.findFirstByIdAndFsaEntity_Id(derProgramId, fsaID);
+
+            if (derProgramEntityOptional.isEmpty()) {
+                return "<DERProgram xmlns=\"http://ieee.org/2030.5\" href=\"/derp/" + derProgramId + "\">\n" +
+                       "<message>No DERProgram found for FSA ID " + fsaID + " and DERProgram ID " + derProgramId + "</message>\n" +
+                       "</DERProgram>";
+            }
+
+            DERProgramEntity der = derProgramEntityOptional.get();
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERProgram xmlns=\"http://ieee.org/2030.5\" ")
+               .append("href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
+
+            // Core attributes from SubscribableIdentifiedObjectEntity
+            SubscribableIdentifiedObjectEntity subscribable = der.getSubscribableIdentifiedObject();
+            if (subscribable != null) {
+                xml.append(" <mRID>")
+                   .append(subscribable.getmRID() != null ? subscribable.getmRID() : "N/A")
+                   .append("</mRID>\n");
+                xml.append(" <description>")
+                   .append(subscribable.getDescription() != null ? subscribable.getDescription() : "No description")
+                   .append("</description>\n");
+            }
+
+            // Map of fields to XML tag names
+            Map<String, String> listLinks = Map.of(
+                "getDefaultDERControlLink", "DefaultDERControlLink",
+                "getActiveDERControlListLink", "ActiveDERControlListLink",
+                "getDERControlListLink", "DERControlListLink",
+                "getDERCurveListLink", "DERCurveListLink"
+            );
+
+            for (Map.Entry<String, String> entry : listLinks.entrySet()) {
+                try {
+                    Method method = DERProgramEntity.class.getMethod(entry.getKey());
+                    Object value = method.invoke(der);
+                    if (value != null) {
+                        xml.append(" <").append(entry.getValue()).append(" href=\"")
+                           .append(stripHost(value.toString())).append("\"");
+                        if (entry.getValue().endsWith("ListLink")) {
+                            xml.append(" all=\"0\"");
+                        }
+                        xml.append("/>\n");
+                    }
+                } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                    LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
+                }
+            }
+
+            // DERProgram specific attributes
+            xml.append(" <primacy>").append(der.getPrimacy() != null ? der.getPrimacy() : "0").append("</primacy>\n");
+
+            xml.append("</DERProgram>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERProgram", e);
+            return "<DERProgram xmlns=\"http://ieee.org/2030.5\" href=\"/sep2/A1/derp/" + derProgramId + "\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</DERProgram>";
+        }
     }
 
  

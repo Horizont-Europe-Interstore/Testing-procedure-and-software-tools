@@ -122,9 +122,39 @@ public class DERProgramManager {
 
     }
 
-    @GetMapping("/derp/id")
-    public Map<String, Object> getDerProgramDetails(@PathVariable Long fsaID, @PathVariable Long derID) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derID);
+    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpID}")
+    public Map<String, Object> getDerProgramDetailsHttp(@PathVariable Long fsaID, @PathVariable Long derpID, HttpServletRequest request, HttpServletResponse response) throws JSONException {
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.derProgramService.getDerProgramHttp(fsaID, derpID);
+        
+                LOGGER.info("the der_program_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving DERProgram value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derpID);
+            return  responseEntity.getBody(); 
+        }
+    }
+
+    public Map<String, Object> getDerProgramDetails(@PathVariable Long fsaID, @PathVariable Long derpID) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derpID);
         return  responseEntity.getBody();
 
     }

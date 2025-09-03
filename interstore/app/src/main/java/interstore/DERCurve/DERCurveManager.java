@@ -3,6 +3,10 @@ package interstore.DERCurve;
 import interstore.DERProgram.DERProgramEntity;
 import interstore.FunctionSetAssignments.FsaManager;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -10,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -73,8 +79,8 @@ public class DERCurveManager {
         {
             Long derpID = payload.getLong("derpID");
             Long dercID = payload.getLong("dercID");
-            ResponseEntity<Map<String, Object>> response = this.derCurveService.getDERCurve(derpID, dercID);
-            return response.getBody();
+            // ResponseEntity<Map<String, Object>> response = this.derCurveService.getDERCurve(derpID, dercID);
+            return getDERCurve(derpID, dercID);
         }
 
         else if(payload.has("derpID"))
@@ -88,9 +94,74 @@ public class DERCurveManager {
 //        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
-    @GetMapping("/derp/{derpId}/dc")
+    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpId}/dc")
+    public Map<String, Object> getAllDERCurveDetailsHttp(@PathVariable Long derpId, HttpServletRequest request, HttpServletResponse response){
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.derCurveService.getAllDERCurvesHttp(derpId);
+                LOGGER.info("the der_curve_list_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving DERCurveList value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
+            return  responseEntity.getBody(); 
+        }
+    }
+
     public Map<String, Object> getAllDERCurveDetails(@PathVariable Long derpId){
         ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
+        return  responseEntity.getBody();
+    }
+
+    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpId}/dc/{dcId}")
+    public Map<String, Object> getDERCurveHttp(@PathVariable Long derpId, @PathVariable Long dcId, HttpServletRequest request, HttpServletResponse response){
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.derCurveService.getDERCurveHttp(derpId, dcId);
+                LOGGER.info("the der_curve_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving DERCurve value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getDERCurve(derpId, dcId);
+            return  responseEntity.getBody(); 
+        }
+    }
+
+    
+    public Map<String, Object> getDERCurve(Long derpId, Long dcId){
+        ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getDERCurve(derpId, dcId);
         return  responseEntity.getBody();
     }
 

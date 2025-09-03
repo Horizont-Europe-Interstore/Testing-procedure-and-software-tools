@@ -1,4 +1,5 @@
 package interstore.FunctionSetAssignments;
+import interstore.DeviceCapability.DeviceCapabilityRepository;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Types.HexBinary128;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class FunctionSetAssignmentsService {
+
     @Autowired
     FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
     
@@ -33,6 +35,7 @@ public class FunctionSetAssignmentsService {
     private EndDeviceRepository endDeviceRepository;
 
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
+
      
      @Transactional
     public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
@@ -360,6 +363,69 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
 
        
        
+    }
+
+    public String getFunctionsetAssignmentsHttp(Long endDeviceId, Long fsaId) {
+        try {
+            Optional<FunctionSetAssignmentsEntity> fsaEntityOptional = functionSetAssignmentsRepository.findFirstByEndDeviceIdAndId(endDeviceId, fsaId);
+
+            if (fsaEntityOptional.isEmpty()) {
+                return "<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" " +
+                       "href=\"" + stripHost(endDeviceRepository.findById(endDeviceId).get().getFunctionSetAssignmentsListLink()) + "/" + fsaId + "\" " +
+                       "subscribable=\"0\">\n" +
+                       "<message>No FunctionSetAssignments found for EndDevice ID " + endDeviceId + " and FSA ID " + fsaId + "</message>\n" +
+                       "</FunctionSetAssignments>";
+            }
+
+            FunctionSetAssignmentsEntity fsa = fsaEntityOptional.get();
+            StringBuilder xml = new StringBuilder();
+            xml.append("<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" ")
+               .append("href=\"").append(stripHost(fsa.getFunctionSetAssignmentsLink())).append("\" subscribable=\""+ fsa.getSubscribable() + "\">\n");
+
+            // Map of fields to XML tag names
+            Map<String, String> listLinks = Map.of(
+                "getDemandResponseProgramListLink", "DemandResponseProgramListLink",
+                "getMessagingProgramListLink", "MessagingProgramListLink",
+                "getFileListLink", "FileListLink",
+                "getTariffProfileListLink", "TariffProfileListLink",
+                "getUsagePointListLink", "UsagePointListLink",
+                "getDERProgramListLink", "DERProgramListLink",
+                "getCustomerAccountListLink", "CustomerAccountListLink",
+                "getPrepaymentListLink", "PrepaymentListLink",
+                "getResponseSetListLink", "ResponseSetListLink"
+            );
+
+            for (Map.Entry<String, String> entry : listLinks.entrySet()) {
+                try {
+                    Method method = FunctionSetAssignmentsEntity.class.getMethod(entry.getKey());
+                    Object value = method.invoke(fsa);
+                    if (value != null) {
+                        xml.append(" <").append(entry.getValue()).append(" href=\"")
+                           .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                    }
+                } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                    LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
+                }
+            }
+
+            // Core attributes
+            xml.append(" <mRID>").append(fsa.getmRID() != null ? fsa.getmRID() : "N/A").append("</mRID>\n");
+            xml.append(" <description>")
+               .append(fsa.getDescription() != null ? fsa.getDescription() : "No description")
+               .append("</description>\n");
+               
+            // xml.append(" <").append("TimeLink").append(" href=\"")
+            //                .append("/tm").append("\"/>\n");
+            xml.append("</FunctionSetAssignments>\n");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving FunctionSetAssignment", e);
+            return "<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" " +
+                   "href=\"" + stripHost(endDeviceRepository.findById(endDeviceId).get().getFunctionSetAssignmentsListLink()) + "/" + fsaId + "\" " +
+                   "subscribable=\"0\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</FunctionSetAssignments>";
+        }
     }
 
 

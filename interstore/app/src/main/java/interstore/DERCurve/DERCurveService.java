@@ -6,7 +6,10 @@ import interstore.Identity.IdentifiedObjectEntity;
 import interstore.Identity.IdentifiedObjectRepository;
 import interstore.Types.DERCurveType;
 import interstore.Types.DERUnitRefType;
+import interstore.Types.HexBinary128;
 import interstore.Types.PowerOfTenMultiplierType;
+import interstore.Types.mRIDType;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +71,8 @@ public class DERCurveService {
         String idString = "/"+ String.valueOf(derCurveEntityId) ;
         String derCurveLink = derCurveListLink + idString;
         String mRID = derCurvepayload.optString("mRID");
+        String mRIDString = HexBinary128.validateAndFormatHexValue(mRID);
+        mRIDType mRIDValue = new mRIDType(mRIDString);
         String version = derCurvepayload.optString("version");
         int intVersion = Integer.parseInt(version);
         String description = derCurvepayload.optString("description");
@@ -109,7 +114,7 @@ public class DERCurveService {
         derCurveEntity.setCreationTime(String.valueOf(currentTime));
 //        derCurveEntity.setCurveData();
         IdentifiedObjectEntity identifiedObjectEntity = new IdentifiedObjectEntity();
-        identifiedObjectEntity.setmRID(mRID);
+        identifiedObjectEntity.setmRID(mRIDValue.toString());
         identifiedObjectEntity.setDescription(description);
         identifiedObjectEntity.setVersion(intVersion);
         identifiedObjectRepository.save(identifiedObjectEntity);
@@ -202,6 +207,67 @@ public class DERCurveService {
         }
     }
 
+    public String getAllDERCurvesHttp(Long derProgramId) {
+        try {
+            List<DERCurveEntity> derCurveEntityList = derCurveRepository.findByDerProgramId(derProgramId);
+            
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERCurveList xmlns=\"http://ieee.org/2030.5\" ")
+               .append("href=\"").append(stripHost(derProgramRepository.findById(derProgramId).get().getDERCurveListLink())).append("\" ")
+               .append("all=\"").append(derCurveEntityList.size()).append("\" ")
+               .append("results=\"").append(derCurveEntityList.size()).append("\">\n");
+
+            if (derCurveEntityList.isEmpty()) {
+                xml.append(" <message>No DERCurves found for DERProgram ").append(derProgramId).append("</message>\n");
+            } else {
+                for (DERCurveEntity derCurve : derCurveEntityList) {
+                    IdentifiedObjectEntity identifiedObject = derCurve.getIdentifiedObjectEntity();
+                    xml.append(" <DERCurve href=\"").append(stripHost(derCurve.getDerCurveLink())).append("\">\n");
+
+                    // Core attributes from IdentifiedObjectEntity
+                    xml.append("  <mRID>")
+                       .append(identifiedObject.getmRID() != null ? identifiedObject.getmRID() : "N/A")
+                       .append("</mRID>\n");
+                    xml.append("  <description>")
+                       .append(identifiedObject.getDescription() != null ? identifiedObject.getDescription() : "No description")
+                       .append("</description>\n");
+
+                    // Creation time
+                    xml.append("  <creationTime>")
+                       .append(derCurve.getCreationTime() != null ? derCurve.getCreationTime() : "0")
+                       .append("</creationTime>\n");
+
+                    // CurveData elements
+                    List<CurveData> curveDataList = derCurve.getCurveData();
+                    if (curveDataList != null && !curveDataList.isEmpty()) {
+                        for (CurveData data : curveDataList) {
+                            xml.append("  <CurveData>\n");
+                            xml.append("   <xvalue>").append(data.getX_value() != null ? data.getX_value() : "0").append("</xvalue>\n");
+                            xml.append("   <yvalue>").append(data.getY_value() != null ? data.getY_value() : "0").append("</yvalue>\n");
+                            xml.append("  </CurveData>\n");
+                        }
+                    }
+
+                    // DERCurve specific attributes
+                    xml.append("  <curveType>").append(derCurve.getCurveType() != null ? derCurve.getCurveType() : "0").append("</curveType>\n");
+                    xml.append("  <xMultiplier>").append(derCurve.getxMultiplier() != null ? derCurve.getxMultiplier() : "0").append("</xMultiplier>\n");
+                    xml.append("  <yMultiplier>").append(derCurve.getyMultiplier() != null ? derCurve.getyMultiplier() : "0").append("</yMultiplier>\n");
+                    xml.append("  <yRefType>").append(derCurve.getyRefType() != null ? derCurve.getyRefType() : "0").append("</yRefType>\n");
+
+                    xml.append(" </DERCurve>\n");
+                }
+            }
+
+            xml.append("</DERCurveList>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERCurves", e);
+            return "<DERCurveList xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/sep2/A1/derp/" + derProgramId + "/dc\" all=\"0\" results=\"0\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</DERCurveList>";
+        }
+    }
+
     @Transactional
     public ResponseEntity<Map<String, Object>> getDERCurve(Long derProgramId, Long derCurveId) {
 //        LOGGER.info("Reached here in DerCurve Service Class");
@@ -233,5 +299,95 @@ public class DERCurveService {
             LOGGER.log(Level.SEVERE, "Error retrieving DERCurve", e);
             return ResponseEntity.status(404).body(null);
         }
+    }
+
+    public String getDERCurveHttp(Long derProgramId, Long derCurveId) {
+        try {
+            Optional<DERCurveEntity> derCurveEntityOptional = derCurveRepository.findFirstByDerProgramIdAndId(derProgramId, derCurveId);
+            
+            if (derCurveEntityOptional.isEmpty()) {
+                return "<DERCurve xmlns=\"http://ieee.org/2030.5\" href=\"/derp/" + derProgramId + "/dc/" + derCurveId + "\">\n" +
+                       "<message>No DERCurve found for DERProgram " + derProgramId + " and DERCurve ID " + derCurveId + "</message>\n" +
+                       "</DERCurve>";
+            }
+
+            DERCurveEntity derCurve = derCurveEntityOptional.get();
+            IdentifiedObjectEntity identifiedObject = derCurve.getIdentifiedObjectEntity();
+            
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERCurve xmlns=\"http://ieee.org/2030.5\" ")
+               .append("href=\"").append(stripHost(derCurve.getDerCurveLink())).append("\">\n");
+
+            // Core attributes from IdentifiedObjectEntity
+            xml.append(" <mRID>")
+               .append(identifiedObject.getmRID() != null ? identifiedObject.getmRID() : "N/A")
+               .append("</mRID>\n");
+            xml.append(" <description>")
+               .append(identifiedObject.getDescription() != null ? identifiedObject.getDescription() : "No description")
+               .append("</description>\n");
+            
+            // Creation time (assuming it's in DERCurveEntity; adjust if in IdentifiedObjectEntity or unavailable)
+            xml.append(" <creationTime>")
+               .append(derCurve.getCreationTime() != null ? derCurve.getCreationTime() : "0")
+               .append("</creationTime>\n");
+
+            // CurveData elements
+            List<CurveData> curveDataList = derCurve.getCurveData();
+            if (curveDataList != null && !curveDataList.isEmpty()) {
+                for (CurveData data : curveDataList) {
+                    xml.append(" <CurveData>\n");
+                    xml.append("  <xvalue>").append(data.getX_value()).append("</xvalue>\n");
+                    xml.append("  <yvalue>").append(data.getY_value()).append("</yvalue>\n");
+                    xml.append(" </CurveData>\n");
+                }
+            }
+
+            // DERCurve specific attributes
+            xml.append(" <curveType>").append(derCurve.getCurveType() != null ? derCurve.getCurveType() : "0").append("</curveType>\n");
+            // xml.append(" <rampDecTms>").append(derCurve.getRampDecTms() != null ? derCurve.getRampDecTms() : "0").append("</rampDecTms>\n");
+            // xml.append(" <rampIncTms>").append(derCurve.getRampIncTms() != null ? derCurve.getRampIncTms() : "0").append("</rampIncTms>\n");
+            // xml.append(" <rampPT1Tms>").append(derCurve.getRampPT1Tms() != null ? derCurve.getRampPT1Tms() : "0").append("</rampPT1Tms>\n");
+            xml.append(" <xMultiplier>").append(derCurve.getxMultiplier() != null ? derCurve.getxMultiplier() : "0").append("</xMultiplier>\n");
+            xml.append(" <yMultiplier>").append(derCurve.getyMultiplier() != null ? derCurve.getyMultiplier() : "0").append("</yMultiplier>\n");
+            xml.append(" <yRefType>").append(derCurve.getyRefType() != null ? derCurve.getyRefType() : "0").append("</yRefType>\n");
+
+            xml.append("</DERCurve>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERCurve", e);
+            return "<DERCurve xmlns=\"http://ieee.org/2030.5\" href=\"/derp/" + derProgramId + "/dc/" + derCurveId + "\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</DERCurve>";
+        }
+    }
+
+    private String stripHost(String url) {
+        if (url == null) return null;
+    try {
+        java.net.URI uri = new java.net.URI(url);
+        String path = uri.getPath(); // "/derp" or "/2030.5/dcap/tm"
+        if (path == null || path.isEmpty()) return "/";
+
+        // If you want to specifically remove "/2030.5" prefix
+        String prefix = "/2030.5";
+        if (path.startsWith(prefix)) {
+            path = path.substring(prefix.length());
+            if (path.isEmpty()) path = "/"; // ensure at least "/"
+        }
+        return path;
+    } catch (Exception e) {
+        // fallback: naive parsing
+        int idx = url.indexOf("://");
+        if (idx != -1) {
+            String remainder = url.substring(idx + 3); // skip "http://"
+            int slashIdx = remainder.indexOf("/");
+            if (slashIdx != -1) {
+                return remainder.substring(slashIdx); // return path after host
+            } else {
+                return "/"; // no path, return root
+            }
+        }
+        return url; // unknown format
+    }
     }
 }

@@ -3,6 +3,7 @@ package interstore.EndDevice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
@@ -285,6 +286,86 @@ public class EndDeviceImpl {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDtos", e);
             return ResponseEntity.status(404).body(null);
+        }
+    }
+
+    public String getEndDeviceListHttp() {
+        try {
+            List<EndDeviceDto> endDeviceList = endDeviceRepository.findAll();
+
+            if (endDeviceList.isEmpty()) {
+                String emptyXml = "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" " +
+                                  "all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
+                                  "<message>No EndDevices found</message>\n" +
+                                  "</EndDeviceList>";
+                return emptyXml;
+            }
+
+            StringBuilder xml = new StringBuilder();
+            xml.append("<EndDeviceList xmlns=\"http://ieee.org/2030.5\" ")
+               .append("all=\"").append(endDeviceList.size()).append("\" ")
+               .append("href=\"/edev\" ")
+               .append("results=\"").append(endDeviceList.size()).append("\" ")
+               .append("subscribable=\"0\">\n");
+
+            // Fields in IEEE 2030.5 preferred order
+            String[] elementOrder = {
+                "configurationLink", "deviceInformationLink", "linkDstat", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
+            };
+            String[] xmlNames = {
+                "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
+            };
+
+            for (EndDeviceDto endDeviceDto : endDeviceList) {
+                xml.append(" <EndDevice href=\"")
+                   .append(stripHost(endDeviceDto.getEndDeviceLink())).append("\" ")
+                   .append("subscribable=\"0\">\n");
+
+                for (int i = 0; i < elementOrder.length; i++) {
+                    String fieldName = elementOrder[i];
+                    String xmlName = xmlNames[i];
+
+                    if (xmlName.equals("FunctionSetAssignmentsListLink")){
+                        // Add sFDI value
+                        if (endDeviceDto.getsfdi() != null) {
+                            xml.append("<sFDI>").append(endDeviceDto.getsfdi()).append("</sFDI>\n");
+                        }
+
+                        // Add changedTime (for now using system time, adjust as needed)
+                        xml.append("<changedTime>").append(System.currentTimeMillis() / 1000).append("</changedTime>\n");
+                    }
+
+                    try {
+                        Field field = EndDeviceDto.class.getDeclaredField(fieldName);
+                        field.setAccessible(true);
+                        Object value = field.get(endDeviceDto);
+
+                        if (value != null && value instanceof String) {
+                            xml.append("<").append(xmlName);
+                            xml.append(" href=\"").append(stripHost((String) value)).append("\"");
+
+                            // Add 'all' attribute for list links
+                            if (xmlName.toLowerCase().contains("listlink")) {
+                                xml.append(" all=\"0\"");
+                            }
+
+                            xml.append("/>\n");
+                        }
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
+                    }
+                }
+
+                xml.append(" </EndDevice>\n");
+            }
+
+            xml.append("</EndDeviceList>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceList", e);
+            return "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</EndDeviceList>";
         }
     }
     

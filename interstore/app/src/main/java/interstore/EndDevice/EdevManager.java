@@ -165,10 +165,41 @@ public class EdevManager {
 
 
      
-    @GetMapping("/edev")
+    
     public Map<String, Object> getEndevices() throws JsonProcessingException {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllEndDevices();
         return utiltyGetallEndDeviceLinks(responseEntity);
+    }
+
+    @GetMapping("/edev")
+    public Map<String, Object> getEndDeviceList(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+         // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.endDeviceImpl.getEndDeviceListHttp();
+        
+                LOGGER.info("the enddevice_list_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving EndDeviceList value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllEndDevices();
+            return  responseEntity.getBody(); 
+        }
     }
 
      @GetMapping("/edev/{id}")
