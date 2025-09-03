@@ -174,6 +174,11 @@ public class App {
         this.messageToPublish = new MessageToPublish(natsUrl, this.serviceDiscoveryVerticle);
         this.uiControleHandler = new UIControleHandler();
         this.uiControleHandler.setupBridge();
+        NatsSubscriber subscriber = new NatsSubscriber(natsUrl);
+        subscriber.subscribe("response.client");
+
+        // Keep application running or integrate into your main loop
+        Thread.currentThread().join();
         
         // Start IEEE 2030.5 mDNS service discovery
        

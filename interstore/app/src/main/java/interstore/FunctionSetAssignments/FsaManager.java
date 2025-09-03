@@ -6,7 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 @RestController
@@ -91,9 +97,42 @@ public class FsaManager {
     
 
     @GetMapping("/edev/{id}/fsa")
+    public Map<String, Object>getFSAList(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) 
+    {   
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.fsaService.getAllFunctionsetAssignmentsHttp(id);
+        
+                LOGGER.info("the fsaList_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving FSAList value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getAllFunctionsetAssignments(id);
+            return  responseEntity.getBody(); 
+        }
+
+        
+    }
+
+
     public Map<String, Object>getEndDeviceById(@PathVariable Long id) 
     {   
-        
         ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getAllFunctionsetAssignments(id);
         return  responseEntity.getBody(); 
     }

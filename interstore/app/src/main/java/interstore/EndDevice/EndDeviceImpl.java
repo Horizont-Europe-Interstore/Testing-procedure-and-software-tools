@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +63,10 @@ public class EndDeviceImpl {
         String registrationLink = endDeviceListLink  + idString + payload.optString("registrationLink", "defaultLink");
         String subscriptionLink =  endDeviceListLink + idString + payload.optString("subscriptionLink", "defaultLink");
         String deviceCategory =  payload.optString("deviceCategory", "defaultDeviceCategory");
+        String configurationLink = endDeviceListLink + idString + "cfg";
+        String powerStatusLink = endDeviceListLink + idString + "ps";
+        String fileStatusLink = endDeviceListLink + idString + "fs";
+        String deviceInformationLink = endDeviceListLink + idString + "di";
         String sfdiString = payload.optString("sfdi", null);
         Long sfdi = null; 
         sfdiString = sfdiString.replaceAll("\\D", ""); 
@@ -90,7 +97,14 @@ public class EndDeviceImpl {
         endDeviceDto.setDERListLink(listLink.getListLink());
         listLink.setListLink(subscriptionLink);
         endDeviceDto.setSubscriptionListLink(listLink.getListLink());
-
+        link.setLink(configurationLink);
+        endDeviceDto.setConfigurationLink(link.getLink());
+        link.setLink(powerStatusLink);
+        endDeviceDto.setPowerStatusLink(link.getLink());
+        link.setLink(fileStatusLink);
+        endDeviceDto.setFileStatusLink(link.getLink());
+        link.setLink(deviceInformationLink);
+        endDeviceDto.setDeviceInformationLink(link.getLink());
 
     }
     
@@ -111,8 +125,7 @@ public class EndDeviceImpl {
         }
 
     }
-   
-    
+
      public Map<String, Object> getEndDeviceID(EndDeviceDto endDeviceDto)
      {
         if (endDeviceDto == null || endDeviceDto.getId() == null) {
@@ -124,6 +137,104 @@ public class EndDeviceImpl {
         result.put("LFDI", endDeviceDto.gethexBinary160());
         LOGGER.log(Level.INFO, "the result from getEndDeviceID: " + result.toString());
         return result;
+    }
+
+    // format for EndDevice for C-CLient
+//   <EndDevice xmlns="http://ieee.org/2030.5" href="/edev/3" subscribable="0">
+    //   <ConfigurationLink href="/edev/3/cfg"/>
+    //   <DeviceInformationLink href="/edev/3/di"/>
+    //   <DeviceStatusLink href="/edev/3/ds"/>
+    //   <FileStatusLink href="/edev/3/fs"/>
+    //   <PowerStatusLink href="/edev/3/ps"/>
+    //   <sFDI>987654321005</sFDI>
+    //   <changedTime>1379905200</changedTime>
+    //   <FunctionSetAssignmentsListLink all="2" href="/edev/3/fsal"/>
+    //   <RegistrationLink href="/edev/3/reg"/>
+    //   <SubscriptionListLink all="0" href="/edev/3/subl"/>
+//   </EndDevice>
+    public String getEndDeviceHttp(Long id)
+    {
+        try {
+        EndDeviceDto endDeviceDto = endDeviceRepository.findById(id).orElse(null);
+        if (endDeviceDto == null) {
+            return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>No endDevice found.</message></EndDevice>";
+        }
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<EndDevice xmlns=\"http://ieee.org/2030.5\" href=\"")
+           .append(stripHost(endDeviceDto.getEndDeviceLink()))
+           .append("\" subscribable=\"0\">\n");
+
+        // Fields in IEEE 2030.5 preferred order
+        String[] elementOrder = {
+            "configurationLink", "deviceInformationLink", "linkDstat", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
+        };
+        String[] xmlNames = {
+            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
+        };
+
+        for (int i = 0; i < elementOrder.length; i++) {
+            String fieldName = elementOrder[i];
+            String xmlName = xmlNames[i];
+
+            if (xmlName.equals("FunctionSetAssignmentsListLink")){
+                // Add sFDI value
+                if (endDeviceDto.getsfdi() != null) {
+                    xml.append("<sFDI>").append(endDeviceDto.getsfdi()).append("</sFDI>\n");
+                }
+
+                // Add changedTime (for now using system time, adjust as needed)
+                xml.append("<changedTime>").append(System.currentTimeMillis() / 1000).append("</changedTime>\n");
+            }
+
+            try {
+                Field field = EndDeviceDto.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object value = field.get(endDeviceDto);
+
+                if (value != null && value instanceof String) {
+                    xml.append("<").append(xmlName);
+                    xml.append(" href=\"").append(stripHost((String) value)).append("\"");
+
+                    // Add 'all' attribute for list links
+                    if (xmlName.toLowerCase().contains("listlink")) {
+                        xml.append(" all=\"0\"");
+                    }
+
+                    xml.append("/>\n");
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
+            }
+        }
+
+        xml.append("</EndDevice>");
+        return xml.toString();
+
+    } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
+        return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>Error retrieving EndDevice</message></EndDevice>";
+    }
+
+    }
+    
+    private String stripHost(String url) {
+        if (url == null) return null;
+        try {
+            String path = new java.net.URL(url).getPath(); // e.g. "/2030.5/dcap/tm"
+            int index = path.indexOf("/2030.5");
+            if (index != -1) {
+                return path.substring(index + "/2030.5".length()); // skip the "/2030.5"
+            }
+            return path;
+        } catch (Exception e) {
+            // If already relative or invalid URL, try trimming manually
+            int index = url.indexOf("/2030.5");
+            if (index != -1) {
+                return url.substring(index + "/2030.5".length());
+            }
+            return url;
+        }
     }
 
     public ResponseEntity<Map<String, Object>> getEndDevice(Long id)
@@ -194,7 +305,10 @@ public class EndDeviceImpl {
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
 
-
+        List<RegistrationDto> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        if (!registrationDtos.isEmpty()) {
+            throw new IllegalStateException("EndDevice with ID " + endDeviceID + " is already registered.");
+        }
         EndDeviceDto endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
         RegistrationDto registrationDto = new RegistrationDto();
@@ -207,6 +321,7 @@ public class EndDeviceImpl {
         }
         registrationDto.setPin(registrationPinLong);
         registrationDto.setEndDevice(endDeviceDto);
+        registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
         endDeviceRegistrationLink = endDeviceRegistrationLink + "/" + registrationDto.getId();
         registrationDto.setLinkRgid( endDeviceRegistrationLink);
         return getEndDeviceRegistrationID(registrationDto);
@@ -258,6 +373,51 @@ public class EndDeviceImpl {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevices", e);
             return ResponseEntity.status(404).body(null);
+        }
+    }
+
+    public String getRegisteredEndDevice(Long endDeviceID )
+   {
+        try {
+        List<RegistrationDto> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+
+        if (registrationDtos.isEmpty()) {
+            return "<Registration xmlns=\"http://ieee.org/2030.5\">" +
+                   "<message>No RegisteredEndDevices found for EndDevice ID " + endDeviceID + "</message>" +
+                   "</Registration>";
+        }
+
+        StringBuilder xml = new StringBuilder();
+        
+        // Loop through registrations (if multiple, you can wrap in a root element)
+        for (RegistrationDto reg : registrationDtos) {
+            xml.append("<Registration xmlns=\"http://ieee.org/2030.5\" href=\"")
+               .append(stripHost(endDeviceRepository.findById(endDeviceID).get().getRegistrationLink()))
+               .append("\">\n");
+
+            // dateTimeRegistered (use actual value or default)
+            Long dateTime = (reg.getDateTimeRegistered() != null)
+                    ? Long.valueOf(reg.getDateTimeRegistered())
+                    : System.currentTimeMillis() / 1000; // default to now in seconds
+            xml.append("  <dateTimeRegistered>").append(dateTime).append("</dateTimeRegistered>\n");
+
+            // PIN
+            String pin = (reg.getPin() != null) 
+                ? String.valueOf(reg.getPin()) 
+                : "UnknownPIN";
+
+            xml.append("  <pIN>").append(pin).append("</pIN>\n");
+
+            xml.append("</Registration>\n");
+        }
+
+        return xml.toString();
+
+        } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevices", e);
+        return "<Registration xmlns=\"http://ieee.org/2030.5\">" +
+               "<message>Error retrieving RegisteredEndDevices</message>" +
+               "</Registration>";
         }
     }
 

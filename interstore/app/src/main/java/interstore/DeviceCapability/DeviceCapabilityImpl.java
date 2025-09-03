@@ -32,18 +32,25 @@ public class DeviceCapabilityImpl {
     @Transactional
     public DeviceCapabilityDto createDeviceCapability(JSONObject jsonObject) throws MalformedURLException, JSONException {
         LOGGER.info("Inside DcapImpl: " + jsonObject);
-        JSONObject payload = jsonObject.getJSONObject("payload");
-        DeviceCapabilityDto deviceCapabilityDto = new DeviceCapabilityDto();
-        try {
-            deviceCapabilityDto = deviceCapabilityRepository.save(deviceCapabilityDto);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving DeviceCapabilityDto", e);
-            throw e; 
+        List<DeviceCapabilityDto> dcap = deviceCapabilityRepository.findAll();
+        if(dcap.isEmpty()){
+            LOGGER.log(Level.INFO, "Dcap entity already exists!");
+            return null;
+        } else{
+            JSONObject payload = jsonObject.getJSONObject("payload");
+            DeviceCapabilityDto deviceCapabilityDto = new DeviceCapabilityDto();
+            try {
+                deviceCapabilityDto = deviceCapabilityRepository.save(deviceCapabilityDto);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error saving DeviceCapabilityDto", e);
+                throw e; 
+            }
+            
+            setDeviceCapability(deviceCapabilityDto, payload);
+            LOGGER.info("Leaving DcapImpl");
+            return deviceCapabilityDto;
         }
-         
-        setDeviceCapability(deviceCapabilityDto, payload);
-        LOGGER.info("Leaving DcapImpl");
-        return deviceCapabilityDto;
+        
     }
 
     private String stripHost(String url) {
@@ -211,7 +218,7 @@ public class DeviceCapabilityImpl {
     @Transactional
     public DeviceCapabilityDto createDefaultDeviceCapability() {
         DeviceCapabilityDto defaultDcap = new DeviceCapabilityDto();
-        defaultDcap.setSelfDeviceLink("/edev");
+        defaultDcap.setSelfDeviceLink("/sdev");
         defaultDcap.setEndDeviceListLink("/edev");
         defaultDcap.setMirrorUsagePointListLink("/mup");
         defaultDcap.setTimeLink("/tm");

@@ -7,47 +7,66 @@ services:
     ports:
       - "4222:4222"
       - "8222:8222" 
-    command: ["-m", "8222", "--jetstream"]
+    # command: ["-m", "8222", "--jetstream"]
+    command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
     networks:
       - back-nats
       - nats-mid
     restart: unless-stopped 
 
   java-backend:
-    #build: 
-     # context: ./interstore
-      #dockerfile: Dockerfile
-    image: nithinmanuel9/interstoretestieee2030-server:1.7
+    build: 
+      context: ./interstore
+      dockerfile: Dockerfile
+    #image: nithinmanuel9/interstoretestieee2030-server:1.7
     container_name: java-backend 
     depends_on:
       - nats
     environment:
       - NATS_URL=nats://nats-server:4222
-      - SERVER_PORT=8443
+      - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
-      - JAVA_OPTS=-Xms512m -Xmx1024m
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
       
     ports:
-      - "8443:8443"
+      - "8080:8080"
     networks:
       - back-nats
       - nats-mid
     restart: unless-stopped   
-  
 
   react-browser:
-    image: nithinmanuel9/interstoretestreact-browser:1.0  
+    build:
+      context: ./react-browser
+      dockerfile: Dockerfile  
     hostname: react-browser
     container_name: react-browser
     environment:
       - EXPRESS_URL=http://express-mid:5000
     ports:
       - 3001:3001
+    volumes:
+      - ./react-browser:/react  # Mount local code for development
+      - /react/node_modules
     command: ["npm","start"]
     networks:
       - mid-front
       - nats-mid
-    restart: unless-stopped   
+    restart: unless-stopped     
+
+  # react-browser:
+  #   image: nithinmanuel9/interstoretestreact-browser:1.0  
+  #   hostname: react-browser
+  #   container_name: react-browser
+  #   environment:
+  #     - EXPRESS_URL=http://express-mid:5000
+  #   ports:
+  #     - 3001:3001
+  #   command: ["npm","start"]
+  #   networks:
+  #     - mid-front
+  #     - nats-mid
+  #   restart: unless-stopped   
             
   express-mid:
     image: nithinmanuel9/interstoretestexpress-mid:1.0
@@ -65,13 +84,22 @@ services:
     restart: unless-stopped   
     command: ["node","index.js"]
 
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/conf.d/interstore.conf:/etc/nginx/nginx.conf:ro   
+      - ./nginx/certs:/etc/nginx/certs:ro   
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro      
+    ports:
+      - "443:443"
+    depends_on:
+      - java-backend
+    networks:
+      - nats-mid
+      - back-nats
+    restart: unless-stopped 
 
-# Commented out secrets - now using volumes for .pem files
-# secrets:
-#   server-keystore:
-#     file: ./server-keystore.p12
-#   truststore:
-#     file: ./truststore.p12
 
 networks:
   back-nats:

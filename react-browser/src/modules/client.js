@@ -493,11 +493,11 @@ export default class Client{
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)},
-            activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
-            dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
-            derpLink: (field) => field === null || field === "" || typeof field === 'string'
+            // activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            // defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
+            // dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
+            // dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
+            // derpLink: (field) => field === null || field === "" || typeof field === 'string'
    
         }
         ,

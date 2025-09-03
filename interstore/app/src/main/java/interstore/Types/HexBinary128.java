@@ -17,14 +17,14 @@ public class HexBinary128 {
         this.hexValue128Value = validateAndFormatHexValue(hexValue);
     }
 
-    private String validateAndFormatHexValue(String hexValue) {
+    public static String validateAndFormatHexValue(String hexValue) {
         if (!isValidHexBinary128(hexValue)) {
             throw new IllegalArgumentException("Invalid HexBinary128 value: " + hexValue);
         }
         return hexValue.length() % 2 == 0 ? hexValue : "0" + hexValue;
     }
 
-    private boolean isValidHexBinary128(String hexValue) {
+    private static boolean isValidHexBinary128(String hexValue) {
         try {
             new BigInteger(hexValue, 16);
         } catch (NumberFormatException e) {

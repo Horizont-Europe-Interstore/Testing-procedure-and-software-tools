@@ -41,6 +41,18 @@ public class EndDeviceDto implements AbstractDevice{
     @Column(name= "link_der_list")
     private String linkDerList;
     
+    @Column(name= "configuration_link")
+    private String configurationLink;
+
+    @Column(name= "device_information_link")
+    private String deviceInformationLink;
+
+    @Column(name= "file_status_link")
+    private String fileStatusLink;
+
+    @Column(name= "power_status_link")
+    private String powerStatusLink;
+
 
 
     public EndDeviceDto() {
@@ -170,7 +182,41 @@ public class EndDeviceDto implements AbstractDevice{
     public String getDERListLink()
     {
         return this.linkDerList;
+    }
+    
+    @Override
+    public void setFileStatusLink(String link)
+    {
+        this.fileStatusLink = link;
+    }
+    @Override
+    public String getFileStatusLink() 
+    {
+        return this.fileStatusLink; 
     } 
+    @Override
+    public void setDeviceInformationLink(String link)
+    {
+        this.deviceInformationLink = link;
+    }
+
+    @Override
+    public String getDeviceInformationLink() 
+    {
+        return this.deviceInformationLink; 
+    }   
+    @Override
+    public void setConfigurationLink(String link)
+    {
+        this.configurationLink = link;
+    }
+
+
+    @Override
+    public String getConfigurationLink() 
+    {
+        return this.configurationLink; 
+     }
 
 
 
@@ -178,13 +224,13 @@ public class EndDeviceDto implements AbstractDevice{
     @Override
     public void setPowerStatusLink(String link)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.powerStatusLink = link;
     }
 
     @Override
     @JsonIgnore
     public String getPowerStatusLink() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return this.powerStatusLink; 
     }
 
     @Override
@@ -227,49 +273,7 @@ public class EndDeviceDto implements AbstractDevice{
     public String getLogEventListLink()
     {
         throw new UnsupportedOperationException("Not supported yet."); 
-    } 
-    
-    @Override
-    @JsonIgnore
-    public void setFileStatusLink(String link)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
-    @Override
-    @JsonIgnore
-    public String getFileStatusLink() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    } 
-    @Override
-    @JsonIgnore
-    public void setDeviceInformationLink(String link)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    @JsonIgnore
-    public String getDeviceInformationLink() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }   
-    @Override
-    @JsonIgnore
-    public void setConfigurationLink(String link)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-
-    @Override
-    @JsonIgnore
-    public String getConfigurationLink() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); 
-     }
-   
-
 
 
 } 

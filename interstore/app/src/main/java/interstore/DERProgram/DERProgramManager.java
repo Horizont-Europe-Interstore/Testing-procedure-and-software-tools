@@ -6,8 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.logging.Logger;
 @RestController
 public class DERProgramManager {
@@ -78,7 +85,37 @@ public class DERProgramManager {
       }
 
 
-    @GetMapping("/derp")
+    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp")
+    public Map<String, Object> getAllDERProgramDetailsHttp(@PathVariable Long fsaID, HttpServletRequest request, HttpServletResponse response) throws JSONException {
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.derProgramService.getAllDerProgramsHttp(fsaID);
+        
+                LOGGER.info("the der_program_list_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving DERProgramList value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
+            return  responseEntity.getBody(); 
+        }
+    }
+
     public Map<String, Object> getAllDERProgramDetails(@PathVariable Long fsaID) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
         return  responseEntity.getBody(); 

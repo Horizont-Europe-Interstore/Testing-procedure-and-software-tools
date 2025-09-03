@@ -29,8 +29,11 @@ function FormSubElement({
     setInputValue("");
   }, [currentTest]);
 
-  // List of mandatory fields for the "Create Function Set Assignments" test
-  const mandatoryFields = ["endDeviceId", "mRID", "subscribable", "version", "description"];
+  // Define mandatory fields based on the test
+  const mandatoryFields =
+    currentTest.test === "Create Der Program"
+      ? ["fsaID", "mRID", "subscribable", "version", "description", "primacy"]
+      : ["endDeviceId", "mRID", "subscribable", "version", "description"];
 
   const handleSubmitForm = async (event) => {
     event.preventDefault();
@@ -41,7 +44,7 @@ function FormSubElement({
     // Validate input for the current test
     const validation = Client.getValid(currentTest.test);
 
-    if (currentTest.test === "Create Function Set Assignments") {
+    if (currentTest.test === "Create Function Set Assignments" || currentTest.test === "Create Der Program") {
       // Ensure all mandatory fields are filled
       for (let field of mandatoryFields) {
         const value = currentTest.object[field];
@@ -102,9 +105,9 @@ function FormSubElement({
     setTestState(true);
   };
 
-  // Generate the list of optional fields (not mandatory) for the "Create Function Set Assignments" test
+  // Generate the list of optional fields (not mandatory) for the "Create Function Set Assignments" test or "Create Der Program"
   const optionalFields =
-    currentTest.test === "Create Function Set Assignments"
+    currentTest.test === "Create Function Set Assignments" || currentTest.test === "Create Der Program"
       ? Object.keys(currentTest.object).filter((field) => !mandatoryFields.includes(field))
       : [];
 
@@ -115,7 +118,7 @@ function FormSubElement({
         <form onSubmit={handleSubmitForm}>
           <SimpleGrid columns={2}>
             {/* Render the form dynamically based on the currentTest.object */}
-            {currentTest.test === "Create Function Set Assignments" ? (
+            {currentTest.test === "Create Function Set Assignments" || currentTest.test === "Create Der Program" ? (
               <>
                 {/* Render all mandatory fields */}
                 {mandatoryFields.map((field) => (

@@ -1,17 +1,23 @@
 package interstore.EndDevice;
 
 import interstore.EndDeviceTest;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -166,19 +172,72 @@ public class EdevManager {
     }
 
      @GetMapping("/edev/{id}")
+     public Object getEndDeviceByIdHttp(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) 
+    {   
+        if (RequestContextHolder.getRequestAttributes() != null){
+            try{
+                String responseEntity = this.endDeviceImpl.getEndDeviceHttp(id);
+        
+                LOGGER.info("the edev_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving endDevice value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+
     public Map<String, Object>getEndDeviceById(@PathVariable Long id) 
     {   
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getEndDevice(id);
-        Map<String, Object> responseMap = responseEntity.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
         
         return responseEntity.getBody(); 
     }
 
-    @GetMapping("/edev/{id}/rg")
-    public Map<String, Object> getEndDeviceRegistrationLink(@PathVariable Long endDeviceID) {
-        ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllRegisteredEndDevice( endDeviceID);
-        return responseEntity.getBody(); 
+    @GetMapping("/edev/{endDeviceID}/rg")
+    public Map<String, Object> getEndDeviceRegistrationLink(@PathVariable Long endDeviceID, HttpServletRequest request, HttpServletResponse response) {
+        // Case: called from HTTP
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                String responseEntity = this.endDeviceImpl.getRegisteredEndDevice(endDeviceID);
+        
+                LOGGER.info("the registered_enddevice_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving Registered endDevice value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } 
+        // Case: called from NATS (internal)
+        else {
+            ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllRegisteredEndDevice( endDeviceID);
+            return responseEntity.getBody();
+        }
+        
+         
     }
    
      @GetMapping("/edev/{endDeviceID}/rg/{registrationID}")

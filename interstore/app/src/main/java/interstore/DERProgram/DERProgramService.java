@@ -2,6 +2,8 @@ package interstore.DERProgram;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
 import interstore.Identity.*;
+import interstore.Types.HexBinary128;
+import interstore.Types.mRIDType;
 import jakarta.transaction.Transactional;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +77,8 @@ public class DERProgramService {
     
         short subscribable = (short) DerProgrampayload.optInt("subscribable");
         String mRID = DerProgrampayload.optString("mRID");
+        String mRIDString = HexBinary128.validateAndFormatHexValue(mRID);
+        mRIDType mRIDValue = new mRIDType(mRIDString);
         String description = DerProgrampayload.optString("description");
         String version = DerProgrampayload.optString("version");
         Integer versionInt = version.isEmpty() ? null : Integer.parseInt(version);
@@ -84,7 +89,7 @@ public class DERProgramService {
         String dERControlListLink = DerProgrampayload.optString("dERControlListLink", null);              
         String dERCurveListLink = DerProgrampayload.optString("dERCurveListLink", null);                  
         subscribableIdentifiedObjectEntity.setFunctionSetAssignmentEntity(fsaEntity);
-        subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRID, description, versionInt);
+        subscribableIdentifiedObjectEntity = setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity, mRIDValue.toString(), description, versionInt);
         subscribableIdentifiedObjectRepository.save(subscribableIdentifiedObjectEntity);
     
         subscribableResourceEntity.setSubscribable(subscribable);
@@ -101,10 +106,10 @@ public class DERProgramService {
     
         String idString = derListLink + "/" + String.valueOf(derId) + "/";
     
-        derProgram.setActiveDERControlListLink(activeDERControlListLink != null ? idString + activeDERControlListLink : null);
-        derProgram.setDefaultDERControlLink(defaultDERControlLink != null ? idString + defaultDERControlLink : null);
-        derProgram.setDERControlListLink(dERControlListLink != null ? idString + dERControlListLink : null);
-        derProgram.setDERCurveListLink(dERCurveListLink != null ? idString + dERCurveListLink : null);
+        derProgram.setActiveDERControlListLink(activeDERControlListLink != null && activeDERControlListLink != ""? idString + activeDERControlListLink : null);
+        derProgram.setDefaultDERControlLink(defaultDERControlLink != null && defaultDERControlLink != ""? idString + defaultDERControlLink : null);
+        derProgram.setDERControlListLink(dERControlListLink != null && dERControlListLink != ""? idString + dERControlListLink : null);
+        derProgram.setDERCurveListLink(dERCurveListLink != null && dERCurveListLink != "" ? idString + dERCurveListLink : null);
     
         derProgram.setSubscribableIdentifiedObject(subscribableIdentifiedObjectEntity);
         derProgram.setSubscribableResource(subscribableResourceEntity);
@@ -173,8 +178,104 @@ public class DERProgramService {
         }
     }
 
+    public String getAllDerProgramsHttp(Long fsaID) {
+        try {
+            List<DERProgramEntity> derEntityList = derProgramRepository.findByFsaEntity_Id(fsaID);
+
+            if (derEntityList.isEmpty()) {
+                String emptyXml = "<DERProgramList xmlns=\"http://ieee.org/2030.5\" " +
+                    "all=\"0\" href=\"/derp\" results=\"0\">\n" +
+                    "<message>No DERPrograms found</message>\n" +
+                    "</DERProgramList>";
+                return emptyXml;
+            }
+
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERProgramList xmlns=\"http://ieee.org/2030.5\" ")
+               .append("all=\"").append(derEntityList.size()).append("\" ")
+               .append("href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("\" ")
+               .append("results=\"").append(derEntityList.size()).append("\">\n");
+
+            for (DERProgramEntity der : derEntityList) {
+                xml.append(" <DERProgram href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
+
+                // Core attributes from SubscribableIdentifiedObjectEntity
+                SubscribableIdentifiedObjectEntity subscribable = der.getSubscribableIdentifiedObject();
+                if (subscribable != null) {
+                    xml.append("  <mRID>")
+                       .append(subscribable.getmRID() != null ? subscribable.getmRID() : "N/A")
+                       .append("</mRID>\n");
+                    xml.append("  <description>")
+                       .append(subscribable.getDescription() != null ? subscribable.getDescription() : "No description")
+                       .append("</description>\n");
+                }
+
+                // Map of fields to XML tag names
+                Map<String, String> listLinks = Map.of(
+                    "getDefaultDERControlLink", "DefaultDERControlLink",
+                    "getActiveDERControlListLink", "ActiveDERControlListLink",
+                    "getDERControlListLink", "DERControlListLink",
+                    "getDERCurveListLink", "DERCurveListLink"
+                );
+
+                for (Map.Entry<String, String> entry : listLinks.entrySet()) {
+                    try {
+                        Method method = DERProgramEntity.class.getMethod(entry.getKey());
+                        Object value = method.invoke(der);
+                        if (value != null) {
+                            xml.append("  <").append(entry.getValue()).append(" href=\"")
+                               .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                        }
+                    } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                        LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
+                    }
+                }
+                // DERProgram specific attributes
+                xml.append("  <primacy>").append(der.getPrimacy() != null ? der.getPrimacy() : 0).append("</primacy>\n");
+
+                xml.append(" </DERProgram>\n");
+            }
+
+            xml.append("</DERProgramList>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERPrograms", e);
+            return "<DERProgramList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\""+"/derp\" results=\"0\">\n" +
+                   "<error>Some error occurred</error>\n" +
+                   "</DERProgramList>";
+        }
+    }
+
     
-    
+    private String stripHost(String url) {
+        if (url == null) return null;
+    try {
+        java.net.URI uri = new java.net.URI(url);
+        String path = uri.getPath(); // "/derp" or "/2030.5/dcap/tm"
+        if (path == null || path.isEmpty()) return "/";
+
+        // If you want to specifically remove "/2030.5" prefix
+        String prefix = "/2030.5";
+        if (path.startsWith(prefix)) {
+            path = path.substring(prefix.length());
+            if (path.isEmpty()) path = "/"; // ensure at least "/"
+        }
+        return path;
+    } catch (Exception e) {
+        // fallback: naive parsing
+        int idx = url.indexOf("://");
+        if (idx != -1) {
+            String remainder = url.substring(idx + 3); // skip "http://"
+            int slashIdx = remainder.indexOf("/");
+            if (slashIdx != -1) {
+                return remainder.substring(slashIdx); // return path after host
+            } else {
+                return "/"; // no path, return root
+            }
+        }
+        return url; // unknown format
+    }
+    }
 
 
   
