@@ -1,4 +1,4 @@
-Feature: Device Capability Test
+ Feature: Device Capability Test
   @DeviceCapability
   Scenario Outline: Verifying Device Capability Test Execution
     Given I have a device capability test setup
@@ -16,4 +16,3 @@ Feature: Device Capability Test
                    test it will depicts the default device capablities .   
     
      """
- 

@@ -21,22 +21,6 @@ import React from "react";
         </Flex>
         <Flex rowSpan={2} flexDirection={'row'}>
           <Text variant={'report_key'}>
-            Tag:
-          </Text>
-          <Text variant={'report_value'}>
-            {report.Tag}
-          </Text>
-        </Flex>
-        <Flex rowSpan={2} flexDirection={'row'}>
-          <Text variant={'report_key'}>
-            Scenario:
-          </Text>
-          <Text variant={'report_value'}>
-            {report.Scenario}
-          </Text>
-        </Flex>
-        <Flex rowSpan={2} flexDirection={'row'}>
-          <Text variant={'report_key'}>
             Result:
           </Text>
           <Box marginTop={'2.4vh'} marginLeft={'0.3vw'}>
@@ -61,20 +45,13 @@ import React from "react";
         <Flex flexDirection={'row'} w={'100%'}>
           <Flex flexDirection={'column'} w={'100%'}>
             <Text variant={'report_key'} textAlign={'center'}>
-              ACTUAL
+              RESPONSE
             </Text>
             <Text bgColor={report['End result'] === 'failed' ? colors.BAD_COLOR : colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
             {report['Actual response']}
             </Text>
           </Flex>
-          <Flex flexDirection={'column'} colSpan={2} w={'100%'}>
-            <Text variant={'report_key'} textAlign={'center'}>
-              EXPECTED
-            </Text>
-            <Text bgColor={colors.GOOD_COLOR} fontSize={'smaller'} fontWeight={'lighter'}>
-            {report['Expected response']}
-            </Text>
-          </Flex>
+          
         </Flex>
       </Box> :<></>
     }

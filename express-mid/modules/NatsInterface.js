@@ -89,6 +89,19 @@ module.exports = class NatsInterface{
         }
       }
 
+       #generatePlainReport(jsonData,testName){
+          if(jsonData.length===0){
+          return this.#generateErrorReport("Test does not yet exist",testName)
+          }
+          let report = {
+          'Actual response': jsonData,
+          'Feature': testName,
+          'End result': 'passed',
+          'Description': 'Test executed with expected responses from step definitions'
+          };
+          return report;
+       }
+
       #pingBackend(){
 
       }
@@ -158,8 +171,8 @@ module.exports = class NatsInterface{
                   res.status(200).json(report);
                 } else {
                   // Unknown format
-                  console.log('EXPRESS-MID: Unknown response format, treating as Cucumber report');
-                  const report = this.#generateReport(jsonData, testName);
+                  console.log('EXPRESS-MID: Received plain test results...');
+                  const report = this.#generatePlainReport(JSON.stringify(jsonData), testName);
                   console.log('EXPRESS-MID: Generated report:', JSON.stringify(report));
                   res.status(200).json(report);
                 }

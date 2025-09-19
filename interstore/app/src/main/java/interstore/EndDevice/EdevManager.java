@@ -271,7 +271,7 @@ public class EdevManager {
          
     }
    
-     @GetMapping("/edev/{endDeviceID}/rg/{registrationID}")
+     @GetMapping("/edev/{endDeviceID}/reg/{registrationID}")
      public Map<String, Object> getRegisteredEndDeviceDetails(@PathVariable Long endDeviceID, @PathVariable Long registrationID) {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getRegisterdEndDeviceDetails( endDeviceID, registrationID);
         return responseEntity.getBody();

@@ -7,6 +7,11 @@ const { exec } = require("child_process");
 
 const natsInterface = new NatsInterface();
 const app = express();
+
+// Store test results in memory
+const testResults = [];
+const MAX_RESULTS = 10;
+
 app.use(cors({
     origin: "*",
     methods: ["OPTIONS", "POST", "GET"]
@@ -44,6 +49,23 @@ app.post("/run", (req, res) => {
         
         res.json({ output: stdout });
     });
+});
+
+// Test results endpoints
+app.post("/test-results", (req, res) => {
+    console.log('EXPRESS-MID: Test result received:', JSON.stringify(req.body));
+    
+    // Clear array and add only new result (keep only latest)
+    testResults.length = 0;
+    testResults.push(req.body);
+    
+    console.log(`EXPRESS-MID: Stored test result. Total: ${testResults.length}`);
+    res.status(200).json({ message: 'Test result stored successfully', total: testResults.length });
+});
+
+app.get("/test-results", (req, res) => {
+    console.log(`EXPRESS-MID: Serving ${testResults.length} test results`);
+    res.status(200).json(testResults);
 });
 
 app.listen(5000, () => {

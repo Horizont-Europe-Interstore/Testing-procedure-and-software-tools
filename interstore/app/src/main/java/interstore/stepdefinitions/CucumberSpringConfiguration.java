@@ -1,9 +1,9 @@
-package interstore.stepdefinitions;
+// package interstore.stepdefinitions;
 
-import io.cucumber.spring.CucumberContextConfiguration;
-@CucumberContextConfiguration
+// import io.cucumber.spring.CucumberContextConfiguration;
+// @CucumberContextConfiguration
 
-public class CucumberSpringConfiguration{
+// public class CucumberSpringConfiguration{
     
-}
+// }
 

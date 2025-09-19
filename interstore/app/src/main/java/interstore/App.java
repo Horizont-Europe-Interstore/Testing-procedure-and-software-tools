@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
+
+
+
 import com.google.common.net.InetAddresses;
 
 import org.springframework.core.env.Environment;
@@ -36,7 +39,7 @@ import java.util.logging.Logger;
 @EnableScheduling
 @EnableJpaRepositories( {"interstore.DeviceCapability", "interstore.Identity"
 , "interstore.EndDevice", "interstore.Types", "interstore.Registration", "interstore.DER", "interstore.FunctionSetAssignments"
-        ,"interstore.DERProgram", "interstore.Time", "interstore.DERCurve", "interstore.Events", "interstore.DERControl"})
+        ,"interstore.DERProgram", "interstore.Time", "interstore.DERCurve", "interstore.Events", "interstore.DERControl", "interstore.TestResults"})
 @EntityScan(basePackages = "interstore")
 @ComponentScan(basePackages = "interstore")
 @Repository
@@ -46,6 +49,7 @@ public class App {
     private ServiceDiscoveryVerticle serviceDiscoveryVerticle;
     private UIControleHandler uiControleHandler;
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
+
     
 
 
@@ -195,6 +199,7 @@ public class App {
         ApplicationContext context = SpringApplication.run(App.class);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = (App)context.getBean("app");
+        System.out.println("🚀 Application started with JMS and WebSocket support");
         mainApp.start(natsUrl);
        
         

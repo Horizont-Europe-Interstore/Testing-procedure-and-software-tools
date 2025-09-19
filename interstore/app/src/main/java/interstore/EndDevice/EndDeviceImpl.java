@@ -532,6 +532,50 @@ public class EndDeviceImpl {
         return endDeviceDto;
     }
 
+    public String getFunctionSetAssignmentHttp(Long id) {
+        try {
+            // Mock FunctionSetAssignmentsList for EndDevice with given id
+            StringBuilder xml = new StringBuilder();
+            xml.append("<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" ")
+               .append("all=\"1\" href=\"/edev/").append(id).append("/fsa\" ")
+               .append("results=\"1\" subscribable=\"0\">\n");
+            
+            xml.append("  <FunctionSetAssignments href=\"/edev/").append(id).append("/fsa/1\">\n");
+            xml.append("    <mRID>FSA_").append(id).append("_001</mRID>\n");
+            xml.append("    <description>Function Set Assignment for EndDevice ").append(id).append("</description>\n");
+            xml.append("    <version>1</version>\n");
+            xml.append("  </FunctionSetAssignments>\n");
+            
+            xml.append("</FunctionSetAssignmentsList>");
+            return xml.toString();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving FunctionSetAssignmentsList", e);
+            return "<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev/" + id + "/fsa\" results=\"0\" subscribable=\"0\">\n" +
+                   "<message>Error retrieving FunctionSetAssignments</message>\n" +
+                   "</FunctionSetAssignmentsList>";
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> getAllFunctionSetAssignment(Long id) {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            // Mock response for FunctionSetAssignments
+            Map<String, Object> fsa = new HashMap<>();
+            fsa.put("id", 1L);
+            fsa.put("mRID", "FSA_" + id + "_001");
+            fsa.put("description", "Function Set Assignment for EndDevice " + id);
+            fsa.put("version", 1);
+            fsa.put("href", "/edev/" + id + "/fsa/1");
+            
+            responseMap.put("functionSetAssignments", List.of(fsa));
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving FunctionSetAssignments", e);
+            responseMap.put("message", "Error retrieving FunctionSetAssignments");
+            return ResponseEntity.status(500).body(responseMap);
+        }
+    }
+
 }
 
 

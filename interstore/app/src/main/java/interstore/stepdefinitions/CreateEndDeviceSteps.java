@@ -16,7 +16,7 @@ import java.util.Map;
 public class CreateEndDeviceSteps {
     // @Autowired
     private App app; 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceCapabilitySteps.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateEndDeviceSteps.class);
     private Object response;
     private Scenario scenario; 
     

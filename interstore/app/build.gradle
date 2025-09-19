@@ -35,6 +35,7 @@ dependencies {
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
     //compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Use Jakarta Persistence API
     implementation 'io.cucumber:cucumber-spring:7.1.0'
     implementation 'io.cucumber:cucumber-java:7.1.0'
@@ -48,6 +49,13 @@ dependencies {
     // Spring Boot Starter Test
     implementation 'org.springframework.boot:spring-boot-starter-test:3.2.2'
     implementation 'org.springframework.boot:spring-boot-starter-logging'
+    
+    // Karate testing framework
+    implementation 'com.intuit.karate:karate-junit5:1.4.1'
+    implementation 'com.intuit.karate:karate-core:1.4.1'
+    
+    // HTTP client dependency
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 }
 
 application {

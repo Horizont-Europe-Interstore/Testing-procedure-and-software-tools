@@ -33,7 +33,7 @@ public class DeviceCapabilityImpl {
     public DeviceCapabilityDto createDeviceCapability(JSONObject jsonObject) throws MalformedURLException, JSONException {
         LOGGER.info("Inside DcapImpl: " + jsonObject);
         List<DeviceCapabilityDto> dcap = deviceCapabilityRepository.findAll();
-        if(dcap.isEmpty()){
+        if(!dcap.isEmpty()){
             LOGGER.log(Level.INFO, "Dcap entity already exists!");
             return null;
         } else{

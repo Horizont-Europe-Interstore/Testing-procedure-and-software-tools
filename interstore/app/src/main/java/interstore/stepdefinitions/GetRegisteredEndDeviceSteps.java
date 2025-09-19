@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class GetRegisteredEndDeviceSteps {
     private App app; 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceCapabilitySteps.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetRegisteredEndDeviceSteps.class);
     private Object response;
     private Scenario scenario; 
     @Before
