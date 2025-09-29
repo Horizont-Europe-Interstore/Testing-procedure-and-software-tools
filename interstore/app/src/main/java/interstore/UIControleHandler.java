@@ -37,151 +37,151 @@ public class UIControleHandler {
        // }
         this.natsConnection = Nats.connect(natsUrl);
         testMap.put("DeviceCapability", s -> {
-            try { return app.CreateDeviceCapabilityTest(s); }
+            try { return app.CreateDeviceCapabilityTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("DeviceCapability", "dcap");
 
         testMap.put("GetAllEndDevices", s -> {
-            try { return app.getAllEndDevicesTest(s); }
+            try { return app.getAllEndDevicesTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAllEndDevices", "get_all_edevs");
 
         testMap.put("CreateEndDevice", s -> {
-            try { return app.CreateEndDeviceTest(s); }
+            try { return app.CreateEndDeviceTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateEndDevice", "edev");
 
         testMap.put("GetAnEndDevice", s -> {
-            try { return app.getEndDeviceTest(s); }
+            try { return app.getEndDeviceTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAnEndDevice", "get_an_edev");
 
         testMap.put("RegisterEndDevice", s -> {
-            try { return app.createEndDeviceRegistrationTest(s); }
+            try { return app.createEndDeviceRegistrationTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("RegisterEndDevice", "register_edev");
 
         testMap.put("GetRegisteredEndDevice", s -> {
-            try { return app.findRegisterdEndDeviceTest(s); }
+            try { return app.findRegisterdEndDeviceTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetRegisteredEndDevice", "get_registered_edev");
 
         testMap.put("Time", s -> {
-            try { return app.TimeTest(s); }
+            try { return app.TimeTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("Time", "time");
 
         testMap.put("AdvancedTime", s -> {
-            try { return app.AdvancedTimeTest(s); }
+            try { return app.AdvancedTimeTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("AdvancedTime", "advanced_time");
 
         testMap.put("GetAllFunctionSetAssignments", s -> {
-            try { return app.getAllFsaTest(s); }
+            try { return app.getAllFsaTest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAllFunctionSetAssignments", "get_all_fsa");
 
         testMap.put("CreateFunctionSetAssignments", s -> {
-            try { return app.createFunctionsetAssignments(s); }
+            try { return app.createFunctionsetAssignments(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateFunctionSetAssignments", "create_fsa");
 
         testMap.put("GetAFunctionSetAssignments", s -> {
-            try { return app.getAFunctionSetAssignments(s); }
+            try { return app.getAFunctionSetAssignments(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAFunctionSetAssignments", "get_fsa");
 
         testMap.put("CreateDerProgram", s -> {
-            try { return app.createDerProgram(s); }
+            try { return app.createDerProgram(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateDerProgram", "create_derprogram");
 
         testMap.put("GetAllDerPrograms", s -> {
-            try { return app.getAllDerPrograms(s); }
+            try { return app.getAllDerPrograms(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAllDerPrograms", "get_all_derprograms");
 
         testMap.put("GetADerProgram", s -> {
-            try { return app.getADerProgram(s); }
+            try { return app.getADerProgram(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetADerProgram", "get_a_derprogram");
 
         testMap.put("CreateDerCurve", s -> {
-            try { return app.createDerCurve(s); }
+            try { return app.createDerCurve(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateDerCurve", "create_dercurve");
 
         testMap.put("GetAllDerCurves", s -> {
-            try { return app.getAllDerCurves(s); }
+            try { return app.getAllDerCurves(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAllDerCurves", "get_all_dercurves");
 
         testMap.put("GetADerCurve", s -> {
-            try { return app.getADerCurve(s); }
+            try { return app.getADerCurve(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetADerCurve", "get_a_dercurve");
 
         testMap.put("CreateDerControl", s -> {
-            try { return app.createDerControl(s); }
+            try { return app.createDerControl(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateDerControl", "create_dercontrol");
 
         testMap.put("GetAllDerControls", s -> {
-            try { return app.getAllDerControls(s); }
+            try { return app.getAllDerControls(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetAllDerControls", "get_all_dercontrols");
 
         testMap.put("GetADerControl", s -> {
-            try { return app.getADerControl(s); }
+            try { return app.getADerControl(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetADerControl", "get_dercontrol");
 
         testMap.put("CreateDerCapability", s -> {
-            try { return app.createDerCapability(s); }
+            try { return app.createDerCapability(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateDerCapability", "create_dercapability");
 
         testMap.put("GetADerCapability", s -> {
-            try { return app.getADerCapability(s); }
+            try { return app.getADerCapability(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetADerCapability", "get_dercapability");
 
         testMap.put("CreateDerSettings", s -> {
-            try { return app.createDerSettings(s); }
+            try { return app.createDerSettings(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("CreateDerSettings", "create_dersettings");
 
         testMap.put("GetADerSettings", s -> {
-            try { return app.getADerSettings(s); }
+            try { return app.getADerSettings(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("GetADerSettings", "get_dersettings");
 
         testMap.put("PowerGenerationTest", s -> {
-            try { return app.PowerGenerationtest(s); }
+            try { return app.PowerGenerationtest(); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
         testSubjectMap.put("PowerGenerationTest", "power_generation");

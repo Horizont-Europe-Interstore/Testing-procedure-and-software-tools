@@ -2,7 +2,12 @@ package interstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceImpl;
+import interstore.FunctionSetAssignments.FsaManager;
+
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +16,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class FunctionSetAssignmentsTest {
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsTest.class.getName());
     private static String serviceName;
@@ -21,6 +27,8 @@ public class FunctionSetAssignmentsTest {
     static Object fsaInstances;
     static List<String> derpListLinks = new ArrayList<>();
     static String derProgramInstance;
+    @Autowired
+    private FsaManager fsaManager;
 
     public FunctionSetAssignmentsTest(){
 
@@ -39,18 +47,21 @@ public class FunctionSetAssignmentsTest {
 
    /* create a query to get all function set assignments  
    The method is to query for list of enddevices present in the server*/
-      public static String getAllFsa(Long endDeviceID)
+      public String getAllFsa(Long endDeviceID)
       { 
          
          Map<String, Object> attributes = new HashMap<>(); 
-        attributes.put("servicename", getserviceName());
+        // attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         attributes.put("endDeviceID", endDeviceID);
          ObjectMapper objectMapper = new ObjectMapper();
          try {
              String postPayload = objectMapper.writeValueAsString(attributes);
-             LOGGER.info("The payload for the get all FSA is " + postPayload); 
-             return postPayload; 
+             LOGGER.info("The payload for the get all FSA is " + postPayload);
+             Object response = fsaManager.chooseMethod_basedOnAction(postPayload);
+             String jsonResponse = new ObjectMapper().writeValueAsString(response);
+             return setAllFsa(jsonResponse);
+            //  return jsonResponse; 
              
          } catch (Exception e) {
              e.printStackTrace();
@@ -75,7 +86,7 @@ public class FunctionSetAssignmentsTest {
      * the cucmmber testing as response of the intail get all fsunction 
      * set assignemnts requests . 
      */
-   public static String getAllFsa(){
+   public String getAllFsa(){
         return listOfFunctionsetAssignemnts;
     }
 
@@ -85,17 +96,20 @@ public class FunctionSetAssignmentsTest {
   
 
 
-    public static String createNewFunctionsetAssignments(JSONObject  PayLoad )
+    public String createNewFunctionsetAssignments(JSONObject  PayLoad )
     {  
        
        try {
         String attributes = new JSONObject()
-                                .put("servicename", getserviceName())
+                                // .put("servicename", getserviceName())
                                 .put("action", "post")
                                 .put("payload", (Object)PayLoad)
                                 .toString();
            LOGGER.info(attributes);
-           return attributes; 
+           Object response = fsaManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setCreatedFunctionSetAssignment(jsonResponse);
+           return jsonResponse; 
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -106,12 +120,12 @@ public class FunctionSetAssignmentsTest {
    /* the setter will set the response of the newly created FSA 
     * in a memeber variable 
     */
-    public static void setCreatedFunctionSetAssignment(String responseCreatedFSA)
+    public void setCreatedFunctionSetAssignment(String responseCreatedFSA)
     {
        createdFSA = responseCreatedFSA;
     }
 
-    public static String getCreatedFunctionSetAssignment()
+    public String getCreatedFunctionSetAssignment()
     {
         return createdFSA;
     }
@@ -121,10 +135,10 @@ public class FunctionSetAssignmentsTest {
     */
 
 
-   public static String findAFunctionSetAssignments(Long endDeviceID, Long fsaID)
+   public String findAFunctionSetAssignments(Long endDeviceID, Long fsaID)
    {
        Map<String, Object> attributes = new HashMap<>();
-       attributes.put("servicename", getserviceName());
+    //    attributes.put("servicename", getserviceName());
        attributes.put("action", "get");
        attributes.put("endDeviceID", endDeviceID);
        attributes.put("fsaID", fsaID);
@@ -132,7 +146,10 @@ public class FunctionSetAssignmentsTest {
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
            LOGGER.info("The payload for the get all FSA is " + postPayload);
-           return postPayload;
+           Object response = fsaManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setSingleFunctionSetAssignments(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -147,7 +164,7 @@ public class FunctionSetAssignmentsTest {
         
     }
    
-    public static String getSingleFSA()
+    public String getSingleFSA()
     {
         return fsaInstance; 
     }
@@ -200,7 +217,7 @@ public class FunctionSetAssignmentsTest {
         EndDeviceImpl endDeviceImpl = ApplicationContextProvider.getApplicationContext().getBean(EndDeviceImpl.class);
         EndDeviceDto endDeviceDto = endDeviceImpl.getEndDeviceByRegistrationID(regID);
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
+        // attributes.put("servicename", getserviceName());
         attributes.put("action", action);
         attributes.put("payload", endDeviceDto.getFunctionSetAssignmentsListLink());
         ObjectMapper objectMapper = new ObjectMapper();
@@ -221,7 +238,7 @@ public class FunctionSetAssignmentsTest {
     public static String queryServiceFSA( String action, String payload)
     {
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
+        // attributes.put("servicename", getserviceName());
         attributes.put("action", action);
         attributes.put("payload", payload);
         ObjectMapper objectMapper = new ObjectMapper();

@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 @RestController
 public class EdevManager {
     private EndDeviceImpl endDeviceImpl;
-    private EndDeviceTest endDeviceTest;
     private static final Logger LOGGER = Logger.getLogger(EdevManager.class.getName());
     private static String endDeviceEndPoint; 
     private static String registerationendpoint;

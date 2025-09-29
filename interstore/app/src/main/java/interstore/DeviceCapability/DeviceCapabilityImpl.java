@@ -1,4 +1,5 @@
 package interstore.DeviceCapability;
+import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Time.TimeDto;
@@ -72,7 +73,26 @@ public class DeviceCapabilityImpl {
         }
     }
 
-     public String getDeviceCapability(DeviceCapabilityDto dcap) {
+    // public ResponseEntity<Map<String, Object>> getDeviceCapability(DeviceCapabilityDto dcapDto){
+    //     Map<String, Object> responseMap = new HashMap<>();
+    //     try {
+    //         De endDeviceDto = deviceCapabilityRepository.findById(id).orElse(null);
+    //         LOGGER.log(Level.INFO, "EndDeviceDto retrieved successfully" + endDeviceDto);
+    //         if(endDeviceDto == null) {
+    //             responseMap.put("message", "No endDevice found.");
+    //         }
+    //         else {
+    //             responseMap.put("endDevice", endDeviceDto);
+    //         }
+    //         return ResponseEntity.ok(responseMap);
+    //     } catch (Exception e) {
+    //         LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
+            
+    //         return ResponseEntity.status(404).body(null);
+    //     }
+    // }
+
+     public String getDeviceCapabilityHttp(DeviceCapabilityDto dcap) {
          if (dcap == null || dcap.getId() == null) {
             throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
         }
@@ -187,6 +207,7 @@ public class DeviceCapabilityImpl {
                     return ResponseEntity.ok(responseMap); 
                 }
         }
+        
         catch(Exception e)
         {
             LOGGER.log(Level.SEVERE, "Error getting all DeviceCapabilityDtos", e);

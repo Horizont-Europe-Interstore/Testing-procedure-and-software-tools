@@ -2,7 +2,11 @@ package interstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import interstore.EndDevice.EdevManager;
+
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.json.JSONArray;
 import org.json.JSONException;
 import java.util.HashMap;
@@ -11,10 +15,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+@Component
 public class EndDeviceTest {
-    private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
+    private static final Logger LOGGER = Logger.getLogger(EndDeviceTest.class.getName()); 
      private static String endDeviceListLink; 
-     private static String serviceName;
      private static String registrationLink; 
      private static String getAllEndDevices; 
      private static String sfdi ; 
@@ -25,26 +30,28 @@ public class EndDeviceTest {
      private static String endDeviceEndPoint; 
      private static String tmpregistrationLinkId;
      private static String endDeviceLink;
-     private static String registeredEndDeviceDetails; 
+     private static String registeredEndDeviceDetails;
+     @Autowired
+     private EdevManager edevManager;
 
 
     public EndDeviceTest() {
        
     }
     
-    public static void setServicename(String servicename)
-    {
-        serviceName = servicename;
-    }
+    // public static void setServicename(String servicename)
+    // {
+    //     serviceName = servicename;
+    // }
 
-    public static String getserviceName(){     
-        return serviceName; 
-    } 
+    // public static String getserviceName(){     
+    //     return serviceName; 
+    // } 
     /* setter and getter to test the end deviceListLink , the use of this to set the 
      * endDeviceListLink and this setter get the input from DevcieCapability Test 
      * which return the endDeviceListLink,getter will be called in the enddeviceListLink test 
      */
-    public static void setEndDeviceListLink(String endDevicelistLink) {
+    public void setEndDeviceListLink(String endDevicelistLink) {
         endDeviceListLink = endDevicelistLink;
        
     }
@@ -82,7 +89,7 @@ public class EndDeviceTest {
     {
         registrationPin = pin;
     }
-    public static Long getRegistrationPin()
+    public Long getRegistrationPin()
     {
         return registrationPin;
     } 
@@ -91,19 +98,20 @@ public class EndDeviceTest {
 
 
     /* The method is to query for list of enddevices present in the server*/
-    public static String EndDeviceListLinktest()
+    public String EndDeviceListLinktest()
     { 
        
        Map<String, Object> attributes = new HashMap<>(); 
-      attributes.put("servicename", getserviceName());
       attributes.put("action", "get");
       attributes.put("payload", getEndDeviceListLink());
       attributes.put("endDeviceLink", getEndDeviceListLink());
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes); 
-           return postPayload; 
-           
+           Map<String, Object> response = edevManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setEndDevices(jsonResponse);
+           return jsonResponse;
        } catch (Exception e) {
            e.printStackTrace();
        }
@@ -111,7 +119,7 @@ public class EndDeviceTest {
    }
 
    /* This method will create an end device in the server  */
-   public static String createNewEndDevice(JSONObject PayLoad) throws JSONException  
+   public String createNewEndDevice(JSONObject PayLoad) throws JSONException  
    {  
       
        String endDeviceendPoint = (String)PayLoad.get("endDeviceListLink");
@@ -119,13 +127,15 @@ public class EndDeviceTest {
        String registrationLink = (String)PayLoad.get("registrationLink");
        setRegistrationLinkEndPoint(registrationLink); 
        String attributes = new JSONObject()
-                                .put("servicename", getserviceName())
                                 .put("action", "post")
                                 .put("payload", (Object)PayLoad)
                                 .toString();
        try {
            LOGGER.info(attributes);
-           return attributes; 
+           Map<String, Object> response = edevManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setEndDevices(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -133,10 +143,9 @@ public class EndDeviceTest {
        return null ; 
    }
    
-   public static String createEndDeviceRegistration(Long EndDeviceID, Long pin)
+   public String createEndDeviceRegistration(Long EndDeviceID, Long pin)
    {
        Map<String, Object> attributes = new HashMap<>();
-       attributes.put("servicename", getserviceName());
        attributes.put("action", "post");
        attributes.put("endDeviceID", EndDeviceID);
        attributes.put("pin", pin); 
@@ -144,8 +153,10 @@ public class EndDeviceTest {
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
-           System.out.println(postPayload);
-           return postPayload;
+           Map<String, Object> response = edevManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           verifyRegisteredEndDevice(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -164,17 +175,17 @@ public class EndDeviceTest {
    }
 
 
-   public static String getEndDevices()
+   public String getEndDevices()
    {  
        return getAllEndDevices ; 
    }
 
     /* This method will get the end device instance from the server */ 
-    public static String getEndDeviceInstancetest(Long endDeviceID)
+    public String getEndDeviceInstancetest(Long endDeviceID)
     {  
         
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
+        // attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         //attributes.put("payload", endDeviceID);
         attributes.put("endDeviceID", endDeviceID); 
@@ -182,7 +193,10 @@ public class EndDeviceTest {
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
             LOGGER.info("the instance that we are looking is " + postPayload);
-            return postPayload;
+            Map<String, Object> response = edevManager.chooseMethod_basedOnAction(postPayload);
+            String jsonResponse = new ObjectMapper().writeValueAsString(response);
+            setEndDeviceInstance(jsonResponse);
+            return jsonResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,7 +211,7 @@ public class EndDeviceTest {
      * code does this . This shall be reviewed while integrating with the 
      * database 
      */
-     public static String setsfdi(String Sfdi) throws JSONException
+     public String setsfdi(String Sfdi) throws JSONException
      {
          try{
              LOGGER.info("the sfdi is here in form payload  " + Sfdi);
@@ -301,7 +315,7 @@ public class EndDeviceTest {
          
        }
    
-    public static String getEndDeviceInstance()
+    public String getEndDeviceInstance()
        {
            return endDeviceInstance;
        }
@@ -369,10 +383,9 @@ public static String getEndDeviceregisteredwithId()
     return tmpregistrationLinkId;
 }
 
-public static String findRegisteredEndDevice(Long endDeviceID, Long  registrationID)
+public String findRegisteredEndDevice(Long endDeviceID, Long  registrationID)
 {
     Map<String, Object> attributes = new HashMap<>();
-    attributes.put("servicename", getserviceName());
     attributes.put("action", "get");
     //attributes.put("payload",  getEndDeviceregisteredwithId());
     attributes.put("endDeviceID", endDeviceID);
@@ -381,7 +394,10 @@ public static String findRegisteredEndDevice(Long endDeviceID, Long  registratio
     try {
         String postPayload = objectMapper.writeValueAsString(attributes);
         LOGGER.info("The registered end device payload is " + postPayload); 
-        return postPayload;
+        Map<String, Object> response = edevManager.chooseMethod_basedOnAction(postPayload);
+        String jsonResponse = new ObjectMapper().writeValueAsString(response);
+        setregisteredEndDeviceDetails(jsonResponse);
+        return jsonResponse;
 
     } catch (Exception e) {
         e.printStackTrace();
@@ -391,11 +407,11 @@ public static String findRegisteredEndDevice(Long endDeviceID, Long  registratio
 
 public static void setregisteredEndDeviceDetails(String instanceofRegisteredEndDevice)
 {
-    LOGGER.info("Yaha aagaya........"+instanceofRegisteredEndDevice);
+    LOGGER.info(instanceofRegisteredEndDevice);
     registeredEndDeviceDetails = instanceofRegisteredEndDevice; 
 }
 
-public static String getregisteredEndDeviceDetails()
+public String getregisteredEndDeviceDetails()
 {
     return registeredEndDeviceDetails;
 }

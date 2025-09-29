@@ -55,12 +55,22 @@ if (payload == null || payload.isEmpty()) {
 
 
 
-   public Map<Long, Object>addDeviceCapability( JSONObject jsonObject) throws MalformedURLException, InterruptedException, JSONException  {
+   public Map<String, Object> addDeviceCapability( JSONObject jsonObject) throws MalformedURLException, InterruptedException, JSONException  {
     LOGGER.info("the json is " + jsonObject); 
     DeviceCapabilityDto deviceCapabilityDto = deviceCapabilityImpl.createDeviceCapability(jsonObject);
     LOGGER.info("the response is " + deviceCapabilityDto);
-    return deviceCapabilityImpl.getAllLinks(deviceCapabilityDto);
-  
+    Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+    @SuppressWarnings("unchecked")
+    List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
+    DeviceCapabilityDto dcapDto;
+    if (dcapList == null || dcapList.isEmpty()) {
+        LOGGER.info("No device capabilities found, creating default one for Schneider polling");
+        dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+    } else {
+        dcapDto = dcapList.get(0);
+    }
+    // LOGGER.info("the dcapDto is: " + dcapDto);
+    return Map.of("timeLink", dcapDto.getTimeLink(),"mirrorUsagePointListLink", dcapDto.getMirrorUsagePointListLink(),"selfDeviceLink", dcapDto.getSelfDeviceLink(),"endDeviceListLink", dcapDto.getEndDeviceListLink());
 }
 
 
@@ -80,7 +90,7 @@ public Object getDeviceCapability(HttpServletRequest request, HttpServletRespons
                 dcapDto = dcapList.get(0);
             }
            
-            String dcap_val = this.deviceCapabilityImpl.getDeviceCapability(dcapDto);
+            String dcap_val = this.deviceCapabilityImpl.getDeviceCapabilityHttp(dcapDto);
             
             LOGGER.info("the dcap_val is " + dcap_val);
             byte[] bytes = dcap_val.getBytes(StandardCharsets.UTF_8);

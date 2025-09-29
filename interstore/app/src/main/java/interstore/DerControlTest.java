@@ -1,37 +1,38 @@
 package interstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import interstore.DERControl.DERControlManager;
+
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Component
 public class DerControlTest {
     private static final Logger LOGGER = Logger.getLogger(DerControlTest.class.getName());
-    private static String serviceName;
     static String createdDerControl;
     static String derControl;
     static String listOfDerControls;
+    @Autowired
+    private DERControlManager derControlManager;
 
-    public static String getserviceName(){
-        return serviceName;
-    }
-    public static void setServicename(String serviceName)
-    {
-        DerControlTest.serviceName = serviceName;
-    }
-
-    public static String createNewDerControl(JSONObject payload)
+    public String createNewDerControl(JSONObject payload)
     {
         try {
             String attributes = new JSONObject()
-                    .put("servicename", getserviceName())
                     .put("action", "post")
                     .put("payload", (Object)payload)
                     .toString();
             LOGGER.info(attributes);
-            return attributes;
+            Object response = derControlManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setCreatedDerControl(jsonResponse);
+           return jsonResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,30 +40,32 @@ public class DerControlTest {
         return null ;
     }
 
-    public static void  setCreatedDerControl(String responseCreateDerControl)
+    public void setCreatedDerControl(String responseCreateDerControl)
     {
         LOGGER.info("Reached in DERControl Test with response: " + responseCreateDerControl);
         createdDerControl = responseCreateDerControl;
 
     }
 
-    public static String getCreatedDerControl()
+    public String getCreatedDerControl()
     {
         return createdDerControl;
     }
 
-    public static String getAllDerControlRequest(Long derpID)
+    public String getAllDerControlRequest(Long derpID)
     {
 
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         attributes.put("derpID", derpID);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
             LOGGER.info("The payload for the get all Der Control is " + postPayload);
-            return postPayload;
+            Object response = derControlManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setAllDerControls(jsonResponse);
+           return jsonResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,20 +73,19 @@ public class DerControlTest {
         return null;
     }
 
-    public static String setAllDerControls(String responseAllDerControls) {
+    public String setAllDerControls(String responseAllDerControls) {
         LOGGER.info("The DerControls for the given derProgram is "+ responseAllDerControls);
         listOfDerControls = responseAllDerControls;
         return responseAllDerControls;
     }
 
-    public static String getAllderControls(){
+    public String getAllderControls(){
         return listOfDerControls;
     }
 
-    public static String  getADerControlRequest(Long derpId, Long derControlId)
+    public String getADerControlRequest(Long derpId, Long derControlId)
     {
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         attributes.put("derpID", derpId);
         attributes.put("derControlID", derControlId);
@@ -91,7 +93,10 @@ public class DerControlTest {
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
             LOGGER.info("The payload for the get a Der Control is " + postPayload);
-            return postPayload;
+            Object response = derControlManager.chooseMethod_basedOnAction(postPayload);
+            String jsonResponse = new ObjectMapper().writeValueAsString(response);
+            setADerControl(jsonResponse);
+            return jsonResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,12 +104,12 @@ public class DerControlTest {
         return null;
     }
 
-    public static void setADerControl(String responseDerControl)
+    public void setADerControl(String responseDerControl)
     {
         derControl = responseDerControl;
     }
 
-    public static String getADerControl()
+    public String getADerControl()
     {
         return derControl;
     }

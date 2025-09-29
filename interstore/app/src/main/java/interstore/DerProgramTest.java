@@ -1,29 +1,25 @@
 package interstore;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import interstore.DERProgram.DERProgramManager;
 
 
 
+@Component
 public class DerProgramTest {
      private static final Logger LOGGER = Logger.getLogger(DerProgramTest.class.getName());
-     private static String serviceName;
      static String listOfDerPrograms;
      static String createdDerProgram;
      static String derProgram;
-
- 
-
-     public static String getserviceName(){
-        return serviceName;
-    }
-    public static void setServicename(String serviceName)
-    {
-        DerProgramTest.serviceName = serviceName;
-    }
+     @Autowired
+     private DERProgramManager derProgramManager;
 
    /* create a query to get all der programs 
      I have a question in my mind derProgramListLink
@@ -36,19 +32,21 @@ public class DerProgramTest {
     and then get all the der programs for that FSA ID
 
    */
-      public static String getAllDerProgramRequest(Long fsaID)
+      public String getAllDerProgramRequest(Long fsaID)
       { 
          
          Map<String, Object> attributes = new HashMap<>(); 
-        attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         attributes.put("fsaID", fsaID); 
         attributes.put("derprogramLink", "");
          ObjectMapper objectMapper = new ObjectMapper();
          try {
              String postPayload = objectMapper.writeValueAsString(attributes);
-             LOGGER.info("The payload for the get all Der Program is " + postPayload); 
-             return postPayload; 
+             LOGGER.info("The payload for the get all Der Program is " + postPayload);
+             Object response = derProgramManager.chooseMethod_basedOnAction(postPayload);
+             String jsonResponse = new ObjectMapper().writeValueAsString(response);
+             setAllderPrograms(jsonResponse);
+             return jsonResponse; 
              
          } catch (Exception e) {
              e.printStackTrace();
@@ -59,7 +57,7 @@ public class DerProgramTest {
       /* response for all der programs present in the server for an end device and
      using below setter it sets in variable 
      */
-    public static String setAllderPrograms(String responseAllFSA) {
+    public String setAllderPrograms(String responseAllFSA) {
         LOGGER.info("The FSAList ID's for the EndDevice is "+ responseAllFSA);
         listOfDerPrograms = responseAllFSA;
         return responseAllFSA;
@@ -69,22 +67,24 @@ public class DerProgramTest {
      * the cucmmber testing as response of the intail get all der programs
      * requests . 
      */
-   public static String getAllderPrograms(){
+   public String getAllderPrograms(){
     return listOfDerPrograms;
 }
     
   
 
-   public static String createNewDerProgram(JSONObject payload) 
+   public String createNewDerProgram(JSONObject payload) 
    {
        try {
            String attributes = new JSONObject()
-                   .put("servicename", getserviceName())
                    .put("action", "post")
                    .put("payload", (Object)payload)
                    .toString();
            LOGGER.info(attributes);
-           return attributes;
+           Object response = derProgramManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setCreatedDerProgram(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -92,21 +92,20 @@ public class DerProgramTest {
        return null ;
    }
 
-   public static void  setCreatedDerProgram(String responseCreateDerProgram)
+   public void  setCreatedDerProgram(String responseCreateDerProgram)
    { 
     createdDerProgram = responseCreateDerProgram;
        
    }
    
-   public static String getCreatedDerProgram()
+   public String getCreatedDerProgram()
    {
        return createdDerProgram;
    }    
    
-    public static String  getADerProgramRequest(Long fsaId, Long derId)
+    public String  getADerProgramRequest(Long fsaId, Long derId)
     {
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("servicename", getserviceName());
         attributes.put("action", "get");
         attributes.put("fsaID", fsaId);
         attributes.put("derID", derId);
@@ -114,7 +113,10 @@ public class DerProgramTest {
         try {
             String postPayload = objectMapper.writeValueAsString(attributes);
             LOGGER.info("The payload for the get all Der Program is " + postPayload);
-            return postPayload;
+            Object response = derProgramManager.chooseMethod_basedOnAction(postPayload);
+            String jsonResponse = new ObjectMapper().writeValueAsString(response);
+            setADerprogram(jsonResponse);
+            return jsonResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +132,7 @@ public class DerProgramTest {
     derProgram = responseDerProgram;
    } 
 
-   public static String getADerProgram()
+   public String getADerProgram()
    {
     return derProgram; 
    }

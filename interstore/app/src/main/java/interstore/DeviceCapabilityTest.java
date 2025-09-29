@@ -2,20 +2,30 @@ package interstore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import interstore.DeviceCapability.DcapManager;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Component
 public class DeviceCapabilityTest {
-    private static final Logger LOGGER = Logger.getLogger(MessageFactory.class.getName()); 
+    private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityTest.class.getName()); 
     private static String endDeviceListLink;
-    private static String serviceName;
+    // private static String serviceName;
     public static String DeviceCapabilityResponse;
     public static String DeviceCapablities ;   // this may be change into map  
     private static String endDeviceListLinkEndPoint; 
+    @Autowired
+    private DcapManager dcapManager;
+
     public DeviceCapabilityTest() {
     
         
@@ -23,31 +33,31 @@ public class DeviceCapabilityTest {
 
     
 
-    public String natsSubject(){
+    // public String natsSubject(){
        
-        String natsSubject = "dcapmanager" ;
-        return natsSubject; 
-    }
+    //     String natsSubject = "dcapmanager" ;
+    //     return natsSubject; 
+    // }
 
-    public void setserviceName(String serviceName){    
+    // public void setserviceName(String serviceName){    
        
-         this.serviceName = serviceName ;
+    //      this.serviceName = serviceName ;
     
-    } 
+    // } 
     
     public static void setDeviceCapabilityResponse(String deviceCapabilityResponse) {
         DeviceCapabilityResponse = deviceCapabilityResponse;
     }
 
-    public static String getDeviceCapabilityresponse() {
+    public String getDeviceCapabilityresponse() {
         return DeviceCapabilityResponse;
     } 
  
     
-    public static String getServiceName(){
+    // public static String getServiceName(){
 
-        return serviceName;
-    }
+    //     return serviceName;
+    // }
      
    public  static void setDeviceCapablities(String deviceCapablities) {
         DeviceCapablities = deviceCapablities;
@@ -74,7 +84,7 @@ public class DeviceCapabilityTest {
         }
 
         
-        attributes.put("servicename", getServiceName());
+        // attributes.put("servicename", getServiceName());
         attributes.put("action", "post");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -87,43 +97,45 @@ public class DeviceCapabilityTest {
         return null;
     }
 
-    public static String createNewDeviceCapability(JSONObject PayLoad) throws JSONException
+    public void createNewDeviceCapability(JSONObject PayLoad) throws JSONException
     {
 
         String endDeviceendPoint = (String)PayLoad.get("endDeviceListLink");
         setEndDeviceEndPoint(endDeviceendPoint);
         String attributes = new JSONObject()
-                .put("servicename", getServiceName())
+                // .put("servicename", getServiceName())
                 .put("action", "post")
                 .put("payload", (Object)PayLoad)
                 .toString();
         try {
             LOGGER.info(attributes);
-            return attributes;
+            Object response = dcapManager.chooseMethod_basedOnAction(attributes);
+            String jsonResponse = new ObjectMapper().writeValueAsString(response);
+            DeviceCapability(jsonResponse);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null ;
+
     }
 
 
-    public String getQuery()
-     { 
+    // public String getQuery()
+    //  { 
       
-        Map<String, Object> attributes = new HashMap<>(); 
-       attributes.put("servicename", getServiceName());
-       attributes.put("action", "get");
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            String postPayload = objectMapper.writeValueAsString(attributes);
-            return postPayload; 
+    //     Map<String, Object> attributes = new HashMap<>(); 
+    // //    attributes.put("servicename", getServiceName());
+    //    attributes.put("action", "get");
+    //     ObjectMapper objectMapper = new ObjectMapper();
+    //     try {
+    //         String postPayload = objectMapper.writeValueAsString(attributes);
+    //         return postPayload; 
             
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null; 
-    }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     return null; 
+    // }
 
     
    
@@ -145,10 +157,9 @@ public class DeviceCapabilityTest {
 
 
      // this response should be a map not string and this map 
-    public String DeviceCapability(String responsePayLoad) throws Exception
+    public static String DeviceCapability(String responsePayLoad) throws Exception
     {
-        LOGGER.info("--------here-----------"+responsePayLoad);
-        LOGGER.info("Response sent back to NATS for subject: " + responsePayLoad);
+        LOGGER.info("Response received: "+responsePayLoad);
 
         setDeviceCapabilityResponse(responsePayLoad); 
         findEndDeviceListLink(responsePayLoad); 
@@ -160,7 +171,7 @@ public class DeviceCapabilityTest {
     // what to compare here is that while settign up the device capability the user give input /enddevcie 
     // the message received from the nats in the payload . use try , except there 
     
-    public void findEndDeviceListLink(String resposnePayLoad) throws JsonMappingException, JsonProcessingException, JSONException
+    public static void findEndDeviceListLink(String resposnePayLoad) throws JsonMappingException, JsonProcessingException, JSONException
 
     {
         try{

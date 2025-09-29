@@ -1,42 +1,41 @@
 package interstore;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import interstore.DER.DerManager;
+
+@Component
 public class DerTest {
     private static final Logger LOGGER = Logger.getLogger(DerTest.class.getName());
-    private static String serviceName;
-   
     static String createdDerCapability;
     static String derCapability;
     static String createdDerSettings;
     static String derSettings; 
     static String editedpowerGeneration;
     static String powerGeneration;
-    
-    public static String getserviceName(){
-        return serviceName;
-    }
-
-    public static void setServicename(String serviceName)
-    {
-        DerTest.serviceName = serviceName;
-    }
+    @Autowired
+    private DerManager derManager;
 
     
-   public static String createNewDerCapability(JSONObject payload) 
+   public String createNewDerCapability(JSONObject payload) 
    {
        try {
            String attributes = new JSONObject()
-                   .put("servicename", getserviceName())
                    .put("action", "post")
                    .put("payload", (Object)payload)
                    .toString();
            LOGGER.info(attributes);
-           return attributes;
-
+           Object response = derManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setcreatedDerCapability(jsonResponse);
+           return jsonResponse;
+           
        } catch (Exception e) {
            e.printStackTrace();
        }
@@ -49,22 +48,25 @@ public class DerTest {
        
    }
    
-   public static String getCreatedDerCapability()
+   public String getCreatedDerCapability()
    {
        return createdDerCapability;
    } 
     
-   public static String getADerCapabilityRequest(Long derId , Long endDeviceId )
+   public String getADerCapabilityRequest(Long derId , Long endDeviceId )
    {
        Map<String, Object> attributes = new HashMap<>();
-       attributes.put("servicename", getserviceName());
        attributes.put("action", "get");
        attributes.put("endDeviceId", endDeviceId);
        attributes.put("derID", derId);
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
-           return postPayload;
+           Object response = derManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setADerCapability(jsonResponse);
+           return jsonResponse;
+           
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -77,22 +79,24 @@ public class DerTest {
     derCapability = responsederCapability;
    } 
 
-   public static String getADerCapability()
+   public String getADerCapability()
    {
     return derCapability; 
    }
   
-   public static String createNewDerSettings(JSONObject payload) 
+   public String createNewDerSettings(JSONObject payload) 
    {
        try {
            String attributes = new JSONObject()
-                   .put("servicename", getserviceName())
                    .put("action", "post")
                    .put("derSettings", "derSettings")
                    .put("payload", (Object)payload)
                    .toString();
            LOGGER.info(attributes);
-           return attributes;
+           Object response = derManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setcreatedDerSettings(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -106,15 +110,14 @@ public class DerTest {
 
    }
    
-   public static String getCreatedDerSettings()
+   public String getCreatedDerSettings()
    {
        return createdDerSettings;
    }
 
-   public static String getADerSettingsRequest(Long derId , Long endDeviceId )
+   public String getADerSettingsRequest(Long derId , Long endDeviceId )
    {
        Map<String, Object> attributes = new HashMap<>();
-       attributes.put("servicename", getserviceName());
        attributes.put("action", "get");
        attributes.put("derSettings", "derSettings"); 
        attributes.put("endDeviceId", endDeviceId);
@@ -122,7 +125,10 @@ public class DerTest {
        ObjectMapper objectMapper = new ObjectMapper();
        try {
            String postPayload = objectMapper.writeValueAsString(attributes);
-           return postPayload;
+           Object response = derManager.chooseMethod_basedOnAction(postPayload);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setADerSettings(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -136,34 +142,36 @@ public class DerTest {
     derSettings = responsederSettings;
    } 
 
-   public static String getADerSettings()
+   public String getADerSettings()
    {
     return derSettings; 
    }
   
-   public static String powerGenerationDeviceTest(JSONObject payload) 
+   public String powerGenerationDeviceTest(JSONObject payload) 
    {
        try {
            String attributes = new JSONObject()
-                   .put("servicename", getserviceName())
                    .put("action", "put")
                    .put("powergeneration", "powergeneration")
                    .put("payload", (Object)payload)
                    .toString();
            LOGGER.info(attributes);
-           return attributes;
+           Object response = derManager.chooseMethod_basedOnAction(attributes);
+           String jsonResponse = new ObjectMapper().writeValueAsString(response);
+           setEditedpowerGeneration(jsonResponse);
+           return jsonResponse;
 
        } catch (Exception e) {
            e.printStackTrace();
        }
        return null ;
    }
-   public static void setEditedpowerGeneration(String responsepowerGeneration)
+   public void setEditedpowerGeneration(String responsepowerGeneration)
    {
     editedpowerGeneration = responsepowerGeneration;
 
    }
-   public static String getEditedpowerGeneration()
+   public String getEditedpowerGeneration()
    {
        return editedpowerGeneration;
    }
