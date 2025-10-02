@@ -2,7 +2,7 @@
   "name": "react-browser",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://express-mid:5000",
+  "proxy": "https://18.232.7.53:443",
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@fontsource-variable/roboto-mono": "^5.0.19",

@@ -31,7 +31,8 @@ import java.util.logging.Logger;
 @Scope("singleton")
 public class App {
 
-    private UIControleHandler uiControleHandler;
+    // @Autowired
+    // private UIControleHandler uiControleHandler;
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     @Autowired
     private DeviceCapabilityTest deviceCapabilityTest;
@@ -54,7 +55,7 @@ public class App {
 
 
     public App(String natsUrl) throws Exception {
-        this.uiControleHandler = new UIControleHandler();
+
     }
     
     public App() throws Exception {
@@ -69,13 +70,13 @@ public class App {
     }
 
     /*This method is to create a device capablity in the server */
-    public String CreateDeviceCapabilityTest() throws Exception {
+    public String CreateDeviceCapabilityTest(JSONObject currentTest) throws Exception {
         String deviceCapabilityResponse = findDeviceCapability();
         LOGGER.info("CreateDeviceCapability response: "+deviceCapabilityResponse);
         if(deviceCapabilityResponse != null){
             return deviceCapabilityResponse;
         }
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         LOGGER.info("the current test is " + currentTest);
         deviceCapabilityTest.createNewDeviceCapability(currentTest);
         Thread.sleep(100);
@@ -83,9 +84,9 @@ public class App {
         return  deviceCapabilityResponse;
     }
 
-    public Object CreateEndDeviceTest() throws Exception{
+    public Object CreateEndDeviceTest(JSONObject currentTest) throws Exception{
 
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         endDeviceTest.createNewEndDevice(currentTest);
         Object response = endDeviceTest.getEndDevices();
         LOGGER.info("the created end device with sfdi and lfdi " + response);
@@ -103,8 +104,8 @@ public class App {
         return endDeviceList; 
     }
 
-    public Object getEndDeviceTest() throws Exception{
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public Object getEndDeviceTest(JSONObject currentTest) throws Exception{
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("id");
         LOGGER.info("the current test object is which is the id .. " + endDeviceID );
         endDeviceTest.getEndDeviceInstancetest(endDeviceID);
@@ -113,8 +114,8 @@ public class App {
         return endDevice; 
     }
 
-    public Object createEndDeviceRegistrationTest() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public Object createEndDeviceRegistrationTest(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         Long pin = currentTest.getLong("registrationPin");
         endDeviceTest.createEndDeviceRegistration(endDeviceID, pin );
@@ -126,8 +127,8 @@ public class App {
         return jsonResponse;
     }
 
-    public String findRegisterdEndDeviceTest()throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String findRegisterdEndDeviceTest(JSONObject currentTest)throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         Long registrationID = currentTest.getLong("registrationID");
         endDeviceTest.findRegisteredEndDevice(endDeviceID,  registrationID);
@@ -141,8 +142,6 @@ public class App {
 
     public void start(String natsUrl) throws Exception {    
         LOGGER.info("the nats url is " + natsUrl);
-        this.uiControleHandler = new UIControleHandler();
-        this.uiControleHandler.setupBridge();
         NatsSubscriber subscriber = new NatsSubscriber(natsUrl);
         subscriber.subscribe("response.client");
 
@@ -161,9 +160,10 @@ public class App {
         String natsUrl = "nats://nats-server:4222";
         //System.setProperty("server.port", "1900");
         //System.setProperty("server.address", "10.40.160.10");
-        ApplicationContext context = SpringApplication.run(App.class);
+        ApplicationContext context = SpringApplication.run(App.class, args);
         ApplicationContextProvider.setApplicationContext(context);
-        App mainApp = (App)context.getBean("app");
+        App mainApp = context.getBean(App.class);
+        // App mainApp = (App)context.getBean("app");
         System.out.println("🚀 Application started with JMS and WebSocket support");
         mainApp.start(natsUrl);
        
@@ -178,8 +178,8 @@ public class App {
 
     // Additional IEEE 2030.5 test methods (add all your existing methods here)
     
-    public String getAllFsaTest() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getAllFsaTest(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         LOGGER.info("the current test object is which is the id .. " + endDeviceID ); 
         functionSetAssignmentsTest.getAllFsa(endDeviceID);
@@ -188,15 +188,15 @@ public class App {
         return response;
     }
 
-    public String createFunctionsetAssignments() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createFunctionsetAssignments(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         functionSetAssignmentsTest.createNewFunctionsetAssignments(currentTest);
         String response = functionSetAssignmentsTest.getCreatedFunctionSetAssignment();
         return response;
     }
 
-    public String getAFunctionSetAssignments() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getAFunctionSetAssignments(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceID = currentTest.getLong("endDeviceId");
         Long fsaID = currentTest.getLong("fsaID");
         functionSetAssignmentsTest.findAFunctionSetAssignments(endDeviceID, fsaID);
@@ -205,16 +205,16 @@ public class App {
         return singleFSA;
     }
 
-    public String createDerProgram() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createDerProgram(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derProgramTest.createNewDerProgram(currentTest);
         String response = derProgramTest.getCreatedDerProgram();
         LOGGER.info("the response of DER Program is " + response);
         return response;
     }
 
-    public String getAllDerPrograms() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getAllDerPrograms(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long fsaId = currentTest.getLong("fsaID");
         derProgramTest.getAllDerProgramRequest(fsaId);
         String response = derProgramTest.getAllderPrograms();
@@ -222,8 +222,8 @@ public class App {
         return response;
     }
 
-    public String getADerProgram() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getADerProgram(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long fsaId = currentTest.getLong("fsaID");
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the fsa id is " + fsaId);
@@ -234,16 +234,16 @@ public class App {
         return response;
     }
 
-    public String createDerCapability() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createDerCapability(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derTest.createNewDerCapability(currentTest);
         String response = derTest.getCreatedDerCapability();
         LOGGER.info("the response of DER is " + response);
         return response;
     }
 
-    public String getADerCapability() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getADerCapability(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceId  = currentTest.getLong("endDeviceId");
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the fsa id is " + endDeviceId );
@@ -254,16 +254,16 @@ public class App {
         return response;
     }
 
-    public String createDerSettings() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createDerSettings(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derTest.createNewDerSettings(currentTest);
         String response = derTest.getCreatedDerSettings();
         LOGGER.info("the response of DER is " + response);
         return response;
     }
 
-    public String getADerSettings() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getADerSettings(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long endDeviceId  = currentTest.getLong("endDeviceId");
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the fsa id is " + endDeviceId );
@@ -274,8 +274,8 @@ public class App {
         return response;
     }
 
-    public String PowerGenerationtest()throws Exception{
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String PowerGenerationtest(JSONObject currentTest)throws Exception{
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derTest.powerGenerationDeviceTest(currentTest);
         String response = derTest.getEditedpowerGeneration();
         LOGGER.info("the response of DER is " + response);
@@ -361,16 +361,16 @@ public class App {
         return responseJson.toString();
     }
 
-    public String createDerCurve() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createDerCurve(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derCurveTest.createNewDerCurve(currentTest);
         String response = derCurveTest.getCreatedDerCurve();
         LOGGER.info("the response of DERCurve is " + response);
         return response;
     }
 
-    public String getADerCurve() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getADerCurve(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long derpId = currentTest.getLong("derpID");
         Long dercId = currentTest.getLong("dercID");
         LOGGER.info("the derp id is " + derpId);
@@ -381,8 +381,8 @@ public class App {
         return response;
     }
 
-    public String getAllDerCurves() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getAllDerCurves(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long derpId = currentTest.getLong("derpID");
         derCurveTest.getAllDerCurveRequest(derpId);
         String response = derCurveTest.getAllderCurves();
@@ -390,16 +390,16 @@ public class App {
         return response;
     }
 
-    public String createDerControl() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String createDerControl(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derControlTest.createNewDerControl(currentTest);
         String response = derControlTest.getCreatedDerControl();
         LOGGER.info("the response of DERControl is " + response);
         return response;
     }
 
-    public String getAllDerControls() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getAllDerControls(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long derpId = currentTest.getLong("derpID");
         derControlTest.getAllDerControlRequest(derpId);
         String response = derControlTest.getAllderControls();
@@ -407,8 +407,8 @@ public class App {
         return response;
     }
 
-    public String getADerControl() throws Exception {
-        JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+    public String getADerControl(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         Long derpId = currentTest.getLong("derpID");
         Long derControlId = currentTest.getLong("derControlID");
         LOGGER.info("the derp id is " + derpId);

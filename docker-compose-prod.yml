@@ -11,7 +11,7 @@ services:
     command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
     networks:
       - back-nats
-      - nats-mid
+      # - nats-mid
     restart: unless-stopped 
 
   java-backend:
@@ -32,7 +32,7 @@ services:
       - "8080:8080"
     networks:
       - back-nats
-      - nats-mid
+      # - nats-mid
     restart: unless-stopped   
 
   react-browser:
@@ -44,7 +44,7 @@ services:
     depends_on:
       - java-backend
     environment:
-      - EXPRESS_URL=http://express-mid:5000
+      - JAVA_URL=https://18.232.7.53:443
     ports:
       - 3001:3001
     volumes:
@@ -52,8 +52,8 @@ services:
       - /react/node_modules
     command: ["npm","start"]
     networks:
-      - mid-front
-      - nats-mid
+      # - mid-front
+      # - nats-mid
       - back-nats
     restart: unless-stopped     
 
@@ -71,22 +71,22 @@ services:
   #     - nats-mid
   #   restart: unless-stopped   
             
-  express-mid:
-    build:
-      context: ./express-mid
-      dockerfile: Dockerfile
-    hostname: express-mid
-    container_name: express-mid
-    environment:
-      - NATS_URL=nats://nats-server:4222
-    ports:
-      - 5000:5000
-    networks:
-      - nats-mid
-      - mid-front
-      - back-nats
-    restart: unless-stopped   
-    command: ["node","index.js"]
+  # express-mid:
+  #   build:
+  #     context: ./express-mid
+  #     dockerfile: Dockerfile
+  #   hostname: express-mid
+  #   container_name: express-mid
+  #   environment:
+  #     - NATS_URL=nats://nats-server:4222
+  #   ports:
+  #     - 5000:5000
+  #   networks:
+  #     - nats-mid
+  #     - mid-front
+  #     - back-nats
+  #   restart: unless-stopped   
+  #   command: ["node","index.js"]
 
   nginx:
     image: nginx:alpine
@@ -101,14 +101,14 @@ services:
     depends_on:
       - java-backend
     networks:
-      - nats-mid
+      # - nats-mid
       - back-nats
-      - mid-front
+      # - mid-front
     restart: unless-stopped 
 
 
 networks:
   back-nats:
-  nats-mid:
-  mid-front:
+  # nats-mid:
+  # mid-front:
 

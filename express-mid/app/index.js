@@ -1,73 +1,73 @@
-require('dotenv').config();
-const express = require("express");
-const bodyParser = require("body-parser");
-const NatsInterface = require("../modules/NatsInterface.js");
-const cors = require("cors");
-const { exec } = require("child_process");
+// require('dotenv').config();
+// const express = require("express");
+// const bodyParser = require("body-parser");
+// const NatsInterface = require("../modules/NatsInterface.js");
+// const cors = require("cors");
+// const { exec } = require("child_process");
 
-const natsInterface = new NatsInterface();
-const app = express();
+// const natsInterface = new NatsInterface();
+// const app = express();
 
-// Store test results in memory
-const testResults = [];
-const MAX_RESULTS = 10;
+// // Store test results in memory
+// const testResults = [];
+// const MAX_RESULTS = 10;
 
-app.use(cors({
-    origin: "*",
-    methods: ["OPTIONS", "POST", "GET"]
-}));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// app.use(cors({
+//     origin: "*",
+//     methods: ["OPTIONS", "POST", "GET"]
+// }));
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
 
-app.post("/api", (req, res) => {
-    console.log('EXPRESS-MID: API endpoint hit with payload:', JSON.stringify(req.body));
-    natsInterface.handleSetTest(req.body, res);
-});
+// app.post("/api", (req, res) => {
+//     console.log('EXPRESS-MID: API endpoint hit with payload:', JSON.stringify(req.body));
+//     natsInterface.handleSetTest(req.body, res);
+// });
 
-// Add a test endpoint to verify API is accessible
-app.get("/api/health", (req, res) => {
-    console.log('EXPRESS-MID: Health check endpoint hit');
-    res.status(200).json({ status: 'ok', message: 'Express-Mid API is running' });
-});
+// // Add a test endpoint to verify API is accessible
+// app.get("/api/health", (req, res) => {
+//     console.log('EXPRESS-MID: Health check endpoint hit');
+//     res.status(200).json({ status: 'ok', message: 'Express-Mid API is running' });
+// });
 
-// New endpoint to run IEEE2030.5 client commands
-app.post("/run", (req, res) => {
-    const { command } = req.body;
+// // New endpoint to run IEEE2030.5 client commands
+// app.post("/run", (req, res) => {
+//     const { command } = req.body;
     
-    if (!command) {
-        return res.status(400).json({ error: "Command is required" });
-    }
+//     if (!command) {
+//         return res.status(400).json({ error: "Command is required" });
+//     }
     
-    // Execute the IEEE2030.5 client command
-    const clientCommand = `/app/build/client_test ens160 pti_dev.x509 ./certs/my_ca.pem https://134.130.169.111:8443/${command}`;
+//     // Execute the IEEE2030.5 client command
+//     const clientCommand = `/app/build/client_test ens160 pti_dev.x509 ./certs/my_ca.pem https://134.130.169.111:8443/${command}`;
     
-    exec(clientCommand, { cwd: "/IEEE-2030.5-Client" }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing command: ${error.message}`);
-            return res.status(500).json({ error: error.message, output: stderr });
-        }
+//     exec(clientCommand, { cwd: "/IEEE-2030.5-Client" }, (error, stdout, stderr) => {
+//         if (error) {
+//             console.error(`Error executing command: ${error.message}`);
+//             return res.status(500).json({ error: error.message, output: stderr });
+//         }
         
-        res.json({ output: stdout });
-    });
-});
+//         res.json({ output: stdout });
+//     });
+// });
 
-// Test results endpoints
-app.post("/test-results", (req, res) => {
-    console.log('EXPRESS-MID: Test result received:', JSON.stringify(req.body));
+// // Test results endpoints
+// app.post("/test-results", (req, res) => {
+//     console.log('EXPRESS-MID: Test result received:', JSON.stringify(req.body));
     
-    // Clear array and add only new result (keep only latest)
-    testResults.length = 0;
-    testResults.push(req.body);
+//     // Clear array and add only new result (keep only latest)
+//     testResults.length = 0;
+//     testResults.push(req.body);
     
-    console.log(`EXPRESS-MID: Stored test result. Total: ${testResults.length}`);
-    res.status(200).json({ message: 'Test result stored successfully', total: testResults.length });
-});
+//     console.log(`EXPRESS-MID: Stored test result. Total: ${testResults.length}`);
+//     res.status(200).json({ message: 'Test result stored successfully', total: testResults.length });
+// });
 
-app.get("/test-results", (req, res) => {
-    console.log(`EXPRESS-MID: Serving ${testResults.length} test results`);
-    res.status(200).json(testResults);
-});
+// app.get("/test-results", (req, res) => {
+//     console.log(`EXPRESS-MID: Serving ${testResults.length} test results`);
+//     res.status(200).json(testResults);
+// });
 
-app.listen(5000, () => {
-    console.log("Listening on port 5000.");
-});
+// app.listen(5000, () => {
+//     console.log("Listening on port 5000.");
+// });
