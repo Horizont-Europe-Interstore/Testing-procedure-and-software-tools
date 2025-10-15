@@ -16,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import main.java.interstore.Util.SfdiUtil;
 
 
 @RestController
@@ -79,6 +80,18 @@ public Object getDeviceCapability(HttpServletRequest request, HttpServletRespons
     
     if (RequestContextHolder.getRequestAttributes() != null) {
         try {
+            // Get LFDI/SFDI from C++ proxy headers
+            String serverLfdi = request.getHeader("X-Server-LFDI");
+            String serverSfdi = request.getHeader("X-Server-SFDI");
+            
+            if (serverLfdi != null && serverSfdi != null) {
+                LOGGER.info("Using LFDI from proxy - LFDI: " + serverLfdi + ", SFDI: " + serverSfdi);
+                response.setHeader("X-Server-LFDI", serverLfdi);
+                response.setHeader("X-Server-SFDI", serverSfdi);
+            } else {
+                LOGGER.warning("No LFDI/SFDI headers from proxy");
+            }
+            
             Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
             @SuppressWarnings("unchecked")
             List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
@@ -111,7 +124,7 @@ public Object getDeviceCapability(HttpServletRequest request, HttpServletRespons
         return null;
     } else {
         ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityImpl.getDeviceCapabilities();
-        return responseEntity.getBody();
+        return responseEntity;
     }
 
 } 

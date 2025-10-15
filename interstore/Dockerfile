@@ -10,7 +10,7 @@ RUN apt-get update \
   && mkdir -p /app/certs
 COPY --from=builder /home/gradle/project/app/build/libs/*.jar app.jar
 COPY --from=builder /home/gradle/project/app/src/test/resources/ /app/src/test/resources/
-COPY --from=builder /home/gradle/project/app/certs/ /app/certs/
+
 RUN mkdir -p /app/build/reports/cucumber
 
 EXPOSE 8080

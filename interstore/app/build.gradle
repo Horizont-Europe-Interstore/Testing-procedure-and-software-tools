@@ -56,6 +56,10 @@ dependencies {
     
     // HTTP client dependency
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // BouncyCastle for PEM parsing and certificate/key handling in Server.java
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
 }
 
 application {

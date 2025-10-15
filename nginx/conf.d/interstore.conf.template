@@ -1,0 +1,33 @@
+## interstore nginx config template
+# Copy this file to interstore.conf and fill in real paths for certs.
+
+events { worker_connections 1024; }
+
+http {
+    upstream springboot {
+        server 127.0.0.1:8080;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name _;
+
+        # Path to combined PEM that contains cert and private key
+        ssl_certificate /etc/nginx/certs/cert_key.pem;
+        ssl_certificate_key /etc/nginx/certs/cert_key.pem;
+
+        # TLS 1.2 only
+        ssl_protocols TLSv1.2;
+
+        # Client cert verification (optional). Point to CA or bundle if enabling verification.
+        # ssl_client_certificate /etc/nginx/certs/ca.pem;
+        # ssl_verify_client optional_no_ca;
+
+        location / {
+            proxy_pass http://springboot;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+    }
+}

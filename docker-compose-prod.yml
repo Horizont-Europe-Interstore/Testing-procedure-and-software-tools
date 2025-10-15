@@ -1,24 +1,23 @@
 version: '3.8'
-services: 
-  nats: 
-    image: nats:latest
-    container_name: nats-server
-    hostname: nats-server
+services:
+  ieee2030-server:
+    build:
+      context: .
+      dockerfile: adhoc/Dockerfile
+    container_name: ieee2030-server
     ports:
-      - "4222:4222"
-      - "8222:8222" 
-    # command: ["-m", "8222", "--jetstream"]
-    command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
+      - "443:443"
+    volumes:
+      - ./adhoc:/app/certs:ro
     networks:
       - back-nats
-      # - nats-mid
-    restart: unless-stopped 
+    restart: unless-stopped
 
   java-backend:
     build: 
       context: ./interstore
       dockerfile: Dockerfile
-    image: nithinmanuel9/interstoretestieee2030-server:3.0
+    image: nithinmanuel9/interstoretestieee2030-server:3.1
     container_name: java-backend 
     depends_on:
       - nats
@@ -27,13 +26,13 @@ services:
       - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
       - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
-      
     ports:
       - "8080:8080"
+    volumes:
+      - ./interstore/app/certs:/app/certs:ro
     networks:
       - back-nats
-      # - nats-mid
-    restart: unless-stopped   
+    restart: unless-stopped
 
   react-browser:
     build:
@@ -43,72 +42,28 @@ services:
     container_name: react-browser
     depends_on:
       - java-backend
-    environment:
-      - JAVA_URL=https://18.232.7.53:443
     ports:
-      - 3001:3001
+      - "3001:3001"
     volumes:
-      - ./react-browser:/react  # Mount local code for development
+      - ./react-browser:/react  
       - /react/node_modules
     command: ["npm","start"]
     networks:
-      # - mid-front
-      # - nats-mid
       - back-nats
-    restart: unless-stopped     
+    restart: unless-stopped
 
-  # react-browser:
-  #   image: nithinmanuel9/interstoretestreact-browser:1.0  
-  #   hostname: react-browser
-  #   container_name: react-browser
-  #   environment:
-  #     - EXPRESS_URL=http://express-mid:5000
-  #   ports:
-  #     - 3001:3001
-  #   command: ["npm","start"]
-  #   networks:
-  #     - mid-front
-  #     - nats-mid
-  #   restart: unless-stopped   
-            
-  # express-mid:
-  #   build:
-  #     context: ./express-mid
-  #     dockerfile: Dockerfile
-  #   hostname: express-mid
-  #   container_name: express-mid
-  #   environment:
-  #     - NATS_URL=nats://nats-server:4222
-  #   ports:
-  #     - 5000:5000
-  #   networks:
-  #     - nats-mid
-  #     - mid-front
-  #     - back-nats
-  #   restart: unless-stopped   
-  #   command: ["node","index.js"]
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx-proxy
-    volumes:
-      - ./nginx/conf.d/interstore.conf:/etc/nginx/nginx.conf:ro   
-      - ./nginx/certs:/etc/nginx/certs:ro   
-      - /dev/null:/etc/nginx/conf.d/default.conf:ro      
+  nats: 
+    image: nats:latest
+    container_name: nats-server
+    hostname: nats-server
     ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - java-backend
+      - "4222:4222"
+      - "8222:8222" 
+    command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
     networks:
-      # - nats-mid
       - back-nats
-      # - mid-front
-    restart: unless-stopped 
-
+    restart: unless-stopped
 
 networks:
   back-nats:
-  # nats-mid:
-  # mid-front:
-
+ 

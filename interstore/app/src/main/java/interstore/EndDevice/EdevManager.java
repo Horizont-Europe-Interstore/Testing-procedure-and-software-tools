@@ -4,12 +4,14 @@ import interstore.EndDeviceTest;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import main.java.interstore.Util.SfdiUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -171,11 +173,12 @@ public class EdevManager {
     }
 
     @GetMapping("/edev")
-    public Map<String, Object> getEndDeviceList(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
-         // Case: called from HTTP
+    public Map<String, Object> getEndDeviceList(@RequestParam(value = "l", required = false) Integer l,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response) throws JsonProcessingException {
         if (RequestContextHolder.getRequestAttributes() != null) {
             try{
-                String responseEntity = this.endDeviceImpl.getEndDeviceListHttp();
+                String responseEntity = this.endDeviceImpl.getEndDeviceListHttp(l);
         
                 LOGGER.info("the enddevice_list_val is " + responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);

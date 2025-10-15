@@ -93,44 +93,12 @@ public class DeviceCapabilityImpl {
     // }
 
      public String getDeviceCapabilityHttp(DeviceCapabilityDto dcap) {
-         if (dcap == null || dcap.getId() == null) {
-            throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
-        }
-        
-        StringBuilder xml = new StringBuilder();
-        xml.append("<DeviceCapability xmlns=\"http://ieee.org/2030.5\" href=\"/dcap\">\n");
-        
-        // IEEE 2030.5 requires specific element order
-        String[] elementOrder = {"timeLink", "endDeviceListLink", "mirrorUsagePointListLink", "selfDeviceLink"};
-        String[] xmlNames = {"TimeLink", "EndDeviceListLink", "MirrorUsagePointListLink", "SelfDeviceLink"};
-        
-        for (int i = 0; i < elementOrder.length; i++) {
-            String fieldName = elementOrder[i];
-            String xmlName = xmlNames[i];
-            
-            try {
-                Field field = DeviceCapabilityDto.class.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object value = field.get(dcap);
-                
-                if (value != null && value instanceof String) {
-                    xml.append("<").append(xmlName);
-                    xml.append(" href=\"").append(stripHost((String) value)).append("\"");
-                    
-                    // Add 'all' attribute for ListLink elements
-                    if (fieldName.endsWith("ListLink")) {
-                        xml.append(" all=\"0\"");
-                    }
-                    
-                    xml.append(" />\n");
-                }
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
-            }
-        }
-        
-        xml.append("</DeviceCapability>");
-        return xml.toString();
+        return "<DeviceCapability xsi:schemaLocation=\"urn:ieee:std:2030.5:ns sep.xsd\" " +
+               "xmlns=\"urn:ieee:std:2030.5:ns\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+               "href=\"/dcap\">\n" +
+               "  <TimeLink href=\"/dcap/tm\"/>\n" +
+               "  <EndDeviceListLink all=\"1\" href=\"/edev\"/>\n" +
+               "</DeviceCapability>";
      }
 
 

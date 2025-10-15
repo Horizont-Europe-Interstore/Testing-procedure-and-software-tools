@@ -1,0 +1,3 @@
+@echo off
+echo Testing proxy server connection...
+curl -k -v https://localhost:443/dcap
