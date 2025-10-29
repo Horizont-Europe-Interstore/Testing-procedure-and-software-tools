@@ -2,15 +2,12 @@ package interstore.DERControl;
 
 import interstore.DERProgram.DERProgramEntity;
 import interstore.Events.RandomizableEventEntity;
-import interstore.Identity.SubscribableResourceEntity;
 import jakarta.persistence.*;
-
-import java.io.Serializable;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "der_control")
-public class DERControlEntity extends RandomizableEventEntity implements Serializable {
+public class DERControlEntity extends RandomizableEventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")

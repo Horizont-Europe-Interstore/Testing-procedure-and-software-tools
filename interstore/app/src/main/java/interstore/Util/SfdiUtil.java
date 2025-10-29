@@ -1,4 +1,4 @@
-package main.java.interstore.Util;
+package interstore.Util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -6,7 +6,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.io.ByteArrayInputStream;
-import java.util.Base64;
+// import java.util.Base64;
 
 public final class SfdiUtil {
     private SfdiUtil() {}

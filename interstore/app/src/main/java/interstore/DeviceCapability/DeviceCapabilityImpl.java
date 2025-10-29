@@ -194,6 +194,19 @@ public class DeviceCapabilityImpl {
     }
 
     @Transactional
+    public String getTimeHttp(String payload) throws JSONException{
+            TimeDto timeDto = timeDtoRepository.findByTimeLink(payload);
+
+            return "<Time xmlns=\"urn:ieee:std:2030.5:ns\" " +
+           "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+           "xsi:schemaLocation=\"urn:ieee:std:2030.5:ns sep.xsd\" " +
+           "href=\"/dcap/tm\">\n" +
+           "  <currentTime>" + timeDto.getCurrentTime() + "</currentTime>\n" +
+           "  <quality>" + timeDto.getQuality() + "</quality>\n" +
+           "</Time>";
+    }
+
+    @Transactional
     public String updateTime(String payload) throws JSONException{
         JSONObject jsonObject = new JSONObject(payload);
         long updatedTimeInstance = jsonObject.getLong("updated_time_instance");

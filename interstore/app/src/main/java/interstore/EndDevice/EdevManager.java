@@ -1,10 +1,10 @@
 package interstore.EndDevice;
 
-import interstore.EndDeviceTest;
+// import interstore.EndDeviceTest;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import main.java.interstore.Util.SfdiUtil;
+// import interstore.Util.SfdiUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;

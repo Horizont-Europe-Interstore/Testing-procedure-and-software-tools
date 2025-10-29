@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <curl/curl.h>
+#include <thread>
 
 int check_digit(uint64_t x) {
     int sum = 0;
@@ -93,41 +94,46 @@ std::string forward_to_java(const std::string& path, const std::string& lfdi, co
     curl = curl_easy_init();
     if(curl) {
         std::string url = "http://java-backend:8080" + path;
+        std::cerr << "Forwarding to URL: " << url << std::endl;
+
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        
+
         struct curl_slist *headers = NULL;
         std::string lfdi_header = "X-Server-LFDI: " + lfdi;
         std::string sfdi_header = "X-Server-SFDI: " + sfdi;
         headers = curl_slist_append(headers, lfdi_header.c_str());
         headers = curl_slist_append(headers, sfdi_header.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        
+
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            std::cerr << "CURL error: " << curl_easy_strerror(res) << std::endl;
+        } else {
+            std::cerr << "CURL request successful. Response size: " << response.data.size() << std::endl;
         }
+
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
+    } else {
+        std::cerr << "Failed to initialize CURL." << std::endl;
     }
 
     if (response.data.empty()) {
         return "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n";
     }
 
-    // Java backend returns just XML, construct proper HTTP response
     std::ostringstream http_response;
     http_response << "HTTP/1.1 200 OK\r\n"
                   << "Content-Type: application/sep+xml\r\n"
                   << "Content-Length: " << response.data.length() << "\r\n";
-    
-    // Add LFDI/SFDI headers for /dcap responses
+
     if (path == "/dcap" || path == "/dcap/" || path == "/") {
         http_response << "X-Server-LFDI: " << lfdi << "\r\n"
                       << "X-Server-SFDI: " << sfdi << "\r\n";
     }
-    
+
     http_response << "\r\n" << response.data;
     return http_response.str();
 }
@@ -165,6 +171,22 @@ std::string parse_http_path(const std::string& request) {
     return path;
 }
 
+// Function to handle a single client connection
+void handle_client(SSL *ssl, int client_fd, const std::string& lfdi, const std::string& sfdi) {
+    char buffer[4096];
+    int bytes_read = SSL_read(ssl, buffer, sizeof(buffer) - 1);
+    if (bytes_read > 0) {
+        buffer[bytes_read] = '\0';
+        std::string request(buffer);
+        std::string path = parse_http_path(request);
+        std::string response = forward_to_java(path, lfdi, sfdi);
+        SSL_write(ssl, response.c_str(), response.length());
+    }
+    SSL_shutdown(ssl);
+    SSL_free(ssl);
+    close(client_fd);
+}
+
 int main(int argc, char **argv) {
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <port> <cert_key_file>" << std::endl;
@@ -188,8 +210,10 @@ int main(int argc, char **argv) {
     configure_context(ctx, cert_key_file);
 
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    // Optimize server to handle frequent connection setups and teardowns
     int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)); // two lines are added 
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
@@ -218,28 +242,11 @@ int main(int argc, char **argv) {
 
         if (SSL_accept(ssl) > 0) {
             std::cout << "SSL handshake successful with " << client_ip << std::endl;
-            while (true) {
-                char buffer[4096];
-                int bytes_read = SSL_read(ssl, buffer, sizeof(buffer) - 1);
-                if (bytes_read <= 0) break;
-                
-                buffer[bytes_read] = '\0';
-                std::string request(buffer);
-                std::string path = parse_http_path(request);
-                
-                std::cout << "[" << client_ip << "] Request: " << path << std::endl;
-                std::string response = forward_to_java(path, lfdi, sfdi);
-                std::cout << "Response: " << response << std::endl;
-                
-                SSL_write(ssl, response.c_str(), response.length());
-                
-                if (request.find("Connection: close") != std::string::npos) break;
-            }
+            std::thread(handle_client, ssl, client_fd, lfdi, sfdi).detach();
+        } else {
+            SSL_free(ssl);
+            close(client_fd);
         }
-
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        close(client_fd);
     }
 
     close(server_fd);

@@ -36,11 +36,11 @@ dependencies {
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-activemq'
-    //compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Use Jakarta Persistence API
-    implementation 'io.cucumber:cucumber-spring:7.1.0'
-    implementation 'io.cucumber:cucumber-java:7.1.0'
-    implementation 'io.cucumber:cucumber-junit:7.1.0'
-    implementation 'io.cucumber:cucumber-core:7.1.0'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Use Jakarta Persistence API
+    // implementation 'io.cucumber:cucumber-spring:7.1.0'
+    // implementation 'io.cucumber:cucumber-java:7.1.0'
+    // implementation 'io.cucumber:cucumber-junit:7.1.0'
+    // implementation 'io.cucumber:cucumber-core:7.1.0'
      implementation 'org.jmdns:jmdns:3.5.8'
      implementation 'org.json:json:20230227'
     // Swagger/OpenAPI
@@ -86,18 +86,18 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-task cucumber() {
-    dependsOn assemble, testClasses
-    doLast {
-        javaexec {
-            main = 'io.cucumber.core.cli.Main'
-            classpath = sourceSets.test.runtimeClasspath
-            args = ['--plugin', 'pretty',
-                    '--plugin', 'html:build/reports/cucumber/html',
-                    '--plugin', 'json:build/reports/cucumber/report.json',
-                    '--tags', System.getProperty('cucumber.tags', ''),
-                       System.getProperty('cucumber.feature', 'src/test/resources')
-                    ]
-        }
-    }
-}
+// task cucumber() {
+//     dependsOn assemble, testClasses
+//     doLast {
+//         javaexec {
+//             main = 'io.cucumber.core.cli.Main'
+//             classpath = sourceSets.test.runtimeClasspath
+//             args = ['--plugin', 'pretty',
+//                     '--plugin', 'html:build/reports/cucumber/html',
+//                     '--plugin', 'json:build/reports/cucumber/report.json',
+//                     '--tags', System.getProperty('cucumber.tags', ''),
+//                        System.getProperty('cucumber.feature', 'src/test/resources')
+//                     ]
+//         }
+//     }
+// }

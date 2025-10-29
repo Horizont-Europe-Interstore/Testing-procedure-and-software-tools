@@ -17,8 +17,11 @@ public class EventEntity implements Serializable {
     @Column(name = "creationTime")
     public String creationTime;
 
-    @Column(name = "timeInterval")
-    public Integer timeInterval;
+    @Column(name = "duration")
+    public Integer duration;
+
+    @Column(name = "start")
+    public Integer start;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "respondable_subscribable_identified_object")
@@ -45,12 +48,20 @@ public class EventEntity implements Serializable {
         this.creationTime = creationTime;
     }
 
-    public Integer getTimeInterval() {
-        return timeInterval;
+    public Integer getDuration() {
+        return duration;
     }
 
-    public void setInterval(Integer timeInterval) {
-        this.timeInterval = timeInterval;
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
     }
 
     public RespondableSubscribableIdentifiedObjectEntity getRespondableSubscribableIdentifiedObjectEntity() {

@@ -67,30 +67,26 @@ public class DERProgramManager {
     
        public Map<String, Object> getDERPrograms(JSONObject payload) throws JSONException 
       {
-         if(payload.has("fsaID") && payload.has("derID"))
+         if(payload.has("derID"))
          {  
-             Long fsaID = payload.getLong("fsaID");
              Long derID = payload.getLong("derID");
              LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
-             return getDerProgramDetails( derID, fsaID);
+             return getDerProgramDetails(derID);
          }
 
-        else if(payload.has("fsaID"))
-        {   Long fsaID = payload.getLong("fsaID");
+        else{
             LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
-            return getAllDERProgramDetails(fsaID);
+            return getAllDERProgramDetails();
         }
-        
-        return null ; 
       }
 
 
-    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp")
-    public Map<String, Object> getAllDERProgramDetailsHttp(@PathVariable Long fsaID, HttpServletRequest request, HttpServletResponse response) throws JSONException {
+    @GetMapping("/derp")
+    public Map<String, Object> getAllDERProgramDetailsHttp( HttpServletRequest request, HttpServletResponse response) throws JSONException {
         // Case: called from HTTP
         if (RequestContextHolder.getRequestAttributes() != null) {
             try{
-                String responseEntity = this.derProgramService.getAllDerProgramsHttp(fsaID);
+                String responseEntity = this.derProgramService.getAllDerProgramsHttp();
         
                 LOGGER.info("the der_program_list_val is " + responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
@@ -111,23 +107,23 @@ public class DERProgramManager {
         } 
         // Case: called from NATS (internal)
         else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
+            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms();
             return  responseEntity.getBody(); 
         }
     }
 
-    public Map<String, Object> getAllDERProgramDetails(@PathVariable Long fsaID) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms(fsaID);
+    public Map<String, Object> getAllDERProgramDetails() throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getAllDerPrograms();
         return  responseEntity.getBody(); 
 
     }
 
-    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpID}")
-    public Map<String, Object> getDerProgramDetailsHttp(@PathVariable Long fsaID, @PathVariable Long derpID, HttpServletRequest request, HttpServletResponse response) throws JSONException {
+    @GetMapping("/derp/{derpID}")
+    public Map<String, Object> getDerProgramDetailsHttp(@PathVariable Long derpID, HttpServletRequest request, HttpServletResponse response) throws JSONException {
         // Case: called from HTTP
         if (RequestContextHolder.getRequestAttributes() != null) {
             try{
-                String responseEntity = this.derProgramService.getDerProgramHttp(fsaID, derpID);
+                String responseEntity = this.derProgramService.getDerProgramHttp(derpID);
         
                 LOGGER.info("the der_program_val is " + responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
@@ -148,13 +144,13 @@ public class DERProgramManager {
         } 
         // Case: called from NATS (internal)
         else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derpID);
+            ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(derpID);
             return  responseEntity.getBody(); 
         }
     }
 
-    public Map<String, Object> getDerProgramDetails(@PathVariable Long fsaID, @PathVariable Long derpID) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(fsaID, derpID);
+    public Map<String, Object> getDerProgramDetails(@PathVariable Long derpID) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(derpID);
         return  responseEntity.getBody();
 
     }

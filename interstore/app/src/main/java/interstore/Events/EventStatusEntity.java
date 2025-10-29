@@ -19,7 +19,7 @@ public class EventStatusEntity implements Serializable {
     public String dateTime;
 
     @Column(name = "potentiallySuperseded")
-    public boolean potentiallySuperseded;
+    public boolean potentiallySuperseded = false;
 
 
 
@@ -46,7 +46,7 @@ public class EventStatusEntity implements Serializable {
         this.dateTime = dateTime;
     }
 
-    public boolean isPotentiallySuperseded() {
+    public boolean getPotentiallySuperseded() {
         return potentiallySuperseded;
     }
 

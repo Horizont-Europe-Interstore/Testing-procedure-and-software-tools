@@ -128,11 +128,11 @@ public class DERProgramService {
         return subscribableIdentifiedObjectEntity;
      }
 
-     public ResponseEntity<Map<String, Object>>getAllDerPrograms(Long fsaID) {
+     public ResponseEntity<Map<String, Object>>getAllDerPrograms() {
         try {
             Map<String, Object> responseMap = new HashMap<>();
-            List<DERProgramEntity> derEntityList = derProgramRepository.findByFsaEntity_Id(fsaID);
-            List<SubscribableIdentifiedObjectEntity> SubscribableIdentifiedObjectList = subscribableIdentifiedObjectRepository.findByFsaEntity_Id(fsaID);
+            List<DERProgramEntity> derEntityList = derProgramRepository.findAll();
+            List<SubscribableIdentifiedObjectEntity> SubscribableIdentifiedObjectList = subscribableIdentifiedObjectRepository.findAll();
             List<Map<String, Object>> fsaDetails = derEntityList.stream()
                 .map(derEntity -> {
                     Map<String, Object> entityMap = new HashMap<>();
@@ -178,9 +178,9 @@ public class DERProgramService {
         }
     }
 
-    public String getAllDerProgramsHttp(Long fsaID) {
+    public String getAllDerProgramsHttp() {
         try {
-            List<DERProgramEntity> derEntityList = derProgramRepository.findByFsaEntity_Id(fsaID);
+            List<DERProgramEntity> derEntityList = derProgramRepository.findAll();
 
             if (derEntityList.isEmpty()) {
                 String emptyXml = "<DERProgramList xmlns=\"http://ieee.org/2030.5\" " +
@@ -193,11 +193,11 @@ public class DERProgramService {
             StringBuilder xml = new StringBuilder();
             xml.append("<DERProgramList xmlns=\"http://ieee.org/2030.5\" ")
                .append("all=\"").append(derEntityList.size()).append("\" ")
-               .append("href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("\" ")
+               .append("href=\"").append("/derp").append("\" ")
                .append("results=\"").append(derEntityList.size()).append("\">\n");
 
             for (DERProgramEntity der : derEntityList) {
-                xml.append(" <DERProgram href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
+                xml.append(" <DERProgram href=\"").append(stripHost(der.getFunctionSetAssignmentsEntity().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
 
                 // Core attributes from SubscribableIdentifiedObjectEntity
                 SubscribableIdentifiedObjectEntity subscribable = der.getSubscribableIdentifiedObject();
@@ -279,13 +279,13 @@ public class DERProgramService {
 
 
   
-    public ResponseEntity<Map<String, Object>> getDerProgram(Long fsaId, Long derId)
+    public ResponseEntity<Map<String, Object>> getDerProgram(Long derId)
 
     {
         try {
             Map<String, Object> result = new HashMap<>();
-           Optional <DERProgramEntity> derEntityOptional = derProgramRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
-           Optional <SubscribableIdentifiedObjectEntity> subscribableIdentifiedObjectOptional = subscribableIdentifiedObjectRepository.findFirstByIdAndFsaEntity_Id(derId, fsaId);
+           Optional <DERProgramEntity> derEntityOptional = derProgramRepository.findById(derId);
+           Optional <SubscribableIdentifiedObjectEntity> subscribableIdentifiedObjectOptional = subscribableIdentifiedObjectRepository.findById(derId);
            DERProgramEntity derEntity = derEntityOptional.get();
            SubscribableIdentifiedObjectEntity subscribableIdentifiedEntity = subscribableIdentifiedObjectOptional.get();
             Map<String, Object> entityMap = new HashMap<>();
@@ -308,20 +308,20 @@ public class DERProgramService {
        
     }
 
-    public String getDerProgramHttp(Long fsaID, Long derProgramId) {
+    public String getDerProgramHttp(Long derProgramId) {
         try {
-            Optional<DERProgramEntity> derProgramEntityOptional = derProgramRepository.findFirstByIdAndFsaEntity_Id(derProgramId, fsaID);
+            Optional<DERProgramEntity> derProgramEntityOptional = derProgramRepository.findById(derProgramId);
 
             if (derProgramEntityOptional.isEmpty()) {
                 return "<DERProgram xmlns=\"http://ieee.org/2030.5\" href=\"/derp/" + derProgramId + "\">\n" +
-                       "<message>No DERProgram found for FSA ID " + fsaID + " and DERProgram ID " + derProgramId + "</message>\n" +
+                       "<message>No DERProgram found for DERProgram ID " + derProgramId + "</message>\n" +
                        "</DERProgram>";
             }
 
             DERProgramEntity der = derProgramEntityOptional.get();
             StringBuilder xml = new StringBuilder();
             xml.append("<DERProgram xmlns=\"http://ieee.org/2030.5\" ")
-               .append("href=\"").append(stripHost(functionSetAssignmentsRepository.findById(fsaID).get().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
+               .append("href=\"").append(stripHost(der.getFunctionSetAssignmentsEntity().getDERProgramListLink())).append("/").append(der.getId()).append("\">\n");
 
             // Core attributes from SubscribableIdentifiedObjectEntity
             SubscribableIdentifiedObjectEntity subscribable = der.getSubscribableIdentifiedObject();

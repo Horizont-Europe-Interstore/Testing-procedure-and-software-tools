@@ -16,7 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import main.java.interstore.Util.SfdiUtil;
+// import interstore.Util.SfdiUtil;
 
 
 @RestController
@@ -139,6 +139,39 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 
 public String getTime(String payload) throws JSONException{
     return deviceCapabilityImpl.getTime(payload);
+}
+
+@GetMapping(value = "/dcap/tm")
+public Object getTimeHttp(HttpServletResponse response) throws JSONException{
+    try{
+        Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+        @SuppressWarnings("unchecked")
+        List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
+        DeviceCapabilityDto dcapDto;
+        if (dcapList == null || dcapList.isEmpty()) {
+            LOGGER.info("No device capabilities found, creating default one for Schneider polling");
+            dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+        } else {
+            dcapDto = dcapList.get(0);
+        }
+        String time_val = deviceCapabilityImpl.getTimeHttp(dcapDto.getTimeLink());
+        LOGGER.info("the time_val is " + time_val);
+        byte[] bytes = time_val.getBytes(StandardCharsets.UTF_8);
+        
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/sep+xml;level=S1");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Connection", "keep-alive");
+        response.setContentLength(bytes.length);
+        
+        ServletOutputStream out = response.getOutputStream();
+        out.write(bytes);
+        out.flush();
+    } catch (Exception e) {
+        LOGGER.severe("Error retrieving device capabilities: " + e.getMessage());
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
+    return null;
 }
 
 public void updateTime(String payload) throws JSONException{

@@ -9,9 +9,9 @@ services:
       - "443:443"
     volumes:
       - ./adhoc:/app/certs:ro
+    restart: unless-stopped
     networks:
       - back-nats
-    restart: unless-stopped
 
   java-backend:
     build: 
@@ -43,7 +43,7 @@ services:
     depends_on:
       - java-backend
     ports:
-      - "3001:3001"
+      - "3000:3000"
     volumes:
       - ./react-browser:/react  
       - /react/node_modules
@@ -66,4 +66,3 @@ services:
 
 networks:
   back-nats:
- 

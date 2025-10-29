@@ -2,11 +2,10 @@ package interstore.Events;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class RandomizableEventEntity extends EventEntity implements Serializable {
+public class RandomizableEventEntity extends EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")

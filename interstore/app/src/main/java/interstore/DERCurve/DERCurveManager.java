@@ -1,8 +1,5 @@
 package interstore.DERCurve;
 
-import interstore.DERProgram.DERProgramEntity;
-import interstore.FunctionSetAssignments.FsaManager;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -94,7 +91,7 @@ public class DERCurveManager {
 //        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
-    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpId}/dc")
+    @GetMapping("/derp/{derpId}/dc")
     public Map<String, Object> getAllDERCurveDetailsHttp(@PathVariable Long derpId, HttpServletRequest request, HttpServletResponse response){
         // Case: called from HTTP
         if (RequestContextHolder.getRequestAttributes() != null) {
@@ -117,19 +114,18 @@ public class DERCurveManager {
             }
             return null;
         } 
-        // Case: called from NATS (internal)
+        // Case: called internally
         else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
-            return  responseEntity.getBody(); 
+            return getAllDERCurveDetails(derpId); 
         }
     }
 
-    public Map<String, Object> getAllDERCurveDetails(@PathVariable Long derpId){
+    public Map<String, Object> getAllDERCurveDetails(Long derpId){
         ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getAllDERCurves(derpId);
         return  responseEntity.getBody();
     }
 
-    @GetMapping("/edev/{edevID}/fsa/{fsaID}/derp/{derpId}/dc/{dcId}")
+    @GetMapping("/derp/{derpId}/dc/{dcId}")
     public Map<String, Object> getDERCurveHttp(@PathVariable Long derpId, @PathVariable Long dcId, HttpServletRequest request, HttpServletResponse response){
         // Case: called from HTTP
         if (RequestContextHolder.getRequestAttributes() != null) {
@@ -152,10 +148,9 @@ public class DERCurveManager {
             }
             return null;
         } 
-        // Case: called from NATS (internal)
+        // Case: called internally
         else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.derCurveService.getDERCurve(derpId, dcId);
-            return  responseEntity.getBody(); 
+            return getDERCurve(derpId, dcId); 
         }
     }
 

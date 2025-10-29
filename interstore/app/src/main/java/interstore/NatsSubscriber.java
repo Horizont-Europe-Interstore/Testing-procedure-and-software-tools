@@ -28,7 +28,7 @@ public class NatsSubscriber {
             
             // Extract XML root element and run corresponding test
             String xmlRootElement = extractXmlRootElement(message);
-            runTestForXmlElement(xmlRootElement);
+           // runTestForXmlElement(xmlRootElement);
         });
 
         dispatcher.subscribe(subject);

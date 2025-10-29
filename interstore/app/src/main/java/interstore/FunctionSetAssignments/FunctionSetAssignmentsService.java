@@ -1,5 +1,4 @@
 package interstore.FunctionSetAssignments;
-import interstore.DeviceCapability.DeviceCapabilityRepository;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Types.HexBinary128;
@@ -9,8 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,32 +90,32 @@ public class FunctionSetAssignmentsService {
                 {
                     switch(key) {
                         case "demandResponseProgramListLink":
-                        fsaEntity.setDemandResponseProgramListLink(payload.optString(key));
+                        fsaEntity.setDemandResponseProgramListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "fileListLink":
-                        fsaEntity.setFileListLink(payload.optString(key));
+                        fsaEntity.setFileListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "traiffProfileListLink":
-                        fsaEntity.setTariffProfileListLink(payload.optString(key));
+                        fsaEntity.setTariffProfileListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "messagingProgramListLink":
-                        fsaEntity.setMessagingProgramListLink(payload.optString(key));
+                        fsaEntity.setMessagingProgramListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "usagePointListLink":
-                        fsaEntity.setUsagePointListLink(payload.optString(key));
+                        fsaEntity.setUsagePointListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "dERProgramListLink":
-                        fsaEntity.setDERProgramListLink(payload.optString(key));
+                        fsaEntity.setDERProgramListLink( payload.optString(key));
                         LOGGER.info(fsaEntity.getDERProgramListLink().toString()); 
                         break;
                         case "customerAccountListLink":
-                        fsaEntity.setCustomerAccountListLink(payload.optString(key));
+                        fsaEntity.setCustomerAccountListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "prepaymentListLink":
-                        fsaEntity.setPrepaymentListLink(payload.optString(key));
+                        fsaEntity.setPrepaymentListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                         break;
                         case "responseSetListLink":
-                        fsaEntity.setResponseSetListLink(payload.optString(key));
+                        fsaEntity.setResponseSetListLink(stripHost(fsaEntity.getFunctionSetAssignmentsLink()) + "/" + payload.optString(key));
                          default:
                             break;    
             }

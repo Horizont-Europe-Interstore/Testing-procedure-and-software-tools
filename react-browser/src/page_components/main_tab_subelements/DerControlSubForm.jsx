@@ -35,6 +35,16 @@ function DerControlSubForm({
     const mandatoryFields = [
         "derProgramId",
         "deviceCategory",
+        "mRID",
+        "description",
+        "version",
+        "duration",
+        "start",
+        "currentStatus",
+        "dateTime",
+        "potentiallySuperseded",
+        "randomizeDuration",
+        "randomizeStart",
         // Add more mandatory fields as necessary
     ];
 
