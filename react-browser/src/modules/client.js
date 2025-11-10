@@ -401,8 +401,8 @@ export default class Client{
             desc:'description',
             args: true,
             object:{
-                   derID:'',
                    endDeviceId:'',
+                   derSettingsLink:'',
                    modesEnabled:'',
                    setESDelay:'',
                    setESHighFreq:'',
