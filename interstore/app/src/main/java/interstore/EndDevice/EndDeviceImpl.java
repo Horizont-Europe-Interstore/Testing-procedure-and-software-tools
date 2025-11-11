@@ -28,18 +28,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 @Service 
 public class EndDeviceImpl {
-
-
     @Autowired
     private EndDeviceRepository endDeviceRepository;
     @Autowired
     private RegistrationRepository registrationRepository;
-
-   
-
-
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
-
     @Transactional 
     public EndDeviceDto createEndDevice(JSONObject  payload) {
         EndDeviceDto endDeviceDto = new EndDeviceDto(); 
@@ -109,7 +102,6 @@ public class EndDeviceImpl {
 
     }
     
-
     public void setEndDeviceAttributesEndPoints(JSONObject payload)
     {
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
@@ -126,181 +118,88 @@ public class EndDeviceImpl {
         }
 
     }
-   
 
-     public String getEndDeviceListHttp(Integer limit) {
-
+    public String getEndDeviceListHttp(Integer limit) {
+       
         try {
-
             List<EndDeviceDto> endDeviceList = endDeviceRepository.findAll();
 
- 
-
             if (endDeviceList.isEmpty()) {
-
                 String emptyXml = "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" " +
-
                                   "all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
-
                                   "<message>No EndDevices found</message>\n" +
-
                                   "</EndDeviceList>";
-
                 return emptyXml;
-
             }
-
- 
-
-            // Apply limit if provided
 
             int totalCount = endDeviceList.size();
-
             if (limit != null && limit > 0 && limit < totalCount) {
-
                 endDeviceList = endDeviceList.subList(0, limit);
-
             }
-
- 
 
             StringBuilder xml = new StringBuilder();
-
             xml.append("<EndDeviceList xmlns=\"http://ieee.org/2030.5\" ")
-
                .append("all=\"").append(totalCount).append("\" ")
-
                .append("href=\"/edev\" ")
-
                .append("results=\"").append(endDeviceList.size()).append("\" ")
-
                .append("subscribable=\"0\">\n");
-
- 
-
-            // Fields in IEEE 2030.5 preferred order
-
             String[] elementOrder = {
-
-                "configurationLink", "deviceInformationLink", "linkDstat", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
-
+                "configurationLink", "deviceInformationLink", "linkDstat", "dERListLink", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
             };
-
             String[] xmlNames = {
-
-                "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
-
+                "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "dERListLink","FileStatusLink", "PowerStatusLink",
+                 "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
             };
-
- 
 
             for (EndDeviceDto endDeviceDto : endDeviceList) {
-
                 xml.append(" <EndDevice href=\"")
-
                    .append(stripHost(endDeviceDto.getEndDeviceLink())).append("\" ")
-
                    .append("subscribable=\"0\">\n");
 
- 
-
                 for (int i = 0; i < elementOrder.length; i++) {
-
                     String fieldName = elementOrder[i];
-
                     String xmlName = xmlNames[i];
 
- 
-
                     if (xmlName.equals("FunctionSetAssignmentsListLink")){
-
                         // Add sFDI value
-
                         if (endDeviceDto.getsfdi() != null) {
-
                             xml.append("<sFDI>").append(endDeviceDto.getsfdi()).append("</sFDI>\n");
-
                         }
-
- 
-
-                        // Add changedTime (for now using system time, adjust as needed)
 
                         xml.append("<changedTime>").append(System.currentTimeMillis() / 1000).append("</changedTime>\n");
-
                     }
-
- 
 
                     try {
-
                         Field field = EndDeviceDto.class.getDeclaredField(fieldName);
-
                         field.setAccessible(true);
-
                         Object value = field.get(endDeviceDto);
 
- 
-
                         if (value != null && value instanceof String) {
-
                             xml.append("<").append(xmlName);
-
                             xml.append(" href=\"").append(stripHost((String) value)).append("\"");
 
- 
-
                             // Add 'all' attribute for list links
-
                             if (xmlName.toLowerCase().contains("listlink")) {
-
                                 xml.append(" all=\"0\"");
-
                             }
 
- 
-
                             xml.append("/>\n");
-
                         }
-
                     } catch (NoSuchFieldException | IllegalAccessException e) {
-
                         LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
-
                     }
-
                 }
-
- 
-
                 xml.append(" </EndDevice>\n");
-
             }
-
- 
-
             xml.append("</EndDeviceList>");
-
             return xml.toString();
-
         } catch (Exception e) {
-
             LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceList", e);
-
             return "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
-
                    "<error>Some error occurred</error>\n" +
-
                    "</EndDeviceList>";
-
         }
-
     }
-
-
-
-
      public Map<String, Object> getEndDeviceID(EndDeviceDto endDeviceDto)
      {
         if (endDeviceDto == null || endDeviceDto.getId() == null) {
@@ -313,20 +212,18 @@ public class EndDeviceImpl {
         LOGGER.log(Level.INFO, "the result from getEndDeviceID: " + result.toString());
         return result;
     }
-
   
-    
     private String stripHost(String url) {
         if (url == null) return null;
         try {
-            String path = new java.net.URL(url).getPath(); // e.g. "/2030.5/dcap/tm"
+            String path = new java.net.URL(url).getPath(); 
             int index = path.indexOf("/2030.5");
             if (index != -1) {
-                return path.substring(index + "/2030.5".length()); // skip the "/2030.5"
+                return path.substring(index + "/2030.5".length()); 
             }
             return path;
         } catch (Exception e) {
-            // If already relative or invalid URL, try trimming manually
+           
             int index = url.indexOf("/2030.5");
             if (index != -1) {
                 return url.substring(index + "/2030.5".length());
@@ -355,16 +252,7 @@ public class EndDeviceImpl {
         }
 
     } 
-    /*get all end devices has two outcomes one is no end devices found
-     * and other one is end devices found, among the end devcies found
-     * the end devices found shall response the list of the end devices
-     * those are only with the uri , the list of uri of the end devices .
-     * the list of EndDevices are {"endDevices":[{"id":1,"deviceCategory":"0","hexBinary160":"3E4F45","endDeviceLink":"http://localhost/edev/1","deviceStatusLink":"http://localhost/edev/1/dstat",
-     * "registrationLink":"http://localhost/edev/1/rg","functionSetAssignmentsListLink":"http://localhost/edev/1/fsa","derlistLink":"http://localhost/edev/1","subscriptionListLink":"http://localhost/edev/1/sub","sfdi":16726121139},
-     * {"id":2,"deviceCategory":"1","hexBinary160":"3E4F46","endDeviceLink":"http://localhost/edev/2","deviceStatusLink":"http://localhost/edev/2/dstat","registrationLink":"http://localhost/edev/2/rg",
-     * "functionSetAssignmentsListLink":"http://localhost/edev/2/fsa","derlistLink":"http://localhost/edev/2","subscriptionListLink":"http://localhost/edev/2/sub","sfdi":16726121111}]}
-     *
-     */
+   
     @SuppressWarnings("unlikely-arg-type")
     public ResponseEntity<Map<String, Object>> getAllEndDevices() {
         Map<String, Object> responseMap = new HashMap<>();
@@ -384,141 +272,60 @@ public class EndDeviceImpl {
             LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDtos", e);
             return ResponseEntity.status(404).body(null);
         }
-    }
-      
+    } 
+     
       public String getEndDeviceHttp(Long id)
-
     {
-
         try {
-
         EndDeviceDto endDeviceDto = endDeviceRepository.findById(id).orElse(null);
-
         if (endDeviceDto == null) {
-
             return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>No endDevice found.</message></EndDevice>";
-
         }
-
- 
-
         StringBuilder xml = new StringBuilder();
-
         xml.append("<EndDevice xmlns=\"http://ieee.org/2030.5\" href=\"")
-
            .append(stripHost(endDeviceDto.getEndDeviceLink()))
-
            .append("\" subscribable=\"0\">\n");
-
- 
-
         // Fields in IEEE 2030.5 preferred order
-
         String[] elementOrder = {
-
-            "configurationLink", "deviceInformationLink", "linkDstat", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
-
+            "configurationLink", "deviceInformationLink", "linkDstat", "dERListLink", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
         };
-
         String[] xmlNames = {
-
-            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
-
+            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "dERListLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
         };
-
- 
-
         for (int i = 0; i < elementOrder.length; i++) {
-
             String fieldName = elementOrder[i];
-
             String xmlName = xmlNames[i];
-
- 
-
             if (xmlName.equals("FunctionSetAssignmentsListLink")){
-
-                // Add sFDI value
-
                 if (endDeviceDto.getsfdi() != null) {
-
                     xml.append("<sFDI>").append(endDeviceDto.getsfdi()).append("</sFDI>\n");
-
                 }
-
- 
-
-                // Add changedTime (for now using system time, adjust as needed)
-
                 xml.append("<changedTime>").append(System.currentTimeMillis() / 1000).append("</changedTime>\n");
 
             }
-
- 
-
             try {
-
                 Field field = EndDeviceDto.class.getDeclaredField(fieldName);
-
                 field.setAccessible(true);
-
                 Object value = field.get(endDeviceDto);
-
- 
-
                 if (value != null && value instanceof String) {
-
                     xml.append("<").append(xmlName);
-
                     xml.append(" href=\"").append(stripHost((String) value)).append("\"");
-
- 
-
-                    // Add 'all' attribute for list links
-
                     if (xmlName.toLowerCase().contains("listlink")) {
-
                         xml.append(" all=\"0\"");
-
                     }
-
- 
-
                     xml.append("/>\n");
-
                 }
-
             } catch (NoSuchFieldException | IllegalAccessException e) {
-
                 LOGGER.log(Level.WARNING, "Field not found or accessible: " + fieldName, e);
-
             }
-
         }
-
- 
-
         xml.append("</EndDevice>");
-
         return xml.toString();
-
- 
-
     } catch (Exception e) {
-
         LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
-
         return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>Error retrieving EndDevice</message></EndDevice>";
-
     }
-
- 
-
     }
-
  
-    
-    
     public EndDeviceDto findEndDeviceById(Long id) {
         LOGGER.log(Level.INFO, "Finding EndDeviceDto for ID: " + id);
         try {
@@ -530,7 +337,6 @@ public class EndDeviceImpl {
             return null;
         }
     }
-
 
     @Transactional
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
@@ -558,8 +364,6 @@ public class EndDeviceImpl {
         return getEndDeviceRegistrationID(registrationDto);
     }
 
-
-
     public Map<String, Object> getEndDeviceRegistrationID(RegistrationDto registrationDto)
     {
        if (registrationDto == null || registrationDto.getId() == null) {
@@ -572,12 +376,6 @@ public class EndDeviceImpl {
        return result;
    }
 
-
-   /* watch out for the null because if anyof the attributes are null it throws an error
-    * this method is intended to get all registerd ende devices under an end devcie
-    for xample an end device with an id 1 can have one or many registeration many registration is
-    subjective atlease one registration , usually the enddevice is registered only once.
-   */
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
         try {
@@ -620,7 +418,6 @@ public class EndDeviceImpl {
 
         StringBuilder xml = new StringBuilder();
         
-        // Loop through registrations (if multiple, you can wrap in a root element)
         for (RegistrationDto reg : registrationDtos) {
             xml.append("<Registration xmlns=\"http://ieee.org/2030.5\" href=\"")
                .append(stripHost(endDeviceRepository.findById(endDeviceID).get().getRegistrationLink()))
@@ -652,9 +449,6 @@ public class EndDeviceImpl {
         }
     }
 
-    /* this is the case where the end device is registerd once , the details of the registration is
-     * the reponse of this mehtod
-     */
     public ResponseEntity<Map<String, Object>>getRegisterdEndDeviceDetails(Long endDeviceID, Long registrationID)
     {
         
@@ -671,9 +465,6 @@ public class EndDeviceImpl {
             LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevice", e);
             return ResponseEntity.status(404).body(null);
         }
-
-
-
 }
 
     public EndDeviceDto getEndDeviceByRegistrationID(Long id){
@@ -729,16 +520,4 @@ public class EndDeviceImpl {
 }
 
 
-
-/*
- *  Map<String, Object> attributes = new HashMap<>();
-        attributes.put("payload",getDERPayload(link.getLink()));
- * 
- * public Map<String, String> getDERPayload(String derListLink){
-        Map<String, String> payload = new HashMap<>();
-        payload.put("DERListLink", derListLink);
-        return payload;
-    }
-
- */
 
