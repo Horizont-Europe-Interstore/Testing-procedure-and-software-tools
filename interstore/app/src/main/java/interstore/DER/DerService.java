@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class DerService {
@@ -40,6 +41,7 @@ public class DerService {
         String derListLink = endDevice.getDERListLink();
         LOGGER.info("the DER listlink is " + derListLink);
         derEntity.setEndDevice(endDevice); 
+        derEntity.setSubscribableResourceList(subscribableResourceEntity);
         try {
             derEntity  = derRepository.save(derEntity);
         } catch (Exception e) {
@@ -151,17 +153,24 @@ public class DerService {
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
         EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
-        Long derID = Long.parseLong(payload.getJSONObject("payload").getString("derID")); 
-         DerEntity derEntity = derRepository.findById(derID)
-        .orElseThrow(() -> new NotFoundException());
-        derEntity.setEndDevice(endDevice); 
+        LOGGER.info("Received DER payload is " + payload); 
+        DerEntity derEntity = new DerEntity();
+        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
+        String derListLink = endDevice.getDERListLink();
+        LOGGER.info("the DER listlink is " + derListLink);
+        derEntity.setEndDevice(endDevice);
+        derEntity.setSubscribableResourceList(subscribableResourceEntity);
         try {
             derEntity  = derRepository.save(derEntity);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
         }
-
-        setDerSettings(derEntity  , payload);
+        try {
+            subscribableResourceRepository.save(subscribableResourceEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
+        }
+        setDerSettings(derEntity  , payload, derListLink);
         derEntity = derRepository.save(derEntity);
         return  derEntity;
 
@@ -175,9 +184,18 @@ public class DerService {
      * "setMinPFOverExcited":"0.95","setVRef":"240","setESDelay":"5",
      * "endDeviceId":"1","setMaxW":"4800","setMaxV":"264","setESLowVolt":"208","setMaxVar":"400"},"action":"post","servicename":"createDerSettingsmanager"}
      */
-    public void setDerSettings(DerEntity derEntity, JSONObject payload) {
+    public void setDerSettings(DerEntity derEntity, JSONObject payload, String derListLink) {
+
         LOGGER.info("Received payload inside Set DER Settings : " +  payload.toString());
+        Long Derid = derEntity.getId();
+        String DeridString = "/"+ String.valueOf(Derid);
         JSONObject derSettingsPayload = payload.optJSONObject("payload");
+        String derLink = derListLink + DeridString ;
+        String backslashUri = "/";
+        String derSettingsLink =  derListLink + DeridString + backslashUri + derSettingsPayload.optString("derSettingsLink", null);
+        derEntity.setDerLink(derLink); 
+        derEntity.setDerSettingsLink(derSettingsLink); 
+    
         Integer modesEnabled = derSettingsPayload.optInt("modesEnabled", 0);
         Long setESDelay = parseLongFromPayload(derSettingsPayload, "setESDelay");
         Long setESHighFreq = parseLongFromPayload(derSettingsPayload, "setESHighFreq");
@@ -232,10 +250,8 @@ public class DerService {
         derEntity.setSetMinV(setMinV);
         derEntity.setSetVNom(setVNom);
         derEntity.setSetVRef(setVRef);
-       
-     
-    
     }
+
     private Long parseLongFromPayload(JSONObject payload, String key) {
         try {
             return payload.has(key) ? payload.optLong(key, 0) : 0;
@@ -355,6 +371,173 @@ public class DerService {
                 return ResponseEntity.status(500).body(Map.of("error", "Server error"));
             }     
     }
+
+    public ResponseEntity<Map<String, Object>> getDer(Long derId, Long endDeviceId){
+        Map<String, Object> result = new HashMap<>();
+            
+        Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId , derId);
+        if (derEntityOptional.isPresent())
+        {
+            DerEntity derEntity = derEntityOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity.getId());
+            entityMap.put("derLink", derEntity.getDerLink()); 
+            entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
+            entityMap.put("derStatusLink", derEntity.getDerStatusLink());
+            entityMap.put("derAvailabilityLink", derEntity.getDerAvailabilityLink());
+            entityMap.put("derSettingsLink", derEntity.getDerSettingsLink()); 
+            entityMap.put("associatedUsagePointLink", derEntity.getAssociatedUsagePointLink());
+            entityMap.put("associatedDERProgramListLink", derEntity.getAssociatedDERProgramListLink());
+            entityMap.put("currentDERProgramLink", derEntity.getCurrentDERProgramLink()); 
+            result.put("Der", entityMap);  
+            return ResponseEntity.ok(result);
+        }
+        return null;
+    }
+
+    public String getDerHttp(Long endDeviceId, Long derId) {
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
+
+            if (derEntityOptional.isEmpty()) {
+                return "<DER xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
+                    " <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                    "</DER>";
+            }
+
+            DerEntity derEntity = derEntityOptional.get();
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DER xmlns=\"http://ieee.org/2030.5\" ")
+            .append("href=\"").append(stripHost(derEntity.getDerLink())).append("\">\n");
+            appendIfPresent(xml, "DERCapabilityLink", derEntity.getDerCapabilityLink());
+            appendIfPresent(xml, "DERStatusLink", derEntity.getDerStatusLink());
+            appendIfPresent(xml, "DERAvailabilityLink", derEntity.getDerAvailabilityLink());
+            appendIfPresent(xml, "DERSettingsLink", derEntity.getDerSettingsLink());
+            appendIfPresent(xml, "AssociatedUsagePointLink", derEntity.getAssociatedUsagePointLink());
+            appendIfPresent(xml, "AssociatedDERProgramListLink", derEntity.getAssociatedDERProgramListLink());
+            appendIfPresent(xml, "CurrentDERProgramLink", derEntity.getCurrentDERProgramLink());
+
+            xml.append("</DER>");
+            return xml.toString();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DER", e);
+            return "<DER xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
+                " <error>Some error occurred</error>\n" +
+                "</DER>";
+        }
+    }
+
+    private void appendIfPresent(StringBuilder xml, String tagName, String link) {
+        if (link == null || link.isBlank()) return;
+
+        String href = stripHost(link);
+        if (href == null || href.isBlank()) return;
+
+        xml.append(" <").append(tagName)
+        .append(" href=\"").append(href).append("\"");
+        if (tagName.endsWith("ListLink")) {
+            xml.append(" all=\"0\"");
+        }
+        xml.append("/>\n");
+    }
+
+    
+
+    private String stripHost(String url) {
+        if (url == null) return null;
+        try {
+            java.net.URI uri = new java.net.URI(url);
+            String path = uri.getPath(); // "/derp" or "/2030.5/dcap/tm"
+            if (path == null || path.isEmpty()) return "/";
+
+            // If you want to specifically remove "/2030.5" prefix
+            String prefix = "/2030.5";
+            if (path.startsWith(prefix)) {
+                path = path.substring(prefix.length());
+                if (path.isEmpty()) path = "/"; // ensure at least "/"
+            }
+            return path;
+        } catch (Exception e) {
+            // fallback: naive parsing
+            int idx = url.indexOf("://");
+            if (idx != -1) {
+                String remainder = url.substring(idx + 3); // skip "http://"
+                int slashIdx = remainder.indexOf("/");
+                if (slashIdx != -1) {
+                    return remainder.substring(slashIdx); // return path after host
+                } else {
+                    return "/"; // no path, return root
+                }
+            }
+            return url; // unknown format
+        }
+    }
+
+    public String getAllDERsHttp(Long endDeviceId) {
+    try {
+        List<DerEntity> derEntityList = derRepository.findByEndDeviceId(endDeviceId);
+        Optional<EndDeviceDto> endDeviceDto = endDeviceRepository.findById(endDeviceId);
+        if (endDeviceDto.isEmpty()) {
+            return "<DERList xmlns=\"XXXXXXXXXXXXXXXXXXXXXX\" href=\"/edev/" + endDeviceId + "/der\" all=\"0\" results=\"0\">\n" +
+                " <message>No EndDevice found for ID " + endDeviceId + "</message>\n" +
+                "</DERList>";
+        }
+        String derListLink = stripHost(endDeviceDto.get().getDERListLink());
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<DERList xmlns=\"http://ieee.org/2030.5\" ")
+           .append("href=\"").append(derListLink).append("\" ")
+           .append("all=\"").append(derEntityList.size()).append("\" ")
+           .append("results=\"").append(derEntityList.size()).append("\">\n");
+
+        if (derEntityList.isEmpty()) {
+            xml.append(" <message>No DERs found for EndDevice ").append(endDeviceId).append("</message>\n");
+        } else {
+            for (DerEntity der : derEntityList) {
+                xml.append(" <DER href=\"").append(stripHost(der.getDerLink())).append("\">\n");
+
+                // Conditional link elements
+                appendIfPresentIndented(xml, "DERCapabilityLink", der.getDerCapabilityLink(), 2);
+                appendIfPresentIndented(xml, "DERStatusLink", der.getDerStatusLink(), 2);
+                appendIfPresentIndented(xml, "DERAvailabilityLink", der.getDerAvailabilityLink(), 2);
+                appendIfPresentIndented(xml, "DERSettingsLink", der.getDerSettingsLink(), 2);
+                appendIfPresentIndented(xml, "AssociatedUsagePointLink", der.getAssociatedUsagePointLink(), 2);
+                appendIfPresentIndented(xml, "AssociatedDERProgramListLink", der.getAssociatedDERProgramListLink(), 2);
+                appendIfPresentIndented(xml, "CurrentDERProgramLink", der.getCurrentDERProgramLink(), 2);
+
+                xml.append(" </DER>\n");
+            }
+        }
+
+        xml.append("</DERList>");
+        return xml.toString();
+
+    } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Error retrieving DERs", e);
+        return "<DERList href=\"/edev/" + endDeviceId + "/der\" all=\"0\" results=\"0\">\n" +
+               " <error>Some error occurred</error>\n" +
+               "</DERList>";
+        }
+    }
+
+    /**
+     * Helper to append XML tags only when the link is present.
+     * Adds indentation for readability.
+     */
+    private void appendIfPresentIndented(StringBuilder xml, String tagName, String link, int indentLevel) {
+        if (link != null && !link.isBlank()) {
+            String indent = " ".repeat(indentLevel);
+            xml.append(indent)
+            .append("<").append(tagName)
+            .append(" href=\"").append(stripHost(link)).append("\"");
+            if (tagName.endsWith("ListLink")) {
+                xml.append(" all=\"0\"");
+            }
+            xml.append("/>\n");
+        }
+    }
+
     @Transactional
      public ResponseEntity<Map<String, Object>> updatePowerGenerationTest(Long endDeviceID, Long derId,JSONObject payload)throws NumberFormatException, JSONException, NotFoundException 
      {

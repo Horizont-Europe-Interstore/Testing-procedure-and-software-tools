@@ -1,15 +1,11 @@
 package interstore.DER;
 
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.Identity.SubscribableResourceEntity;
 @Entity
 public class DerEntity  {
-    private static final Logger LOGGER = Logger.getLogger(DerEntity .class.getName());
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -910,7 +906,17 @@ public class DerEntity  {
     public void setStorConnectStatus(String storConnectStatus) {
         this.storConnectStatus = storConnectStatus;
     }
-  
+
+    public SubscribableResourceEntity getSubscribableResourceList() {
+        return subscribableResourceList;
+    }
+
+    public void setSubscribableResourceList(SubscribableResourceEntity subscribableResourceList) {
+        this.subscribableResourceList = subscribableResourceList;
+    }
+    
+
+
 }
 
 

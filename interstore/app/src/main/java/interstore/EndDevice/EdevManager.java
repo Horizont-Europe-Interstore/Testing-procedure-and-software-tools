@@ -198,7 +198,7 @@ public class EdevManager {
             }
             return null;
         } 
-        // Case: called from NATS (internal)
+        // Case: called internally
         else {
             ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getAllEndDevices();
             return  responseEntity.getBody(); 

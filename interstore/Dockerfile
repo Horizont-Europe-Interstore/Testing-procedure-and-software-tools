@@ -2,7 +2,6 @@ FROM gradle:8.0.2-jdk17 AS builder
 WORKDIR /home/gradle/project
 COPY . .
 RUN gradle clean app:bootJar -x test --no-daemon
-#FROM openjdk:17-slim
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 RUN apt-get update \
