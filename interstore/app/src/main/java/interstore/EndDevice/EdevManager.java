@@ -179,6 +179,7 @@ public class EdevManager {
         if (RequestContextHolder.getRequestAttributes() != null) {
             try{
                 String responseEntity = this.endDeviceImpl.getEndDeviceListHttp(l);
+                
         
                 LOGGER.info("the enddevice_list_val is " + responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
