@@ -26,12 +26,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 @SuppressWarnings("unused")
-@Service 
+@Service
 public class EndDeviceImpl {
     @Autowired
     private EndDeviceRepository endDeviceRepository;
     @Autowired
     private RegistrationRepository registrationRepository;
+    @Autowired
+    private DerRepository derRepository;
     private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
     @Transactional 
     public EndDeviceDto createEndDevice(JSONObject  payload) {
@@ -144,10 +146,10 @@ public class EndDeviceImpl {
                .append("results=\"").append(endDeviceList.size()).append("\" ")
                .append("subscribable=\"0\">\n");
             String[] elementOrder = {
-                "configurationLink", "deviceInformationLink", "linkDstat", "dERListLink", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
+                "configurationLink", "deviceInformationLink", "linkDstat", "linkDerList", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
             };
             String[] xmlNames = {
-                "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "dERListLink","FileStatusLink", "PowerStatusLink",
+                "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "DERListLink","FileStatusLink", "PowerStatusLink",
                  "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
             };
 
@@ -180,7 +182,13 @@ public class EndDeviceImpl {
 
                             // Add 'all' attribute for list links
                             if (xmlName.toLowerCase().contains("listlink")) {
-                                xml.append(" all=\"0\"");
+                                if (xmlName.equals("DERListLink")) {
+                                    // Query the actual count of DER resources for this EndDevice
+                                    int derCount = derRepository.findByEndDeviceId(endDeviceDto.getId()).size();
+                                    xml.append(" all=\"").append(derCount).append("\"");
+                                } else {
+                                    xml.append(" all=\"0\"");
+                                }
                             }
 
                             xml.append("/>\n");
@@ -287,10 +295,10 @@ public class EndDeviceImpl {
            .append("\" subscribable=\"0\">\n");
         // Fields in IEEE 2030.5 preferred order
         String[] elementOrder = {
-            "configurationLink", "deviceInformationLink", "linkDstat", "dERListLink", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
+            "configurationLink", "deviceInformationLink", "linkDstat", "linkDerList", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
         };
         String[] xmlNames = {
-            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "dERListLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
+            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "DERListLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
         };
         for (int i = 0; i < elementOrder.length; i++) {
             String fieldName = elementOrder[i];
@@ -310,7 +318,13 @@ public class EndDeviceImpl {
                     xml.append("<").append(xmlName);
                     xml.append(" href=\"").append(stripHost((String) value)).append("\"");
                     if (xmlName.toLowerCase().contains("listlink")) {
-                        xml.append(" all=\"0\"");
+                        if (xmlName.equals("DERListLink")) {
+                            // Query the actual count of DER resources for this EndDevice
+                            int derCount = derRepository.findByEndDeviceId(id).size();
+                            xml.append(" all=\"").append(derCount).append("\"");
+                        } else {
+                            xml.append(" all=\"0\"");
+                        }
                     }
                     xml.append("/>\n");
                 }
