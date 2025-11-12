@@ -4,7 +4,7 @@ import {ReportSubElement} from './main_tab_subelements/ReportSubElement.jsx';
 import { DerCurveForm } from './main_tab_subelements/DerCurveSubForm.jsx';
 import {DerControlSubForm} from "./main_tab_subelements/DerControlSubForm";
 import { DerForm } from './main_tab_subelements/DerForm.jsx';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Client from "../modules/client.js";
 
 function ReportViewer({
@@ -20,9 +20,11 @@ function ReportViewer({
   setHeaderState,
   testState,
 }) {
-  const [formMode, setFormMode] = useState("all");
+  const [formMode, setFormMode] = useState("der");
+  
   const allTests = Client.getTests();
   const getTestByName = (name) => allTests.find(t => t.test === name);
+  const derTest = useMemo(() => getTestByName("Create Der"), [allTests]);
   const capabilityTest = useMemo(() => getTestByName("Create Der Capability"), [allTests]);
   const settingsTest = useMemo(() => getTestByName("Create Der Settings"), [allTests]);
 
@@ -48,63 +50,19 @@ function ReportViewer({
         {/* SCROLLABLE FORM AREA - This fixes everything */}
         <Box flex="1" overflowY="auto" pr={2} pb={2}>
           
-          {/* SPECIAL CASE: Der Capability with radio + DerForm */}
-          {currentTest.test === "Create Der Capability" ? (
-            <Box>
-              {/* Radio buttons */}
-              <Box mb={4}>
-                <Text fontWeight="bold" mb={1} color={colors.PRIMARY_COLOR}>Form Mode</Text>
-                <RadioGroup onChange={setFormMode} value={formMode}>
-                  <Stack direction="row" spacing={6}>
-                    <Radio value="all">All Forms</Radio>
-                    <Radio value="capability">Der Capability</Radio>
-                    <Radio value="settings">Der Settings</Radio>
-                  </Stack>
-                </RadioGroup>
-              </Box>
-
-              {/* Render the correct form */}
-              {formMode === "all" && (
-                <DerForm
-                  toggleVar={toggleVar}
-                  currentTest={currentTest}
-                  setCurrentTest={setCurrentTest}
-                  setToggle={setToggle}
-                  setReport={setReport}
-                  setTestState={setTestState}
-                  setHeaderState={setHeaderState}
-                  tests={tests}
-                />
-              )}
-              {formMode === "capability" && (
-                <FormSubElement
-                  toggleVar={toggleVar}
-                  setToggle={setToggle}
-                  currentTest={capabilityTest}
-                  setCurrentTest={setCurrentTest}
-                  setTestState={setTestState}
-                  colors={colors}
-                  tests={tests}
-                  setReport={setReport}
-                  setHeaderState={setHeaderState}
-                  testState={testState}
-                />
-              )}
-              {formMode === "settings" && (
-                <FormSubElement
-                  toggleVar={toggleVar}
-                  setToggle={setToggle}
-                  currentTest={settingsTest}
-                  setCurrentTest={setCurrentTest}
-                  setTestState={setTestState}
-                  colors={colors}
-                  tests={tests}
-                  setReport={setReport}
-                  setHeaderState={setHeaderState}
-                  testState={testState}
-                />
-              )}
-            </Box>
+          {/* SPECIAL CASE: DerForm */}
+          {currentTest.test === "Create Der" ? (
+            <DerForm
+              toggleVar={toggleVar}
+              currentTest={currentTest}
+              setCurrentTest={setCurrentTest}
+              setToggle={setToggle}
+              setReport={setReport}
+              setTestState={setTestState}
+              setHeaderState={setHeaderState}
+              tests={tests}
+              testState={testState}
+            />
           ) : (
             /* ALL OTHER FORMS - Render normally */
             <>
@@ -135,7 +93,7 @@ function ReportViewer({
                   tests={tests}
                 />
               )}
-              {currentTest.test !== "Create Der Capability" && 
+              {currentTest.test !== "Create Der" && 
                currentTest.test !== "Create Der Curve" && 
                currentTest.test !== "Create Der Control" && (
                 <FormSubElement

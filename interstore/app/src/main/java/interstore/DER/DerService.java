@@ -1,9 +1,12 @@
 package interstore.DER;
+import interstore.DER.DERCapability.DERCapabilityEntity;
+import interstore.DER.DERCapability.DERCapabilityRepository;
+import interstore.DER.DERSettings.DERSettingsEntity;
+import interstore.DER.DERSettings.DERSettingsRepository;
 import interstore.EndDevice.EndDeviceDto;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Identity.SubscribableResourceEntity;
 import interstore.Identity.SubscribableResourceRepository;
-import interstore.Types.*;
 import interstore.Types.DERType; 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,11 +33,17 @@ public class DerService {
     SubscribableResourceRepository subscribableResourceRepository;
     private static final Logger LOGGER = Logger.getLogger(DerService.class.getName());
 
+    @Autowired
+    private DERCapabilityRepository derCapabilityRepository;
+
+    @Autowired
+    private DERSettingsRepository derSettingsRepository;
+
     @Transactional
-    public DerEntity createDerCapability(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
+    public DerEntity createDerEntity(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
         LOGGER.info("Received DER payload is " + payload); 
         DerEntity derEntity = new DerEntity();
-        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceID")); 
         EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
         SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
@@ -52,9 +61,80 @@ public class DerService {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
         }
-        setDerCapability(derEntity  , payload,  derListLink);
+        setDerEntity(derEntity  , payload,  derListLink);
         derEntity = derRepository.save(derEntity);
         return  derEntity;
+       
+    }
+
+     public void setDerEntity(DerEntity derEntity, JSONObject payload, String derListLink )
+    {
+        Long Derid = derEntity.getId();
+        String DeridString = "/"+ String.valueOf(Derid);
+        String backslashUri = "/";
+        JSONObject Derpayload = payload.optJSONObject("payload");
+        String derLink = derListLink + DeridString ; 
+        String capLink = Derpayload.optString("derCapabilityLink", null);
+        if (capLink != null && !capLink.trim().isEmpty()) {
+            derEntity.setDerCapabilityLink(derListLink + DeridString + backslashUri + capLink.trim());
+        }
+
+        String statusLink = Derpayload.optString("derStatusLink", null);
+        if (statusLink != null && !statusLink.trim().isEmpty()) {
+            derEntity.setDerStatusLink(derListLink + DeridString + backslashUri + statusLink.trim());
+        }
+
+        String availLink = Derpayload.optString("derAvailabilityLink", null);
+        if (availLink != null && !availLink.trim().isEmpty()) {
+            derEntity.setDerAvailabilityLink(derListLink + DeridString + backslashUri + availLink.trim());
+        }
+
+        String settingsLink = Derpayload.optString("derSettingsLink", null);
+        if (settingsLink != null && !settingsLink.trim().isEmpty()) {
+            derEntity.setDerSettingsLink(derListLink + DeridString + backslashUri + settingsLink.trim());
+        }
+
+        String usagePointLink = Derpayload.optString("associatedUsagePointLink", null);
+        if (usagePointLink != null && !usagePointLink.trim().isEmpty()) {
+            derEntity.setAssociatedUsagePointLink(derListLink + DeridString + backslashUri + usagePointLink.trim());
+        }
+
+        String derProgramListLink = Derpayload.optString("associatedDERProgramListLink", null);
+        if (derProgramListLink != null && !derProgramListLink.trim().isEmpty()) {
+            derEntity.setAssociatedDERProgramListLink(derListLink + DeridString + backslashUri + derProgramListLink.trim());
+        }
+
+        String currentProgramLink = Derpayload.optString("currentDERProgramLink", null);
+        if (currentProgramLink != null && !currentProgramLink.trim().isEmpty()) {
+            derEntity.setCurrentDERProgramLink(derListLink + DeridString + backslashUri + currentProgramLink.trim());
+        }
+        derEntity.setDerLink(derLink);    
+    }
+    
+    @Transactional
+    public DERCapabilityEntity createDerCapability(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException  {
+        LOGGER.info("Received DER payload is " + payload);
+        Long derId = Long.parseLong(payload.getJSONObject("payload").getString("derId"));
+        DerEntity derEntity = derRepository.findById( derId)
+        .orElseThrow(() -> new NotFoundException());
+        DERCapabilityEntity derCapabilityEntity = new DERCapabilityEntity();
+        derCapabilityEntity.setDerEntity(derEntity);
+        if(derEntity.getDerCapabilityLink().equals(null)){
+        String backslashUri = "/";
+        String derCapabilityLink = derEntity.getDerLink() + backslashUri + payload.optJSONObject("payload").optString("derCapabilityLink", null);
+        derCapabilityEntity.setDerCapabilityLink(derCapabilityLink);
+        } else{
+            derCapabilityEntity.setDerCapabilityLink(derEntity.getDerCapabilityLink());
+        }
+        try {
+            derCapabilityEntity  = derCapabilityRepository.save(derCapabilityEntity);
+            derEntity.setDerCapability(derCapabilityEntity); 
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER Capability entity", e);
+        }
+        setDerCapability(derCapabilityEntity  , payload);
+        derCapabilityEntity = derCapabilityRepository.save(derCapabilityEntity);
+        return  derCapabilityEntity;
        
     }
     /*The DER Availability is a unique profile that each end device has when it's manufactured 
@@ -66,29 +146,10 @@ public class DerService {
      * DER resource intialized as null but later the values intailised as null has to editable  , 
      *  
      */
-    public void setDerCapability(DerEntity derEntity, JSONObject payload, String derListLink )
+    public void setDerCapability(DERCapabilityEntity derCapabilityEntity, JSONObject payload )
     {
-        Long Derid = derEntity.getId();
-        String DeridString = "/"+ String.valueOf(Derid);
-        String backslashUri = "/";
         JSONObject Derpayload = payload.optJSONObject("payload");
-        String derLink = derListLink + DeridString ; 
-        String derCapabilityLink = derListLink + DeridString + backslashUri + Derpayload.optString("derCapabilityLink", null);
-        String derStatusLink = derListLink + DeridString + backslashUri + Derpayload.optString("derStatusLink", null);
-        String derAvailabilityLink =  derListLink + DeridString + backslashUri + Derpayload.optString("derAvailabilityLink", null);
-        String derSettingsLink =  derListLink + DeridString + backslashUri + Derpayload.optString("derSettingsLink", null);
-        String associatedUsagePointLink = derListLink + DeridString + backslashUri + Derpayload.optString("associatedUsagePointLink", null);
-        String associatedDERProgramListLink = derListLink + DeridString + backslashUri + Derpayload.optString("associatedDERProgramListLink", null);
-        String currentDERProgramLink = derListLink + DeridString + backslashUri + Derpayload.optString("currentDERProgramLink", null); 
-        derEntity.setDerLink(derLink); 
-        derEntity.setDerCapabilityLink(derCapabilityLink);
-        derEntity.setDerStatusLink(derStatusLink);
-        derEntity.setDerAvailabilityLink(derAvailabilityLink);
-        derEntity.setDerSettingsLink(derSettingsLink); 
-        derEntity.setAssociatedUsagePointLink(associatedUsagePointLink);
-        derEntity.setAssociatedDERProgramListLink(associatedDERProgramListLink);
-        derEntity.setCurrentDERProgramLink(currentDERProgramLink);
-        // DER Capabilities 
+        
         // Der control type has to be avialable from the Der controls which is allready created 
         // the payload will have the informationof the type of the DER control , it has to pick the 
         // corresponding object with the der control type from the data base . 
@@ -118,61 +179,60 @@ public class DerService {
         Double rtgVNomDouble = Derpayload.optDouble("rtgVNom", Double.NaN);
         Integer derType = Derpayload.optInt("derType", 0);
         // calling setters from the entity class 
-        derEntity.setModesSupported(modesSupported);
-        derEntity.setRtgAbnormalCategory(rtgAbnormalCategoryUINT8);
-        derEntity.setRtgMaxA(rtgMaxADouble);
-        derEntity.setRtgMaxAh(rtgMaxAhDouble);
-        derEntity.setRtgMaxChargeRateVA(rtgMaxChargeRateDouble);
-        derEntity.setRtgMaxChargeRateW(rtgMaxChargeRateWDouble);
-        derEntity.setRtgMaxDischargeRateVA(rtgMaxDischargeRateVADouble);
-        derEntity.setRtgMaxDischargeRateW(rtgMaxDischargeRateWDouble);
-        derEntity.setRtgMaxV(rtgMaxVDouble);
-        derEntity.setRtgMaxVA(rtgMaxVADouble);
-        derEntity.setRtgMaxVar(rtgMaxVarDouble);
-        derEntity.setRtgMaxVarNeg(rtgMaxVarNegDouble);
-        derEntity.setRtgMaxW(rtgMaxWDouble);
-        derEntity.setRtgMaxWh(rtgMaxWhDouble);
-        derEntity.setRtgMinPFOverExcited(rtgMinPFOverExcitedDouble);
-        derEntity.setRtgMinPFUnderExcited(rtgMinPFUnderExcitedDouble);
-        derEntity.setRtgMinV(rtgMinVDouble);
-        derEntity.setRtgNormalCategory(rtgNormalCategoryUINT8);
-        derEntity.setRtgOverExcitedPF(rtgOverExcitedPFDouble);
-        derEntity.setRtgOverExcitedW(rtgOverExcitedWDouble);
-        derEntity.setRtgReactiveSusceptance(rtgReactiveSusceptanceDouble);
-        derEntity.setRtgUnderExcitedPF(rtgUnderExcitedPFDouble);
-        derEntity.setRtgUnderExcitedW(rtgUnderExcitedWDouble);
-        derEntity.setRtgVNom(rtgVNomDouble);
-        derEntity.setDerType(derType); 
+        derCapabilityEntity.setModesSupported(modesSupported);
+        derCapabilityEntity.setRtgAbnormalCategory(rtgAbnormalCategoryUINT8);
+        derCapabilityEntity.setRtgMaxA(rtgMaxADouble);
+        derCapabilityEntity.setRtgMaxAh(rtgMaxAhDouble);
+        derCapabilityEntity.setRtgMaxChargeRateVA(rtgMaxChargeRateDouble);
+        derCapabilityEntity.setRtgMaxChargeRateW(rtgMaxChargeRateWDouble);
+        derCapabilityEntity.setRtgMaxDischargeRateVA(rtgMaxDischargeRateVADouble);
+        derCapabilityEntity.setRtgMaxDischargeRateW(rtgMaxDischargeRateWDouble);
+        derCapabilityEntity.setRtgMaxV(rtgMaxVDouble);
+        derCapabilityEntity.setRtgMaxVA(rtgMaxVADouble);
+        derCapabilityEntity.setRtgMaxVar(rtgMaxVarDouble);
+        derCapabilityEntity.setRtgMaxVarNeg(rtgMaxVarNegDouble);
+        derCapabilityEntity.setRtgMaxW(rtgMaxWDouble);
+        derCapabilityEntity.setRtgMaxWh(rtgMaxWhDouble);
+        derCapabilityEntity.setRtgMinPFOverExcited(rtgMinPFOverExcitedDouble);
+        derCapabilityEntity.setRtgMinPFUnderExcited(rtgMinPFUnderExcitedDouble);
+        derCapabilityEntity.setRtgMinV(rtgMinVDouble);
+        derCapabilityEntity.setRtgNormalCategory(rtgNormalCategoryUINT8);
+        derCapabilityEntity.setRtgOverExcitedPF(rtgOverExcitedPFDouble);
+        derCapabilityEntity.setRtgOverExcitedW(rtgOverExcitedWDouble);
+        derCapabilityEntity.setRtgReactiveSusceptance(rtgReactiveSusceptanceDouble);
+        derCapabilityEntity.setRtgUnderExcitedPF(rtgUnderExcitedPFDouble);
+        derCapabilityEntity.setRtgUnderExcitedW(rtgUnderExcitedWDouble);
+        derCapabilityEntity.setRtgVNom(rtgVNomDouble);
+        derCapabilityEntity.setDerType(derType); 
         
 
     }
  
     @Transactional
-    public  DerEntity createDerSettings(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException {
+    public  DERSettingsEntity createDerSettings(JSONObject payload)throws NumberFormatException, JSONException, NotFoundException {
         LOGGER.info("Received DER payload is in Der Settings " + payload); 
-        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId")); 
-        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+    
+        Long derId = Long.parseLong(payload.getJSONObject("payload").getString("derId"));
+        DerEntity derEntity = derRepository.findById( derId)
         .orElseThrow(() -> new NotFoundException());
-        LOGGER.info("Received DER payload is " + payload); 
-        DerEntity derEntity = new DerEntity();
-        SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
-        String derListLink = endDevice.getDERListLink();
-        LOGGER.info("the DER listlink is " + derListLink);
-        derEntity.setEndDevice(endDevice);
-        derEntity.setSubscribableResourceList(subscribableResourceEntity);
-        try {
-            derEntity  = derRepository.save(derEntity);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        DERSettingsEntity derSettingsEntity = new DERSettingsEntity();
+        derSettingsEntity.setDerEntity(derEntity);
+        if (derEntity.getDerSettingsLink().equals(null)){
+            String backslashUri = "/";
+            String derSettingsLink = derEntity.getDerLink() + backslashUri + payload.optJSONObject("payload").optString("derSettingsLink", null);
+            derSettingsEntity.setDerSettingsLink(derSettingsLink);
+        } else{
+            derSettingsEntity.setDerSettingsLink(derEntity.getDerSettingsLink());
         }
         try {
-            subscribableResourceRepository.save(subscribableResourceEntity);
+            derSettingsEntity  = derSettingsRepository.save(derSettingsEntity);
+            derEntity.setDerSettings(derSettingsEntity);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error saving subscribableResourceEntity entity", e);
+            LOGGER.log(Level.SEVERE, "Error saving DER Settings entity", e);
         }
-        setDerSettings(derEntity  , payload, derListLink);
-        derEntity = derRepository.save(derEntity);
-        return  derEntity;
+        setDerSettings(derSettingsEntity  , payload);
+        derSettingsEntity = derSettingsRepository.save(derSettingsEntity);
+        return  derSettingsEntity;
 
     }
     
@@ -184,18 +244,11 @@ public class DerService {
      * "setMinPFOverExcited":"0.95","setVRef":"240","setESDelay":"5",
      * "endDeviceId":"1","setMaxW":"4800","setMaxV":"264","setESLowVolt":"208","setMaxVar":"400"},"action":"post","servicename":"createDerSettingsmanager"}
      */
-    public void setDerSettings(DerEntity derEntity, JSONObject payload, String derListLink) {
+    public void setDerSettings(DERSettingsEntity derEntity, JSONObject payload) {
 
         LOGGER.info("Received payload inside Set DER Settings : " +  payload.toString());
-        Long Derid = derEntity.getId();
-        String DeridString = "/"+ String.valueOf(Derid);
         JSONObject derSettingsPayload = payload.optJSONObject("payload");
-        String derLink = derListLink + DeridString ;
-        String backslashUri = "/";
-        String derSettingsLink =  derListLink + DeridString + backslashUri + derSettingsPayload.optString("derSettingsLink", null);
-        derEntity.setDerLink(derLink); 
-        derEntity.setDerSettingsLink(derSettingsLink); 
-    
+        
         Integer modesEnabled = derSettingsPayload.optInt("modesEnabled", 0);
         Long setESDelay = parseLongFromPayload(derSettingsPayload, "setESDelay");
         Long setESHighFreq = parseLongFromPayload(derSettingsPayload, "setESHighFreq");
@@ -274,9 +327,10 @@ public class DerService {
         try {
             Map<String, Object> result = new HashMap<>();
             Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId( EndDeviceId , derID);
-    
+            
             if (derEntityOptional.isPresent()) {
-                DerEntity derEntity = derEntityOptional.get();
+                
+                DERCapabilityEntity derEntity = derEntityOptional.get().getDerCapability();
                 Map<String, Object> entityMap = new HashMap<>();
                 entityMap.put("id", derEntity.getId());
                 entityMap.put("modesSupported", derEntity.getModesSupported());
@@ -303,7 +357,7 @@ public class DerService {
                 entityMap.put("rtgUnderExcitedPF", derEntity.getRtgUnderExcitedPF());
                 entityMap.put("rtgUnderExcitedW", derEntity.getRtgUnderExcitedW());
                 entityMap.put("rtgVNom", derEntity.getRtgVNom());
-                entityMap.put("derLink", derEntity.getDerLink()); 
+                entityMap.put("derLink", derEntityOptional.get().getDerLink()); 
                 entityMap.put("derCapabilityLink", derEntity.getDerCapabilityLink());
                 Integer derTypeInt = derEntity.getDerType();
                 short derTypeshort = derTypeInt.shortValue();
@@ -321,6 +375,119 @@ public class DerService {
         }
     }
     
+    public String getDerCapabilityHttp(Long endDeviceId, Long derId) {
+    try {
+        Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
+        if (derEntityOptional.isEmpty()) {
+            return "<DERCapability xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dercapability\">\n" +
+                   "  <message>No DERCapability found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                   "</DERCapability>";
+        }
+
+        DerEntity derEntity = derEntityOptional.get();
+        DERCapabilityEntity derCap = derEntity.getDerCapability();
+        if (derCap == null) {
+            return "<DERCapability xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dercapability\">\n" +
+                   "  <message>No DERCapability entity found for this DER</message>\n" +
+                   "</DERCapability>";
+        }
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<DERCapability xmlns=\"http://ieee.org/2030.5\" ")
+           .append("href=\"").append(stripHost(derCap.getDerCapabilityLink())).append("\">\n");
+
+        // Only append each tag if the value is NOT null
+        // if (derCap.getModesSupported() != null) {
+        //     xml.append("  <modesSupported>").append(derCap.getModesSupported()).append("</modesSupported>\n");
+        // }
+        if (derCap.getRtgAbnormalCategory() != null) {
+            xml.append("  <rtgAbnormalCategory>").append(derCap.getRtgAbnormalCategory()).append("</rtgAbnormalCategory>\n");
+        }
+        if (derCap.getRtgMaxA() != null && !derCap.getRtgMaxA().isNaN()) {
+            xml.append("  <rtgMaxA>").append(derCap.getRtgMaxA()).append("</rtgMaxA>\n");
+        }
+        if (derCap.getRtgMaxAh() != null && !derCap.getRtgMaxAh().isNaN()) {
+            xml.append("  <rtgMaxAh>").append(derCap.getRtgMaxAh()).append("</rtgMaxAh>\n");
+        }
+        if (derCap.getRtgMaxChargeRateVA() != null && !derCap.getRtgMaxChargeRateVA().isNaN()) {
+            xml.append("  <rtgMaxChargeRateVA>").append(derCap.getRtgMaxChargeRateVA()).append("</rtgMaxChargeRateVA>\n");
+        }
+        if (derCap.getRtgMaxChargeRateW() != null && !derCap.getRtgMaxChargeRateW().isNaN()) {
+            xml.append("  <rtgMaxChargeRateW>").append(derCap.getRtgMaxChargeRateW()).append("</rtgMaxChargeRateW>\n");
+        }
+        if (derCap.getRtgMaxDischargeRateVA() != null && !derCap.getRtgMaxDischargeRateVA().isNaN()) {
+            xml.append("  <rtgMaxDischargeRateVA>").append(derCap.getRtgMaxDischargeRateVA()).append("</rtgMaxDischargeRateVA>\n");
+        }
+        if (derCap.getRtgMaxDischargeRateW() != null && !derCap.getRtgMaxDischargeRateW().isNaN()) {
+            xml.append("  <rtgMaxDischargeRateW>").append(derCap.getRtgMaxDischargeRateW()).append("</rtgMaxDischargeRateW>\n");
+        }
+        if (derCap.getRtgMaxV() != null && !derCap.getRtgMaxV().isNaN()) {
+            xml.append("  <rtgMaxV>").append(derCap.getRtgMaxV()).append("</rtgMaxV>\n");
+        }
+        if (derCap.getRtgMaxVA() != null  && !derCap.getRtgMaxVA().isNaN()) {
+            xml.append("  <rtgMaxVA>").append(derCap.getRtgMaxVA()).append("</rtgMaxVA>\n");
+        }
+        if (derCap.getRtgMaxVar() != null && !derCap.getRtgMaxVar().isNaN()) {
+            xml.append("  <rtgMaxVar>").append(derCap.getRtgMaxVar().longValue()).append("</rtgMaxVar>\n");
+        }
+        if (derCap.getRtgMaxVarNeg() != null && !derCap.getRtgMaxVarNeg().isNaN()) {
+            xml.append("  <rtgMaxVarNeg>").append(derCap.getRtgMaxVarNeg().longValue()).append("</rtgMaxVarNeg>\n");
+        }
+        if (derCap.getRtgMaxW() != null && !derCap.getRtgMaxW().isNaN()) {
+            xml.append("  <rtgMaxW>").append(derCap.getRtgMaxW().longValue()).append("</rtgMaxW>\n");
+        }
+        if (derCap.getRtgMaxWh() != null && !derCap.getRtgMaxWh().isNaN()) {
+            xml.append("  <rtgMaxWh>").append(derCap.getRtgMaxWh().longValue()).append("</rtgMaxWh>\n");
+        }
+        if (derCap.getRtgMinPFOverExcited() != null && !derCap.getRtgMinPFOverExcited().isNaN()) {
+            xml.append("  <rtgMinPFOverExcited>").append(String.format("%.2f", derCap.getRtgMinPFOverExcited())).append("</rtgMinPFOverExcited>\n");
+        }
+        if (derCap.getRtgMinPFUnderExcited() != null && !derCap.getRtgMinPFUnderExcited().isNaN()) {
+            xml.append("  <rtgMinPFUnderExcited>").append(String.format("%.2f", derCap.getRtgMinPFUnderExcited())).append("</rtgMinPFUnderExcited>\n");
+        }
+        if (derCap.getRtgMinV() != null && !derCap.getRtgMinV().isNaN()) {
+            xml.append("  <rtgMinV>").append(derCap.getRtgMinV().longValue()).append("</rtgMinV>\n");
+        }
+        if (derCap.getRtgNormalCategory() != null) {
+            xml.append("  <rtgNormalCategory>").append(derCap.getRtgNormalCategory()).append("</rtgNormalCategory>\n");
+        }
+        if (derCap.getRtgOverExcitedPF() != null && !derCap.getRtgOverExcitedPF().isNaN()) {
+            xml.append("  <rtgOverExcitedPF>").append(String.format("%.2f", derCap.getRtgOverExcitedPF())).append("</rtgOverExcitedPF>\n");
+        }
+        if (derCap.getRtgOverExcitedW() != null && !derCap.getRtgOverExcitedW().isNaN()) {
+            xml.append("  <rtgOverExcitedW>").append(derCap.getRtgOverExcitedW().longValue()).append("</rtgOverExcitedW>\n");
+        }
+        if (derCap.getRtgReactiveSusceptance() != null && !derCap.getRtgReactiveSusceptance().isNaN()) {
+            xml.append("  <rtgReactiveSusceptance>").append(derCap.getRtgReactiveSusceptance().longValue()).append("</rtgReactiveSusceptance>\n");
+        }
+        if (derCap.getRtgUnderExcitedPF() != null && !derCap.getRtgUnderExcitedPF().isNaN()) {
+            xml.append("  <rtgUnderExcitedPF>").append(String.format("%.2f", derCap.getRtgUnderExcitedPF())).append("</rtgUnderExcitedPF>\n");
+        }
+        if (derCap.getRtgUnderExcitedW() != null && !derCap.getRtgUnderExcitedW().isNaN()) {
+            xml.append("  <rtgUnderExcitedW>").append(derCap.getRtgUnderExcitedW().longValue()).append("</rtgUnderExcitedW>\n");
+        }
+        if (derCap.getRtgVNom() != null && !derCap.getRtgVNom().isNaN()) {
+            xml.append("  <rtgVNom>").append(derCap.getRtgVNom().longValue()).append("</rtgVNom>\n");
+        }
+
+        // Handle derType separately
+        if (derCap.getDerType() != null) {
+            xml.append("  <type>").append(derCap.getDerType()).append("</type>\n");
+        }
+
+        xml.append("</DERCapability>");
+        return xml.toString();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERCapability", e);
+            return "<DERCapability xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dercapability\">\n" +
+                "  <error>Some error occurred</error>\n" +
+                "</DERCapability>";
+        }
+    }
+
+
+
     public ResponseEntity<Map<String, Object>> getDerSettings(Long EndDeviceId, Long derID)
 
     {
@@ -331,7 +498,7 @@ public class DerService {
     
             if (derEntityOptional.isPresent())
             {
-                DerEntity derEntity = derEntityOptional.get();
+                DERSettingsEntity derEntity = derEntityOptional.get().getDerSettings();
                 Map<String, Object> entityMap = new HashMap<>();
                 entityMap.put("modesEnabled", derEntity.getModesEnabled());
                 entityMap.put("setESDelay", derEntity.getSetESDelay());
@@ -372,6 +539,117 @@ public class DerService {
             }     
     }
 
+    public String getDerSettingsHttp(Long endDeviceId, Long derId) {
+    try {
+        Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
+        if (derEntityOptional.isEmpty()) {
+            return "<DERSettings xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/ders\">\n" +
+                   "  <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                   "</DERSettings>";
+        }
+        DerEntity derEntity = derEntityOptional.get();
+        DERSettingsEntity derSettings = derEntity.getDerSettings();
+        if (derSettings == null) {
+            return "<DERSettings xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/ders\">\n" +
+                   "  <message>No DERSettings entity found for this DER</message>\n" +
+                   "</DERSettings>";
+        }
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<DERSettings xmlns=\"http://ieee.org/2030.5\" ")
+           .append("href=\"").append(stripHost(derSettings.getDerSettingsLink())).append("\">\n");
+
+        // Only append each tag if the value is NOT null
+        // if (derSettings.getModesEnabled() != null) {
+        //     xml.append("  <modesEnabled>").append(derSettings.getModesEnabled()).append("</modesEnabled>\n");
+        // }
+        if (derSettings.getSetESDelay() != null && !derSettings.getSetESDelay().toString().equals("NaN")) {
+            xml.append("  <setESDelay>").append(derSettings.getSetESDelay()).append("</setESDelay>\n");
+        }
+        if (derSettings.getSetESHighFreq() != null && !derSettings.getSetESHighFreq().toString().equals("NaN")) {
+            xml.append("  <setESHighFreq>").append(derSettings.getSetESHighFreq()).append("</setESHighFreq>\n");
+        }
+        if (derSettings.getSetESLowFreq() != null && !derSettings.getSetESLowFreq().toString().equals("NaN")) {
+            xml.append("  <setESLowFreq>").append(derSettings.getSetESLowFreq()).append("</setESLowFreq>\n");
+        }
+        if (derSettings.getSetESHighVolt() != null && !derSettings.getSetESHighVolt().toString().equals("NaN")) {
+            xml.append("  <setESHighVolt>").append(derSettings.getSetESHighVolt()).append("</setESHighVolt>\n");
+        }
+        if (derSettings.getSetESLowVolt() != null && !derSettings.getSetESLowVolt().toString().equals("NaN")) {
+            xml.append("  <setESLowVolt>").append(derSettings.getSetESLowVolt()).append("</setESLowVolt>\n");
+        }
+        if (derSettings.getSetESRampTms() != null && !derSettings.getSetESRampTms().toString().equals("NaN")) {
+            xml.append("  <setESRampTms>").append(derSettings.getSetESRampTms()).append("</setESRampTms>\n");
+        }
+        if (derSettings.getSetESRandomDelay() != null && !derSettings.getSetESRandomDelay().toString().equals("NaN")) {
+            xml.append("  <setESRandomDelay>").append(derSettings.getSetESRandomDelay()).append("</setESRandomDelay>\n");
+        }
+        if (derSettings.getSetGradW() != null && !derSettings.getSetGradW().toString().equals("NaN")) {
+            xml.append("  <setGradW>").append(derSettings.getSetGradW()).append("</setGradW>\n");
+        }
+        if (derSettings.getSetSoftGradW() != null && !derSettings.getSetSoftGradW().toString().equals("NaN")) {
+            xml.append("  <setSoftGradW>").append(derSettings.getSetSoftGradW()).append("</setSoftGradW>\n");
+        }
+        if (derSettings.getSetMaxA() != null && !derSettings.getSetMaxA().toString().equals("NaN")) {
+            xml.append("  <setMaxA>").append(derSettings.getSetMaxA()).append("</setMaxA>\n");
+        }
+        if (derSettings.getSetMaxChargeRateVA() != null && !derSettings.getSetMaxChargeRateVA().toString().equals("NaN")) {
+            xml.append("  <setMaxChargeRateVA>").append(derSettings.getSetMaxChargeRateVA()).append("</setMaxChargeRateVA>\n");
+        }
+        if (derSettings.getSetMaxChargeRateW() != null && !derSettings.getSetMaxChargeRateW().toString().equals("NaN")) {
+            xml.append("  <setMaxChargeRateW>").append(derSettings.getSetMaxChargeRateW()).append("</setMaxChargeRateW>\n");
+        }
+        if (derSettings.getSetMaxDischargeRateVA() != null && !derSettings.getSetMaxDischargeRateVA().toString().equals("NaN")) {
+            xml.append("  <setMaxDischargeRateVA>").append(derSettings.getSetMaxDischargeRateVA()).append("</setMaxDischargeRateVA>\n");
+        }
+        if (derSettings.getSetMaxDischargeRateW() != null && !derSettings.getSetMaxDischargeRateW().toString().equals("NaN")) {
+            xml.append("  <setMaxDischargeRateW>").append(derSettings.getSetMaxDischargeRateW()).append("</setMaxDischargeRateW>\n");
+        }
+        if (derSettings.getSetMaxV() != null && !derSettings.getSetMaxV().toString().equals("NaN")) {
+            xml.append("  <setMaxV>").append(derSettings.getSetMaxV()).append("</setMaxV>\n");
+        }
+        if (derSettings.getSetMaxVA() != null && !derSettings.getSetMaxVA().toString().equals("NaN")) {
+            xml.append("  <setMaxVA>").append(derSettings.getSetMaxVA()).append("</setMaxVA>\n");
+        }
+        if (derSettings.getSetMaxVar() != null && !derSettings.getSetMaxVar().toString().equals("NaN")) {
+            xml.append("  <setMaxVar>").append(derSettings.getSetMaxVar()).append("</setMaxVar>\n");
+        }
+        if (derSettings.getSetMaxVarNeg() != null && !derSettings.getSetMaxVarNeg().toString().equals("NaN")) {
+            xml.append("  <setMaxVarNeg>").append(derSettings.getSetMaxVarNeg()).append("</setMaxVarNeg>\n");
+        }
+        if (derSettings.getSetMaxW() != null && !derSettings.getSetMaxW().toString().equals("NaN")) {
+            xml.append("  <setMaxW>").append(derSettings.getSetMaxW()).append("</setMaxW>\n");
+        }
+        if (derSettings.getSetMaxWh() != null && !derSettings.getSetMaxWh().toString().equals("NaN")) {
+            xml.append("  <setMaxWh>").append(derSettings.getSetMaxWh()).append("</setMaxWh>\n");
+        }
+        if (derSettings.getSetMinPFOverExcited() != null && !derSettings.getSetMinPFOverExcited().toString().equals("NaN")) {
+            xml.append("  <setMinPFOverExcited>").append(String.format("%.2f", derSettings.getSetMinPFOverExcited())).append("</setMinPFOverExcited>\n");
+        }
+        if (derSettings.getSetMinPFUnderExcited() != null && !derSettings.getSetMinPFUnderExcited().toString().equals("NaN")) {
+            xml.append("  <setMinPFUnderExcited>").append(String.format("%.2f", derSettings.getSetMinPFUnderExcited())).append("</setMinPFUnderExcited>\n");
+        }
+        if (derSettings.getSetMinV() != null && !derSettings.getSetMinV().toString().equals("NaN")) {
+            xml.append("  <setMinV>").append(derSettings.getSetMinV()).append("</setMinV>\n");
+        }
+        if (derSettings.getSetVNom() != null && !derSettings.getSetVNom().toString().equals("NaN")) {
+            xml.append("  <setVNom>").append(derSettings.getSetVNom()).append("</setVNom>\n");
+        }
+        if (derSettings.getSetVRef() != null && !derSettings.getSetVRef().toString().equals("NaN")) {
+            xml.append("  <setVRef>").append(derSettings.getSetVRef()).append("</setVRef>\n");
+        }
+
+        xml.append("</DERSettings>");
+        return xml.toString();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERSettings", e);
+            return "<DERSettings xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/ders\">\n" +
+                "  <error>Some error occurred</error>\n" +
+                "</DERSettings>";
+        }
+    }
+
     public ResponseEntity<Map<String, Object>> getDer(Long derId, Long endDeviceId){
         Map<String, Object> result = new HashMap<>();
             
@@ -409,13 +687,15 @@ public class DerService {
             StringBuilder xml = new StringBuilder();
             xml.append("<DER xmlns=\"http://ieee.org/2030.5\" ")
             .append("href=\"").append(stripHost(derEntity.getDerLink())).append("\">\n");
-            appendIfPresent(xml, "DERCapabilityLink", derEntity.getDerCapabilityLink());
-            appendIfPresent(xml, "DERStatusLink", derEntity.getDerStatusLink());
-            appendIfPresent(xml, "DERAvailabilityLink", derEntity.getDerAvailabilityLink());
-            appendIfPresent(xml, "DERSettingsLink", derEntity.getDerSettingsLink());
-            appendIfPresent(xml, "AssociatedUsagePointLink", derEntity.getAssociatedUsagePointLink());
             appendIfPresent(xml, "AssociatedDERProgramListLink", derEntity.getAssociatedDERProgramListLink());
+            appendIfPresent(xml, "AssociatedUsagePointLink", derEntity.getAssociatedUsagePointLink());
             appendIfPresent(xml, "CurrentDERProgramLink", derEntity.getCurrentDERProgramLink());
+            appendIfPresent(xml, "DERAvailabilityLink", derEntity.getDerAvailabilityLink());
+            appendIfPresent(xml, "DERCapabilityLink", derEntity.getDerCapabilityLink());
+            appendIfPresent(xml, "DERSettingsLink", derEntity.getDerSettingsLink());
+            appendIfPresent(xml, "DERStatusLink", derEntity.getDerStatusLink());
+            
+            
 
             xml.append("</DER>");
             return xml.toString();
@@ -564,9 +844,9 @@ public class DerService {
             derEntity = derEntityOptional.get();
             Map<String, Object> entityMap = new HashMap<>();
             entityMap.put("id", derEntity.getId());
-            entityMap.put("setMaxW", derEntity.getSetMaxW());
-            entityMap.put("setMaxVA", derEntity.getSetMaxVA());
-            LOGGER.info("DER service Power generation test is " + derEntity.getSetMaxW() + " and " + derEntity.getSetMaxVA());
+            entityMap.put("setMaxW", derEntity.getDerSettings().getSetMaxW());
+            entityMap.put("setMaxVA", derEntity.getDerSettings().getSetMaxVA());
+            LOGGER.info("DER service Power generation test is " + derEntity.getDerSettings().getSetMaxW() + " and " + derEntity.getDerSettings().getSetMaxVA());
             result.put("DerPowerGenerationTest", entityMap);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -581,8 +861,8 @@ public class DerService {
         //JSONObject DerPowerGenerationpayload = payload.optJSONObject("payload");
         Double setMaxW = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxW");
         Double setMaxVA = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxVA");
-        derEntity.setSetMaxW(setMaxW);
-        derEntity.setSetMaxVA(setMaxVA);
+        derEntity.getDerSettings().setSetMaxW(setMaxW);
+        derEntity.getDerSettings().setSetMaxVA(setMaxVA);
      }
 
     

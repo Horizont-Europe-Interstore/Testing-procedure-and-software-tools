@@ -234,23 +234,42 @@ public class App {
         return response;
     }
 
+    public String getADer(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        Long endDeviceId  = currentTest.getLong("endDeviceID");
+        Long derId = currentTest.getLong("derID");
+        LOGGER.info("the edev id is " + endDeviceId );
+        LOGGER.info("the der id is " + derId);   
+        derTest.getADerRequest( derId, endDeviceId);
+        String response = derTest.getADer();
+        LOGGER.info("the response of the der is in the app.java " + response);
+        return response;
+    }
+    public String createDer(JSONObject currentTest) throws Exception {
+        // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
+        derTest.createNewDer(currentTest);
+        String response = derTest.getADer();
+        LOGGER.info("the response of DER is " + response);
+        return response;
+    }
+
     public String createDerCapability(JSONObject currentTest) throws Exception {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derTest.createNewDerCapability(currentTest);
         String response = derTest.getCreatedDerCapability();
-        LOGGER.info("the response of DER is " + response);
+        LOGGER.info("the response of DER Capability is " + response);
         return response;
     }
 
     public String getADerCapability(JSONObject currentTest) throws Exception {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long endDeviceId  = currentTest.getLong("endDeviceID");
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the fsa id is " + endDeviceId );
         LOGGER.info("the der id is " + derId);   
         derTest.getADerCapabilityRequest( derId, endDeviceId);
         String response = derTest.getADerCapability();
-        LOGGER.info("the response of the der programs is in the app.java " + response);
+        LOGGER.info("the response of the der capability is in the app.java " + response);
         return response;
     }
 
@@ -258,19 +277,19 @@ public class App {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
         derTest.createNewDerSettings(currentTest);
         String response = derTest.getCreatedDerSettings();
-        LOGGER.info("the response of DER is " + response);
+        LOGGER.info("the response of DER Settings is " + response);
         return response;
     }
 
     public String getADerSettings(JSONObject currentTest) throws Exception {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        Long endDeviceId  = currentTest.getLong("endDeviceId");
+        Long endDeviceId  = currentTest.getLong("endDeviceID");
         Long derId = currentTest.getLong("derID");
-        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the edev id is " + endDeviceId );
         LOGGER.info("the der id is " + derId);   
         derTest.getADerSettingsRequest( derId, endDeviceId);
         String response = derTest.getADerSettings();
-        LOGGER.info("the response of the der programs is in the app.java " + response);
+        LOGGER.info("the response of the der settingss is in the app.java " + response);
         return response;
     }
 

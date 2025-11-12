@@ -152,6 +152,14 @@ public class UIControleHandler {
             try { return app.PowerGenerationtest(s); }
             catch(Exception e){ throw new RuntimeException(e); }
         });
+        testMap.put("CreateDer", s -> {
+            try { return app.createDer(s); }
+            catch(Exception e){ throw new RuntimeException(e); }
+        });
+        testMap.put("GetDer", s -> {
+            try { return app.getADer(s); }
+            catch(Exception e){ throw new RuntimeException(e); }
+        });
     }
 
     @PostMapping

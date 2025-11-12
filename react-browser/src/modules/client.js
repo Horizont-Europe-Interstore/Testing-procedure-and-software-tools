@@ -339,15 +339,40 @@ export default class Client{
                 derControlID:'',
             }
         },
-
-
         {
             index:20,
+            test:'Create Der',
+            desc:'description',
+            args: true,
+            object:{
+                endDeviceID:'',
+                derCapabilityLink:'',
+                derStatusLink:'',
+                derAvailabilityLink:'',
+                derSettingsLink:'',
+                associatedUsagePointLink:'',
+                associatedDERProgramListLink:'',
+                currentDERProgramLink:''
+            }
+        },
+        {
+            index:21,
+            test:'Get Der',
+            desc:'description',
+            args: true,
+            object:{
+                endDeviceID:'',
+                derID:''
+            }
+        },
+        {
+            index:22,
             test:'Create Der Capability',
             desc:'description',
             args: true,
             object:{
-                endDeviceId:'',
+                derId:'',
+                derCapabilityLink:'',
                 modesSupported:'',
                 rtgAbnormalCategory:'',
                 rtgMaxA:'',
@@ -372,20 +397,13 @@ export default class Client{
                 rtgUnderExcitedPF:'',
                 rtgUnderExcitedW:'',
                 rtgVNom:'',
-                derCapabilityLink:'',
-                derStatusLink:'',
-                derAvailabilityLink:'',
-                derSettingsLink:'',
-                associatedUsagePointLink:'',
-                associatedDERProgramListLink:'',
-                currentDERProgramLink:'',
                 derType:''
 
             }
         },
 
         {
-            index:21,
+            index:23,
             test:'Get A Der Capability',
             desc:'description',
             args: true,
@@ -396,12 +414,12 @@ export default class Client{
             }
         },
         {
-            index:22,
+            index:24,
             test:'Create Der Settings',
             desc:'description',
             args: true,
             object:{
-                   endDeviceId:'',
+                   derId:'',
                    derSettingsLink:'',
                    modesEnabled:'',
                    setESDelay:'',
@@ -435,7 +453,7 @@ export default class Client{
         },
 
         {
-            index:23,
+            index:25,
             test:'Get A Der Settings',
             desc:'description',
             args: true,
@@ -447,7 +465,7 @@ export default class Client{
         },
 
         {
-            index:24,
+            index:26,
             test:'Power Generation Test',
             desc:'description',
             args:true,
@@ -509,10 +527,18 @@ export default class Client{
             // dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
             // derpLink: (field) => field === null || field === "" || typeof field === 'string'
    
-        }
-        ,
+        },
+
         'Get All Der Programs':{
             fsaID:(field)=>{return !isNaN(field)}
+        },
+
+        'Create Der':{
+            endDeviceID:(field)=>{return !isNaN(field)}
+        },
+        'Get Der':{
+            endDeviceID:(field)=>{return !isNaN(field)},
+            derID:(field)=> {return !isNaN(field)}
         }
 
     }

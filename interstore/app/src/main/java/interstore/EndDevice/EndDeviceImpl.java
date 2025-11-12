@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.mockito.Mockito.doNothing;
+
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -171,12 +173,24 @@ public class EndDeviceImpl {
                         xml.append("<changedTime>").append(System.currentTimeMillis() / 1000).append("</changedTime>\n");
                     }
 
+                    if (xmlName.equals("DERListLink")){
+                        continue;
+                    }
+                    
                     try {
                         Field field = EndDeviceDto.class.getDeclaredField(fieldName);
                         field.setAccessible(true);
                         Object value = field.get(endDeviceDto);
 
                         if (value != null && value instanceof String) {
+                            if (xmlName.equals("DeviceInformationLink")){
+                                // Add sFDI value
+                                int derCount = derRepository.findByEndDeviceId(endDeviceDto.getId()).size();
+                                xml.append("<").append("DERListLink");
+                                xml.append(" href=\"").append(stripHost((String) endDeviceDto.getDERListLink())).append("\"");
+                                xml.append(" all=\"").append(derCount).append("\"");
+                                xml.append("/>\n");
+                             }
                             xml.append("<").append(xmlName);
                             xml.append(" href=\"").append(stripHost((String) value)).append("\"");
 
@@ -295,10 +309,10 @@ public class EndDeviceImpl {
            .append("\" subscribable=\"0\">\n");
         // Fields in IEEE 2030.5 preferred order
         String[] elementOrder = {
-            "configurationLink", "deviceInformationLink", "linkDstat", "linkDerList", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
+            "configurationLink", "linkDerList", "deviceInformationLink", "linkDstat", "fileStatusLink", "powerStatusLink", "linkFsa", "linkRg", "linkSub"
         };
         String[] xmlNames = {
-            "ConfigurationLink", "DeviceInformationLink", "DeviceStatusLink", "DERListLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
+            "ConfigurationLink", "DERListLink", "DeviceInformationLink", "DeviceStatusLink", "FileStatusLink", "PowerStatusLink", "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
         };
         for (int i = 0; i < elementOrder.length; i++) {
             String fieldName = elementOrder[i];

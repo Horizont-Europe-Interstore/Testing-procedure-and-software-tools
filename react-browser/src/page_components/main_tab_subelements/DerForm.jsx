@@ -1,69 +1,88 @@
 import React, { useState, useEffect } from "react";
 import {
-  Flex,
-  Box,
   Text,
-  SimpleGrid,
   Button,
-  VStack,
-  Divider,
+  Box,
+  Flex,
+  SimpleGrid,
+  Select,
+  RadioGroup, 
+  Stack,
+  Radio
 } from "@chakra-ui/react";
 import Client from "../../modules/client.js";
 
 function DerForm({
   toggleVar,
   currentTest,
-  setCurrentTest,
   setToggle,
-  setReport,
   setTestState,
-  setHeaderState,
+  setCurrentTest,
   tests,
+  setReport,
+  setHeaderState,
+  testState,
 }) {
-  const capabilityObject = tests[20].object;
-  const settingsObject = tests[22].object;
+  // Radio mode: der | capability | settings
+  const [formMode, setFormMode] = useState("der");
 
-  // Merge objects but avoid duplicating endDeviceId & derSettingsLink
-  const mergedObject = {
-    // First: Capability fields (endDeviceId, derSettingsLink come from here)
-    ...capabilityObject,
-    // Then: Settings fields, but skip duplicates
-    ...Object.fromEntries(
-      Object.entries(settingsObject).filter(
-        ([key]) => !["endDeviceId", "derSettingsLink"].includes(key)
-      )
-    ),
-  };
+  // Shared data across all 3 modes
+  const [formData, setFormData] = useState({});
 
-  const [formObject, setFormObject] = useState(mergedObject);
+  // Get the 3 test definitions
+  const derTest = tests.find(t => t.test === "Create Der");
+  const capabilityTest = tests.find(t => t.test === "Create Der Capability");
+  const settingsTest = tests.find(t => t.test === "Create Der Settings");
 
+  // Current active test based on radio
+  const activeTest = formMode === "der" ? derTest :
+                    formMode === "capability" ? capabilityTest :
+                    settingsTest;
+
+  // Initialize formData on first load
   useEffect(() => {
-    setFormObject(mergedObject);
-  }, [tests]);
+    if (activeTest) {
+      setFormData({ ...activeTest.object });
+    }
+  }, [activeTest]);
 
-  const handleChange = (key, value) =>
-    setFormObject((prev) => ({ ...prev, [key]: value }));
+
+  const handleChange = (key, value) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // VALIDATION: Check all fields are filled
-    for (const [key, value] of Object.entries(formObject)) {
+    // REQUIRED FIELDS — only IDs
+    const requiredFields = {
+      "der": ["endDeviceID"],
+      "capability": ["derId"],  
+      "settings": ["derId"]
+    };
+
+    const required = requiredFields[formMode] || [];
+
+    // Validate only required fields
+    for (const key of required) {
+      const value = formData[key];
       if (!value || value.toString().trim() === "") {
-        setHeaderState({
-          text: `Please fill in: ${key}`,
-          visElemIdx: 1,
-        });
+        setHeaderState({ text: `Please fill in: ${key}`, visElemIdx: 1 });
         return;
       }
     }
 
+    const testToSend = {
+      ...activeTest,
+      object: formData
+    };
+
     setTestState(false);
     setHeaderState({ text: "Running Test", visElemIdx: 2 });
     setToggle(true);
-    setCurrentTest(tests[0]);
+
     try {
-      const res = await Client.sendTest({ ...currentTest, object: formObject });
+      const res = await Client.sendTest(testToSend);
       setReport(res);
     } catch (err) {
       console.error(err);
@@ -83,16 +102,33 @@ function DerForm({
   return (
     <Flex flexDirection="column" hidden={toggleVar}>
       <Text variant="element_name" mb={3}>
-        Capability + Settings TEST PARAMETERS
+        {activeTest?.test || "DER"} TEST PARAMETERS
       </Text>
 
-      <form onSubmit={handleSubmit}>
-        <VStack spacing={4} align="stretch">
-          {/* Der Capability */}
-          <Box>
-            <Text fontWeight="bold" mb={2}>Der Capability</Text>
-            <SimpleGrid columns={2} spacing={3}>
-              {Object.keys(capabilityObject).map((key) => (
+      {/* Radio Buttons */}
+      <Box mb={4}>
+        <Text fontWeight="bold" mb={1} color="blue.600">
+          Select Form
+        </Text>
+        <RadioGroup onChange={setFormMode} value={formMode}>
+          <Stack direction="row" spacing={6}>
+            <Radio value="der">Create Der</Radio>
+            <Radio value="capability">Create Der Capability</Radio>
+            <Radio value="settings">Create Der Settings</Radio>
+          </Stack>
+        </RadioGroup>
+      </Box>
+
+      <Box>
+        <form onSubmit={handleSubmit}>
+          <SimpleGrid columns={2} spacing={3}>
+            {Object.entries(formData).map(([key, value]) => {
+              const isRequired = 
+                (formMode === "der" && key === "endDeviceID") ||
+                (formMode === "capability" && key === "derId") ||
+                (formMode === "settings" && key === "derId");
+
+              return (
                 <Flex
                   key={key}
                   border="groove"
@@ -100,49 +136,27 @@ function DerForm({
                   flexDirection="column"
                   alignItems="center"
                   p={2}
+                  position="relative"
                 >
-                  <label>{key}:</label>
+                  <label>
+                    {key}
+                    {isRequired && <Text as="span" color="red.500" ml={1}>*</Text>}
+                    :
+                  </label>
                   <input
                     type="text"
-                    value={formObject[key] || ""}
+                    name={key}
+                    autoComplete="on"
+                    value={value || ""}
                     onChange={(e) => handleChange(key, e.target.value)}
                     style={{ width: "100%", textAlign: "center" }}
                   />
                 </Flex>
-              ))}
-            </SimpleGrid>
-          </Box>
+              );
+            })}
+          </SimpleGrid>
 
-          <Divider />
-
-          {/* Der Settings (excluding duplicates) */}
-          <Box>
-            <Text fontWeight="bold" mb={2}>Der Settings</Text>
-            <SimpleGrid columns={2} spacing={3}>
-              {Object.entries(settingsObject)
-                .filter(([key]) => !["endDeviceId", "derSettingsLink"].includes(key))
-                .map(([key]) => (
-                  <Flex
-                    key={key}
-                    border="groove"
-                    borderWidth="1vh"
-                    flexDirection="column"
-                    alignItems="center"
-                    p={2}
-                  >
-                    <label>{key}:</label>
-                    <input
-                      type="text"
-                      value={formObject[key] || ""}
-                      onChange={(e) => handleChange(key, e.target.value)}
-                      style={{ width: "100%", textAlign: "center" }}
-                    />
-                  </Flex>
-                ))}
-            </SimpleGrid>
-          </Box>
-
-          {/* Buttons */}
+          {/* Buttons - Always visible */}
           <SimpleGrid columns={2} spacing={3} mt={4}>
             <Button variant="submit_form_button" type="submit">
               SUBMIT
@@ -151,8 +165,8 @@ function DerForm({
               CANCEL
             </Button>
           </SimpleGrid>
-        </VStack>
-      </form>
+        </form>
+      </Box>
     </Flex>
   );
 }
