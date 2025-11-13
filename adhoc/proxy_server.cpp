@@ -27,6 +27,8 @@
 #include <curl/curl.h>
 
 #include <thread>
+
+#include <algorithm>
  
 int check_digit(uint64_t x) {
 
@@ -150,28 +152,72 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, HttpRespo
 
 }
  
-std::string forward_to_java(const std::string& path, const std::string& lfdi, const std::string& sfdi) {
+std::string extract_content_type(const std::string& headers) {
+    std::istringstream stream(headers);
+    std::string line;
+    while (std::getline(stream, line)) {
+        // Convert to lowercase for case-insensitive comparison
+        std::string lower_line = line;
+        std::transform(lower_line.begin(), lower_line.end(), lower_line.begin(), ::tolower);
+
+        if (lower_line.find("content-type:") == 0) {
+            // Extract the value after "Content-Type: "
+            size_t colon_pos = line.find(':');
+            if (colon_pos != std::string::npos) {
+                std::string content_type = line.substr(colon_pos + 1);
+                // Trim leading/trailing whitespace and \r
+                content_type.erase(0, content_type.find_first_not_of(" \t\r\n"));
+                content_type.erase(content_type.find_last_not_of(" \t\r\n") + 1);
+                return content_type;
+            }
+        }
+    }
+    return "";
+}
+
+std::string forward_to_java(const std::string& method, const std::string& path, const std::string& body,
+                            const std::string& content_type, const std::string& lfdi, const std::string& sfdi) {
 
     CURL *curl;
 
     CURLcode res;
 
     HttpResponse response;
- 
+
     curl = curl_easy_init();
 
     if(curl) {
 
         std::string url = "http://java-backend:8080" + path;
 
-        std::cerr << "Forwarding to URL: " << url << std::endl;
- 
+        std::cerr << "Forwarding to URL: " << url << " [Method: " << method << "]" << std::endl;
+
+        if (!body.empty()) {
+            std::cerr << "Forwarding body (" << body.length() << " bytes)" << std::endl;
+        }
+
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
- 
+
+        // Set HTTP method
+        if (method == "PUT") {
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        } else if (method == "POST") {
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+        } else if (method == "DELETE") {
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        }
+        // GET is default, no need to set
+
+        // Set request body if present
+        if (!body.empty()) {
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, body.length());
+        }
+
         struct curl_slist *headers = NULL;
 
         std::string lfdi_header = "X-Server-LFDI: " + lfdi;
@@ -182,8 +228,14 @@ std::string forward_to_java(const std::string& path, const std::string& lfdi, co
 
         headers = curl_slist_append(headers, sfdi_header.c_str());
 
+        // Forward Content-Type if present
+        if (!content_type.empty()) {
+            std::string content_type_header = "Content-Type: " + content_type;
+            headers = curl_slist_append(headers, content_type_header.c_str());
+        }
+
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
- 
+
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
@@ -195,7 +247,7 @@ std::string forward_to_java(const std::string& path, const std::string& lfdi, co
             std::cerr << "CURL request successful. Response size: " << response.data.size() << std::endl;
 
         }
- 
+
         curl_slist_free_all(headers);
 
         curl_easy_cleanup(curl);
@@ -205,26 +257,26 @@ std::string forward_to_java(const std::string& path, const std::string& lfdi, co
         std::cerr << "Failed to initialize CURL." << std::endl;
 
     }
- 
+
     if (response.data.empty()) {
 
         return "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n";
 
     }
- 
+
     std::ostringstream http_response;
 
     http_response << "HTTP/1.1 200 OK\r\n"
 << "Content-Type: application/sep+xml\r\n"
 << "Content-Length: " << response.data.length() << "\r\n";
- 
+
     if (path == "/dcap" || path == "/dcap/" || path == "/") {
 
         http_response << "X-Server-LFDI: " << lfdi << "\r\n"
 << "X-Server-SFDI: " << sfdi << "\r\n";
 
     }
- 
+
     http_response << "\r\n" << response.data;
 
     return http_response.str();
@@ -275,21 +327,70 @@ void configure_context(SSL_CTX *ctx, const char *cert_key_file) {
 
 }
  
-std::string parse_http_path(const std::string& request) {
+struct HttpRequest {
+    std::string method;
+    std::string path;
+    std::string version;
+    std::string headers;
+    std::string body;
+    std::string full_request;
+};
+
+HttpRequest parse_http_request(const std::string& request) {
+
+    HttpRequest req;
+    req.full_request = request;
 
     std::istringstream stream(request);
 
-    std::string method, path, version;
+    // Parse first line: METHOD PATH VERSION
+    stream >> req.method >> req.path >> req.version;
 
-    stream >> method >> path >> version;
+    // Skip to end of first line
+    std::string line;
+    std::getline(stream, line);
 
-    return path;
+    // Read headers until empty line
+    std::ostringstream headers_stream;
+    while (std::getline(stream, line) && line != "\r" && !line.empty()) {
+        headers_stream << line << "\n";
+    }
+    req.headers = headers_stream.str();
 
+    // Everything after headers is the body
+    std::ostringstream body_stream;
+    while (std::getline(stream, line)) {
+        body_stream << line << "\n";
+    }
+    req.body = body_stream.str();
+
+    return req;
+
+}
+
+void log_http_request(const HttpRequest& req, const std::string& client_ip) {
+    std::cout << "\n========== Incoming HTTP Request ==========" << std::endl;
+    std::cout << "Client IP: " << client_ip << std::endl;
+    std::cout << "Method: " << req.method << std::endl;
+    std::cout << "Path: " << req.path << std::endl;
+    std::cout << "Version: " << req.version << std::endl;
+
+    if (!req.headers.empty()) {
+        std::cout << "Headers:\n" << req.headers;
+    }
+
+    if (!req.body.empty()) {
+        std::cout << "Body (" << req.body.length() << " bytes):\n" << req.body;
+    } else {
+        std::cout << "Body: (empty)" << std::endl;
+    }
+
+    std::cout << "==========================================\n" << std::endl;
 }
  
 // Function to handle a single client connection
 
-void handle_client(SSL *ssl, int client_fd, const std::string& lfdi, const std::string& sfdi) {
+void handle_client(SSL *ssl, int client_fd, const std::string& lfdi, const std::string& sfdi, const std::string& client_ip) {
 
     char buffer[4096];
 
@@ -301,12 +402,19 @@ void handle_client(SSL *ssl, int client_fd, const std::string& lfdi, const std::
 
         std::string request(buffer);
 
-        std::string path = parse_http_path(request);
+        HttpRequest http_req = parse_http_request(request);
 
-        std::string response = forward_to_java(path, lfdi, sfdi);
-         
-        // std::string response = forward_to_nats(path, lfdi, sfdi); publish from here 
-        
+        // Log the incoming request BEFORE forwarding to Java
+        log_http_request(http_req, client_ip);
+
+        // Extract Content-Type from headers
+        std::string content_type = extract_content_type(http_req.headers);
+
+        // Forward to Java with method, path, body, content-type
+        std::string response = forward_to_java(http_req.method, http_req.path, http_req.body, content_type, lfdi, sfdi);
+
+        // std::string response = forward_to_nats(path, lfdi, sfdi); publish from here
+
         SSL_write(ssl, response.c_str(), response.length());
 
     }
@@ -405,7 +513,7 @@ int main(int argc, char **argv) {
 
             std::cout << "SSL handshake successful with " << client_ip << std::endl;
 
-            std::thread(handle_client, ssl, client_fd, lfdi, sfdi).detach();
+            std::thread(handle_client, ssl, client_fd, lfdi, sfdi, std::string(client_ip)).detach();
 
         } else {
 

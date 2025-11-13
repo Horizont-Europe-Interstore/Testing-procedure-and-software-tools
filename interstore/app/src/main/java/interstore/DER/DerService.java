@@ -857,7 +857,7 @@ public class DerService {
     }
 
      public void setPowerGeneration(DerEntity derEntity, JSONObject derPowerGenerationpayload)
-     {  
+     {
         //JSONObject DerPowerGenerationpayload = payload.optJSONObject("payload");
         Double setMaxW = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxW");
         Double setMaxVA = parseDoubleFromPayload(  derPowerGenerationpayload, "setMaxVA");
@@ -865,7 +865,70 @@ public class DerService {
         derEntity.getDerSettings().setSetMaxVA(setMaxVA);
      }
 
-    
+     @Transactional
+     public ResponseEntity<Map<String, Object>> updateDERCapability(Long endDeviceID, Long derId, JSONObject payload)
+             throws NumberFormatException, JSONException, NotFoundException {
+        LOGGER.info("Received DER Capability update payload: " + payload);
+
+        Long endDeviceId = Long.parseLong(payload.getString("endDeviceId"));
+        EndDeviceDto endDevice = endDeviceRepository.findById(endDeviceId)
+                .orElseThrow(() -> new NotFoundException());
+
+        Long derID = Long.parseLong(payload.getString("derID"));
+        LOGGER.info("DER service Capability update for endDeviceId: " + endDeviceId + " and derID: " + derID);
+
+        DerEntity derEntity = derRepository.findById(derID)
+                .orElseThrow(() -> new NotFoundException());
+
+        derEntity.setEndDevice(endDevice);
+
+        try {
+            derEntity = derRepository.save(derEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        }
+
+        // Update the capability fields
+        updateDerCapabilityFields(derEntity.getDerCapability(), payload);
+        derCapabilityRepository.save(derEntity.getDerCapability());
+
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derID);
+            Map<String, Object> result = new HashMap<>();
+            derEntity = derEntityOptional.get();
+            Map<String, Object> entityMap = new HashMap<>();
+            entityMap.put("id", derEntity.getId());
+            entityMap.put("rtgMaxA", derEntity.getDerCapability().getRtgMaxA());
+            entityMap.put("rtgMaxW", derEntity.getDerCapability().getRtgMaxW());
+            LOGGER.info("DER Capability updated successfully");
+            result.put("DerCapability", entityMap);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+        }
+     }
+
+     private void updateDerCapabilityFields(DERCapabilityEntity derCapability, JSONObject payload) {
+        // Update all capability fields from the payload
+        if (payload.has("rtgMaxA")) {
+            derCapability.setRtgMaxA(parseDoubleFromPayload(payload, "rtgMaxA"));
+        }
+        if (payload.has("rtgMaxW")) {
+            derCapability.setRtgMaxW(parseDoubleFromPayload(payload, "rtgMaxW"));
+        }
+        if (payload.has("rtgMaxVA")) {
+            derCapability.setRtgMaxVA(parseDoubleFromPayload(payload, "rtgMaxVA"));
+        }
+        if (payload.has("rtgMaxVar")) {
+            derCapability.setRtgMaxVar(parseDoubleFromPayload(payload, "rtgMaxVar"));
+        }
+        if (payload.has("rtgMaxVarNeg")) {
+            derCapability.setRtgMaxVarNeg(parseDoubleFromPayload(payload, "rtgMaxVarNeg"));
+        }
+        // Add more fields as needed
+     }
+
      //public void reactivePoweropModFixedVAr( Long EndDeviceId, Long derID)
      /*check that opModFixedVAr is present or not 
      multiple modes can be supported in the der capability 

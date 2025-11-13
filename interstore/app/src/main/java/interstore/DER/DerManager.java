@@ -103,15 +103,16 @@ public class DerManager {
     
     public Map<String, Object> updateDerSettings(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
     {
-    
+
     if (payload.has("payload")) {
         JSONObject innerPayload = payload.getJSONObject("payload");
-        
+
         if (innerPayload.has("endDeviceId") && innerPayload.has("derID")) {
             Long endDeviceId = innerPayload.getLong("endDeviceId");
             Long derId = innerPayload.getLong("derID");
             if (payload.has("powergeneration")) {
-                return updatePowerGenerationTest(endDeviceId, derId, innerPayload);
+                ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, innerPayload);
+                return responseEntity.getBody();
             }
         }
     }
@@ -257,17 +258,39 @@ public class DerManager {
     }
    
     @PutMapping("edev/{endDeviceId}/der/{derId}/derg")
-    public Map<String, Object> updatePowerGenerationTest(@PathVariable Long endDeviceId, @PathVariable Long derId , JSONObject payload) throws JSONException, NotFoundException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, payload);
-        return  responseEntity.getBody();
+    public Map<String, Object> updatePowerGenerationTestHttp(
+            @PathVariable Long endDeviceId,
+            @PathVariable Long derId,
+            @org.springframework.web.bind.annotation.RequestBody String payload,
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Content-Type", required = false) String contentType)
+            throws Exception {
 
+        LOGGER.info("Received PUT request for DER Settings (derg). Content-Type: " + contentType);
+        LOGGER.info("Raw payload: " + payload);
+
+        // Parse both JSON and XML payloads
+        JSONObject parsedPayload = PayloadParser.parseDERSettingsXml(payload, endDeviceId, derId);
+
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, parsedPayload);
+        return responseEntity.getBody();
     }
 
     @PutMapping("edev/{endDeviceId}/der/{derId}/dercap")
-    public Map<String, Object> updateDerCapabilityDetails(@PathVariable Long endDeviceId, @PathVariable Long derId , JSONObject payload) throws JSONException, NotFoundException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, payload);
-        return  responseEntity.getBody();
+    public Map<String, Object> updateDerCapabilityDetailsHttp(
+            @PathVariable Long endDeviceId,
+            @PathVariable Long derId,
+            @org.springframework.web.bind.annotation.RequestBody String payload,
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Content-Type", required = false) String contentType)
+            throws Exception {
 
+        LOGGER.info("Received PUT request for DER Capability (dercap). Content-Type: " + contentType);
+        LOGGER.info("Raw payload: " + payload);
+
+        // Parse both JSON and XML payloads
+        JSONObject parsedPayload = PayloadParser.parseDERCapabilityXml(payload, endDeviceId, derId);
+
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updateDERCapability(endDeviceId, derId, parsedPayload);
+        return responseEntity.getBody();
     }
 
 }
