@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 @RestController
 public class EdevManager {
     private EndDeviceService endDeviceImpl;
@@ -233,6 +236,37 @@ public class EdevManager {
         }
     }
 
+    @GetMapping("/edev/{endDeviceID}/di")
+     public Map<String, Object> getDeviceInformation(@PathVariable Long endDeviceID, HttpServletRequest request, HttpServletResponse response) {
+        if (RequestContextHolder.getRequestAttributes() != null){
+            try{
+                String responseEntity = this.endDeviceImpl.getDeviceInformationHttp(endDeviceID);
+        
+                LOGGER.info("the dev_info_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+                LOGGER.severe("Error retrieving DeviceInformation value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return null;
+        } else {
+            return null;
+        }
+     }
+
+     @PutMapping("/edev/{endDeviceId}/di")
+     public String putDeviceInformation(@PathVariable Long endDeviceId, @RequestBody String payload){
+        return endDeviceImpl.putDeviceInformationHttp(endDeviceId, payload);
+     }
 
     public Map<String, Object>getEndDeviceById(@PathVariable Long id) 
     {   

@@ -3,20 +3,25 @@ package interstore.EndDevice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interstore.ApplicationContextProvider;
 import interstore.DER.*;
+import interstore.EndDevice.DeviceInformation.DeviceInformationEntity;
+import interstore.EndDevice.DeviceInformation.DeviceInformationRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
 import interstore.Registration.RegistrationEntity;
 import interstore.Registration.RegistrationRepository;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
-import static org.mockito.Mockito.doNothing;
-
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -27,6 +32,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 @SuppressWarnings("unused")
 @Service
 public class EndDeviceService {
@@ -36,6 +44,8 @@ public class EndDeviceService {
     private RegistrationRepository registrationRepository;
     @Autowired
     private DerRepository derRepository;
+    @Autowired
+    private DeviceInformationRepository deviceInformationRepository;
     private static final Logger LOGGER = Logger.getLogger(EndDeviceService.class.getName());
     @Transactional 
     public EndDeviceEntity createEndDevice(JSONObject  payload) {
@@ -365,6 +375,121 @@ public class EndDeviceService {
             return null;
         }
     }
+
+    public String getDeviceInformationHttp(Long endDeviceID) {
+    try {
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceID).orElse(null);
+        if (endDevice == null) {
+            return "<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\"><message>No EndDevice found.</message></DeviceInformation>";
+        }
+
+        Optional<DeviceInformationEntity> optionalInfo =
+                deviceInformationRepository.findByEndDeviceEntity(endDevice);
+
+        if (!optionalInfo.isPresent()) {
+            return "<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\"><message>No DeviceInformation present for this EndDevice.</message></DeviceInformation>";
+        }
+
+        DeviceInformationEntity info = optionalInfo.get();
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\">\n");
+
+        if (info.getlFDI() != null) {
+            xml.append("    <lFDI>").append(info.getlFDI()).append("</lFDI>\n");
+        }
+
+        appendIfPresent(xml, "mfDate", info.getMfDate());
+        appendIfPresent(xml, "mfHwVer", info.getMfHwVer());
+        appendIfPresent(xml, "mfID", info.getMfID());
+        appendIfPresent(xml, "mfModel", info.getMfModel());
+        appendIfPresent(xml, "mfSerNum", info.getMfSerNum());
+        appendIfPresent(xml, "primaryPower", info.getPrimaryPower());
+        appendIfPresent(xml, "secondaryPower", info.getSecondaryPower());
+        appendIfPresent(xml, "swActTime", info.getSwActTime());
+        appendIfPresent(xml, "swVer", info.getSwVer());
+
+        xml.append("</DeviceInformation>");
+        return xml.toString();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DeviceInformation", e);
+            return "<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\"><message>Error retrieving DeviceInformation</message></DeviceInformation>";
+        }
+    }
+    private void appendIfPresent(StringBuilder xml, String tag, Object value) {
+        if (value != null) {
+        xml.append("    <").append(tag).append(">")
+           .append(value)
+           .append("</").append(tag).append(">\n");
+        }
+    }
+
+    public String putDeviceInformationHttp(Long endDeviceId, String payload){
+        try {
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceId).orElse(null);
+        if (endDevice == null) {
+            return "<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\"><message>No EndDevice found.</message></DeviceInformation>";
+        }
+
+        // Parse payload XML
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(payload)));
+
+        // Extract fields
+        String lFDI = getText(doc, "lFDI");
+        String mfDate = getText(doc, "mfDate");
+        String mfHwVer = getText(doc, "mfHwVer");
+        String mfID = getText(doc, "mfID");
+        String mfModel = getText(doc, "mfModel");
+        String mfSerNum = getText(doc, "mfSerNum");
+        String primaryPower = getText(doc, "primaryPower");
+        String secondaryPower = getText(doc, "secondaryPower");
+        String swActTime = getText(doc, "swActTime");
+        String swVer = getText(doc, "swVer");
+
+        // Check if DeviceInformationEntity exists
+        Optional<DeviceInformationEntity> optionalInfo =
+                deviceInformationRepository.findByEndDeviceEntity(endDevice);
+
+        DeviceInformationEntity info = optionalInfo.orElseGet(DeviceInformationEntity::new);
+
+        info.setEndDeviceEntity(endDevice);
+
+        // Update ONLY fields present in the payload
+        if (lFDI != null) info.setlFDI(lFDI);
+        if (mfDate != null) info.setMfDate(Long.parseLong(mfDate));
+        if (mfHwVer != null) info.setMfHwVer(mfHwVer);
+        if (mfID != null) info.setMfID(mfID);
+        if (mfModel != null) info.setMfModel(mfModel);
+        if (mfSerNum != null) info.setMfSerNum(mfSerNum);
+        if (primaryPower != null) info.setPrimaryPower(primaryPower);
+        if (secondaryPower != null) info.setSecondaryPower(secondaryPower);
+        if (swActTime != null) info.setSwActTime(Long.parseLong(swActTime));
+        if (swVer != null) info.setSwVer(swVer);
+        
+        deviceInformationRepository.save(info);
+
+        return getDeviceInformationHttp(endDeviceId);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error processing DeviceInformation PUT", e);
+            return "<DeviceInformation xmlns=\"urn:ieee:std:2030.5:ns\"><error>Could not process update</error></DeviceInformation>";
+        }
+    }
+
+    private String getText(Document doc, String tag) {
+        NodeList list = doc.getElementsByTagName(tag);
+        if (list != null && list.getLength() > 0) {
+            String val = list.item(0).getTextContent();
+            return (val == null || val.isBlank()) ? null : val.trim();
+        }
+        return null;
+    }
+
+
 
     @Transactional
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)

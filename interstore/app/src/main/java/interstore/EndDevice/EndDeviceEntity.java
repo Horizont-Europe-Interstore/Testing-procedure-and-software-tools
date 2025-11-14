@@ -1,15 +1,12 @@
 package interstore.EndDevice;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import interstore.AbstractDevice;
-import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import jakarta.persistence.*;
-import java.util.List;
-import java.util.logging.Logger;
+
 
 
 @Entity
 public class EndDeviceEntity implements AbstractDevice{ 
-     private static final Logger LOGGER = Logger.getLogger(EndDeviceEntity.class.getName()); 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
