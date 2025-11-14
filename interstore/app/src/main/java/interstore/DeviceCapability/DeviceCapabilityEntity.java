@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Entity
-public class DeviceCapabilityDto  {
+public class DeviceCapabilityEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -33,10 +33,10 @@ public class DeviceCapabilityDto  {
     @Column(name = "link")
     private Set<String> links = new HashSet<>();
 
-    private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityDto.class.getName()); 
+    private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityEntity.class.getName()); 
      
     
-    public DeviceCapabilityDto() {
+    public DeviceCapabilityEntity() {
     }
 
     public Long getId() {

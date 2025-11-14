@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 
 
 @Entity
-public class EndDeviceDto implements AbstractDevice{ 
-     private static final Logger LOGGER = Logger.getLogger(EndDeviceDto.class.getName()); 
+public class EndDeviceEntity implements AbstractDevice{ 
+     private static final Logger LOGGER = Logger.getLogger(EndDeviceEntity.class.getName()); 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -55,7 +55,7 @@ public class EndDeviceDto implements AbstractDevice{
 
 
 
-    public EndDeviceDto() {
+    public EndDeviceEntity() {
         
     } 
     

@@ -6,7 +6,7 @@ public class EndDeviceList {
 
     public UInt32 pollRate = new UInt32(900);
     private static EndDeviceList instance;
-    private static List<EndDeviceDto> endDevices = new ArrayList<>();
+    private static List<EndDeviceEntity> endDevices = new ArrayList<>();
    
     public EndDeviceList() {
 
@@ -22,12 +22,12 @@ public class EndDeviceList {
     }
 
     // Add an EndDevice to the list
-    public void addEndDevice(EndDeviceDto endDevice) {
+    public void addEndDevice(EndDeviceEntity endDevice) {
         endDevices.add(endDevice);
     }
 
     // Get all EndDevices in the list
-    public List<EndDeviceDto> getEndDevices() {
+    public List<EndDeviceEntity> getEndDevices() {
         return new ArrayList<>(endDevices); // Return a copy to prevent external modifications
     }
 }

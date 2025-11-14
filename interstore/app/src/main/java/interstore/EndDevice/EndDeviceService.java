@@ -7,7 +7,7 @@ import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
-import interstore.Registration.RegistrationDto;
+import interstore.Registration.RegistrationEntity;
 import interstore.Registration.RegistrationRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +29,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 @Service
-public class EndDeviceImpl {
+public class EndDeviceService {
     @Autowired
     private EndDeviceRepository endDeviceRepository;
     @Autowired
     private RegistrationRepository registrationRepository;
     @Autowired
     private DerRepository derRepository;
-    private static final Logger LOGGER = Logger.getLogger(EndDeviceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(EndDeviceService.class.getName());
     @Transactional 
-    public EndDeviceDto createEndDevice(JSONObject  payload) {
-        EndDeviceDto endDeviceDto = new EndDeviceDto(); 
+    public EndDeviceEntity createEndDevice(JSONObject  payload) {
+        EndDeviceEntity endDeviceDto = new EndDeviceEntity(); 
         endDeviceDto = endDeviceRepository.save(endDeviceDto);
         LOGGER.log(Level.INFO, "EndDeviceDto saved successfully" + endDeviceDto);
         setEndDevice(endDeviceDto, payload);   
@@ -47,7 +47,7 @@ public class EndDeviceImpl {
     }
 
 
-    public void setEndDevice(EndDeviceDto endDeviceDto, JSONObject payloadWrapper)
+    public void setEndDevice(EndDeviceEntity endDeviceDto, JSONObject payloadWrapper)
     {   
         Long id = endDeviceDto.getId(); 
         String idString = "/"+ String.valueOf(id) + "/";
@@ -126,7 +126,7 @@ public class EndDeviceImpl {
     public String getEndDeviceListHttp(Integer limit) {
        
         try {
-            List<EndDeviceDto> endDeviceList = endDeviceRepository.findAll();
+            List<EndDeviceEntity> endDeviceList = endDeviceRepository.findAll();
 
             if (endDeviceList.isEmpty()) {
                 String emptyXml = "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" " +
@@ -155,7 +155,7 @@ public class EndDeviceImpl {
                  "FunctionSetAssignmentsListLink", "RegistrationLink", "SubscriptionListLink"
             };
 
-            for (EndDeviceDto endDeviceDto : endDeviceList) {
+            for (EndDeviceEntity endDeviceDto : endDeviceList) {
                 xml.append(" <EndDevice href=\"")
                    .append(stripHost(endDeviceDto.getEndDeviceLink())).append("\" ")
                    .append("subscribable=\"0\">\n");
@@ -178,7 +178,7 @@ public class EndDeviceImpl {
                     }
                     
                     try {
-                        Field field = EndDeviceDto.class.getDeclaredField(fieldName);
+                        Field field = EndDeviceEntity.class.getDeclaredField(fieldName);
                         field.setAccessible(true);
                         Object value = field.get(endDeviceDto);
 
@@ -222,7 +222,7 @@ public class EndDeviceImpl {
                    "</EndDeviceList>";
         }
     }
-     public Map<String, Object> getEndDeviceID(EndDeviceDto endDeviceDto)
+     public Map<String, Object> getEndDeviceID(EndDeviceEntity endDeviceDto)
      {
         if (endDeviceDto == null || endDeviceDto.getId() == null) {
             throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
@@ -258,7 +258,7 @@ public class EndDeviceImpl {
     {
         Map<String, Object> responseMap = new HashMap<>();
         try {
-            EndDeviceDto endDeviceDto = endDeviceRepository.findById(id).orElse(null);
+            EndDeviceEntity endDeviceDto = endDeviceRepository.findById(id).orElse(null);
             LOGGER.log(Level.INFO, "EndDeviceDto retrieved successfully" + endDeviceDto);
             if(endDeviceDto == null) {
                 responseMap.put("message", "No endDevice found.");
@@ -280,7 +280,7 @@ public class EndDeviceImpl {
         Map<String, Object> responseMap = new HashMap<>();
         try {
            
-            List<EndDeviceDto> endDeviceDtos  = endDeviceRepository.findAll();
+            List<EndDeviceEntity> endDeviceDtos  = endDeviceRepository.findAll();
             if(endDeviceDtos.isEmpty()) {
                 responseMap.put("message", "No endDevices found.");
             }
@@ -299,7 +299,7 @@ public class EndDeviceImpl {
       public String getEndDeviceHttp(Long id)
     {
         try {
-        EndDeviceDto endDeviceDto = endDeviceRepository.findById(id).orElse(null);
+        EndDeviceEntity endDeviceDto = endDeviceRepository.findById(id).orElse(null);
         if (endDeviceDto == null) {
             return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>No endDevice found.</message></EndDevice>";
         }
@@ -325,7 +325,7 @@ public class EndDeviceImpl {
 
             }
             try {
-                Field field = EndDeviceDto.class.getDeclaredField(fieldName);
+                Field field = EndDeviceEntity.class.getDeclaredField(fieldName);
                 field.setAccessible(true);
                 Object value = field.get(endDeviceDto);
                 if (value != null && value instanceof String) {
@@ -354,10 +354,10 @@ public class EndDeviceImpl {
     }
     }
  
-    public EndDeviceDto findEndDeviceById(Long id) {
+    public EndDeviceEntity findEndDeviceById(Long id) {
         LOGGER.log(Level.INFO, "Finding EndDeviceDto for ID: " + id);
         try {
-            EndDeviceDto endDeviceDto = endDeviceRepository.findById(id).orElse(null);
+            EndDeviceEntity endDeviceDto = endDeviceRepository.findById(id).orElse(null);
             LOGGER.log(Level.INFO, "EndDeviceDto retrieved: " + endDeviceDto);
             return endDeviceDto;
         } catch (Exception e) {
@@ -370,13 +370,13 @@ public class EndDeviceImpl {
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
 
-        List<RegistrationDto> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
         if (!registrationDtos.isEmpty()) {
             throw new IllegalStateException("EndDevice with ID " + endDeviceID + " is already registered.");
         }
-        EndDeviceDto endDeviceDto = this.findEndDeviceById(endDeviceID);
+        EndDeviceEntity endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
-        RegistrationDto registrationDto = new RegistrationDto();
+        RegistrationEntity registrationDto = new RegistrationEntity();
         try {
             LOGGER.log(Level.INFO, "Registration Repository", registrationRepository);
             registrationDto = registrationRepository.save(registrationDto);
@@ -392,7 +392,7 @@ public class EndDeviceImpl {
         return getEndDeviceRegistrationID(registrationDto);
     }
 
-    public Map<String, Object> getEndDeviceRegistrationID(RegistrationDto registrationDto)
+    public Map<String, Object> getEndDeviceRegistrationID(RegistrationEntity registrationDto)
     {
        if (registrationDto == null || registrationDto.getId() == null) {
            throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
@@ -407,7 +407,7 @@ public class EndDeviceImpl {
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
         try {
-            List<RegistrationDto> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
+            List<RegistrationEntity> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
             LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
             List<Map<String, Object>> registrationDetails = registrationDtos.stream()
             .map(reg -> Map.<String, Object>of(
@@ -436,7 +436,7 @@ public class EndDeviceImpl {
     public String getRegisteredEndDevice(Long endDeviceID )
    {
         try {
-        List<RegistrationDto> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
 
         if (registrationDtos.isEmpty()) {
             return "<Registration xmlns=\"http://ieee.org/2030.5\">" +
@@ -446,7 +446,7 @@ public class EndDeviceImpl {
 
         StringBuilder xml = new StringBuilder();
         
-        for (RegistrationDto reg : registrationDtos) {
+        for (RegistrationEntity reg : registrationDtos) {
             xml.append("<Registration xmlns=\"http://ieee.org/2030.5\" href=\"")
                .append(stripHost(endDeviceRepository.findById(endDeviceID).get().getRegistrationLink()))
                .append("\">\n");
@@ -481,7 +481,7 @@ public class EndDeviceImpl {
     {
         
         try {
-            Optional<RegistrationDto> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
+            Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
             if (registrationDto == null) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);
@@ -495,9 +495,9 @@ public class EndDeviceImpl {
         }
 }
 
-    public EndDeviceDto getEndDeviceByRegistrationID(Long id){
-        Optional<RegistrationDto> registrationDto = registrationRepository.findById(id);
-        EndDeviceDto endDeviceDto = registrationDto.get().getEndDevice();
+    public EndDeviceEntity getEndDeviceByRegistrationID(Long id){
+        Optional<RegistrationEntity> registrationDto = registrationRepository.findById(id);
+        EndDeviceEntity endDeviceDto = registrationDto.get().getEndDevice();
         return endDeviceDto;
     }
 

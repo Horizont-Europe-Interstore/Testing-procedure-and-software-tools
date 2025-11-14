@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import java.time.Instant;
 
 @Entity
-public class TimeDto {
+public class TimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +26,7 @@ public class TimeDto {
     // private TimeOffSetType tzOffset; Time zone offset from UTC. Local time zone offset from currentTime. Does not include any daylight savings time offsets. For American
     // time zones, a negative tzOffset SHALL be used (e.g., EST = GMT −5 which is −18 000).
      public String quality;
-    public TimeDto() {
+    public TimeEntity() {
         Instant instant = Instant.now();
         long currentTime =  instant.getEpochSecond();
         this.currentTimeInstance = String.valueOf(currentTime);

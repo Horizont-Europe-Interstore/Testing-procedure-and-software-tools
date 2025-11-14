@@ -6,11 +6,11 @@ import org.json.JSONObject;
 import java.util.logging.Logger;
 
 public class SdevManager {
-    private SelfDeviceImpl selfDeviceImpl;
+    private SelfDeviceService selfDeviceImpl;
     private static final Logger LOGGER = Logger.getLogger(SdevManager.class.getName());
 
 
-    public SdevManager(SelfDeviceImpl selfDeviceImpl) {
+    public SdevManager(SelfDeviceService selfDeviceImpl) {
         this.selfDeviceImpl = selfDeviceImpl;
     }
 
@@ -48,8 +48,8 @@ public class SdevManager {
     }
 
 
-    public SelfDeviceDto getSelfDevice(JSONObject jsonObject) throws JSONException {
-        SelfDeviceDto data = selfDeviceImpl.getSelfDevice(jsonObject.getString("id"));
+    public SelfDeviceEntity getSelfDevice(JSONObject jsonObject) throws JSONException {
+        SelfDeviceEntity data = selfDeviceImpl.getSelfDevice(jsonObject.getString("id"));
         return data;
     }
 

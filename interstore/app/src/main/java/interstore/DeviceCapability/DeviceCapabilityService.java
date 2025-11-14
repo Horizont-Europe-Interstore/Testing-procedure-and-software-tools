@@ -1,9 +1,9 @@
 package interstore.DeviceCapability;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
-import interstore.Time.TimeDto;
-import interstore.Time.TimeDtoRepository;
+import interstore.Time.TimeEntity;
+import interstore.Time.TimeRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +19,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
-public class DeviceCapabilityImpl {
+public class DeviceCapabilityService {
 
     @Autowired
     private DeviceCapabilityRepository deviceCapabilityRepository;
 
     @Autowired
-    TimeDtoRepository timeDtoRepository;
+    TimeRepository timeDtoRepository;
   
     
-    private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DeviceCapabilityService.class.getName());
 
     @Transactional
-    public DeviceCapabilityDto createDeviceCapability(JSONObject jsonObject) throws MalformedURLException, JSONException {
+    public DeviceCapabilityEntity createDeviceCapability(JSONObject jsonObject) throws MalformedURLException, JSONException {
         LOGGER.info("Inside DcapImpl: " + jsonObject);
-        List<DeviceCapabilityDto> dcap = deviceCapabilityRepository.findAll();
+        List<DeviceCapabilityEntity> dcap = deviceCapabilityRepository.findAll();
         if(!dcap.isEmpty()){
             LOGGER.log(Level.INFO, "Dcap entity already exists!");
             return null;
         } else{
             JSONObject payload = jsonObject.getJSONObject("payload");
-            DeviceCapabilityDto deviceCapabilityDto = new DeviceCapabilityDto();
+            DeviceCapabilityEntity deviceCapabilityDto = new DeviceCapabilityEntity();
             try {
                 deviceCapabilityDto = deviceCapabilityRepository.save(deviceCapabilityDto);
             } catch (Exception e) {
@@ -92,7 +92,7 @@ public class DeviceCapabilityImpl {
     //     }
     // }
 
-     public String getDeviceCapabilityHttp(DeviceCapabilityDto dcap) {
+     public String getDeviceCapabilityHttp(DeviceCapabilityEntity dcap) {
         return "<DeviceCapability xsi:schemaLocation=\"urn:ieee:std:2030.5:ns sep.xsd\" " +
                "xmlns=\"urn:ieee:std:2030.5:ns\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                "href=\"/dcap\">\n" +
@@ -103,7 +103,7 @@ public class DeviceCapabilityImpl {
 
 
 
-    public void setDeviceCapability(DeviceCapabilityDto deviceCapabilityDto, JSONObject jsonObject) throws JSONException
+    public void setDeviceCapability(DeviceCapabilityEntity deviceCapabilityDto, JSONObject jsonObject) throws JSONException
     {
         LOGGER.info("Inside DcapImpl -> setDeviceCapability: " + jsonObject);
         if(deviceCapabilityDto.getId() == null)
@@ -132,13 +132,13 @@ public class DeviceCapabilityImpl {
         deviceCapabilityDto.addLink(link.getLink());
         deviceCapabilityDto.setTimeLink(link.getLink());
 
-        TimeDto time = new TimeDto();
+        TimeEntity time = new TimeEntity();
         time.setTimeLink(link.getLink());
         timeDtoRepository.save(time);
         LOGGER.info("Leaving DcapImpl -> setDeviceCapability");
     }
 
-    public Map<Long, Object> getAllLinks(DeviceCapabilityDto deviceCapabilityDto) {
+    public Map<Long, Object> getAllLinks(DeviceCapabilityEntity deviceCapabilityDto) {
         if (deviceCapabilityDto == null || deviceCapabilityDto.getId() == null) {
             throw new IllegalArgumentException("DeviceCapabilityDto is null or does not have a valid ID.");
         }
@@ -162,7 +162,7 @@ public class DeviceCapabilityImpl {
     {
         Map<String, Object> responseMap = new HashMap<>();
         try{
-            List<DeviceCapabilityDto> deviceCapabilityDtos = deviceCapabilityRepository.findAll();
+            List<DeviceCapabilityEntity> deviceCapabilityDtos = deviceCapabilityRepository.findAll();
             if(deviceCapabilityDtos.isEmpty()
             || deviceCapabilityDtos == null)
             {
@@ -186,7 +186,7 @@ public class DeviceCapabilityImpl {
 
     @Transactional
     public String getTime(String payload) throws JSONException{
-        TimeDto timeDto = timeDtoRepository.findByTimeLink(payload);
+        TimeEntity timeDto = timeDtoRepository.findByTimeLink(payload);
         JSONObject object = new JSONObject();
         object.put("time_instance", timeDto.getCurrentTime());
         object.put("quality", timeDto.getQuality());
@@ -195,7 +195,7 @@ public class DeviceCapabilityImpl {
 
     @Transactional
     public String getTimeHttp(String payload) throws JSONException{
-            TimeDto timeDto = timeDtoRepository.findByTimeLink(payload);
+            TimeEntity timeDto = timeDtoRepository.findByTimeLink(payload);
 
             return "<Time xmlns=\"urn:ieee:std:2030.5:ns\" " +
            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
@@ -211,15 +211,15 @@ public class DeviceCapabilityImpl {
         JSONObject jsonObject = new JSONObject(payload);
         long updatedTimeInstance = jsonObject.getLong("updated_time_instance");
         String timeLink = jsonObject.getString("timeLink");
-        TimeDto timeDto = timeDtoRepository.findByTimeLink(timeLink);
+        TimeEntity timeDto = timeDtoRepository.findByTimeLink(timeLink);
         timeDto.setCurrentTime(String.valueOf(updatedTimeInstance));
         timeDtoRepository.save(timeDto);
         return "";
     }
 
     @Transactional
-    public DeviceCapabilityDto createDefaultDeviceCapability() {
-        DeviceCapabilityDto defaultDcap = new DeviceCapabilityDto();
+    public DeviceCapabilityEntity createDefaultDeviceCapability() {
+        DeviceCapabilityEntity defaultDcap = new DeviceCapabilityEntity();
         defaultDcap.setSelfDeviceLink("/sdev");
         defaultDcap.setEndDeviceListLink("/edev");
         defaultDcap.setMirrorUsagePointListLink("/mup");
@@ -228,7 +228,7 @@ public class DeviceCapabilityImpl {
         try {
             defaultDcap = deviceCapabilityRepository.save(defaultDcap);
             
-            TimeDto time = new TimeDto();
+            TimeEntity time = new TimeEntity();
             time.setTimeLink("/tm");
             time.setCurrentTime(String.valueOf(System.currentTimeMillis() / 1000));
             time.setQuality("7");

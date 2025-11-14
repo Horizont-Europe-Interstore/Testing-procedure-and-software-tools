@@ -21,11 +21,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class DcapManager {
-    private  DeviceCapabilityImpl deviceCapabilityImpl;
+    private  DeviceCapabilityService deviceCapabilityService;
     private static final Logger LOGGER = Logger.getLogger(DcapManager.class.getName());
     
-    public DcapManager(DeviceCapabilityImpl deviceCapabilityImpl) {
-        this.deviceCapabilityImpl = deviceCapabilityImpl;
+    public DcapManager(DeviceCapabilityService deviceCapabilityService) {
+        this.deviceCapabilityService = deviceCapabilityService;
     } 
 public Object chooseMethod_basedOnAction(String payload) throws InterruptedException, JSONException, IOException, CertificateEncodingException, NoSuchAlgorithmException{
 if (payload == null || payload.isEmpty()) {
@@ -58,15 +58,15 @@ if (payload == null || payload.isEmpty()) {
 
    public Map<String, Object> addDeviceCapability( JSONObject jsonObject) throws MalformedURLException, InterruptedException, JSONException  {
     LOGGER.info("the json is " + jsonObject); 
-    DeviceCapabilityDto deviceCapabilityDto = deviceCapabilityImpl.createDeviceCapability(jsonObject);
+    DeviceCapabilityEntity deviceCapabilityDto = deviceCapabilityService.createDeviceCapability(jsonObject);
     LOGGER.info("the response is " + deviceCapabilityDto);
-    Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+    Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
     @SuppressWarnings("unchecked")
-    List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
-    DeviceCapabilityDto dcapDto;
+    List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
+    DeviceCapabilityEntity dcapDto;
     if (dcapList == null || dcapList.isEmpty()) {
         LOGGER.info("No device capabilities found, creating default one for Schneider polling");
-        dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+        dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
     } else {
         dcapDto = dcapList.get(0);
     }
@@ -92,18 +92,18 @@ public Object getDeviceCapability(HttpServletRequest request, HttpServletRespons
                 LOGGER.warning("No LFDI/SFDI headers from proxy");
             }
             
-            Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+            Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
             @SuppressWarnings("unchecked")
-            List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
-            DeviceCapabilityDto dcapDto;
+            List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
+            DeviceCapabilityEntity dcapDto;
             if (dcapList == null || dcapList.isEmpty()) {
                 LOGGER.info("No device capabilities found, creating default one for Schneider polling");
-                dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+                dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
             } else {
                 dcapDto = dcapList.get(0);
             }
            
-            String dcap_val = this.deviceCapabilityImpl.getDeviceCapabilityHttp(dcapDto);
+            String dcap_val = this.deviceCapabilityService.getDeviceCapabilityHttp(dcapDto);
             
             LOGGER.info("the dcap_val is " + dcap_val);
             byte[] bytes = dcap_val.getBytes(StandardCharsets.UTF_8);
@@ -123,7 +123,7 @@ public Object getDeviceCapability(HttpServletRequest request, HttpServletRespons
         }
         return null;
     } else {
-        ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityImpl.getDeviceCapabilities();
+        ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityService.getDeviceCapabilities();
         return responseEntity;
     }
 
@@ -138,23 +138,23 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 }
 
 public String getTime(String payload) throws JSONException{
-    return deviceCapabilityImpl.getTime(payload);
+    return deviceCapabilityService.getTime(payload);
 }
 
 @GetMapping(value = "/dcap/tm")
 public Object getTimeHttp(HttpServletResponse response) throws JSONException{
     try{
-        Map<String, Object> body = this.deviceCapabilityImpl.getDeviceCapabilities().getBody();
+        Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
         @SuppressWarnings("unchecked")
-        List<DeviceCapabilityDto> dcapList = (List<DeviceCapabilityDto>) body.get("deviceCapabilityDtos");
-        DeviceCapabilityDto dcapDto;
+        List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
+        DeviceCapabilityEntity dcapDto;
         if (dcapList == null || dcapList.isEmpty()) {
             LOGGER.info("No device capabilities found, creating default one for Schneider polling");
-            dcapDto = this.deviceCapabilityImpl.createDefaultDeviceCapability();
+            dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
         } else {
             dcapDto = dcapList.get(0);
         }
-        String time_val = deviceCapabilityImpl.getTimeHttp(dcapDto.getTimeLink());
+        String time_val = deviceCapabilityService.getTimeHttp(dcapDto.getTimeLink());
         LOGGER.info("the time_val is " + time_val);
         byte[] bytes = time_val.getBytes(StandardCharsets.UTF_8);
         
@@ -175,7 +175,7 @@ public Object getTimeHttp(HttpServletResponse response) throws JSONException{
 }
 
 public void updateTime(String payload) throws JSONException{
-    deviceCapabilityImpl.updateTime(payload);
+    deviceCapabilityService.updateTime(payload);
 }
 
 

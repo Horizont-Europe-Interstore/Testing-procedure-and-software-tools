@@ -1,5 +1,5 @@
 package interstore.FunctionSetAssignments;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import interstore.Identity.Resource;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
 
     @ManyToOne 
     @JoinColumn(name = "end_device_id", nullable = false)  
-    private EndDeviceDto endDevice;
+    private EndDeviceEntity endDevice;
     
     @Column(name = "description")
     private String description;
@@ -80,11 +80,11 @@ public class FunctionSetAssignmentsEntity implements FunctionSetAssignmentBase{
     public void setId(Long id) {
         this.id = id;
     } 
-    public EndDeviceDto getEndDevice() {
+    public EndDeviceEntity getEndDevice() {
         return endDevice;
     }
 
-    public void setEndDevice(EndDeviceDto endDevice) {
+    public void setEndDevice(EndDeviceEntity endDevice) {
         this.endDevice = endDevice;
     } 
     

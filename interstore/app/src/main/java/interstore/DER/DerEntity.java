@@ -5,7 +5,7 @@ import interstore.DER.DERAvailabilty.DERAvailabilityEntity;
 import interstore.DER.DERCapability.DERCapabilityEntity;
 import interstore.DER.DERSettings.DERSettingsEntity;
 import interstore.DER.DERStatus.DERStatusEntity;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import interstore.Identity.SubscribableResourceEntity;
 @Entity
 public class DerEntity  {
@@ -16,7 +16,7 @@ public class DerEntity  {
 
     @ManyToOne 
     @JoinColumn(name = "end_device_id", nullable = false)  
-    private EndDeviceDto endDevice;
+    private EndDeviceEntity endDevice;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "subscribabale_Resource") 
@@ -77,11 +77,11 @@ public class DerEntity  {
         return id;
     }
 
-    public EndDeviceDto getEndDevice() {
+    public EndDeviceEntity getEndDevice() {
         return endDevice;
     }
 
-    public void setEndDevice(EndDeviceDto endDevice) {
+    public void setEndDevice(EndDeviceEntity endDevice) {
         this.endDevice = endDevice;
     } 
     

@@ -1,7 +1,7 @@
 package interstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import interstore.EndDevice.EndDeviceDto;
-import interstore.EndDevice.EndDeviceImpl;
+import interstore.EndDevice.EndDeviceEntity;
+import interstore.EndDevice.EndDeviceService;
 import interstore.FunctionSetAssignments.FsaManager;
 
 import org.json.JSONObject;
@@ -214,8 +214,8 @@ public class FunctionSetAssignmentsTest {
 //    }
     public static String queryServiceFSAList( String action, Long regID)
     {
-        EndDeviceImpl endDeviceImpl = ApplicationContextProvider.getApplicationContext().getBean(EndDeviceImpl.class);
-        EndDeviceDto endDeviceDto = endDeviceImpl.getEndDeviceByRegistrationID(regID);
+        EndDeviceService endDeviceImpl = ApplicationContextProvider.getApplicationContext().getBean(EndDeviceService.class);
+        EndDeviceEntity endDeviceDto = endDeviceImpl.getEndDeviceByRegistrationID(regID);
         Map<String, Object> attributes = new HashMap<>();
         // attributes.put("servicename", getserviceName());
         attributes.put("action", action);

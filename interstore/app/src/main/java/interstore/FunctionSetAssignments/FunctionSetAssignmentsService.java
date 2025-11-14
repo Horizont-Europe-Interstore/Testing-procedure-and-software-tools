@@ -1,5 +1,5 @@
 package interstore.FunctionSetAssignments;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Types.HexBinary128;
 import interstore.Types.mRIDType;
@@ -37,7 +37,7 @@ public class FunctionSetAssignmentsService {
      @Transactional
     public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
-        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        EndDeviceEntity endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
         //endDevice.getFunctionSetAssignmentsListLink();
         String fsaLink = endDevice.getFunctionSetAssignmentsListLink();

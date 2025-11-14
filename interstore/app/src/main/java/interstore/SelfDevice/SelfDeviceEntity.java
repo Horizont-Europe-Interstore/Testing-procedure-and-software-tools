@@ -1,4 +1,4 @@
 package interstore.SelfDevice;
 
-public class SelfDeviceDto {
+public class SelfDeviceEntity {
 }

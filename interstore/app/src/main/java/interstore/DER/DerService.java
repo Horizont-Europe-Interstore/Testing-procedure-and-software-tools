@@ -3,7 +3,7 @@ import interstore.DER.DERCapability.DERCapabilityEntity;
 import interstore.DER.DERCapability.DERCapabilityRepository;
 import interstore.DER.DERSettings.DERSettingsEntity;
 import interstore.DER.DERSettings.DERSettingsRepository;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Identity.SubscribableResourceEntity;
 import interstore.Identity.SubscribableResourceRepository;
@@ -44,7 +44,7 @@ public class DerService {
         LOGGER.info("Received DER payload is " + payload); 
         DerEntity derEntity = new DerEntity();
         Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceID")); 
-        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        EndDeviceEntity endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
         SubscribableResourceEntity subscribableResourceEntity = new SubscribableResourceEntity();
         String derListLink = endDevice.getDERListLink();
@@ -757,7 +757,7 @@ public class DerService {
     public String getAllDERsHttp(Long endDeviceId) {
     try {
         List<DerEntity> derEntityList = derRepository.findByEndDeviceId(endDeviceId);
-        Optional<EndDeviceDto> endDeviceDto = endDeviceRepository.findById(endDeviceId);
+        Optional<EndDeviceEntity> endDeviceDto = endDeviceRepository.findById(endDeviceId);
         if (endDeviceDto.isEmpty()) {
             return "<DERList xmlns=\"XXXXXXXXXXXXXXXXXXXXXX\" href=\"/edev/" + endDeviceId + "/der\" all=\"0\" results=\"0\">\n" +
                 " <message>No EndDevice found for ID " + endDeviceId + "</message>\n" +
@@ -823,7 +823,7 @@ public class DerService {
      {
         LOGGER.info("Received DER power generation payload is " + payload); 
         Long endDeviceId = Long.parseLong(payload.getString("endDeviceId")); 
-        EndDeviceDto endDevice = endDeviceRepository.findById( endDeviceId)
+        EndDeviceEntity endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
         Long derID = Long.parseLong(payload.getString("derID")); 
         LOGGER.info("DER service Power generation test is " + endDeviceId  + " and " + derID );
@@ -871,7 +871,7 @@ public class DerService {
         LOGGER.info("Received DER Capability update payload: " + payload);
 
         Long endDeviceId = Long.parseLong(payload.getString("endDeviceId"));
-        EndDeviceDto endDevice = endDeviceRepository.findById(endDeviceId)
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceId)
                 .orElseThrow(() -> new NotFoundException());
 
         Long derID = Long.parseLong(payload.getString("derID"));

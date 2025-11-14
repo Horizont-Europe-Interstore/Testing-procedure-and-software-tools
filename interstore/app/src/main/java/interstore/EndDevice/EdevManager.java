@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.logging.Logger;
 @RestController
 public class EdevManager {
-    private EndDeviceImpl endDeviceImpl;
+    private EndDeviceService endDeviceImpl;
     private static final Logger LOGGER = Logger.getLogger(EdevManager.class.getName());
     private static String endDeviceEndPoint; 
     private static String registerationendpoint;
     private static String functionsetassignmentEndPoint;
     private static String deviceStatusLinkendPoint;
 
-    public EdevManager(EndDeviceImpl endDeviceImpl) {
+    public EdevManager(EndDeviceService endDeviceImpl) {
         this.endDeviceImpl = endDeviceImpl;
     }
 
@@ -100,7 +100,7 @@ public class EdevManager {
     
    
     public Map<String, Object> addEndDevice( JSONObject jsonPayLoad) throws InterruptedException {
-        EndDeviceDto endDeviceDto = this.endDeviceImpl.createEndDevice(jsonPayLoad);
+        EndDeviceEntity endDeviceDto = this.endDeviceImpl.createEndDevice(jsonPayLoad);
         return this.endDeviceImpl.getEndDeviceID(endDeviceDto);  
        
     } 
@@ -333,7 +333,7 @@ public class EdevManager {
       }
  
 
-     public EndDeviceDto updateEndDevice( JSONObject jsonObject) {
+     public EndDeviceEntity updateEndDevice( JSONObject jsonObject) {
         return null;
     }
     public void deleteEndDevice( String id) {

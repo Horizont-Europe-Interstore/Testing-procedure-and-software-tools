@@ -5,11 +5,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import interstore.EndDevice.EndDeviceDto;
+import interstore.EndDevice.EndDeviceEntity;
 import jakarta.persistence.Entity; 
 import com.fasterxml.jackson.annotation.JsonIgnore; 
 @Entity
-public class RegistrationDto   {
+public class RegistrationEntity   {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +26,7 @@ public class RegistrationDto   {
     @JsonIgnore
     @OneToOne
     @JoinColumn(name =  "endDeviceId", referencedColumnName = "id") 
-    private EndDeviceDto endDevice;
+    private EndDeviceEntity endDevice;
     
     @Column(name = "link_rgid")
     private String linkRgid;
@@ -52,10 +52,10 @@ public class RegistrationDto   {
         this.dateTimeRegistered = dateTimeRegistered;
     }
 
-    public EndDeviceDto getEndDevice() {
+    public EndDeviceEntity getEndDevice() {
         return endDevice;
     }
-    public void setEndDevice(EndDeviceDto endDevice) {
+    public void setEndDevice(EndDeviceEntity endDevice) {
         this.endDevice = endDevice;
     }
     public String getLinkRgid() {
