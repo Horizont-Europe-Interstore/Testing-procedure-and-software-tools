@@ -59,7 +59,7 @@ public class DerTest {
    {
        Map<String, Object> attributes = new HashMap<>();
        attributes.put("action", "get");
-       attributes.put("endDeviceId", endDeviceId);
+       attributes.put("endDeviceID", endDeviceId);
        attributes.put("derCapabilities", "derCapabilities"); 
        attributes.put("derID", derId);
        ObjectMapper objectMapper = new ObjectMapper();

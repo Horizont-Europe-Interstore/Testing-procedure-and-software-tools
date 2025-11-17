@@ -263,9 +263,9 @@ public class App {
 
     public String getADerCapability(JSONObject currentTest) throws Exception {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        Long endDeviceId  = currentTest.getLong("endDeviceID");
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
         Long derId = currentTest.getLong("derID");
-        LOGGER.info("the fsa id is " + endDeviceId );
+        LOGGER.info("the edev id is " + endDeviceId );
         LOGGER.info("the der id is " + derId);   
         derTest.getADerCapabilityRequest( derId, endDeviceId);
         String response = derTest.getADerCapability();
@@ -283,7 +283,7 @@ public class App {
 
     public String getADerSettings(JSONObject currentTest) throws Exception {
         // JSONObject currentTest = this.uiControleHandler.getCurrentTestObject();
-        Long endDeviceId  = currentTest.getLong("endDeviceID");
+        Long endDeviceId  = currentTest.getLong("endDeviceId");
         Long derId = currentTest.getLong("derID");
         LOGGER.info("the edev id is " + endDeviceId );
         LOGGER.info("the der id is " + derId);   

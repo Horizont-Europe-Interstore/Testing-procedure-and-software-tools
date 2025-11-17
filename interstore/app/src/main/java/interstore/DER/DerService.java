@@ -866,18 +866,16 @@ public class DerService {
      }
 
      @Transactional
-     public ResponseEntity<Map<String, Object>> updateDERCapability(Long endDeviceID, Long derId, JSONObject payload)
+     public String updateDERCapability(Long endDeviceID, Long derId, JSONObject payload)
              throws NumberFormatException, JSONException, NotFoundException {
         LOGGER.info("Received DER Capability update payload: " + payload);
 
-        Long endDeviceId = Long.parseLong(payload.getString("endDeviceId"));
-        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceId)
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceID)
                 .orElseThrow(() -> new NotFoundException());
 
-        Long derID = Long.parseLong(payload.getString("derID"));
-        LOGGER.info("DER service Capability update for endDeviceId: " + endDeviceId + " and derID: " + derID);
+        LOGGER.info("DER service Capability update for endDeviceId: " + endDeviceID + " and derID: " + derId);
 
-        DerEntity derEntity = derRepository.findById(derID)
+        DerEntity derEntity = derRepository.findById(derId)
                 .orElseThrow(() -> new NotFoundException());
 
         derEntity.setEndDevice(endDevice);
@@ -893,41 +891,100 @@ public class DerService {
         derCapabilityRepository.save(derEntity.getDerCapability());
 
         try {
-            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derID);
-            Map<String, Object> result = new HashMap<>();
-            derEntity = derEntityOptional.get();
-            Map<String, Object> entityMap = new HashMap<>();
-            entityMap.put("id", derEntity.getId());
-            entityMap.put("rtgMaxA", derEntity.getDerCapability().getRtgMaxA());
-            entityMap.put("rtgMaxW", derEntity.getDerCapability().getRtgMaxW());
+            // Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceID, derId);
+            // Map<String, Object> result = new HashMap<>();
+            // derEntity = derEntityOptional.get();
+            // Map<String, Object> entityMap = new HashMap<>();
+            // entityMap.put("id", derEntity.getId());
+            // entityMap.put("rtgMaxA", derEntity.getDerCapability().getRtgMaxA());
+            // entityMap.put("rtgMaxW", derEntity.getDerCapability().getRtgMaxW());
             LOGGER.info("DER Capability updated successfully");
-            result.put("DerCapability", entityMap);
-            return ResponseEntity.ok(result);
+            // result.put("DerCapability", entityMap);
+            return getDerCapabilityHttp(endDeviceID, derId);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving DER entity", e);
-            return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+            return "Error retrieving DER entity";
         }
      }
 
-     private void updateDerCapabilityFields(DERCapabilityEntity derCapability, JSONObject payload) {
-        // Update all capability fields from the payload
-        if (payload.has("rtgMaxA")) {
-            derCapability.setRtgMaxA(parseDoubleFromPayload(payload, "rtgMaxA"));
-        }
-        if (payload.has("rtgMaxW")) {
-            derCapability.setRtgMaxW(parseDoubleFromPayload(payload, "rtgMaxW"));
-        }
-        if (payload.has("rtgMaxVA")) {
-            derCapability.setRtgMaxVA(parseDoubleFromPayload(payload, "rtgMaxVA"));
-        }
-        if (payload.has("rtgMaxVar")) {
-            derCapability.setRtgMaxVar(parseDoubleFromPayload(payload, "rtgMaxVar"));
-        }
-        if (payload.has("rtgMaxVarNeg")) {
-            derCapability.setRtgMaxVarNeg(parseDoubleFromPayload(payload, "rtgMaxVarNeg"));
-        }
-        // Add more fields as needed
-     }
+    private void updateDerCapabilityFields(DERCapabilityEntity derCapability, JSONObject payload) {
+
+        derCapability.setModesSupported(
+                payload.has("modesSupported") ? payload.getString("modesSupported") : null);
+
+        derCapability.setRtgAbnormalCategory(
+                payload.has("rtgAbnormalCategory") ? payload.getInt("rtgAbnormalCategory") : null);
+
+        derCapability.setRtgMaxA(
+                payload.has("rtgMaxA") ? parseDoubleFromPayload(payload, "rtgMaxA") : null);
+
+        derCapability.setRtgMaxAh(
+                payload.has("rtgMaxAh") ? parseDoubleFromPayload(payload, "rtgMaxAh") : null);
+
+        derCapability.setRtgMaxChargeRateVA(
+                payload.has("rtgMaxChargeRateVA") ? parseDoubleFromPayload(payload, "rtgMaxChargeRateVA") : null);
+
+        derCapability.setRtgMaxChargeRateW(
+                payload.has("rtgMaxChargeRateW") ? parseDoubleFromPayload(payload, "rtgMaxChargeRateW") : null);
+
+        derCapability.setRtgMaxDischargeRateVA(
+                payload.has("rtgMaxDischargeRateVA") ? parseDoubleFromPayload(payload, "rtgMaxDischargeRateVA") : null);
+
+        derCapability.setRtgMaxDischargeRateW(
+                payload.has("rtgMaxDischargeRateW") ? parseDoubleFromPayload(payload, "rtgMaxDischargeRateW") : null);
+
+        derCapability.setRtgMaxV(
+                payload.has("rtgMaxV") ? parseDoubleFromPayload(payload, "rtgMaxV") : null);
+
+        derCapability.setRtgMaxVA(
+                payload.has("rtgMaxVA") ? parseDoubleFromPayload(payload, "rtgMaxVA") : null);
+
+        derCapability.setRtgMaxVar(
+                payload.has("rtgMaxVar") ? parseDoubleFromPayload(payload, "rtgMaxVar") : null);
+
+        derCapability.setRtgMaxVarNeg(
+                payload.has("rtgMaxVarNeg") ? parseDoubleFromPayload(payload, "rtgMaxVarNeg") : null);
+
+        derCapability.setRtgMaxW(
+                payload.has("rtgMaxW") ? parseDoubleFromPayload(payload, "rtgMaxW") : null);
+
+        derCapability.setRtgMaxWh(
+                payload.has("rtgMaxWh") ? parseDoubleFromPayload(payload, "rtgMaxWh") : null);
+
+        derCapability.setRtgMinPFOverExcited(
+                payload.has("rtgMinPFOverExcited") ? parseDoubleFromPayload(payload, "rtgMinPFOverExcited") : null);
+
+        derCapability.setRtgMinPFUnderExcited(
+                payload.has("rtgMinPFUnderExcited") ? parseDoubleFromPayload(payload, "rtgMinPFUnderExcited") : null);
+
+        derCapability.setRtgMinV(
+                payload.has("rtgMinV") ? parseDoubleFromPayload(payload, "rtgMinV") : null);
+
+        derCapability.setRtgNormalCategory(
+                payload.has("rtgNormalCategory") ? payload.getInt("rtgNormalCategory") : null);
+
+        derCapability.setRtgOverExcitedPF(
+                payload.has("rtgOverExcitedPF") ? parseDoubleFromPayload(payload, "rtgOverExcitedPF") : null);
+
+        derCapability.setRtgOverExcitedW(
+                payload.has("rtgOverExcitedW") ? parseDoubleFromPayload(payload, "rtgOverExcitedW") : null);
+
+        derCapability.setRtgReactiveSusceptance(
+                payload.has("rtgReactiveSusceptance") ? parseDoubleFromPayload(payload, "rtgReactiveSusceptance") : null);
+
+        derCapability.setRtgUnderExcitedPF(
+                payload.has("rtgUnderExcitedPF") ? parseDoubleFromPayload(payload, "rtgUnderExcitedPF") : null);
+
+        derCapability.setRtgUnderExcitedW(
+                payload.has("rtgUnderExcitedW") ? parseDoubleFromPayload(payload, "rtgUnderExcitedW") : null);
+
+        derCapability.setRtgVNom(
+                payload.has("rtgVNom") ? parseDoubleFromPayload(payload, "rtgVNom") : null);
+
+        derCapability.setDerType(
+                payload.has("type") ? payload.getInt("type") : null);
+    }
+
 
      //public void reactivePoweropModFixedVAr( Long EndDeviceId, Long derID)
      /*check that opModFixedVAr is present or not 

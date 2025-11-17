@@ -369,6 +369,7 @@ export default class Client{
             index:22,
             test:'Create Der Capability',
             desc:'description',
+            hidden: true,
             args: true,
             object:{
                 derId:'',
@@ -417,6 +418,7 @@ export default class Client{
             index:24,
             test:'Create Der Settings',
             desc:'description',
+            hidden: true,
             args: true,
             object:{
                    derId:'',

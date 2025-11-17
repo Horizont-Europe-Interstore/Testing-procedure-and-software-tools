@@ -276,7 +276,7 @@ public class DerManager {
     }
 
     @PutMapping("edev/{endDeviceId}/der/{derId}/dercap")
-    public Map<String, Object> updateDerCapabilityDetailsHttp(
+    public String updateDerCapabilityDetailsHttp(
             @PathVariable Long endDeviceId,
             @PathVariable Long derId,
             @org.springframework.web.bind.annotation.RequestBody String payload,
@@ -289,8 +289,8 @@ public class DerManager {
         // Parse both JSON and XML payloads
         JSONObject parsedPayload = PayloadParser.parseDERCapabilityXml(payload, endDeviceId, derId);
 
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.updateDERCapability(endDeviceId, derId, parsedPayload);
-        return responseEntity.getBody();
+        String responseEntity = this.derService.updateDERCapability(endDeviceId, derId, parsedPayload);
+        return responseEntity;
     }
 
 }

@@ -100,7 +100,9 @@ function Controle({
         {currentView === 'reports' && (
           <>
             <Text variant={'element_name'}>TESTS</Text>
-            {tests.map(t=>(
+            {tests
+              .filter(t=>!t.hidden)
+              .map(t=>(
               <Tooltip variant={'test_desc_tt'} placement='right-end' hasArrow label={t.desc} key={t.test}>
                 <Button id={t.index} variant={'controle_buttons'} onClick={handleTestSelect}>
                   {t.test+' Test'}
