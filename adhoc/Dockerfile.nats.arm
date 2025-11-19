@@ -1,0 +1,47 @@
+# Dockerfile for ARM architecture (Raspberry Pi) with NATS support
+# Base image compatible with ARM64
+FROM arm64v8/ubuntu:22.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    cmake \
+    git \
+    libssl-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /build
+
+# Clone and build NATS C client library
+RUN git clone https://github.com/nats-io/nats.c.git && \
+    cd nats.c && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DNATS_BUILD_STREAMING=OFF && \
+    make && \
+    make install && \
+    ldconfig
+
+# Set application working directory
+WORKDIR /app
+
+# Copy the NATS proxy server source code
+COPY adhoc/proxy_server_nats_reqresp.cpp .
+
+# Compile the proxy server for ARM architecture with NATS support
+RUN g++ -o ieee2030_nats_proxy proxy_server_nats_reqresp.cpp \
+    -lssl -lcrypto -lnats -lpthread -std=c++11
+
+# Expose the HTTPS port
+EXPOSE 443
+
+# Run the NATS proxy server
+# Usage: ./ieee2030_nats_proxy <port> <cert_key_file> <nats_url> <request_subject> <response_subject_prefix> <timeout_ms>
+CMD ["./ieee2030_nats_proxy", "443", "/app/certs/certs/cert_key.pem", \
+     "nats://nats-server:4222", "ieee2030.requests", "ieee2030.responses", "30000"]
