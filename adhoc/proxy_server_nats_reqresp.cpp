@@ -551,7 +551,7 @@ int main(int argc, char **argv) {
     SSL_CTX_free(ctx);
     natsConnection_Destroy(nats_conn);
     natsOptions_Destroy(opts);
-    nats_close();
+    nats_Close();
 
     return EXIT_SUCCESS;
 }
