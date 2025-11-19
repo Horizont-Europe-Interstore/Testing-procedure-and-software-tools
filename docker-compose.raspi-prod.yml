@@ -1,0 +1,65 @@
+version: '3.8'
+services:
+  
+  nats:
+    image: nats:2.10-alpine
+    container_name: ieee2030-nats
+    ports:
+      - "4222:4222"    
+      - "8222:8222"    
+      - "6222:6222"    
+    command:
+      - "-js"           
+      - "-m"
+      - "8222"          
+      - "--name"
+      - "ieee2030-nats-raspi"
+    restart: unless-stopped
+    networks:
+      - ieee2030-network
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  ieee2030-proxy:
+    build:
+      context: .
+      dockerfile: adhoc/Dockerfile.nats.arm
+    container_name: ieee2030-proxy
+    ports:
+      - "443:443"       
+    environment:
+      - NATS_URL=nats://nats:4222
+      - REQUEST_SUBJECT=ieee2030.requests
+      - RESPONSE_SUBJECT_PREFIX=ieee2030.responses
+      - TIMEOUT_MS=30000
+    command: >
+      /app/ieee2030_nats_proxy
+      443
+      /app/certs/certs/cert_key.pem
+      nats://nats:4222
+      ieee2030.requests
+      ieee2030.responses
+      30000
+    volumes:
+      
+      - ./certs:/app/certs:ro
+    depends_on:
+      nats:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ieee2030-network
+
+networks:
+  ieee2030-network:
+    driver: bridge
+
+volumes:
+  nats-data:
+    driver: local
