@@ -45,18 +45,18 @@ This server can be used in a Client-Server architecture with the client either b
 3. The server works in 3 major phases. These are:
     - Adding the resources:
         <div>
-            <video src="./assets/adding_resource.mp4" controls width="800"></video>
-        </div>
+              <img src="https://git-ce.rwth-aachen.de/acs/private/research/interstore/ieee2030.5-restapi/-/raw/refactored-code/assets/adding_resource.gif" width="800"/>
+          </div>
           - Result of adding the resource:
           <div>
-              <img src="./assets/adding_resource_result.jpg" width="800"/>
+              <img src="https://git-ce.rwth-aachen.de/acs/private/research/interstore/ieee2030.5-restapi/-/raw/refactored-code/assets/adding_resource_result.jpg" width="800"/>
           </div>
     - Testing the resources:
 
     - Viewing the results:
         <div>
-            <video src="./assets/viewing_report.mp4" controls width="800"></video>
-        </div>
+              <img src="https://git-ce.rwth-aachen.de/acs/private/research/interstore/ieee2030.5-restapi/-/raw/refactored-code/assets/viewing_report.gif" width="800"/>
+          </div>
 
 ## Development notes
 - Main test orchestration and helper methods live in [`interstore/App.java`](./interstore/app/src/main/java/interstore/App.java).
