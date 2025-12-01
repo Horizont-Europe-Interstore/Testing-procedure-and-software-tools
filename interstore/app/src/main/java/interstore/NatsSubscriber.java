@@ -3,20 +3,37 @@ package interstore;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import com.intuit.karate.Runner;
 
+@Component
 public class NatsSubscriber {
+    private static final Logger LOGGER = Logger.getLogger(NatsSubscriber.class.getName());
     private Connection nc;
     private String lastMessage; 
-    private ArrayList<String> subjects; 
+    private ArrayList<String> subjects;
+    
+    @Autowired
+    private HttpRequestHandler httpRequestHandler;
+    
+    public NatsSubscriber() {}
+    
     public NatsSubscriber(String natsUrl) throws Exception {
+        initializeConnection(natsUrl);
+    }
+    
+    public void initializeConnection(String natsUrl) throws Exception {
         // Connect to NATS server
         nc = Nats.connect(natsUrl);
         subjects = new ArrayList<>();
         setSubjects(subjects);
+        LOGGER.info("NATS connection initialized to: " + natsUrl);
     }
 
     public void subscribe(String subject) {
@@ -24,15 +41,52 @@ public class NatsSubscriber {
         Dispatcher dispatcher = nc.createDispatcher((msg) -> {
             String message = new String(msg.getData());
             this.lastMessage = message;
-            System.out.println("Received on [" + msg.getSubject() + "]: " + message);
+            LOGGER.info("NATS_RECEIVED: " + message);
             
-            // Extract XML root element and run corresponding test
-            String xmlRootElement = extractXmlRootElement(message);
-           // runTestForXmlElement(xmlRootElement);
+            // Parse HTTP request from NATS message and forward to backend
+            handleHttpRequest(message);
         });
 
         dispatcher.subscribe(subject);
-        System.out.println("Subscribed to: " + subject);
+        LOGGER.info("Subscribed to: " + subject);
+    }
+    
+    private void handleHttpRequest(String message) {
+        try {
+            // Parse XML message from Raspberry Pi
+            String correlationId = extractCorrelationId(message);
+            String method = extractXmlValue(message, "method");
+            String path = extractXmlValue(message, "path");
+            String body = extractXmlValue(message, "body");
+            String contentType = extractXmlValue(message, "contentType");
+            String lfdi = extractXmlValue(message, "lfdi");
+            String sfdi = extractXmlValue(message, "sfdi");
+            
+            LOGGER.info("PROCESSING_REQUEST: " + method + " " + path + " [" + correlationId + "]");
+            
+            // Forward to Java backend and publish response
+            String response = httpRequestHandler.forwardToBackend(method, path, body, contentType, lfdi, sfdi, correlationId);
+            
+            LOGGER.info("Response sent back via NATS");
+            
+        } catch (Exception e) {
+            LOGGER.severe("Error handling HTTP request: " + e.getMessage());
+        }
+    }
+    
+    private String extractCorrelationId(String xml) {
+        return extractXmlValue(xml, "correlationId");
+    }
+    
+    private String extractXmlValue(String xml, String tag) {
+        String startTag = "<" + tag + ">";
+        String endTag = "</" + tag + ">";
+        int start = xml.indexOf(startTag);
+        int end = xml.indexOf(endTag);
+        if (start != -1 && end != -1) {
+            return xml.substring(start + startTag.length(), end);
+        }
+        return "";
     }
 
     public String getLastMessage() {

@@ -142,22 +142,24 @@ public class App {
 
     public void start(String natsUrl) throws Exception {    
         LOGGER.info("the nats url is " + natsUrl);
-        NatsSubscriber subscriber = new NatsSubscriber(natsUrl);
-        subscriber.subscribe("response.client");
+        
+        // Initialize NATS subscriber and publisher
+        NatsSubscriber subscriber = ApplicationContextProvider.getApplicationContext().getBean(NatsSubscriber.class);
+        NatsPublisher publisher = ApplicationContextProvider.getApplicationContext().getBean(NatsPublisher.class);
+        
+        subscriber.initializeConnection(natsUrl);
+        publisher.initializeConnection(natsUrl);
+        subscriber.subscribe("ieee2030.requests");
 
-        // Keep application running or integrate into your main loop
+        LOGGER.info("Everything is initialized including IEEE 2030.5 NATS subscriber and publisher");
+        
         Thread.currentThread().join();
-        
-        // Start IEEE 2030.5 mDNS service discovery
-       
-        
-        LOGGER.info(" Everything is initialized including IEEE 2030.5 Windows discovery");
     }
 
    
    
     public static void main(String[] args) throws Exception {
-        String natsUrl = "nats://nats-server:4222";
+        String natsUrl = "nats://18.232.7.53:4222";
         //System.setProperty("server.port", "1900");
         //System.setProperty("server.address", "10.40.160.10");
         ApplicationContext context = SpringApplication.run(App.class, args);
