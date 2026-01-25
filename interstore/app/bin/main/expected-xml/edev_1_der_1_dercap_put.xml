@@ -1,0 +1,5 @@
+<DERCapability xmlns="http://ieee.org/2030.5" href="/edev/1/der/1/dercap">
+  <rtgAbnormalCategory>0</rtgAbnormalCategory>
+  <rtgNormalCategory>0</rtgNormalCategory>
+  <type>4</type>
+</DERCapability>

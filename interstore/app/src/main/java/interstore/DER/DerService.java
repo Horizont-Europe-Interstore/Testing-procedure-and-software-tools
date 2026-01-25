@@ -822,10 +822,10 @@ public class DerService {
      public ResponseEntity<Map<String, Object>> updatePowerGenerationTest(Long endDeviceID, Long derId,JSONObject payload)throws NumberFormatException, JSONException, NotFoundException 
      {
         LOGGER.info("Received DER power generation payload is " + payload); 
-        Long endDeviceId = Long.parseLong(payload.getString("endDeviceId")); 
+        Long endDeviceId = payload.getLong("endDeviceId"); 
         EndDeviceEntity endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
-        Long derID = Long.parseLong(payload.getString("derID")); 
+        Long derID = payload.getLong("derID"); 
         LOGGER.info("DER service Power generation test is " + endDeviceId  + " and " + derID );
         DerEntity derEntity = derRepository.findById(derID)
         .orElseThrow(() -> new NotFoundException());

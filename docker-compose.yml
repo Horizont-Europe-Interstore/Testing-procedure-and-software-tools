@@ -8,14 +8,12 @@ services:
     container_name: java-backend 
     depends_on:
       - nats
-     # - logstash
     environment:
       - NATS_URL=nats://18.232.7.53:4222
       - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
       - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
-      #- LOGSTASH_HOST=logstash
-      #- LOGSTASH_PORT=5044
+      
     ports:
       - "8080:8080"
     volumes:

@@ -7,8 +7,10 @@ import themeObject from './resources/chakra_config/theme.ts'
 import {Header} from './page_components/Header.jsx';
 import {ReportViewer} from './page_components/MainTab.jsx';
 import {Controle} from './page_components/SideBar.jsx';
+import {ModernTestInterface} from './page_components/ModernTestInterface.jsx';
 import Client from './modules/client.js'
 import {XmlTestResults} from './page_components/XmlTestResults.jsx';
+import XmlValidationResults from './page_components/XmlValidationResults.jsx';
 
 function App(){
   const theme = themeObject.theme;
@@ -19,7 +21,7 @@ function App(){
                                                        visElemIdx:0})
   const [toggleVar,setToggle] = React.useState(true)
   const [currentTest,setCurrentTest] = React.useState(tests[0])
-  const [currentView,setCurrentView] = React.useState('reports')
+  const [currentView,setCurrentView] = React.useState('modern')
   const [report,setReport] = React.useState({
     'Feature':'...',
     'Tag':'...',
@@ -35,60 +37,62 @@ function App(){
 
   return(
     <ChakraProvider theme={theme}>
-      <Flex flexDirection='row' h='100%' w='100%'>
-        <Box h='100%' w= '100%'>
-          <Grid h='100%' w='100%'
-                templateRows='repeat(30, 1fr)'
-                templateColumns='repeat(30, 1fr)'>
-            <Header colors={colors}
-                    headerState={headerState}/>
-            <Controle setTestState={setTestState}
-                      testState={testState}
-                      setToggle={setToggle}
-                      toggleVar={toggleVar}
-                      setCurrentTest={setCurrentTest}
-                      setCurrentView={setCurrentView} // Pass new state
-                      currentView={currentView} // Pass new state
-                      colors={colors}
-                      tests={tests}
-                      setReport={setReport}
-                      setHeaderState={setHeaderState}
+      {currentView === 'modern' ? (
+        <ModernTestInterface colors={colors} />
+      ) : (
+        <Flex flexDirection='row' h='100%' w='100%'>
+          <Box h='100%' w= '100%'>
+            <Grid h='100%' w='100%'
+                  templateRows='repeat(30, 1fr)'
+                  templateColumns='repeat(30, 1fr)'>
+              <Header colors={colors}
                       headerState={headerState}/>
-            
-            {/* Conditionally render components based on current view */}
-            {currentView === 'reports' ? (
-              <ReportViewer toggleVar={toggleVar}
-                            setToggle={setToggle}
-                            currentTest={currentTest}
-                            setCurrentTest={setCurrentTest}
-                            setTestState={setTestState}
-                            colors={colors}
-                            tests={tests}
-                            setReport={setReport}
-                            report={report}
-                            setHeaderState={setHeaderState}
-                            testState={testState}/>
-            ) : currentView === 'xmlResults' ? (
-              <XmlTestResults colors={colors} 
-                              testResults={testResults}
-                              httpConnected={httpConnected} />
-            ) : (
-              // Fallback to reports if unknown view
-              <ReportViewer toggleVar={toggleVar}
-                            setToggle={setToggle}
-                            currentTest={currentTest}
-                            setCurrentTest={setCurrentTest}
-                            setTestState={setTestState}
-                            colors={colors}
-                            tests={tests}
-                            setReport={setReport}
-                            report={report}
-                            setHeaderState={setHeaderState}
-                            testState={testState}/>
-            )}
-          </Grid>
-        </Box>
-      </Flex>
+              <Controle setTestState={setTestState}
+                        testState={testState}
+                        setToggle={setToggle}
+                        toggleVar={toggleVar}
+                        setCurrentTest={setCurrentTest}
+                        setCurrentView={setCurrentView}
+                        currentView={currentView}
+                        colors={colors}
+                        tests={tests}
+                        setReport={setReport}
+                        setHeaderState={setHeaderState}
+                        headerState={headerState}/>
+              
+              {/* Conditionally render components based on current view */}
+              {currentView === 'reports' ? (
+                <ReportViewer toggleVar={toggleVar}
+                              setToggle={setToggle}
+                              currentTest={currentTest}
+                              setCurrentTest={setCurrentTest}
+                              setTestState={setTestState}
+                              colors={colors}
+                              tests={tests}
+                              setReport={setReport}
+                              report={report}
+                              setHeaderState={setHeaderState}
+                              testState={testState}/>
+              ) : currentView === 'xmlValidation' ? (
+                <XmlValidationResults colors={colors} />
+              ) : (
+                // Fallback to reports if unknown view
+                <ReportViewer toggleVar={toggleVar}
+                              setToggle={setToggle}
+                              currentTest={currentTest}
+                              setCurrentTest={setCurrentTest}
+                              setTestState={setTestState}
+                              colors={colors}
+                              tests={tests}
+                              setReport={setReport}
+                              report={report}
+                              setHeaderState={setHeaderState}
+                              testState={testState}/>
+              )}
+            </Grid>
+          </Box>
+        </Flex>
+      )}
   </ChakraProvider>
   );
 }

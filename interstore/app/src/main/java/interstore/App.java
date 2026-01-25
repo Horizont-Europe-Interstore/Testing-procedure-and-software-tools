@@ -143,17 +143,18 @@ public class App {
     public void start(String natsUrl) throws Exception {    
         LOGGER.info("the nats url is " + natsUrl);
         
-        // Initialize NATS subscriber and publisher
+        // Initialize NATS subscriber only
         NatsSubscriber subscriber = ApplicationContextProvider.getApplicationContext().getBean(NatsSubscriber.class);
-        NatsPublisher publisher = ApplicationContextProvider.getApplicationContext().getBean(NatsPublisher.class);
+        // NatsPublisher publisher = ApplicationContextProvider.getApplicationContext().getBean(NatsPublisher.class);
         
         subscriber.initializeConnection(natsUrl);
-        publisher.initializeConnection(natsUrl);
+        // publisher.initializeConnection(natsUrl);
         subscriber.subscribe("ieee2030.requests");
 
-        LOGGER.info("Everything is initialized including IEEE 2030.5 NATS subscriber and publisher");
+        LOGGER.info("Everything is initialized including IEEE 2030.5 NATS subscriber");
         
-        Thread.currentThread().join();
+        // Don't block - let Spring Boot web server start
+        // Thread.currentThread().join();
     }
 
    

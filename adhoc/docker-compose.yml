@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ieee2030-proxy:
+    build:
+      context: ..
+      dockerfile: adhoc/Dockerfile
+    container_name: ieee2030-proxy
+    environment:
+      - BACKEND_URL=http://18.232.7.53:8080
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/app/certs:ro
+    restart: unless-stopped

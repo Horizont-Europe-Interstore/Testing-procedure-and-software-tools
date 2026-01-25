@@ -64,10 +64,10 @@ public class NatsSubscriber {
             
             LOGGER.info("PROCESSING_REQUEST: " + method + " " + path + " [" + correlationId + "]");
             
-            // Forward to Java backend and publish response
+            // Forward to Java backend and log response
             String response = httpRequestHandler.forwardToBackend(method, path, body, contentType, lfdi, sfdi, correlationId);
             
-            LOGGER.info("Response sent back via NATS");
+            LOGGER.info("RESPONSE_GENERATED: " + response);
             
         } catch (Exception e) {
             LOGGER.severe("Error handling HTTP request: " + e.getMessage());

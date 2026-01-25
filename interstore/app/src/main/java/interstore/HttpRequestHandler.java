@@ -42,18 +42,18 @@ public class HttpRequestHandler {
                     break;
                 default:
                     String errorResponse = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
-                    natsPublisher.publish("ieee2030.responses." + correlationId, errorResponse);
+                    // natsPublisher.publish("ieee2030.responses." + correlationId, errorResponse);
                     return errorResponse;
             }
             
             String httpResponse = buildHttpResponse(response.getBody(), path, lfdi, sfdi);
-            natsPublisher.publish("ieee2030.responses." + correlationId, httpResponse);
+            // natsPublisher.publish("ieee2030.responses." + correlationId, httpResponse);
             return httpResponse;
             
         } catch (Exception e) {
             LOGGER.severe("Error forwarding request: " + e.getMessage());
             String errorResponse = "HTTP/1.1 500 Internal Server Error\r\n\r\n";
-            natsPublisher.publish("ieee2030.responses." + correlationId, errorResponse);
+            // natsPublisher.publish("ieee2030.responses." + correlationId, errorResponse);
             return errorResponse;
         }
     }

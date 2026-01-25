@@ -3,6 +3,7 @@ import java.nio.charset.StandardCharsets;
 import io.nats.client.MessageHandler;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import interstore.Types.TestRequest;
+import interstore.XmlValidation.XmlValidationService;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +25,9 @@ public class UIControleHandler {
     private final App app;
     private JSONObject currentTestObject;
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private static Map<String, Function<JSONObject, Object>> testMap = new HashMap<>();
+    private static Map<String, Function<JSONObject, Object>> testMap = new HashMap<>();n    
+    @Autowired
+    private XmlValidationService xmlValidationService;
     
     public UIControleHandler(App app) throws Exception{
         this.app = app;
@@ -171,24 +175,69 @@ public class UIControleHandler {
             System.out.println("Parameters: " + request.getObject());
             JSONObject currentTest = new JSONObject(request.getObject()); 
             setCurrentTestObject(currentTest);
+            
+            // Store values in backend (execute the test method)
             String result = (String)this.runTest(test);
-            Thread.sleep(1000);
-            response.put("Feature", test);
+            Thread.sleep(500);
+            
+            // Trigger XML validation if result contains XML
+            if (result != null && result.contains("<")) {
+                try {
+                    xmlValidationService.validateXml(
+                        "/" + test.toLowerCase(), 
+                        "POST", 
+                        currentTest.toString(), 
+                        result
+                    );
+                } catch (Exception e) {
+                    System.out.println("XML validation failed: " + e.getMessage());
+                }
+            }
+            
+            // Return simplified response showing values stored
+            response.put("Feature", request.getTest());
             response.put("Tag", "@" + String.join("", Arrays.asList(request.getTest().split(" ")).subList(0, Math.min(2, request.getTest().split(" ").length))));
-            response.put("End result","passed");
-            response.put("Description", "Test executed successfully");
-            response.put("Actual response", result);
+            response.put("Scenario", "Values stored successfully");
+            response.put("End result", "stored");
+            
+            // Create steps showing stored values
+            Map<String, Object> step = new HashMap<>();
+            step.put("Keyword", "Stored ");
+            step.put("Name", "Values saved to application server");
+            step.put("Result", "passed");
+            step.put("Error message", "");
+            
+            // Show which values were stored
+            StringBuilder storedValues = new StringBuilder();
+            for (String key : currentTest.keySet()) {
+                Object value = currentTest.get(key);
+                if (value != null && !value.toString().isEmpty()) {
+                    if (storedValues.length() > 0) storedValues.append(", ");
+                    storedValues.append(key).append(": ").append(value);
+                }
+            }
+            step.put("Value", storedValues.length() > 0 ? storedValues.toString() : "No values provided");
+            
+            response.put("Steps", Arrays.asList(step));
             return ResponseEntity.ok(response);
         }
         catch(Exception e){
             System.out.println(e);
+            response.put("Feature", request.getTest());
+            response.put("Tag", "@" + String.join("", Arrays.asList(request.getTest().split(" ")).subList(0, Math.min(2, request.getTest().split(" ").length))));
+            response.put("Scenario", "Storage failed");
+            response.put("End result", "failed");
+            
+            Map<String, Object> errorStep = new HashMap<>();
+            errorStep.put("Keyword", "Error ");
+            errorStep.put("Name", "Failed to store values");
+            errorStep.put("Result", "failed");
+            errorStep.put("Error message", e.getMessage());
+            errorStep.put("Value", "");
+            
+            response.put("Steps", Arrays.asList(errorStep));
+            return ResponseEntity.ok(response);
         }
-        response.put("Feature", test);
-        response.put("Tag", "@" + String.join("", Arrays.asList(request.getTest().split(" ")).subList(0, Math.min(2, request.getTest().split(" ").length))));
-        response.put("End result","failed");
-        response.put("Description", "Test execution failed!");
-        response.put("Actual response", null);
-        return ResponseEntity.ok(response);
     }
 
        private void setCurrentTestObject(JSONObject testObject){

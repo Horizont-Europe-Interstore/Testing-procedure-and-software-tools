@@ -56,6 +56,10 @@ dependencies {
     
     // HTTP client dependency
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // XMLUnit for XML comparison
+    implementation 'org.xmlunit:xmlunit-core:2.9.1'
+    implementation 'org.xmlunit:xmlunit-matchers:2.9.1'
 
     // BouncyCastle for PEM parsing and certificate/key handling in Server.java
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'

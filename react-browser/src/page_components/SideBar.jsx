@@ -69,7 +69,18 @@ function Controle({
         
         {/* View Toggle Buttons */}
         <VStack spacing={2} width="100%">
-          <Text variant={'element_name'}>VIEWS</Text>
+          <Text variant={'element_name'}>INTERFACE</Text>
+          
+          <Button 
+            onClick={() => handleViewChange('modern')}
+            colorScheme={currentView === 'modern' ? 'blue' : 'gray'}
+            variant={currentView === 'modern' ? 'solid' : 'outline'}
+            size="sm"
+            width="full"
+            fontSize="xs"
+          >
+            🎨 Modern UI
+          </Button>
           
           <Button 
             onClick={() => handleViewChange('reports')}
@@ -79,18 +90,18 @@ function Controle({
             width="full"
             fontSize="xs"
           >
-            📊 Test Reports
+            📊 Classic View
           </Button>
           
           <Button 
-            onClick={() => handleViewChange('xmlResults')}
-            colorScheme={currentView === 'xmlResults' ? 'blue' : 'gray'}
-            variant={currentView === 'xmlResults' ? 'solid' : 'outline'}
+            onClick={() => handleViewChange('xmlValidation')}
+            colorScheme={currentView === 'xmlValidation' ? 'blue' : 'gray'}
+            variant={currentView === 'xmlValidation' ? 'solid' : 'outline'}
             size="sm"
             width="full"
             fontSize="xs"
           >
-            🔍 XML Results
+            ✅ Test Results
           </Button>
         </VStack>
 
@@ -100,27 +111,54 @@ function Controle({
         {currentView === 'reports' && (
           <>
             <Text variant={'element_name'}>TESTS</Text>
+            
+            {/* Part 1: Basic Device Setup */}
+            <Text fontSize="sm" fontWeight="bold" color="blue.600" mt={2}>Part 1: Basic Device Setup</Text>
             {tests
-              .filter(t=>!t.hidden)
+              .filter(t => !t.hidden && t.index >= 0 && t.index <= 7)
               .map(t=>(
               <Tooltip variant={'test_desc_tt'} placement='right-end' hasArrow label={t.desc} key={t.test}>
-                <Button id={t.index} variant={'controle_buttons'} onClick={handleTestSelect}>
-                  {t.test+' Test'}
+                <Button id={t.index} variant={'controle_buttons'} onClick={handleTestSelect} size="sm">
+                  {t.test}
+                </Button>
+              </Tooltip>
+            ))}
+            
+            {/* Part 2: Function Sets & DER Programs */}
+            <Text fontSize="sm" fontWeight="bold" color="green.600" mt={3}>Part 2: Function Sets & DER Programs</Text>
+            {tests
+              .filter(t => !t.hidden && t.index >= 8 && t.index <= 21)
+              .map(t=>(
+              <Tooltip variant={'test_desc_tt'} placement='right-end' hasArrow label={t.desc} key={t.test}>
+                <Button id={t.index} variant={'controle_buttons'} onClick={handleTestSelect} size="sm">
+                  {t.test}
+                </Button>
+              </Tooltip>
+            ))}
+            
+            {/* Part 3: Advanced DER Configuration */}
+            <Text fontSize="sm" fontWeight="bold" color="purple.600" mt={3}>Part 3: Advanced DER Configuration</Text>
+            {tests
+              .filter(t => !t.hidden && t.index >= 22)
+              .map(t=>(
+              <Tooltip variant={'test_desc_tt'} placement='right-end' hasArrow label={t.desc} key={t.test}>
+                <Button id={t.index} variant={'controle_buttons'} onClick={handleTestSelect} size="sm">
+                  {t.test}
                 </Button>
               </Tooltip>
             ))}
           </>
         )}
 
-        {/* XML Results Info - Only show when in XML view */}
-        {currentView === 'xmlResults' && (
+        {/* Test Results Info - Only show when in test results view */}
+        {currentView === 'xmlValidation' && (
           <VStack spacing={2} align="stretch">
-            <Text variant={'element_name'} fontSize="sm">XML VALIDATION</Text>
+            <Text variant={'element_name'} fontSize="sm">TEST RESULTS</Text>
             <Text fontSize="xs" color="gray.600" textAlign="left" px={2}>
-              • Live XML test results
-              • NATS message validation  
-              • Expected vs Actual comparison
-              • HTTP polling updates
+              • Expected vs Actual XML comparison
+              • XMLUnit validation results
+              • Request/Response tracking
+              • Auto-refresh every 2 seconds
             </Text>
           </VStack>
         )}

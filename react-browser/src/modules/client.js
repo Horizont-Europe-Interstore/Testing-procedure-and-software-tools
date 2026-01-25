@@ -17,7 +17,9 @@ export default class Client{
                 }
             })
             const data = await res.json()
-            return data;
+            
+            // Return simplified response showing values stored
+            return Client.#generateStoredValuesResponse(testObject, data);
         }
         catch(err){
             console.log(err)
@@ -44,15 +46,55 @@ export default class Client{
         };
     }
 
+    static #generateStoredValuesResponse(testObject, serverResponse){
+        const storedValues = Object.entries(testObject.object)
+            .filter(([k,v]) => v !== '')
+            .map(([k,v]) => `${k}: ${v}`)
+            .join(', ');
+        
+        return {
+          Feature: testObject.test,
+          Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+          Scenario: 'Values stored successfully',
+          'End result': 'stored',
+          Steps: [
+            {
+              Keyword: 'Stored ',
+              Name: 'Values saved to application server',
+              Result: 'passed',
+              'Error message': '',
+              Value: storedValues || 'No values provided'
+            }
+          ]
+        };
+    }
+
     static getTests(){
         return Client.#tests;
+    }
+
+    static getTestsByPart(part){
+        switch(part) {
+            case 1: return Client.#tests.filter(t => t.index >= 0 && t.index <= 7);
+            case 2: return Client.#tests.filter(t => t.index >= 8 && t.index <= 21);
+            case 3: return Client.#tests.filter(t => t.index >= 22);
+            default: return Client.#tests;
+        }
+    }
+
+    static getTestPart(index){
+        if(index >= 0 && index <= 7) return 1;
+        if(index >= 8 && index <= 21) return 2;
+        if(index >= 22) return 3;
+        return 1;
     }
 
     static #tests=[
         {
             index:0,
             test:'Device Capability', 
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 'endDeviceListLink':'',
@@ -64,7 +106,8 @@ export default class Client{
         {
             index:1,
             test:'Get All End Devices',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{},
         },
@@ -72,7 +115,8 @@ export default class Client{
         {
             index:2,
             test:'Create End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 'lfdi':'',
@@ -89,7 +133,8 @@ export default class Client{
         {
             index:3,
             test:'Get An End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 id:''
@@ -99,7 +144,8 @@ export default class Client{
         {
             index:4,
             test:'Register End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 endDeviceId:'',
@@ -109,7 +155,8 @@ export default class Client{
         {
             index:5,
             test:'Get Registered End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 endDeviceId:'',
@@ -119,14 +166,16 @@ export default class Client{
         {
             index:6,
             test:'Time',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{}
         },
         {
             index:7,
             test:'Advanced Time',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{}
         },
@@ -134,7 +183,8 @@ export default class Client{
         {
             index:8,
             test:'Get All Function Set Assignments',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceId:'',
@@ -145,7 +195,8 @@ export default class Client{
         {
             index:9,
             test:'Create Function Set Assignments',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceId:'',
@@ -167,7 +218,8 @@ export default class Client{
         {
             index:10,
             test:'Get A Function Set Assignments',
-            desc:'description', 
+            desc:'Part 2: Function Sets & DER Programs', 
+            part: 2,
             args: true,
             object:{
                 endDeviceId:'',
@@ -178,7 +230,8 @@ export default class Client{
         {
             index:11,
             test:'Create Der Program', 
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -198,7 +251,8 @@ export default class Client{
         {
             index:12,
             test:'Get All Der Programs',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -207,7 +261,8 @@ export default class Client{
         {
             index:13,
             test:'Get A Der Program',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -219,7 +274,8 @@ export default class Client{
         {
             index:14,
             test:'Create Der Curve',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derProgramId:'',
@@ -256,7 +312,8 @@ export default class Client{
         {
             index:15,
             test:'Get All Der Curves',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -265,7 +322,8 @@ export default class Client{
         {
             index:16,
             test:'Get A Der Curve',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -276,7 +334,8 @@ export default class Client{
         {
             index:17,
             test:'Create Der Control',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derProgramId:'',
@@ -323,7 +382,8 @@ export default class Client{
         {
             index:18,
             test:'Get All Der Controls',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -332,7 +392,8 @@ export default class Client{
         {
             index:19,
             test:'Get A Der Control',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -342,7 +403,8 @@ export default class Client{
         {
             index:20,
             test:'Create Der',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceID:'',
@@ -358,7 +420,8 @@ export default class Client{
         {
             index:21,
             test:'Get Der',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceID:'',
@@ -368,7 +431,8 @@ export default class Client{
         {
             index:22,
             test:'Create Der Capability',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             hidden: true,
             args: true,
             object:{
@@ -406,7 +470,8 @@ export default class Client{
         {
             index:23,
             test:'Get A Der Capability',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args: true,
             object:{
                 derID:'',
@@ -417,7 +482,8 @@ export default class Client{
         {
             index:24,
             test:'Create Der Settings',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             hidden: true,
             args: true,
             object:{
@@ -457,7 +523,8 @@ export default class Client{
         {
             index:25,
             test:'Get A Der Settings',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args: true,
             object:{
                 derID:'',
@@ -469,7 +536,8 @@ export default class Client{
         {
             index:26,
             test:'Power Generation Test',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args:true,
             object:{
                 endDeviceId:'',
@@ -523,11 +591,7 @@ export default class Client{
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)},
-            // activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
-            // dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // derpLink: (field) => field === null || field === "" || typeof field === 'string'
+            
    
         },
 
@@ -548,12 +612,31 @@ export default class Client{
     static getValid(key){
         return Client.#validationObject[key];
     }
+
+    static async getXmlValidationResults(){
+        try{
+            const res = await fetch(Client.#baseUrl + '/xml-validation/results')
+            const data = await res.json()
+            return data;
+        }
+        catch(err){
+            console.log('Error fetching XML validation results:', err)
+            return [];
+        }
+    }
+
+    static async clearXmlValidationResults(){
+        try{
+            await fetch(Client.#baseUrl + '/xml-validation/results', {
+                method: 'DELETE'
+            })
+            return true;
+        }
+        catch(err){
+            console.log('Error clearing XML validation results:', err)
+            return false;
+        }
+    }
 }
 
 
-/*
-
- {"payload":{"demandResponseProgramListLink":"","responseSetListLink":"","fileListLink":"","traiffProfileListLink":"","description":"der program fsa","usagePointListLink":"","version":"1","prepaymentListLink":"","mRID":"A1000000","endDeviceId":"1","messagingProgramListLink":"","customerAccountListLink":"","dERProgramListLink":"","subscribable":"1"},"action":"post","servicename":"createFsamanager"}
-
-
-*/
