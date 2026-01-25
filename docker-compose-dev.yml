@@ -5,12 +5,11 @@ services:
     container_name: nats-server
     hostname: nats-server
     ports:
-      - "4222:4222"
-      - "8222:8222" 
-    command: ["-m", "8222", "--jetstream"]
+      - "0.0.0.0:4222:4222"  # Expose to all interfaces
+      - "0.0.0.0:8222:8222"  # Management interface
+    command: ["-m", "8222", "--jetstream", "--addr", "0.0.0.0"]
     networks:
       - back-nats
-      - nats-mid
     restart: unless-stopped 
 
   java-backend:
@@ -23,17 +22,15 @@ services:
       - nats
     environment:
       - NATS_URL=nats://nats-server:4222
-      - SERVER_PORT=1900
+      - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
     volumes:
       - ./interstore/app/certs:/app/certs:ro
     ports:
-      - "8443:8443"
-      - "1900:1900"
+      - "8080:8080"
       
     networks:
       - back-nats
-      - nats-mid
     restart: unless-stopped   
   
 
@@ -45,44 +42,15 @@ services:
     hostname: react-browser
     container_name: react-browser
     environment:
-      - EXPRESS_URL=http://express-mid:5000
+      - REACT_APP_API_URL=http://localhost:8080
     ports:
-      - 3001:3001
+      - 3000:3000
     command: ["npm","start"]
     networks:
-      - mid-front
-      - nats-mid
-    restart: unless-stopped   
-            
-  express-mid:
-    build: ./express-mid
-    image: nithinmanuel9/interstoretestexpress-mid:1.0
-    hostname: express-mid
-    container_name: express-mid
-    environment:
-      - NATS_URL=nats://nats-server:4222
-    volumes:
-      - type: bind
-        source: ./express-mid
-        target: /express
-    ports:
-      - 5000:5000
-    networks:
-      - nats-mid
-      - mid-front
       - back-nats
     restart: unless-stopped   
-    command: ["node","index.js"]
+            
 
-
-# Commented out secrets - now using volumes for .pem files
-# secrets:
-#   server-keystore:
-#     file: ./interstore/app/server-keystore.p12
-#   truststore:
-#     file: ./interstore/app/truststore.p12
 
 networks:
   back-nats:
-  nats-mid:
-  mid-front:

@@ -25,7 +25,7 @@ public class UIControleHandler {
     private final App app;
     private JSONObject currentTestObject;
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private static Map<String, Function<JSONObject, Object>> testMap = new HashMap<>();n    
+    private static Map<String, Function<JSONObject, Object>> testMap = new HashMap<>();    
     @Autowired
     private XmlValidationService xmlValidationService;
     
