@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +25,7 @@ public class DERControlManager {
         this.derControlService = derControlService;
     }
 
-    public Object chooseMethod_basedOnAction(String payload) throws JSONException, NumberFormatException, ChangeSetPersister.NotFoundException {
+    public Object chooseMethod_basedOnAction(String payload) throws JSONException, NumberFormatException {
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
         }
@@ -51,7 +50,7 @@ public class DERControlManager {
         return "Operation completed successfully";
     }
 
-    public Map<String, Object> addDERControl(JSONObject payload) throws NumberFormatException, JSONException, ChangeSetPersister.NotFoundException {
+    public Map<String, Object> addDERControl(JSONObject payload) throws NumberFormatException, JSONException {
 
         LOGGER.info("the received payload in the DER Control Manager class  is " +  payload);
         DERControlEntity derControlEntity = this.derControlService.createDERControl(payload);
@@ -61,35 +60,35 @@ public class DERControlManager {
 
     }
 
-    // @GetMapping("/derp/{derpId}/derc/{dercId}")
-    // public Map<String, Object> getDERControlHttp(@PathVariable Long derpId, @PathVariable Long dercId, HttpServletRequest request, HttpServletResponse response){
-    //     // Case: called from HTTP
-    //     if (RequestContextHolder.getRequestAttributes() != null) {
-    //         try{
-    //             String responseEntity = this.derControlService.getDERControlHttp(derpId, dercId);
-    //             LOGGER.info("the der_curve_val is " + responseEntity);
-    //             byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
+     @GetMapping("/derp/{derpId}/derc/{dercId}")
+     public Map<String, Object> getDERControlHttp(@PathVariable Long derpId, @PathVariable Long dercId, HttpServletRequest request, HttpServletResponse response){
+         // Case: called from HTTP
+         if (RequestContextHolder.getRequestAttributes() != null) {
+            try{
+                 String responseEntity = this.derControlService.getDERControlHttp(derpId, dercId);
+                 LOGGER.info("the der_curve_val is " + responseEntity);
+                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
                 
-    //             response.setStatus(HttpServletResponse.SC_OK);
-    //             response.setContentType("application/sep+xml;level=S1");
-    //             response.setHeader("Cache-Control", "no-cache");
-    //             response.setHeader("Connection", "keep-alive");
-    //             response.setContentLength(bytes.length);
-    //             ServletOutputStream out = response.getOutputStream();
-    //             out.write(bytes);
-    //             out.flush();
-    //         } catch(Exception e){
-    //             LOGGER.severe("Error retrieving DERControl value: " + e.getMessage());
-    //             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    //         }
-    //         return null;
-    //     } 
-    //     // Case: called internally
-    //     else {
-    //         ResponseEntity<Map<String, Object>> responseEntity = this.derControlService.getDERControl(derpId, dercId);
-    //         return  responseEntity.getBody(); 
-    //     }
-    // }
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/sep+xml;level=S1");
+                response.setHeader("Cache-Control", "no-cache");
+                 response.setHeader("Connection", "keep-alive");
+                response.setContentLength(bytes.length);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(bytes);
+                out.flush();
+            } catch(Exception e){
+               LOGGER.severe("Error retrieving DERControl value: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+           }
+           return null;
+         } 
+        // Case: called internally
+        else {
+             ResponseEntity<Map<String, Object>> responseEntity = this.derControlService.getDERControl(derpId, dercId);
+          return  responseEntity.getBody(); 
+        }
+     }
 
     public Map<String, Object> getDERControl(JSONObject payload) throws JSONException
     {
@@ -109,16 +108,7 @@ public class DERControlManager {
         }
 
         return null ;
-//        if(payload.has("derControlLink"))
-//        {
-//            return this.derControlService.
-//                    getDERControl(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")),
-//                            Long.parseLong(payload.getJSONObject("payload").getString("der_control_id")))
-//                    .getBody();
-//        }
-//
-//
-//        return getAllDERControlDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
+
     }
 
     @GetMapping("/derp/{derpId}/derc")
@@ -144,7 +134,7 @@ public class DERControlManager {
             }
             return null;
         } 
-        // Case: called from NATS (internal)
+        // Case: called from NATS (internal) remove this 
         else {
             return getAllDERControlDetails(derpId); 
         }

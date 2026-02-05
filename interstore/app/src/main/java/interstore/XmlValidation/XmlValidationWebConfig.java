@@ -15,15 +15,18 @@ public class XmlValidationWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // Exclude polling endpoints (/dcap, /tm) from validation
         registry.addInterceptor(xmlValidationInterceptor)
-                .addPathPatterns("/dcap", "/der/**", "/edev/**", "/fsa/**", "/sdev/**", "/tm/**");
+                .addPathPatterns("/der/**", "/edev/**", "/fsa/**", "/sdev/**", "/upt/**", "/dr/**", "/msg/**", "/bill/**", "/ppy/**")
+                .excludePathPatterns("/dcap", "/tm");
     }
 
     @Bean
     public FilterRegistrationBean<ContentCachingFilter> contentCachingFilter() {
         FilterRegistrationBean<ContentCachingFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new ContentCachingFilter());
-        registrationBean.addUrlPatterns("/dcap", "/der/*", "/edev/*", "/fsa/*", "/sdev/*", "/tm/*");
+        // Exclude polling endpoints from caching
+        registrationBean.addUrlPatterns("/der/*", "/edev/*", "/fsa/*", "/sdev/*", "/upt/*", "/dr/*", "/msg/*", "/bill/*", "/ppy/*");
         registrationBean.setOrder(1);
         return registrationBean;
     }

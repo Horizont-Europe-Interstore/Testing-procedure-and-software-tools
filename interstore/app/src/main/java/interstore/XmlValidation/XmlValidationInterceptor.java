@@ -36,7 +36,7 @@ public class XmlValidationInterceptor implements HandlerInterceptor {
             String method = request.getMethod();
             
             String requestXml = getRequestBody(request);
-            String responseXml = getResponseBody(response);
+            String responseXml = getResponseBody(response, request);
             
             System.out.println("Request XML length: " + (requestXml != null ? requestXml.length() : 0));
             System.out.println("Response XML length: " + (responseXml != null ? responseXml.length() : 0));
@@ -70,7 +70,14 @@ public class XmlValidationInterceptor implements HandlerInterceptor {
         return "";
     }
 
-    private String getResponseBody(HttpServletResponse response) {
+    private String getResponseBody(HttpServletResponse response, HttpServletRequest request) {
+        // First check if endpoint stored XML in request attribute
+        Object responseXml = request.getAttribute("responseXml");
+        if (responseXml != null) {
+            return responseXml.toString();
+        }
+        
+        // Fall back to cached response wrapper
         if (response instanceof ContentCachingResponseWrapper) {
             ContentCachingResponseWrapper wrapper = (ContentCachingResponseWrapper) response;
             byte[] content = wrapper.getContentAsByteArray();

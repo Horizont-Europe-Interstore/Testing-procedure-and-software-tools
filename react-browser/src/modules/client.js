@@ -2,23 +2,67 @@ export default class Client{
     static #baseUrl='/api' 
     static async sendTest(testObject){
         try{
+            // Special handling for Power Generation Test - call direct HTTP endpoint
+            if(testObject.test === 'Power Generation Test'){
+                const endDeviceID = testObject.object.endDeviceID;
+                const derID = testObject.object.derID;
+                
+                if(!endDeviceID || !derID){
+                    return Client.#generateErrorReport("endDeviceID and derID are required", testObject.test);
+                }
+                
+                const res = await fetch(`${Client.#baseUrl}/derpowergenerationtest/${endDeviceID}/${derID}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                
+                const data = await res.json();
+                
+                // Format response to match expected structure
+                return {
+                    Feature: testObject.test,
+                    Tag: '@PowerGeneration',
+                    Scenario: 'Power Generation Test Completed',
+                    'End result': data['End result'] || 'retrieved',
+                    Steps: data.Steps || [{
+                        Keyword: 'Retrieved ',
+                        Name: 'Power Generation Test Results',
+                        Result: 'passed',
+                        'Error message': '',
+                        Value: JSON.stringify(data),
+                        FetchedData: JSON.stringify(data, null, 2)
+                    }]
+                };
+            }
+            
+            // Default flow for other tests - add servicename and action
             let argsObject = {}
             for(let [k,v] of Object.entries(testObject.object)){
                 k=k.split(' ').join('')
                 k=k[0].toLowerCase()+k.substring(1,k.length)
                 argsObject[k] = v;
             }
-            testObject.object = argsObject;
+            
+            // Map test name to servicename and action
+            const {servicename, action} = Client.#getServiceInfo(testObject.test);
+            
+            const payload = {
+                servicename,
+                action,
+                payload: argsObject
+            };
+            
             const res = await fetch(Client.#baseUrl, {
                 method: "POST",
-                body: JSON.stringify(testObject),
+                body: JSON.stringify(payload),
                 headers: {
                 "Content-Type": "application/json"
                 }
             })
             const data = await res.json()
             
-            // Return simplified response showing values stored
             return Client.#generateStoredValuesResponse(testObject, data);
         }
         catch(err){
@@ -26,6 +70,36 @@ export default class Client{
             return Client.#generateErrorReport("Exception when sending test object\n"+err,
                                                 testObject.test)
         }
+    }
+
+    static #getServiceInfo(testName){
+        const mapping = {
+            'Device Capability': {servicename: 'devicecapabilitymanager', action: 'post'},
+            'Get All End Devices': {servicename: 'enddevicemanager', action: 'get'},
+            'Create End Device': {servicename: 'enddevicemanager', action: 'post'},
+            'Get An End Device': {servicename: 'enddevicemanager', action: 'get'},
+            'Register End Device': {servicename: 'enddevicemanager', action: 'post'},
+            'Get Registered End Device': {servicename: 'enddevicemanager', action: 'get'},
+            'Time': {servicename: 'selfdevicemanager', action: 'get'},
+            'Advanced Time': {servicename: 'selfdevicemanager', action: 'get'},
+            'Get All Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'get'},
+            'Create Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'post'},
+            'Get A Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'get'},
+            'Create Der Program': {servicename: 'derprogrammanager', action: 'post'},
+            'Get All Der Programs': {servicename: 'derprogrammanager', action: 'get'},
+            'Get A Der Program': {servicename: 'derprogrammanager', action: 'get'},
+            'Create Der Curve': {servicename: 'dercurvemanager', action: 'post'},
+            'Get All Der Curves': {servicename: 'dercurvemanager', action: 'get'},
+            'Get A Der Curve': {servicename: 'dercurvemanager', action: 'get'},
+            'Create Der Control': {servicename: 'dercontrolmanager', action: 'post'},
+            'Get All Der Controls': {servicename: 'dercontrolmanager', action: 'get'},
+            'Get A Der Control': {servicename: 'dercontrolmanager', action: 'get'},
+            'Create Der': {servicename: 'dermanager', action: 'post'},
+            'Get Der': {servicename: 'dermanager', action: 'get'},
+            'Get A Der Capability': {servicename: 'dermanager', action: 'get'},
+            'Get A Der Settings': {servicename: 'dermanager', action: 'get'},
+        };
+        return mapping[testName] || {servicename: '', action: 'post'};
     }
 
     static #generateErrorReport(error, testName){
@@ -123,11 +197,11 @@ export default class Client{
                 'Device Category':'',
                 'sfdi':'',
                 'Registration Link':'',
-                'Functionset Assignment Link':'',
+                'FunctionSetAssignment Link':'',
                 'Subscription Link':'',
                 'Device Status Link':'',
-                'End Device List Link':'',
-                'DER List Link':'',
+                'End DeviceList Link':'',
+                'DERList Link':'',
             },
         },
         {
@@ -137,7 +211,7 @@ export default class Client{
             part: 1,
             args: true,
             object:{
-                id:''
+                ID:''
                 
             },
         },
@@ -148,7 +222,7 @@ export default class Client{
             part: 1,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 registrationPin:''
             },
         },
@@ -159,7 +233,7 @@ export default class Client{
             part: 1,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 registrationID:''
             }
         },
@@ -187,7 +261,7 @@ export default class Client{
             part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 
             }
         },
@@ -199,7 +273,7 @@ export default class Client{
             part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 mRID:'',
                 description:'',
                 subscribable:'',
@@ -222,7 +296,7 @@ export default class Client{
             part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 fsaID:''
             }
         },
@@ -350,6 +424,8 @@ export default class Client{
                 potentiallySuperseded: '',
                 randomizeDuration: '',
                 randomizeStart: '',
+                opModChargeMode: '',
+                opModDischargeMode: '',
                 opModConnect: '',
                 opModEnergize: '',
                 opModFixedPFAbsorbW: '',
@@ -368,7 +444,7 @@ export default class Client{
                 opModLVRTMayTrip: '',
                 opModLVRTMomentaryCessation: '',
                 opModLVRTMustTrip: '',
-                opModMaxLimW: '',
+                IntegeropModMaxLimW: '',
                 opModTargetVar: '',
                 opModTargetW: '',
                 opModVoltVar: '',
@@ -430,121 +506,39 @@ export default class Client{
         },
         {
             index:22,
-            test:'Create Der Capability',
-            desc:'Part 3: Advanced DER Configuration',
-            part: 3,
-            hidden: true,
-            args: true,
-            object:{
-                derId:'',
-                derCapabilityLink:'',
-                modesSupported:'',
-                rtgAbnormalCategory:'',
-                rtgMaxA:'',
-                rtgMaxAh:'',
-                rtgMaxChargeRateVA:'',
-                rtgMaxChargeRateW:'',
-                rtgMaxDischargeRateVA:'',
-                rtgMaxDischargeRateW:'',
-                rtgMaxV:'',
-                rtgMaxVA:'',
-                rtgMaxVar:'',
-                rtgMaxVarNeg:'',
-                rtgMaxW:'',
-                rtgMaxWh:'',
-                rtgMinPFOverExcited:'',
-                rtgMinPFUnderExcited:'',
-                rtgMinV:'',
-                rtgNormalCategory:'',
-                rtgOverExcitedPF:'',
-                rtgOverExcitedW:'',
-                rtgReactiveSusceptance:'',
-                rtgUnderExcitedPF:'',
-                rtgUnderExcitedW:'',
-                rtgVNom:'',
-                derType:''
-
-            }
-        },
-
-        {
-            index:23,
             test:'Get A Der Capability',
             desc:'Part 3: Advanced DER Configuration',
             part: 3,
             args: true,
             object:{
                 derID:'',
-                endDeviceId:''
+                endDeviceID:''
 
             }
         },
-        {
-            index:24,
-            test:'Create Der Settings',
-            desc:'Part 3: Advanced DER Configuration',
-            part: 3,
-            hidden: true,
-            args: true,
-            object:{
-                   derId:'',
-                   derSettingsLink:'',
-                   modesEnabled:'',
-                   setESDelay:'',
-                   setESHighFreq:'',
-                   setESHighVolt:'',
-                   setESLowVolt:'',
-                   setESRampTms:'',
-                   setESRandomDelay:'',
-                   setGradW:'',
-                   setSoftGradW:'',
-                   setMaxA:'',
-                   setMaxChargeRateVA:'',
-                   setMaxChargeRateW:'',
-                   setMaxDischargeRateVA:'',
-                   setMaxDischargeRateW:'',
-                   setMaxV:'',
-                   setMaxVA:'',
-                   setMaxVar:'',
-                   setMaxVarNeg:'',
-                   setMaxW:'',
-                   setMaxWh:'',
-                   setMinPFOverExcited:'',
-                   setMinPFUnderExcited:'',
-                   setMinV:'',
-                   setVNom:'',
-                   setVRef:'',
-                  
-
-            }
-
-        },
 
         {
-            index:25,
+            index:23,
             test:'Get A Der Settings',
             desc:'Part 3: Advanced DER Configuration',
             part: 3,
             args: true,
             object:{
                 derID:'',
-                endDeviceId:''
+                endDeviceID:''
 
             }
         },
 
         {
-            index:26,
+            index:24,
             test:'Power Generation Test',
             desc:'Part 3: Advanced DER Configuration',
             part: 3,
             args:true,
             object:{
-                endDeviceId:'',
-                derID:'',
-                setMaxW:'',
-                setMaxVA:''
-
+                endDeviceID:'',
+                derID:''
             }
         }
     ];
@@ -556,32 +550,32 @@ export default class Client{
         }
         ,
         'Get An End Device':{
-            id:(field)=>{return !isNaN(field)}
+            ID:(field)=>{return !isNaN(field)}
         }
         ,
         'Register End Device':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             registrationPin:(field)=>{return !isNaN(field)}
         }
         ,
         'Get Registered End Device':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             registrationID:(field)=>{return !isNaN(field)}
         }
         ,
         'Get All Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)}
+            endDeviceID:(field)=>{return !isNaN(field)}
         }
         ,
         'Create Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             mRID: (field) => field.trim() !== "",
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)}
         }, 
 
         'Get A Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             fsaID:(field)=>{return !isNaN(field)}
         },
         
@@ -603,6 +597,10 @@ export default class Client{
             endDeviceID:(field)=>{return !isNaN(field)}
         },
         'Get Der':{
+            endDeviceID:(field)=>{return !isNaN(field)},
+            derID:(field)=> {return !isNaN(field)}
+        },
+        'Power Generation Test':{
             endDeviceID:(field)=>{return !isNaN(field)},
             derID:(field)=> {return !isNaN(field)}
         }

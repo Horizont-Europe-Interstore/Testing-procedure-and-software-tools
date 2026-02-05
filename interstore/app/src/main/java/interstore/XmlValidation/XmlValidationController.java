@@ -50,7 +50,7 @@ public class XmlValidationController {
         private String requestXml;
         private String actualXml;
 
-        // Getters and Setters
+      
         public String getEndpoint() { return endpoint; }
         public void setEndpoint(String endpoint) { this.endpoint = endpoint; }
 

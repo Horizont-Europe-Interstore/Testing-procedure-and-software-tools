@@ -12,13 +12,12 @@ import {
   HStack,
   Badge,
   Flex,
-  useColorModeValue,
   Divider
 } from '@chakra-ui/react';
 import Client from '../modules/client.js';
-import { TestForm } from './TestForm.jsx';
+import { EnhancedTestForm } from './EnhancedTestForm.jsx';
 
-export function ModernTestInterface({ colors }) {
+export function ModernTestInterface({ colors, onViewTestResults }) {
   const [selectedTest, setSelectedTest] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
   
@@ -30,28 +29,28 @@ export function ModernTestInterface({ colors }) {
       title: 'Device Capability & End Device',
       subtitle: 'Basic device configuration and registration',
       color: 'blue',
-      tests: tests.filter(t => !t.hidden && t.index >= 0 && t.index <= 7)
+      tests: tests.filter(t => t.index >= 0 && t.index <= 7)
     },
     {
       id: 'part2',
       title: 'Function Sets and DER',
       subtitle: 'Function set assignments and DER management',
       color: 'green',
-      tests: tests.filter(t => !t.hidden && t.index >= 8 && t.index <= 13)
+      tests: tests.filter(t => t.index >= 8 && t.index <= 13)
     },
     {
       id: 'part3',
       title: 'DER Programs',
       subtitle: 'DER program configuration and controls',
       color: 'orange',
-      tests: tests.filter(t => !t.hidden && t.index >= 14 && t.index <= 21)
+      tests: tests.filter(t => t.index >= 14 && t.index <= 21)
     },
     {
       id: 'part4',
       title: 'DER Capability and Settings',
       subtitle: 'Advanced DER capabilities and settings',
       color: 'purple',
-      tests: tests.filter(t => !t.hidden && t.index >= 22)
+      tests: tests.filter(t => t.index >= 22)
     }
   ];
 
@@ -68,13 +67,25 @@ export function ModernTestInterface({ colors }) {
     <Box p={6} bg="white" minH="100vh">
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <Box textAlign="center" py={4}>
-          <Heading size="xl" color="gray.700" mb={2}>
-            IEEE 2030.5 Test Configuration
-          </Heading>
-          <Text color="gray.600" fontSize="lg">
-            Configure and store test parameters for IEEE 2030.5 conformance testing
-          </Text>
+        <Box py={4}>
+          <Flex justify="space-between" align="center" mb={2}>
+            <Box flex="1" textAlign="center">
+              <Heading size="xl" color="gray.700" mb={2}>
+                IEEE 2030.5 Test Configuration
+              </Heading>
+              <Text color="gray.600" fontSize="lg">
+                Configure and store test parameters for IEEE 2030.5 conformance testing
+              </Text>
+            </Box>
+            <Button
+              colorScheme="purple"
+              size="md"
+              onClick={onViewTestResults}
+              rightIcon={<span>→</span>}
+            >
+              📊 View Test Results
+            </Button>
+          </Flex>
         </Box>
 
         {/* Main Content */}
@@ -150,7 +161,7 @@ export function ModernTestInterface({ colors }) {
           <Card bg="white" borderColor="gray.200" borderWidth="2px">
             <CardBody>
               {selectedTest ? (
-                <TestForm
+                <EnhancedTestForm
                   test={selectedTest}
                   onTestComplete={() => setSelectedTest(null)}
                 />

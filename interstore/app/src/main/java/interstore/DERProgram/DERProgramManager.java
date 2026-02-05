@@ -149,6 +149,8 @@ public class DERProgramManager {
         }
     }
 
+
+
     public Map<String, Object> getDerProgramDetails(@PathVariable Long derpID) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(derpID);
         return  responseEntity.getBody();
@@ -172,18 +174,4 @@ public class DERProgramManager {
 
 
 
- /*
-     * public DERProgramEntity getDERProgramById(String id) throws NumberFormatException, NotFoundException {
-        Long longId = Long.parseLong(id);
-        ResponseEntity<Map<String, Object>> derProgramEntity = this.derProgramService.getDerProgramById(longId);
-        return derProgramEntity;
-    }
-     */
-
-     
-     /*  public static String EndDeviceListLinktest()
-    { 
-       expected payload is 
-       "payload" : {
-        derprogramLink :  }
-   */
+ 

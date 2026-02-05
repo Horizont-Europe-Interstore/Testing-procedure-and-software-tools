@@ -2,9 +2,11 @@ package interstore.SelfDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.logging.Logger;
 
+@RestController
 public class SdevManager {
     private SelfDeviceService selfDeviceImpl;
     private static final Logger LOGGER = Logger.getLogger(SdevManager.class.getName());

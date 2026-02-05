@@ -1,4 +1,6 @@
 package interstore.DERProgram;
+import interstore.DERControl.DERControlRepository;
+import interstore.DERCurve.DERCurveRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
 import interstore.Identity.*;
@@ -36,6 +38,12 @@ public class DERProgramService {
 
     @Autowired
     FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
+
+    @Autowired
+    DERControlRepository derControlRepository;
+
+    @Autowired
+    DERCurveRepository derCurveRepository;
         
     @Transactional
     public DERProgramEntity createDerProgram(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
@@ -223,8 +231,14 @@ public class DERProgramService {
                         Method method = DERProgramEntity.class.getMethod(entry.getKey());
                         Object value = method.invoke(der);
                         if (value != null) {
+                            int count = 0;
+                            if (entry.getKey().equals("getDERControlListLink") || entry.getKey().equals("getActiveDERControlListLink")) {
+                                count = (int) derControlRepository.findByDerProgramId(der.getId()).stream().count();
+                            } else if (entry.getKey().equals("getDERCurveListLink")) {
+                                count = (int) derCurveRepository.findByDerProgramId(der.getId()).stream().count();
+                            }
                             xml.append("  <").append(entry.getValue()).append(" href=\"")
-                               .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                               .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
                         }
                     } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                         LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
@@ -350,7 +364,13 @@ public class DERProgramService {
                         xml.append(" <").append(entry.getValue()).append(" href=\"")
                            .append(stripHost(value.toString())).append("\"");
                         if (entry.getValue().endsWith("ListLink")) {
-                            xml.append(" all=\"0\"");
+                            int count = 0;
+                            if (entry.getKey().equals("getDERControlListLink") || entry.getKey().equals("getActiveDERControlListLink")) {
+                                count = (int) derControlRepository.findByDerProgramId(der.getId()).stream().count();
+                            } else if (entry.getKey().equals("getDERCurveListLink")) {
+                                count = (int) derCurveRepository.findByDerProgramId(der.getId()).stream().count();
+                            }
+                            xml.append(" all=\"").append(count).append("\"");
                         }
                         xml.append("/>\n");
                     }

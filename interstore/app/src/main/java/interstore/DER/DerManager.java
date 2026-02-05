@@ -1,36 +1,45 @@
 package interstore.DER;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 
-import interstore.DER.DERCapability.DERCapabilityEntity;
-import interstore.DER.DERSettings.DERSettingsEntity;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
+import interstore.DER.DERCapability.DERCapabilityEntity;
+import interstore.DER.DERSettings.DERSettingsEntity;
+import interstore.DER.DerPowerTests;
+import interstore.XmlValidation.XmlValidationService;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 @RestController
 public class DerManager {
 
     private DerService derService;
     private static final Logger LOGGER = Logger.getLogger(DerManager.class.getName());
+    private DerPowerTests derPowerGenerationTest;
+    
+    @Autowired
+    private XmlValidationService xmlValidationService;
 
     public DerManager(DerService derService) {
         this.derService = derService;
+        this.derPowerGenerationTest = new DerPowerTests();
     }
 
+    
+
+    // Internal method (called from NATS/App.java)
     public Object chooseMethod_basedOnAction(String payload) throws JSONException, NumberFormatException, NotFoundException{
         if (payload == null || payload.isEmpty()) {
             throw new IllegalArgumentException("payload cannot be null or empty");
@@ -65,42 +74,96 @@ public class DerManager {
             LOGGER.info("the response from DER Entity get ID is " +  derEntity.getId()); 
             return Map.of("id", derEntity.getId(), "derLink", derEntity.getDerLink());
         }
-        else if(payload.getJSONObject("payload").has("derCapabilityLink")){
-            DERCapabilityEntity derEntity = this.derService.createDerCapability( payload);
-            LOGGER.info("the response from DER Capability get ID is " +  derEntity.getId()); 
-            return Map.of("id", derEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(),
-            "AmpereHour", derEntity.getRtgMaxAh());
+        else
+        {
+            return Map.of("error", "endDeviceID not present in the payload");
         }
-        else{
-            DERSettingsEntity derEntity = this.derService.createDerSettings(payload);
-                LOGGER.info("the response from DER Settings get ID is " +  derEntity.getId()); 
-                return Map.of("id", derEntity.getId(), "setMaxA", derEntity.getSetMaxA(),
-                "setMaxVA", derEntity.getSetMaxVA());
-        }
-        
     }
 
-    public Map<String, Object> getDer(JSONObject payload) throws JSONException 
+    public Object getDer(JSONObject payload) throws JSONException
     {
        if(payload.has("endDeviceID") && payload.has("derID"))
-       {  
+       {
            Long endDeviceId = payload.getLong("endDeviceID");
            Long derId = payload.getLong("derID");
-           LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
-           if(payload.has("derSettings"))
-             {  
-                return getDerSettingsDetails(derId, endDeviceId);
-             }
-             else if (payload.has("derCapabilities")){
-                return getDerCapabilityDetails( derId , endDeviceId );
-             }
-             ResponseEntity<Map<String, Object>> response = derService.getDer(derId, endDeviceId);
-             return response.getBody();
+           LOGGER.info("the received payload in the DER program Manager for Get A DER is " +  payload);
+
+           if (payload.has("powerGenerationTest") && payload.getBoolean("powerGenerationTest")) {
+               return getDerCapabilityAndDerSettings(payload);
+           }
+
+           if (payload.has("derCapabilities")) {
+               LOGGER.info("Getting DER Capability for endDeviceId: " + endDeviceId + ", derId: " + derId);
+               return derService.getDerCapabilityHttp(endDeviceId, derId);
+           }
+
+           if (payload.has("derSettings")) {
+               LOGGER.info("Getting DER Settings for endDeviceId: " + endDeviceId + ", derId: " + derId);
+               return derService.getDerSettingsHttp(endDeviceId, derId);
+           }
+
+           ResponseEntity<Map<String, Object>> response = derService.getDer(derId, endDeviceId);
+           return response.getBody();
        }
-      return null ; 
+      return null ;
     }
 
-    
+    public Object getDerCapabilityAndDerSettings(JSONObject payload) throws JSONException
+    {
+        if(payload.has("endDeviceID") && payload.has("derID"))
+        {
+            Long endDeviceId = payload.getLong("endDeviceID");
+            Long derId = payload.getLong("derID");
+            LOGGER.info("Running Power Generation Test for endDeviceId: " + endDeviceId + ", derId: " + derId);
+
+            String derPowerCapabilityResponse = derService.getDerCapabilityHttp(endDeviceId, derId);
+            String derPowerSettingsResponse = derService.getDerSettingsHttp(endDeviceId, derId);
+            
+            Map<String, String> derPowerTests = Map.of(
+                "derCapability", derPowerCapabilityResponse,
+                "derSettings", derPowerSettingsResponse
+            );
+            
+            return derPowerGenerationTest.powerGenerationTest(derPowerTests);
+        }
+        return null;
+    }
+
+    @GetMapping("/api/derpowergenerationtest/{endDeviceId}/{derId}")
+    public Map<String, Object> derPowerGenerationTestHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) throws JSONException {
+        LOGGER.info("=== POWER GENERATION TEST ENDPOINT HIT ===");
+        LOGGER.info("Running Power Generation Test for endDeviceId: " + endDeviceId + ", derId: " + derId);
+        
+        String derPowerCapabilityResponse = derService.getDerCapabilityHttp(endDeviceId, derId);
+        String derPowerSettingsResponse = derService.getDerSettingsHttp(endDeviceId, derId);
+        
+        // Trigger XML validation for both requests
+        if (xmlValidationService != null) {
+            xmlValidationService.validateXml(
+                "/edev/" + endDeviceId + "/der/" + derId + "/dercap",
+                "GET",
+                "",
+                derPowerCapabilityResponse
+            );
+            xmlValidationService.validateXml(
+                "/edev/" + endDeviceId + "/der/" + derId + "/derg",
+                "GET",
+                "",
+                derPowerSettingsResponse
+            );
+        }
+        
+        Map<String, String> derPowerTests = Map.of(
+            "derCapability", derPowerCapabilityResponse,
+            "derSettings", derPowerSettingsResponse
+        );
+        
+        return (Map<String, Object>) derPowerGenerationTest.powerGenerationTest(derPowerTests);
+    }
+
+
+
+
     public Map<String, Object> updateDerSettings(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
     {
 
@@ -128,6 +191,7 @@ public class DerManager {
                 String responseEntity = derService.getAllDERsHttp(endDeviceId);
         
                 LOGGER.info("the der_list val is " + responseEntity);
+               
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
                 
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -156,6 +220,7 @@ public class DerManager {
                 String responseEntity = derService.getDerHttp(endDeviceId, derId);
         
                 LOGGER.info("the der val is " + responseEntity);
+                request.setAttribute("responseXml", responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
                 
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -178,14 +243,7 @@ public class DerManager {
              return responseEntity.getBody();
         }
 
-    }
-
-
-    
-    public Map<String, Object> getDerCapabilityDetails(Long derId, Long endDeviceId) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
-        return  responseEntity.getBody();
-    }
+    } 
 
     @GetMapping("edev/{endDeviceId}/der/{derId}/dercap")
     public Map<String, Object> getDerCapabilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId, HttpServletRequest request,
@@ -196,6 +254,7 @@ public class DerManager {
                 String responseEntity = this.derService.getDerCapabilityHttp( endDeviceId, derId);
         
                 LOGGER.info("the Der Capability val is " + responseEntity);
+                request.setAttribute("responseXml", responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
                 
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -212,18 +271,12 @@ public class DerManager {
             }
             return null;
         }
-        else{
-            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
-            return  responseEntity.getBody();
-        }
+       
+        return Map.of("error", "DER Capability endpoint must be called via HTTP");
+        
     }
     
-    
-    public Map<String, Object> getDerSettingsDetails(Long derId, Long endDeviceId) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
-        return  responseEntity.getBody();
-
-    }
+   
 
     @GetMapping("edev/{endDeviceId}/der/{derId}/derg")
     public Map<String, Object> getDerSettingsDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId, HttpServletRequest request,
@@ -234,6 +287,7 @@ public class DerManager {
                 String responseEntity = this.derService.getDerSettingsHttp( endDeviceId, derId);
         
                 LOGGER.info("the Der Settings val is " + responseEntity);
+                request.setAttribute("responseXml", responseEntity);
                 byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
                 
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -250,19 +304,18 @@ public class DerManager {
             }
             return null;
         }
-        else{
-            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
-            return  responseEntity.getBody();
-        }
         
+        return Map.of("error", "DER Settings endpoint must be called via HTTP");
     }
    
+    
+
     @PutMapping("edev/{endDeviceId}/der/{derId}/derg")
     public Map<String, Object> updatePowerGenerationTestHttp(
             @PathVariable Long endDeviceId,
             @PathVariable Long derId,
-            @org.springframework.web.bind.annotation.RequestBody String payload,
-            @org.springframework.web.bind.annotation.RequestHeader(value = "Content-Type", required = false) String contentType)
+            @RequestBody String payload,
+            @RequestHeader(value = "Content-Type", required = false) String contentType)
             throws Exception {
 
         LOGGER.info("Received PUT request for DER Settings (derg). Content-Type: " + contentType);
@@ -279,8 +332,8 @@ public class DerManager {
     public String updateDerCapabilityDetailsHttp(
             @PathVariable Long endDeviceId,
             @PathVariable Long derId,
-            @org.springframework.web.bind.annotation.RequestBody String payload,
-            @org.springframework.web.bind.annotation.RequestHeader(value = "Content-Type", required = false) String contentType)
+            @RequestBody String payload,
+            @RequestHeader(value = "Content-Type", required = false) String contentType)
             throws Exception {
 
         LOGGER.info("Received PUT request for DER Capability (dercap). Content-Type: " + contentType);
@@ -296,25 +349,45 @@ public class DerManager {
 }
 
 
-/*
- *  public Map<String, Object> updateDerSettings(JSONObject payload) throws JSONException, NumberFormatException, NotFoundException
-    {    
-        LOGGER.info("the received payload of DER Settings .. if " +  payload);
-        if(payload.has("endDeviceId") && payload.has("derID"))
-         { 
-          
-            Long endDeviceId = payload.getLong("endDeviceId");
-            Long derId = payload.getLong("derID");
-            LOGGER.info("the received payload in the DER program Manager for Update A DER Program is outside inner if " +  payload);
-            if(payload.has("powergeneration"))
-            {    
-                LOGGER.info("the received payload in the DER program Manager for Update A DER Settings is " +  payload);
-                return updatePowerGenerationTest( endDeviceId,  derId ,payload);
-            }
-         }
-          
-       return null; 
+/* 
+        else if(payload.getJSONObject("payload").has("derCapabilityLink")){
+            DERCapabilityEntity derEntity = this.derService.createDerCapability( payload);
+            LOGGER.info("the response from DER Capability get ID is " +  derEntity.getId()); 
+            return Map.of("id", derEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(),
+            "AmpereHour", derEntity.getRtgMaxAh());
+        }
+        else{
+            DERSettingsEntity derEntity = this.derService.createDerSettings(payload);
+                LOGGER.info("the response from DER Settings get ID is " +  derEntity.getId()); 
+                return Map.of("id", derEntity.getId(), "setMaxA", derEntity.getSetMaxA(),
+                "setMaxVA", derEntity.getSetMaxVA());
+        }
+
+        public Map<String, Object> getDerCapabilityDetails(Long derId, Long endDeviceId) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
+        return  responseEntity.getBody();
     }
- * 
- * 
- */
+        else{
+            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
+            return  responseEntity.getBody();
+        }
+             
+    public Map<String, Object> getDerSettingsDetails(Long derId, Long endDeviceId) throws JSONException {
+        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
+        return  responseEntity.getBody();
+
+    }
+
+    else{
+            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
+            return  responseEntity.getBody();
+        }
+       if(payload.has("derSettings"))
+             {  
+                return getDerSettingsDetails(derId, endDeviceId);
+             }
+             else if (payload.has("derCapabilities")){
+                return getDerCapabilityDetails( derId , endDeviceId );
+             }
+
+        */

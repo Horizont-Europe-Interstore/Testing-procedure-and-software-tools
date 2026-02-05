@@ -12,6 +12,8 @@ import jakarta.persistence.OneToOne;
 
 @Entity
 public class DERCapabilityEntity {
+    public record XmlvalueAndMultiplier(Integer multiplier, Integer value) {}
+    public record XmlDisplacementAndMultiplier(Integer displacement, Integer multiplier) {}
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -20,310 +22,437 @@ public class DERCapabilityEntity {
     private String modesSupported;
 
     @Column(name = "rtgAbnormalCategory")
-    private Integer rtgAbnormalCategory; 
+    private Integer rtgAbnormalCategory;
 
-    @Column(name = "rtgMaxA")
-    private Double rtgMaxA;  
+    // rtgMaxA
+    @Column(name = "rtgMaxAMultiplier")
+    private Integer rtgMaxAMultiplier;
+    @Column(name = "rtgMaxAValue")
+    private Integer rtgMaxAValue;
 
-    @Column(name = "rtgMaxAh")
-    private Double rtgMaxAh;  
+    // rtgMaxAh
+    @Column(name = "rtgMaxAhMultiplier")
+    private Integer rtgMaxAhMultiplier;
+    @Column(name = "rtgMaxAhValue")
+    private Integer rtgMaxAhValue;
 
-    @Column(name = "rtgMaxChargeRateVA")
-    private Double rtgMaxChargeRateVA;  
+    // rtgMaxChargeRateVA
+    @Column(name = "rtgMaxChargeRateVAMultiplier")
+    private Integer rtgMaxChargeRateVAMultiplier;
+    @Column(name = "rtgMaxChargeRateVAValue")
+    private Integer rtgMaxChargeRateVAValue;
 
-    @Column(name = "rtgMaxChargeRateW")
-    private Double rtgMaxChargeRateW; 
+    // rtgMaxChargeRateW
+    @Column(name = "rtgMaxChargeRateWMultiplier")
+    private Integer rtgMaxChargeRateWMultiplier;
+    @Column(name = "rtgMaxChargeRateWValue")
+    private Integer rtgMaxChargeRateWValue;
 
-    @Column(name = "rtgMaxDischargeRateVA")
-    private Double rtgMaxDischargeRateVA;  
+    // rtgMaxDischargeRateW
+    @Column(name = "rtgMaxDischargeRateWMultiplier")
+    private Integer rtgMaxDischargeRateWMultiplier;
+    @Column(name = "rtgMaxDischargeRateWValue")
+    private Integer rtgMaxDischargeRateWValue;
 
-    @Column(name = "rtgMaxDischargeRateW")
-    private Double rtgMaxDischargeRateW;  
+    // rtgMaxDischargeRateVA
+    @Column(name = "rtgMaxDischargeRateVAMultiplier")
+    private Integer rtgMaxDischargeRateVAMultiplier;
+    @Column(name = "rtgMaxDischargeRateVAValue")
+    private Integer rtgMaxDischargeRateVAValue;
 
-    @Column(name = "rtgMaxV")
-    private Double rtgMaxV;  
+    // rtgMaxV
+    @Column(name = "rtgMaxVMultiplier")
+    private Integer rtgMaxVMultiplier;
+    @Column(name = "rtgMaxVValue")
+    private Integer rtgMaxVValue;
 
-    @Column(name = "rtgMaxVA")
-    private Double rtgMaxVA;  
+    // rtgMaxVA
+    @Column(name = "rtgMaxVAMultiplier")
+    private Integer rtgMaxVAMultiplier;
+    @Column(name = "rtgMaxVAValue")
+    private Integer rtgMaxVAValue;
 
-    @Column(name = "rtgMaxVar")
-    private Double rtgMaxVar;  
+    // rtgMaxVar
+    @Column(name = "rtgMaxVarMultiplier")
+    private Integer rtgMaxVarMultiplier;
+    @Column(name = "rtgMaxVarValue")
+    private Integer rtgMaxVarValue;
 
-    @Column(name = "rtgMaxVarNeg")
-    private Double rtgMaxVarNeg;  
+    // rtgMaxVarNeg
+    @Column(name = "rtgMaxVarNegMultiplier")
+    private Integer rtgMaxVarNegMultiplier;
+    @Column(name = "rtgMaxVarNegValue")
+    private Integer rtgMaxVarNegValue;
 
-    @Column(name = "rtgMaxW")
-    private Double rtgMaxW;  
+    // rtgMaxW
+    @Column(name = "rtgMaxWMultiplier")
+    private Integer rtgMaxWMultiplier;
+    @Column(name = "rtgMaxWValue")
+    private Integer rtgMaxWValue;
 
-    @Column(name = "rtgMaxWh")
-    private Double rtgMaxWh;  
+    // rtgMaxWh
+    @Column(name = "rtgMaxWhMultiplier")
+    private Integer rtgMaxWhMultiplier;
+    @Column(name = "rtgMaxWhValue")
+    private Integer rtgMaxWhValue;
 
-    @Column(name = "rtgMinPFOverExcited")
-    private Double rtgMinPFOverExcited;  
+    // rtgMinPFOverExcited (displacement + multiplier)
+    @Column(name = "rtgMinPFOverExcitedDisplacement")
+    private Integer rtgMinPFOverExcitedDisplacement;
+    @Column(name = "rtgMinPFOverExcitedMultiplier")
+    private Integer rtgMinPFOverExcitedMultiplier;
 
-    @Column(name = "rtgMinPFUnderExcited")
-    private Double rtgMinPFUnderExcited;  
+    // rtgMinPFUnderExcited (displacement + multiplier)
+    @Column(name = "rtgMinPFUnderExcitedDisplacement")
+    private Integer rtgMinPFUnderExcitedDisplacement;
+    @Column(name = "rtgMinPFUnderExcitedMultiplier")
+    private Integer rtgMinPFUnderExcitedMultiplier;
 
-    @Column(name = "rtgMinV")
-    private Double rtgMinV;  
+    // rtgMinV
+    @Column(name = "rtgMinVMultiplier")
+    private Integer rtgMinVMultiplier;
+    @Column(name = "rtgMinVValue")
+    private Integer rtgMinVValue;
 
     @Column(name = "rtgNormalCategory")
     private Integer rtgNormalCategory;
 
-    @Column(name = "rtgOverExcitedPF")
-    private Double rtgOverExcitedPF;
+    // rtgOverExcitedPF (displacement + multiplier)
+    @Column(name = "rtgOverExcitedPFDisplacement")
+    private Integer rtgOverExcitedPFDisplacement;
+    @Column(name = "rtgOverExcitedPFMultiplier")
+    private Integer rtgOverExcitedPFMultiplier;
 
-    @Column(name = "rtgOverExcitedW")
-    private Double rtgOverExcitedW;
+    // rtgOverExcitedW
+    @Column(name = "rtgOverExcitedWMultiplier")
+    private Integer rtgOverExcitedWMultiplier;
+    @Column(name = "rtgOverExcitedWValue")
+    private Integer rtgOverExcitedWValue;
 
-    @Column(name = "rtgReactiveSusceptance")
-    private Double rtgReactiveSusceptance;
+    // rtgReactiveSusceptance
+    @Column(name = "rtgReactiveSusceptanceMultiplier")
+    private Integer rtgReactiveSusceptanceMultiplier;
+    @Column(name = "rtgReactiveSusceptanceValue")
+    private Integer rtgReactiveSusceptanceValue;
 
-    @Column(name = "rtgUnderExcitedPF")
-    private Double rtgUnderExcitedPF;
+    // rtgUnderExcitedPF (displacement + multiplier)
+    @Column(name = "rtgUnderExcitedPFDisplacement")
+    private Integer rtgUnderExcitedPFDisplacement;
+    @Column(name = "rtgUnderExcitedPFMultiplier")
+    private Integer rtgUnderExcitedPFMultiplier;
 
-    @Column(name = "rtgUnderExcitedW")
-    private Double rtgUnderExcitedW;
+    // rtgUnderExcitedW
+    @Column(name = "rtgUnderExcitedWMultiplier")
+    private Integer rtgUnderExcitedWMultiplier;
+    @Column(name = "rtgUnderExcitedWValue")
+    private Integer rtgUnderExcitedWValue;
 
-    @Column(name = "rtgVNom")
-    private Double rtgVNom;
+    // rtgVNom
+    @Column(name = "rtgVNomMultiplier")
+    private Integer rtgVNomMultiplier;
+    @Column(name = "rtgVNomValue")
+    private Integer rtgVNomValue;
 
     @Column(name = "type")
     private Integer derType;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "der_entity") 
+    @JoinColumn(name = "der_entity")
     private DerEntity derEntity;
 
     @Column(name = "derCapabilityLink")
     private String derCapabilityLink;
 
+    // ============ SETTERS FOR VALUE + MULTIPLIER FIELDS ============
 
-    public Integer getDerType() {
-        return derType;
-    }
-
-    public void setDerType(Integer derType) {
-        if (!isValidDERType(derType)) {
-            throw new IllegalArgumentException("Invalid DERType value: " + derType);
+    public void setRtgMaxA(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxAMultiplier = xml.multiplier();
+            this.rtgMaxAValue = xml.value();
+        } else {
+            this.rtgMaxAMultiplier = null;
+            this.rtgMaxAValue = null;
         }
-        this.derType = derType;
     }
 
-    // Validation logic
-    private boolean isValidDERType(Integer value) {
-        return (value >= 0 && value <= 6) || (value >= 80 && value <= 83);
+    public void setRtgMaxAh(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxAhMultiplier = xml.multiplier();
+            this.rtgMaxAhValue = xml.value();
+        } else {
+            this.rtgMaxAhMultiplier = null;
+            this.rtgMaxAhValue = null;
+        }
     }
 
-    public String getModesSupported() {
-        return modesSupported;
+    public void setRtgMaxChargeRateVA(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxChargeRateVAMultiplier = xml.multiplier();
+            this.rtgMaxChargeRateVAValue = xml.value();
+        } else {
+            this.rtgMaxChargeRateVAMultiplier = null;
+            this.rtgMaxChargeRateVAValue = null;
+        }
     }
+
+    public void setRtgMaxChargeRateW(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxChargeRateWMultiplier = xml.multiplier();
+            this.rtgMaxChargeRateWValue = xml.value();
+        } else {
+            this.rtgMaxChargeRateWMultiplier = null;
+            this.rtgMaxChargeRateWValue = null;
+        }
+    }
+
+    public void setRtgMaxDischargeRateW(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxDischargeRateWMultiplier = xml.multiplier();
+            this.rtgMaxDischargeRateWValue = xml.value();
+        } else {
+            this.rtgMaxDischargeRateWMultiplier = null;
+            this.rtgMaxDischargeRateWValue = null;
+        }
+    }
+
+    public void setRtgMaxDischargeRateVA(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxDischargeRateVAMultiplier = xml.multiplier();
+            this.rtgMaxDischargeRateVAValue = xml.value();
+        } else {
+            this.rtgMaxDischargeRateVAMultiplier = null;
+            this.rtgMaxDischargeRateVAValue = null;
+        }
+    }
+
+    public void setRtgMaxV(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxVMultiplier = xml.multiplier();
+            this.rtgMaxVValue = xml.value();
+        } else {
+            this.rtgMaxVMultiplier = null;
+            this.rtgMaxVValue = null;
+        }
+    }
+
+    public void setRtgMaxVA(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxVAMultiplier = xml.multiplier();
+            this.rtgMaxVAValue = xml.value();
+        } else {
+            this.rtgMaxVAMultiplier = null;
+            this.rtgMaxVAValue = null;
+        }
+    }
+
+    public void setRtgMaxVar(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxVarMultiplier = xml.multiplier();
+            this.rtgMaxVarValue = xml.value();
+        } else {
+            this.rtgMaxVarMultiplier = null;
+            this.rtgMaxVarValue = null;
+        }
+    }
+
+    public void setRtgMaxVarNeg(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxVarNegMultiplier = xml.multiplier();
+            this.rtgMaxVarNegValue = xml.value();
+        } else {
+            this.rtgMaxVarNegMultiplier = null;
+            this.rtgMaxVarNegValue = null;
+        }
+    }
+
+    public void setRtgMaxW(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxWMultiplier = xml.multiplier();
+            this.rtgMaxWValue = xml.value();
+        } else {
+            this.rtgMaxWMultiplier = null;
+            this.rtgMaxWValue = null;
+        }
+    }
+
+    public void setRtgMaxWh(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMaxWhMultiplier = xml.multiplier();
+            this.rtgMaxWhValue = xml.value();
+        } else {
+            this.rtgMaxWhMultiplier = null;
+            this.rtgMaxWhValue = null;
+        }
+    }
+
+    public void setRtgMinV(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMinVMultiplier = xml.multiplier();
+            this.rtgMinVValue = xml.value();
+        } else {
+            this.rtgMinVMultiplier = null;
+            this.rtgMinVValue = null;
+        }
+    }
+
+    public void setRtgOverExcitedW(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgOverExcitedWMultiplier = xml.multiplier();
+            this.rtgOverExcitedWValue = xml.value();
+        } else {
+            this.rtgOverExcitedWMultiplier = null;
+            this.rtgOverExcitedWValue = null;
+        }
+    }
+
+    public void setRtgReactiveSusceptance(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgReactiveSusceptanceMultiplier = xml.multiplier();
+            this.rtgReactiveSusceptanceValue = xml.value();
+        } else {
+            this.rtgReactiveSusceptanceMultiplier = null;
+            this.rtgReactiveSusceptanceValue = null;
+        }
+    }
+
+    public void setRtgUnderExcitedW(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgUnderExcitedWMultiplier = xml.multiplier();
+            this.rtgUnderExcitedWValue = xml.value();
+        } else {
+            this.rtgUnderExcitedWMultiplier = null;
+            this.rtgUnderExcitedWValue = null;
+        }
+    }
+
+    public void setRtgVNom(XmlvalueAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgVNomMultiplier = xml.multiplier();
+            this.rtgVNomValue = xml.value();
+        } else {
+            this.rtgVNomMultiplier = null;
+            this.rtgVNomValue = null;
+        }
+    }
+
+    // ============ SETTERS FOR DISPLACEMENT + MULTIPLIER FIELDS ============
+
+    public void setRtgMinPFOverExcited(XmlDisplacementAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMinPFOverExcitedDisplacement = xml.displacement();
+            this.rtgMinPFOverExcitedMultiplier = xml.multiplier();
+        } else {
+            this.rtgMinPFOverExcitedDisplacement = null;
+            this.rtgMinPFOverExcitedMultiplier = null;
+        }
+    }
+
+    public void setRtgMinPFUnderExcited(XmlDisplacementAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgMinPFUnderExcitedDisplacement = xml.displacement();
+            this.rtgMinPFUnderExcitedMultiplier = xml.multiplier();
+        } else {
+            this.rtgMinPFUnderExcitedDisplacement = null;
+            this.rtgMinPFUnderExcitedMultiplier = null;
+        }
+    }
+
+    public void setRtgOverExcitedPF(XmlDisplacementAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgOverExcitedPFDisplacement = xml.displacement();
+            this.rtgOverExcitedPFMultiplier = xml.multiplier();
+        } else {
+            this.rtgOverExcitedPFDisplacement = null;
+            this.rtgOverExcitedPFMultiplier = null;
+        }
+    }
+
+    public void setRtgUnderExcitedPF(XmlDisplacementAndMultiplier xml) {
+        if (xml != null) {
+            this.rtgUnderExcitedPFDisplacement = xml.displacement();
+            this.rtgUnderExcitedPFMultiplier = xml.multiplier();
+        } else {
+            this.rtgUnderExcitedPFDisplacement = null;
+            this.rtgUnderExcitedPFMultiplier = null;
+        }
+    }
+
+    // ============ SIMPLE SETTERS ============
 
     public void setModesSupported(String modesSupported) {
         this.modesSupported = modesSupported;
-    }
-
-    public Integer getRtgAbnormalCategory() {
-        return rtgAbnormalCategory;
     }
 
     public void setRtgAbnormalCategory(Integer rtgAbnormalCategory) {
         this.rtgAbnormalCategory = rtgAbnormalCategory;
     }
 
-    public Double getRtgMaxA() {
-        return rtgMaxA;
-    }
-
-    public void setRtgMaxA(Double rtgMaxA) {
-        this.rtgMaxA = rtgMaxA;
-    }
-
-    public Double getRtgMaxAh() {
-        return rtgMaxAh;
-    }
-
-    public void setRtgMaxAh(Double rtgMaxAh) {
-        this.rtgMaxAh = rtgMaxAh;
-    }
-
-    public Double getRtgMaxChargeRateVA() {
-        return rtgMaxChargeRateVA;
-    }
-
-    public void setRtgMaxChargeRateVA(Double rtgMaxChargeRateVA) {
-        this.rtgMaxChargeRateVA = rtgMaxChargeRateVA;
-    }
-
-    public Double getRtgMaxChargeRateW() {
-        return rtgMaxChargeRateW;
-    }
-
-    public void setRtgMaxChargeRateW(Double rtgMaxChargeRateW) {
-        this.rtgMaxChargeRateW = rtgMaxChargeRateW;
-    }
-
-    public Double getRtgMaxDischargeRateVA() {
-        return rtgMaxDischargeRateVA;
-    }
-
-    public void setRtgMaxDischargeRateVA(Double rtgMaxDischargeRateVA) {
-        this.rtgMaxDischargeRateVA = rtgMaxDischargeRateVA;
-    }
-
-    public Double getRtgMaxDischargeRateW() {
-        return rtgMaxDischargeRateW;
-    }
-
-    public void setRtgMaxDischargeRateW(Double rtgMaxDischargeRateW) {
-        this.rtgMaxDischargeRateW = rtgMaxDischargeRateW;
-    }
-
-    public Double getRtgMaxV() {
-        return rtgMaxV;
-    }
-
-    public void setRtgMaxV(Double rtgMaxV) {
-        this.rtgMaxV = rtgMaxV;
-    }
-
-    public Double getRtgMaxVA() {
-        return rtgMaxVA;
-    }
-
-    public void setRtgMaxVA(Double rtgMaxVA) {
-        this.rtgMaxVA = rtgMaxVA;
-    }
-
-    public Double getRtgMaxVar() {
-        return rtgMaxVar;
-    }
-
-    public void setRtgMaxVar(Double rtgMaxVar) {
-        this.rtgMaxVar = rtgMaxVar;
-    }
-
-    public Double getRtgMaxVarNeg() {
-        return rtgMaxVarNeg;
-    }
-
-    public void setRtgMaxVarNeg(Double rtgMaxVarNeg) {
-        this.rtgMaxVarNeg = rtgMaxVarNeg;
-    }
-
-    public Double getRtgMaxW() {
-        return rtgMaxW;
-    }
-
-    public void setRtgMaxW(Double rtgMaxW) {
-        this.rtgMaxW = rtgMaxW;
-    }
-
-    public Double getRtgMaxWh() {
-        return rtgMaxWh;
-    }
-
-    public void setRtgMaxWh(Double rtgMaxWh) {
-        this.rtgMaxWh = rtgMaxWh;
-    }
-
-    public Double getRtgMinPFOverExcited() {
-        return rtgMinPFOverExcited;
-    }
-
-    public void setRtgMinPFOverExcited(Double rtgMinPFOverExcited) {
-        this.rtgMinPFOverExcited = rtgMinPFOverExcited;
-    }
-
-    public Double getRtgMinPFUnderExcited() {
-        return rtgMinPFUnderExcited;
-    }
-
-    public void setRtgMinPFUnderExcited(Double rtgMinPFUnderExcited) {
-        this.rtgMinPFUnderExcited = rtgMinPFUnderExcited;
-    }
-
-    public Double getRtgMinV() {
-        return rtgMinV;
-    }
-
-    public void setRtgMinV(Double rtgMinV) {
-        this.rtgMinV = rtgMinV;
-    }
-
-    public Integer getRtgNormalCategory() {
-        return rtgNormalCategory;
-    }
-
     public void setRtgNormalCategory(Integer rtgNormalCategory) {
         this.rtgNormalCategory = rtgNormalCategory;
     }
 
-    public Double getRtgOverExcitedPF() {
-        return rtgOverExcitedPF;
-    }
-
-    public void setRtgOverExcitedPF(Double rtgOverExcitedPF) {
-        this.rtgOverExcitedPF = rtgOverExcitedPF;
-    }
-
-    public Double getRtgOverExcitedW() {
-        return rtgOverExcitedW;
-    }
-
-    public void setRtgOverExcitedW(Double rtgOverExcitedW) {
-        this.rtgOverExcitedW = rtgOverExcitedW;
-    }
-
-    public Double getRtgReactiveSusceptance() {
-        return rtgReactiveSusceptance;
-    }
-
-    public void setRtgReactiveSusceptance(Double rtgReactiveSusceptance) {
-        this.rtgReactiveSusceptance = rtgReactiveSusceptance;
-    }
-
-    public Double getRtgUnderExcitedPF() {
-        return rtgUnderExcitedPF;
-    }
-
-    public void setRtgUnderExcitedPF(Double rtgUnderExcitedPF) {
-        this.rtgUnderExcitedPF = rtgUnderExcitedPF;
-    }
-
-    public Double getRtgUnderExcitedW() {
-        return rtgUnderExcitedW;
-    }
-
-    public void setRtgUnderExcitedW(Double rtgUnderExcitedW) {
-        this.rtgUnderExcitedW = rtgUnderExcitedW;
-    }
-     
-    public Double getRtgVNom() {
-        return rtgVNom;
-    }
-    public void setRtgVNom(Double rtgVNom) {
-        this.rtgVNom = rtgVNom;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public DerEntity getDerEntity() {
-        return derEntity;
-    }
-
-    public void setDerEntity(DerEntity derEntity) {
-        this.derEntity = derEntity;
-    }
-
-    public String getDerCapabilityLink() {
-        return derCapabilityLink;
+    public void setDerType(Integer derType) {
+        this.derType = derType;
     }
 
     public void setDerCapabilityLink(String derCapabilityLink) {
         this.derCapabilityLink = derCapabilityLink;
     }
 
+    public void setDerEntity(DerEntity derEntity) {
+        this.derEntity = derEntity;
+    }
+
+    // ============ GETTERS ============
+    
+    public Long getId() { return id; }
+    public String getModesSupported() { return modesSupported; }
+    public Integer getRtgAbnormalCategory() { return rtgAbnormalCategory; }
+    public Integer getRtgMaxAMultiplier() { return rtgMaxAMultiplier; }
+    public Integer getRtgMaxAValue() { return rtgMaxAValue; }
+    public Integer getRtgMaxAhMultiplier() { return rtgMaxAhMultiplier; }
+    public Integer getRtgMaxAhValue() { return rtgMaxAhValue; }
+    public Integer getRtgMaxChargeRateVAMultiplier() { return rtgMaxChargeRateVAMultiplier; }
+    public Integer getRtgMaxChargeRateVAValue() { return rtgMaxChargeRateVAValue; }
+    public Integer getRtgMaxChargeRateWMultiplier() { return rtgMaxChargeRateWMultiplier; }
+    public Integer getRtgMaxChargeRateWValue() { return rtgMaxChargeRateWValue; }
+    public Integer getRtgMaxDischargeRateWMultiplier() { return rtgMaxDischargeRateWMultiplier; }
+    public Integer getRtgMaxDischargeRateWValue() { return rtgMaxDischargeRateWValue; }
+    public Integer getRtgMaxDischargeRateVAMultiplier() { return rtgMaxDischargeRateVAMultiplier; }
+    public Integer getRtgMaxDischargeRateVAValue() { return rtgMaxDischargeRateVAValue; }
+    public Integer getRtgMaxVMultiplier() { return rtgMaxVMultiplier; }
+    public Integer getRtgMaxVValue() { return rtgMaxVValue; }
+    public Integer getRtgMaxVAMultiplier() { return rtgMaxVAMultiplier; }
+    public Integer getRtgMaxVAValue() { return rtgMaxVAValue; }
+    public Integer getRtgMaxVarMultiplier() { return rtgMaxVarMultiplier; }
+    public Integer getRtgMaxVarValue() { return rtgMaxVarValue; }
+    public Integer getRtgMaxVarNegMultiplier() { return rtgMaxVarNegMultiplier; }
+    public Integer getRtgMaxVarNegValue() { return rtgMaxVarNegValue; }
+    public Integer getRtgMaxWMultiplier() { return rtgMaxWMultiplier; }
+    public Integer getRtgMaxWValue() { return rtgMaxWValue; }
+    public Integer getRtgMaxWhMultiplier() { return rtgMaxWhMultiplier; }
+    public Integer getRtgMaxWhValue() { return rtgMaxWhValue; }
+    public Integer getRtgMinPFOverExcitedDisplacement() { return rtgMinPFOverExcitedDisplacement; }
+    public Integer getRtgMinPFOverExcitedMultiplier() { return rtgMinPFOverExcitedMultiplier; }
+    public Integer getRtgMinPFUnderExcitedDisplacement() { return rtgMinPFUnderExcitedDisplacement; }
+    public Integer getRtgMinPFUnderExcitedMultiplier() { return rtgMinPFUnderExcitedMultiplier; }
+    public Integer getRtgMinVMultiplier() { return rtgMinVMultiplier; }
+    public Integer getRtgMinVValue() { return rtgMinVValue; }
+    public Integer getRtgNormalCategory() { return rtgNormalCategory; }
+    public Integer getRtgOverExcitedPFDisplacement() { return rtgOverExcitedPFDisplacement; }
+    public Integer getRtgOverExcitedPFMultiplier() { return rtgOverExcitedPFMultiplier; }
+    public Integer getRtgOverExcitedWMultiplier() { return rtgOverExcitedWMultiplier; }
+    public Integer getRtgOverExcitedWValue() { return rtgOverExcitedWValue; }
+    public Integer getRtgReactiveSusceptanceMultiplier() { return rtgReactiveSusceptanceMultiplier; }
+    public Integer getRtgReactiveSusceptanceValue() { return rtgReactiveSusceptanceValue; }
+    public Integer getRtgUnderExcitedPFDisplacement() { return rtgUnderExcitedPFDisplacement; }
+    public Integer getRtgUnderExcitedPFMultiplier() { return rtgUnderExcitedPFMultiplier; }
+    public Integer getRtgUnderExcitedWMultiplier() { return rtgUnderExcitedWMultiplier; }
+    public Integer getRtgUnderExcitedWValue() { return rtgUnderExcitedWValue; }
+    public Integer getRtgVNomMultiplier() { return rtgVNomMultiplier; }
+    public Integer getRtgVNomValue() { return rtgVNomValue; }
+    public Integer getDerType() { return derType; }
+    public DerEntity getDerEntity() { return derEntity; }
+    public String getDerCapabilityLink() { return derCapabilityLink; }
 }
+

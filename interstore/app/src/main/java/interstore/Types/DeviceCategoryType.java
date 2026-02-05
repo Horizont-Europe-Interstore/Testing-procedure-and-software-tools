@@ -18,12 +18,34 @@ public class DeviceCategoryType extends HexBinary32 implements AbstractDevice {
         return super.getHexValue32value();
     } 
     public boolean validateDeviceCategory(String hexValue) {
-        // Check if the value is within the allowed range (0 to 25)
-        int decimalValue = Integer.parseInt(hexValue, 16);
-        if (decimalValue < 0 || decimalValue > 25) {
+        try {
+            // Parse as decimal integer (the value is already in decimal format)
+            int decimalValue = Integer.parseInt(hexValue);
+            
+            // Check if it's a valid power of 2 (single bit set) or 0
+            // Valid values are 2^0 to 2^24 (bits 0-24)
+            if (decimalValue == 0) {
+                return true; // 0 is valid (no category)
+            }
+            
+            // Check if it's a power of 2 and within valid range (2^0 to 2^24)
+            // 2^24 = 16777216, so max valid single bit value
+            if (decimalValue > 0 && decimalValue <= 16777216) {
+                // Check if it's a power of 2 (only one bit set)
+                boolean isPowerOfTwo = (decimalValue & (decimalValue - 1)) == 0;
+                if (isPowerOfTwo) {
+                    return true;
+                }
+                // Also allow combinations of multiple bits
+                if (decimalValue <= 33554431) { // 2^25 - 1 (all bits 0-24 can be set)
+                    return true;
+                }
+            }
+            
+            throw new IllegalArgumentException("Invalid DeviceCategoryType value: " + hexValue);
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid DeviceCategoryType value: " + hexValue);
         }
-        return true;
     }
 
     @Converter(autoApply = true)

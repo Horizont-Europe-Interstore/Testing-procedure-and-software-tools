@@ -1,4 +1,5 @@
 package interstore.FunctionSetAssignments;
+import interstore.DERProgram.DERProgramRepository;
 import interstore.EndDevice.EndDeviceEntity;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Types.HexBinary128;
@@ -30,6 +31,9 @@ public class FunctionSetAssignmentsService {
     
     @Autowired
     private EndDeviceRepository endDeviceRepository;
+
+    @Autowired
+    private DERProgramRepository derProgramRepository;
 
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
 
@@ -204,8 +208,12 @@ public String getAllFunctionsetAssignmentsHttp(Long endDeviceId){
             Object value = method.invoke(fsa);
 
             if (value != null) {
+                int count = 0;
+                if (entry.getKey().equals("getDERProgramListLink")) {
+                    count = (int) derProgramRepository.findByFsaEntity_Id(fsa.getId()).stream().count();
+                }
                 xml.append("    <").append(entry.getValue()).append(" href=\"")
-                   .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                   .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
             }
         }
 
@@ -397,8 +405,12 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
                     Method method = FunctionSetAssignmentsEntity.class.getMethod(entry.getKey());
                     Object value = method.invoke(fsa);
                     if (value != null) {
+                        int count = 0;
+                        if (entry.getKey().equals("getDERProgramListLink")) {
+                            count = (int) derProgramRepository.findByFsaEntity_Id(fsa.getId()).stream().count();
+                        }
                         xml.append(" <").append(entry.getValue()).append(" href=\"")
-                           .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                           .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                     LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
