@@ -1,22 +1,16 @@
 package interstore.DER;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import interstore.DER.DERCapability.DERCapabilityEntity;
 import interstore.DER.DERSettings.DERSettingsEntity;
 import interstore.DER.DerPowerTests;
 import interstore.XmlValidation.XmlValidationService;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,129 +177,54 @@ public class DerManager {
     return null;
     }
 
-    @GetMapping("edev/{endDeviceId}/der")
-    public Map<String, Object> getAllDerHttp(@PathVariable Long endDeviceId, HttpServletRequest request,
-                                                HttpServletResponse response) throws JSONException {
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = derService.getAllDERsHttp(endDeviceId);
+    @GetMapping(value = "edev/{endDeviceId}/der", produces = "application/sep+xml")
+    public ResponseEntity<String> getAllDerHttp(@PathVariable Long endDeviceId) {
+        String derListXml = derService.getAllDERsHttp(endDeviceId);
+        LOGGER.info("the der_list val is " + derListXml);
         
-                LOGGER.info("the der_list val is " + responseEntity);
-               
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving DERList value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        }
-        return null; 
-
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        
+        return new ResponseEntity<>(derListXml, headers, HttpStatus.OK);
     }
    
-    @GetMapping("edev/{endDeviceId}/der/{derId}")
-    public Map<String, Object> getADerHttp(@PathVariable Long endDeviceId, @PathVariable Long derId, HttpServletRequest request,
-                                                HttpServletResponse response) throws JSONException {
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = derService.getDerHttp(endDeviceId, derId);
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}", produces = "application/sep+xml")
+    public ResponseEntity<String> getADerHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
+        String derXml = derService.getDerHttp(endDeviceId, derId);
+        LOGGER.info("the der val is " + derXml);
         
-                LOGGER.info("the der val is " + responseEntity);
-                request.setAttribute("responseXml", responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving Der value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        } 
-        // Case: called internally
-        else {
-            ResponseEntity<Map<String, Object>> responseEntity = derService.getDer(derId, endDeviceId);
-             return responseEntity.getBody();
-        }
-
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        
+        return new ResponseEntity<>(derXml, headers, HttpStatus.OK);
     } 
 
-    @GetMapping("edev/{endDeviceId}/der/{derId}/dercap")
-    public Map<String, Object> getDerCapabilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId, HttpServletRequest request,
-                                                HttpServletResponse response) throws JSONException {
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/dercap", produces = "application/sep+xml")
+    public ResponseEntity<String> getDerCapabilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
+        String derCapabilityXml = this.derService.getDerCapabilityHttp(endDeviceId, derId);
+        LOGGER.info("the Der Capability val is " + derCapabilityXml);
         
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = this.derService.getDerCapabilityHttp( endDeviceId, derId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
         
-                LOGGER.info("the Der Capability val is " + responseEntity);
-                request.setAttribute("responseXml", responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving Der Capability value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        }
-       
-        return Map.of("error", "DER Capability endpoint must be called via HTTP");
-        
+        return new ResponseEntity<>(derCapabilityXml, headers, HttpStatus.OK);
     }
     
    
 
-    @GetMapping("edev/{endDeviceId}/der/{derId}/derg")
-    public Map<String, Object> getDerSettingsDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId, HttpServletRequest request,
-                                                HttpServletResponse response) throws JSONException {
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/derg", produces = "application/sep+xml")
+    public ResponseEntity<String> getDerSettingsDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
+        String derSettingsXml = this.derService.getDerSettingsHttp(endDeviceId, derId);
+        LOGGER.info("the Der Settings val is " + derSettingsXml);
         
-        if(RequestContextHolder.getRequestAttributes() != null){
-            try{
-                String responseEntity = this.derService.getDerSettingsHttp( endDeviceId, derId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
         
-                LOGGER.info("the Der Settings val is " + responseEntity);
-                request.setAttribute("responseXml", responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving Der Settings value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        }
-        
-        return Map.of("error", "DER Settings endpoint must be called via HTTP");
+        return new ResponseEntity<>(derSettingsXml, headers, HttpStatus.OK);
     }
    
     
@@ -349,45 +268,3 @@ public class DerManager {
 }
 
 
-/* 
-        else if(payload.getJSONObject("payload").has("derCapabilityLink")){
-            DERCapabilityEntity derEntity = this.derService.createDerCapability( payload);
-            LOGGER.info("the response from DER Capability get ID is " +  derEntity.getId()); 
-            return Map.of("id", derEntity.getId(), "CurrentRMS", derEntity.getRtgMaxA(),
-            "AmpereHour", derEntity.getRtgMaxAh());
-        }
-        else{
-            DERSettingsEntity derEntity = this.derService.createDerSettings(payload);
-                LOGGER.info("the response from DER Settings get ID is " +  derEntity.getId()); 
-                return Map.of("id", derEntity.getId(), "setMaxA", derEntity.getSetMaxA(),
-                "setMaxVA", derEntity.getSetMaxVA());
-        }
-
-        public Map<String, Object> getDerCapabilityDetails(Long derId, Long endDeviceId) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
-        return  responseEntity.getBody();
-    }
-        else{
-            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerCapability( endDeviceId, derId);
-            return  responseEntity.getBody();
-        }
-             
-    public Map<String, Object> getDerSettingsDetails(Long derId, Long endDeviceId) throws JSONException {
-        ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
-        return  responseEntity.getBody();
-
-    }
-
-    else{
-            ResponseEntity<Map<String, Object>> responseEntity = this.derService.getDerSettings(endDeviceId, derId);
-            return  responseEntity.getBody();
-        }
-       if(payload.has("derSettings"))
-             {  
-                return getDerSettingsDetails(derId, endDeviceId);
-             }
-             else if (payload.has("derCapabilities")){
-                return getDerCapabilityDetails( derId , endDeviceId );
-             }
-
-        */

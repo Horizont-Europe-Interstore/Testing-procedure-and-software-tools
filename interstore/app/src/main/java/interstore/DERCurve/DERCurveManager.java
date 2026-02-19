@@ -1,19 +1,14 @@
 package interstore.DERCurve;
 
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -91,33 +86,16 @@ public class DERCurveManager {
 //        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
     }
 
-    @GetMapping("/derp/{derpId}/dc")
-    public Map<String, Object> getAllDERCurveDetailsHttp(@PathVariable Long derpId, HttpServletRequest request, HttpServletResponse response){
-        // Case: called from HTTP
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = this.derCurveService.getAllDERCurvesHttp(derpId);
-                LOGGER.info("the der_curve_list_val is " + responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving DERCurveList value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        } 
-        // Case: called internally
-        else {
-            return getAllDERCurveDetails(derpId); 
-        }
+    @GetMapping(value = "/derp/{derpId}/dc", produces = "application/sep+xml")
+    public ResponseEntity<String> getAllDERCurveDetailsHttp(@PathVariable Long derpId) {
+        String derCurveListXml = this.derCurveService.getAllDERCurvesHttp(derpId);
+        LOGGER.info("the der_curve_list_val is " + derCurveListXml);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        
+        return new ResponseEntity<>(derCurveListXml, headers, HttpStatus.OK);
     }
 
     public Map<String, Object> getAllDERCurveDetails(Long derpId){
@@ -125,33 +103,16 @@ public class DERCurveManager {
         return  responseEntity.getBody();
     }
 
-    @GetMapping("/derp/{derpId}/dc/{dcId}")
-    public Map<String, Object> getDERCurveHttp(@PathVariable Long derpId, @PathVariable Long dcId, HttpServletRequest request, HttpServletResponse response){
-        // Case: called from HTTP
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = this.derCurveService.getDERCurveHttp(derpId, dcId);
-                LOGGER.info("the der_curve_val is " + responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving DERCurve value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        } 
-        // Case: called internally
-        else {
-            return getDERCurve(derpId, dcId); 
-        }
+    @GetMapping(value = "/derp/{derpId}/dc/{dcId}", produces = "application/sep+xml")
+    public ResponseEntity<String> getDERCurveHttp(@PathVariable Long derpId, @PathVariable Long dcId) {
+        String derCurveXml = this.derCurveService.getDERCurveHttp(derpId, dcId);
+        LOGGER.info("the der_curve_val is " + derCurveXml);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        
+        return new ResponseEntity<>(derCurveXml, headers, HttpStatus.OK);
     }
 
     
