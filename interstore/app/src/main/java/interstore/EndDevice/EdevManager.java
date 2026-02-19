@@ -1,11 +1,8 @@
 package interstore.EndDevice;
 
-// import interstore.EndDeviceTest;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-// import interstore.Util.SfdiUtil;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,20 +53,15 @@ public class EdevManager {
                    return payLoadParser(jsonObject); 
             case "put":
                 updateEndDevice(jsonObject);
-                return null;  // change it to map later 
+                return null;  
             case "delete":
                 deleteEndDevice(jsonObject.getString("id"));
-                return null;  // change it to map later 
-
+                return null;  
         }
-        return null;  // change it to map later with a default value with invalid operation 
+        return null;  
     }
     
-   /* the best solution is that the regex patterns and try to match those regex patterns 
-    * the basic regex matches with all other paterns 
-    eceived message from NATS{"payload":"http://localhost/edev","action":"get","servicename":"enddevicemanager"}
-    */
-
+   
 
     public  Map<String, Object> payLoadParser(JSONObject jsonObject) throws JSONException 
     {  
@@ -308,7 +298,7 @@ public class EdevManager {
          
     }
    
-     @GetMapping("/edev/{endDeviceID}/reg/{registrationID}")
+     @GetMapping("/edev/{endDeviceID}/rg/{registrationID}")
      public Map<String, Object> getRegisteredEndDeviceDetails(@PathVariable Long endDeviceID, @PathVariable Long registrationID) {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getRegisterdEndDeviceDetails( endDeviceID, registrationID);
         return responseEntity.getBody();
@@ -388,105 +378,3 @@ public class EdevManager {
 
 
 
-/*
-
- 
-
-
-     public Object splitPayload(String payload) {
-        String normalizedPayload = payload.replaceAll("^https?://", "");
-       
-        int startIndex = normalizedPayload.indexOf("/");  
-        if (startIndex != -1) {                            
-            String path = normalizedPayload.substring(startIndex + 1);   
-            String[] parts = path.split("/");                                                                                    
-            for (String part : parts) {
-                System.out.println(part); 
-            }
-            switch (parts.length) {
-                case 1:
-                    return parts[0];
-                case 2:
-                    try {
-                        return Long.parseLong(parts[1]);
-                    } catch (NumberFormatException e) {
-                        return parts[1]; 
-                    }
-                case 4: 
-                    try {
-                        long id1 = Long.parseLong(parts[1]);
-                        long id2 = Long.parseLong(parts[3]);
-                        return new String[] {String.valueOf(id1), parts[2], String.valueOf(id2)};
-                    } catch (NumberFormatException e) {
-                        return "Invalid Numeric values in URL path";
-                    }
-                default:
-                    return "Unsupported URL format"; 
-            }
-        }
-        return "No path found";
-    }
-    
-
-   
-
-
- public String getEndDeviceInstance( JSONObject jsonPayLoad) {
-       try{
-        String payload = jsonPayLoad.optString("payload");
-        Pattern pattern = Pattern.compile("(?i).*\\/[a-z]+\\/(\\d+)\\/[a-z]+");
-        Matcher matcher = pattern.matcher(payload);
-     if (matcher.find()) {
-         String id = matcher.group(1); // This will give you the ID '1234'
-         System.out.println("ID: " + id);
-         return id;
-     } 
-       } catch (PatternSyntaxException e) {
-        System.err.println("Regex pattern syntax error: " + e.getDescription());
-       
-    } catch (Exception e) {
-        System.err.println("An error occurred while processing the payload: " + e.getMessage());
-        
-    }
-    return null;
-}
-
- try
-        {   
-            //Object response = splitPayload(payload);
-            if(response instanceof String)
-        {
-            
-        } 
-        else if(response instanceof Long)
-        {
-            Long endDeviceId = (Long) response;
-            return this.getEndDeviceById(endDeviceId);
-        }
-        else if (response instanceof String[])
-        {   
-            String[] parts = (String[]) response;
-            if(parts[1].equals(getregistrationEndpoint()))  
-            {   
-                Long endDeviceId = Long.parseLong(parts[0]);
-                Long registeredEndDeviceId = Long.parseLong(parts[2]);
-                return this.getRegisteredEndDeviceDetails(endDeviceId, registeredEndDeviceId);
-            }
-        }
-        } catch (PatternSyntaxException e) {
-         
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    return null;
-      
-
-
-
-
-
-
-
-
-
- */

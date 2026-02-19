@@ -57,9 +57,7 @@ if (payload == null || payload.isEmpty()) {
 
 
    public Map<String, Object> addDeviceCapability( JSONObject jsonObject) throws MalformedURLException, InterruptedException, JSONException  {
-    LOGGER.info("the json is " + jsonObject); 
     DeviceCapabilityEntity deviceCapabilityDto = deviceCapabilityService.createDeviceCapability(jsonObject);
-    LOGGER.info("the response is " + deviceCapabilityDto);
     Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
     @SuppressWarnings("unchecked")
     List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
@@ -70,66 +68,66 @@ if (payload == null || payload.isEmpty()) {
     } else {
         dcapDto = dcapList.get(0);
     }
-    // LOGGER.info("the dcapDto is: " + dcapDto);
+   
     return Map.of("timeLink", dcapDto.getTimeLink(),"mirrorUsagePointListLink", dcapDto.getMirrorUsagePointListLink(),"selfDeviceLink", dcapDto.getSelfDeviceLink(),"endDeviceListLink", dcapDto.getEndDeviceListLink());
 }
 
 
-@GetMapping(value = "/dcap")
-public Object getDeviceCapability(HttpServletRequest request, HttpServletResponse response) throws InterruptedException, IOException, CertificateEncodingException, NoSuchAlgorithmException {
+@GetMapping(value = "/dcap", produces = "application/sep+xml")
+public ResponseEntity<String> getDeviceCapability(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+    String serverLfdi = request.getHeader("X-Server-LFDI");
+    String serverSfdi = request.getHeader("X-Server-SFDI");
+
+    Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
+    @SuppressWarnings("unchecked")
+    List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
     
-    if (RequestContextHolder.getRequestAttributes() != null) {
-        try {
-            // Get LFDI/SFDI from C++ proxy headers
-            String serverLfdi = request.getHeader("X-Server-LFDI");
-            String serverSfdi = request.getHeader("X-Server-SFDI");
-            
-            if (serverLfdi != null && serverSfdi != null) {
-                LOGGER.info("Using LFDI from proxy - LFDI: " + serverLfdi + ", SFDI: " + serverSfdi);
-                response.setHeader("X-Server-LFDI", serverLfdi);
-                response.setHeader("X-Server-SFDI", serverSfdi);
-            } else {
-                LOGGER.warning("No LFDI/SFDI headers from proxy");
-            }
-            
-            Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
-            @SuppressWarnings("unchecked")
-            List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
-            DeviceCapabilityEntity dcapDto;
-            if (dcapList == null || dcapList.isEmpty()) {
-                LOGGER.info("No device capabilities found, creating default one for Schneider polling");
-                dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
-            } else {
-                dcapDto = dcapList.get(0);
-            }
-           
-            String dcap_val = this.deviceCapabilityService.getDeviceCapabilityHttp(dcapDto);
-            
-            LOGGER.info("the dcap_val is " + dcap_val);
-            byte[] bytes = dcap_val.getBytes(StandardCharsets.UTF_8);
-            
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/sep+xml;level=S1");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setHeader("Connection", "keep-alive");
-            response.setContentLength(bytes.length);
-            
-            ServletOutputStream out = response.getOutputStream();
-            out.write(bytes);
-            out.flush();
-        } catch (Exception e) {
-            LOGGER.severe("Error retrieving device capabilities: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        return null;
+    DeviceCapabilityEntity dcapDto;
+    if (dcapList == null || dcapList.isEmpty()) {
+        dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
     } else {
-        ResponseEntity<Map<String, Object>> responseEntity = this.deviceCapabilityService.getDeviceCapabilities();
-        return responseEntity;
+        dcapDto = dcapList.get(0);
     }
 
-} 
+    String dcap_val = this.deviceCapabilityService.getDeviceCapabilityHttp(dcapDto);
+    LOGGER.info("the dcap_val is " + dcap_val);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "application/sep+xml;level=S1");
+    headers.set("Cache-Control", "no-cache");
+    headers.set("Connection", "close");
+    
+    if (serverLfdi != null && serverSfdi != null) {
+        headers.set("X-Server-LFDI", serverLfdi);
+        headers.set("X-Server-SFDI", serverSfdi);
+    }
+
+    return new ResponseEntity<>(dcap_val, headers, HttpStatus.OK);
+}
 
 
+@GetMapping(value = "/dcap/tm", produces = "application/sep+xml")
+public ResponseEntity<String> getTimeHttp(HttpServletResponse response) throws JSONException{
+        Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
+        @SuppressWarnings("unchecked")
+        List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
+        DeviceCapabilityEntity dcapDto;
+        if (dcapList == null || dcapList.isEmpty()) {
+            LOGGER.info("No device capabilities found, creating default one");
+        } else {
+            dcapDto = dcapList.get(0);
+        }
+        String time_val = deviceCapabilityService.getTimeHttp(dcapDto.getTimeLink());
+        LOGGER.info("the time_val is " + time_val);
+    
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        headers.set("Connection", "close");
+        return new ResponseEntity<>(time_val, headers, HttpStatus.OK);
+
+}
 
 public void updateDeviceCapability( JSONObject jsonObject) {
 { 
@@ -141,38 +139,6 @@ public String getTime(String payload) throws JSONException{
     return deviceCapabilityService.getTime(payload);
 }
 
-@GetMapping(value = "/dcap/tm")
-public Object getTimeHttp(HttpServletResponse response) throws JSONException{
-    try{
-        Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
-        @SuppressWarnings("unchecked")
-        List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
-        DeviceCapabilityEntity dcapDto;
-        if (dcapList == null || dcapList.isEmpty()) {
-            LOGGER.info("No device capabilities found, creating default one for Schneider polling");
-            dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
-        } else {
-            dcapDto = dcapList.get(0);
-        }
-        String time_val = deviceCapabilityService.getTimeHttp(dcapDto.getTimeLink());
-        LOGGER.info("the time_val is " + time_val);
-        byte[] bytes = time_val.getBytes(StandardCharsets.UTF_8);
-        
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/sep+xml;level=S1");
-        response.setHeader("Cache-Control", "no-cache");
-        response.setHeader("Connection", "keep-alive");
-        response.setContentLength(bytes.length);
-        
-        ServletOutputStream out = response.getOutputStream();
-        out.write(bytes);
-        out.flush();
-    } catch (Exception e) {
-        LOGGER.severe("Error retrieving device capabilities: " + e.getMessage());
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    }
-    return null;
-}
 
 public void updateTime(String payload) throws JSONException{
     deviceCapabilityService.updateTime(payload);
