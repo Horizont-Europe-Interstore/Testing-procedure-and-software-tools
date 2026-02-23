@@ -18,33 +18,47 @@ public class DERStatusEntity {
 
     @Column(name = "alarmStatus")
     private String alarmStatus;  
+    
+    @Column(name = "genConnectStatusDateTime")
+    private Long genConnectStatusDateTime; 
+    @Column(name = "genConnectStatusValue")
+    private Integer genConnectStatusValue;
 
-    @Column(name = "genConnectStatus")
-    private String genConnectStatus; 
+    @Column(name = "inverterStatusDateTime")
+    private Long inverterStatusDateTime; 
+    @Column(name = "inverterStatusValue")
+    private Integer inverterStatusValue;
 
-    @Column(name = "inverterStatus")
-    private String inverterStatus; 
-
-    @Column(name = "localControlModeStatus")
-    private String localControlModeStatus;  
+    @Column(name = "localControlModeStatusDateTime")
+    private Long localControlModeStatusDateTime;
+    @Column(name = "localControlModeStatusValue")
+    private Integer localControlModeStatusValue;
 
     @Column(name = "manufacturerStatus")
     private String manufacturerStatus;  
 
-    @Column(name = "operationalModeStatus")
-    private String operationalModeStatus;  
+    @Column(name = "operationalModeStatusDateTime")
+    private Long operationalModeStatusDateTime; 
+    @Column(name = "operationalModeStatusValue")
+    private Integer operationalModeStatusValue;
 
-    @Column(name = "readingTimeStatus")
-    private String readingTimeStatus;  
+    @Column(name = "readingTime")
+    private Long readingTime;  
 
-    @Column(name = "stateOfChargeStatus")
-    private String stateOfChargeStatus;  
+    @Column(name = "stateOfChargeStatusDateTime")
+    private Long stateOfChargeStatusDateTime;  
+    @Column(name = "stateOfChargeStatusValue")
+    private Integer stateOfChargeStatusValue;
 
-    @Column(name = "storageModeStatus")
-    private String storageModeStatus;  
+    @Column(name = "storageModeStatusDateTime")
+    private Long storageModeStatusDateTime;
+    @Column(name = "storageModeStatusValue")
+    private Integer storageModeStatusValue;
 
-    @Column(name = "storConnectStatus")
-    private String storConnectStatus;
+    @Column(name = "storConnectStatusDateTime")
+    private Long storConnectStatusDateTime;
+    @Column(name = "storConnectStatusValue")
+    private Integer storConnectStatusValue;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "der_entity") 
@@ -61,28 +75,52 @@ public class DERStatusEntity {
         this.alarmStatus = alarmStatus;
     }
 
-    public String getGenConnectStatus() {
-        return genConnectStatus;
+    public Long getGenConnectStatusDateTime() {
+        return genConnectStatusDateTime;
     }
 
-    public void setGenConnectStatus(String genConnectStatus) {
-        this.genConnectStatus = genConnectStatus;
+    public void setGenConnectStatusDateTime(Long genConnectStatusDateTime) {
+        this.genConnectStatusDateTime = genConnectStatusDateTime;
     }
 
-    public String getInverterStatus() {
-        return inverterStatus;
+    public Integer getGenConnectStatusValue() {
+        return genConnectStatusValue;
     }
 
-    public void setInverterStatus(String inverterStatus) {
-        this.inverterStatus = inverterStatus;
+    public void setGenConnectStatusValue(Integer genConnectStatusValue) {
+        this.genConnectStatusValue = genConnectStatusValue;
     }
 
-    public String getLocalControlModeStatus() {
-        return localControlModeStatus;
+    public Long getInverterStatusDateTime() {
+        return inverterStatusDateTime;
     }
 
-    public void setLocalControlModeStatus(String localControlModeStatus) {
-        this.localControlModeStatus = localControlModeStatus;
+    public void setInverterStatusDateTime(Long inverterStatusDateTime) {
+        this.inverterStatusDateTime = inverterStatusDateTime;
+    }
+
+    public Integer getInverterStatusValue() {
+        return inverterStatusValue;
+    }
+
+    public void setInverterStatusValue(Integer inverterStatusValue) {
+        this.inverterStatusValue = inverterStatusValue;
+    }
+
+    public Long getLocalControlModeStatusDateTime() {
+        return localControlModeStatusDateTime;
+    }
+
+    public void setLocalControlModeStatusDateTime(Long localControlModeStatusDateTime) {
+        this.localControlModeStatusDateTime = localControlModeStatusDateTime;
+    }
+
+    public Integer getLocalControlModeStatusValue() {
+        return localControlModeStatusValue;
+    }
+
+    public void setLocalControlModeStatusValue(Integer localControlModeStatusValue) {
+        this.localControlModeStatusValue = localControlModeStatusValue;
     }
 
     public String getManufacturerStatus() {
@@ -93,44 +131,76 @@ public class DERStatusEntity {
         this.manufacturerStatus = manufacturerStatus;
     }
 
-    public String getOperationalModeStatus() {
-        return operationalModeStatus;
+    public Long getOperationalModeStatusDateTime() {
+        return operationalModeStatusDateTime;
     }
 
-    public void setOperationalModeStatus(String operationalModeStatus) {
-        this.operationalModeStatus = operationalModeStatus;
+    public void setOperationalModeStatusDateTime(Long operationalModeStatusDateTime) {
+        this.operationalModeStatusDateTime = operationalModeStatusDateTime;
     }
 
-    public String getReadingTimeStatus() {
-        return readingTimeStatus;
+    public Integer getOperationalModeStatusValue() {
+        return operationalModeStatusValue;
     }
 
-    public void setReadingTimeStatus(String readingTimeStatus) {
-        this.readingTimeStatus = readingTimeStatus;
+    public void setOperationalModeStatusValue(Integer operationalModeStatusValue) {
+        this.operationalModeStatusValue = operationalModeStatusValue;
     }
 
-    public String getStateOfChargeStatus() {
-        return stateOfChargeStatus;
+    public Long getReadingTime() {
+        return readingTime;
     }
 
-    public void setStateOfChargeStatus(String stateOfChargeStatus) {
-        this.stateOfChargeStatus = stateOfChargeStatus;
+    public void setReadingTime(Long readingTime) {
+        this.readingTime = readingTime;
     }
 
-    public String getStorageModeStatus() {
-        return storageModeStatus;
+    public Long getStateOfChargeStatusDateTime() {
+        return stateOfChargeStatusDateTime;
     }
 
-    public void setStorageModeStatus(String storageModeStatus) {
-        this.storageModeStatus = storageModeStatus;
+    public void setStateOfChargeStatusDateTime(Long stateOfChargeStatusDateTime) {
+        this.stateOfChargeStatusDateTime = stateOfChargeStatusDateTime;
     }
 
-    public String getStorConnectStatus() {
-        return storConnectStatus;
+    public Integer getStateOfChargeStatusValue() {
+        return stateOfChargeStatusValue;
     }
 
-    public void setStorConnectStatus(String storConnectStatus) {
-        this.storConnectStatus = storConnectStatus;
+    public void setStateOfChargeStatusValue(Integer stateOfChargeStatusValue) {
+        this.stateOfChargeStatusValue = stateOfChargeStatusValue;
+    }
+
+    public Long getStorageModeStatusDateTime() {
+        return storageModeStatusDateTime;
+    }
+
+    public void setStorageModeStatusDateTime(Long storageModeStatusDateTime) {
+        this.storageModeStatusDateTime = storageModeStatusDateTime;
+    }
+
+    public Integer getStorageModeStatusValue() {
+        return storageModeStatusValue;
+    }
+
+    public void setStorageModeStatusValue(Integer storageModeStatusValue) {
+        this.storageModeStatusValue = storageModeStatusValue;
+    }
+
+    public Long getStorConnectStatusDateTime() {
+        return storConnectStatusDateTime;
+    }
+
+    public void setStorConnectStatusDateTime(Long storConnectStatusDateTime) {
+        this.storConnectStatusDateTime = storConnectStatusDateTime;
+    }
+
+    public Integer getStorConnectStatusValue() {
+        return storConnectStatusValue;
+    }
+
+    public void setStorConnectStatusValue(Integer storConnectStatusValue) {
+        this.storConnectStatusValue = storConnectStatusValue;
     }
 
     public Long getId() {

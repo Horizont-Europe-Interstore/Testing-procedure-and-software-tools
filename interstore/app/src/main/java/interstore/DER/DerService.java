@@ -3,6 +3,10 @@ import interstore.DER.DERCapability.DERCapabilityEntity;
 import interstore.DER.DERCapability.DERCapabilityRepository;
 import interstore.DER.DERSettings.DERSettingsEntity;
 import interstore.DER.DERSettings.DERSettingsRepository;
+import interstore.DER.DERStatus.DERStatusEntity;
+import interstore.DER.DERStatus.DERStatusRepository;
+import interstore.DER.DERAvailabilty.DERAvailabilityEntity;
+import interstore.DER.DERAvailabilty.DERAvailabilityRepository;
 import interstore.EndDevice.EndDeviceEntity;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Identity.SubscribableResourceEntity;
@@ -44,6 +48,12 @@ public class DerService {
 
     @Autowired
     private DERSettingsRepository derSettingsRepository;
+
+    @Autowired
+    private DERStatusRepository derStatusRepository;
+
+    @Autowired
+    private DERAvailabilityRepository derAvailabilityRepository;
 
     
     /* the necessary thing to create the DER is that end device id this end device id shall fetch the 
@@ -209,6 +219,7 @@ public class DerService {
     
             StringBuilder xml = new StringBuilder();
             xml.append("<DERCapability xmlns=\"urn:ieee:std:2030.5:ns\" ")
+               .append("subscribable=\"1\" ")  // DER Capability is always subscribable for device updates
                .append("href=\"").append(stripHost(derEntity.getDerCapabilityLink())).append("\">\n");
     
             // Simple values
@@ -315,6 +326,7 @@ public class DerService {
     
             StringBuilder xml = new StringBuilder();
             xml.append("<DERSettings xmlns=\"urn:ieee:std:2030.5:ns\" ")
+               .append("subscribable=\"1\" ")  // DER Settings is always subscribable for device updates
                .append("href=\"").append(stripHost(derEntity.getDerSettingsLink())).append("\">\n");
     
             // Simple values
@@ -364,8 +376,65 @@ public class DerService {
         }
     }
 
-  
+    public String getDerStatusHttp(Long endDeviceId, Long derId) {
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
+            if (derEntityOptional.isEmpty()) {
+                return "<DERStatus xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dstat\">\n" +
+                       "  <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                       "</DERStatus>";
+            }
     
+            DerEntity derEntity = derEntityOptional.get();
+            DERStatusEntity derStatus = derEntity.getDerStatus();
+            if (derStatus == null) {
+                return "<DERStatus xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dstat\">\n" +
+                       "  <message>No DERStatus entity found for this DER</message>\n" +
+                       "</DERStatus>";
+            }
+    
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERStatus xmlns=\"urn:ieee:std:2030.5:ns\">\n");
+    
+            // Simple values
+            appendSimpleElement(xml, "alarmStatus", derStatus.getAlarmStatus());
+            appendSimpleElement(xml, "readingTime", derStatus.getReadingTime());
+            appendSimpleElement(xml, "manufacturerStatus", derStatus.getManufacturerStatus());
+    
+            // Status fields with dateTime and value
+            appendStatusValue(xml, "genConnectStatus", derStatus.getGenConnectStatusDateTime(), derStatus.getGenConnectStatusValue());
+            appendStatusValue(xml, "inverterStatus", derStatus.getInverterStatusDateTime(), derStatus.getInverterStatusValue());
+            appendStatusValue(xml, "localControlModeStatus", derStatus.getLocalControlModeStatusDateTime(), derStatus.getLocalControlModeStatusValue());
+            appendStatusValue(xml, "operationalModeStatus", derStatus.getOperationalModeStatusDateTime(), derStatus.getOperationalModeStatusValue());
+            appendStatusValue(xml, "stateOfChargeStatus", derStatus.getStateOfChargeStatusDateTime(), derStatus.getStateOfChargeStatusValue());
+            appendStatusValue(xml, "storageModeStatus", derStatus.getStorageModeStatusDateTime(), derStatus.getStorageModeStatusValue());
+            appendStatusValue(xml, "storConnectStatus", derStatus.getStorConnectStatusDateTime(), derStatus.getStorConnectStatusValue());
+    
+            xml.append("</DERStatus>");
+            return xml.toString();
+    
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERStatus", e);
+            return "<DERStatus xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dstat\">\n" +
+                   "  <error>Some error occurred</error>\n" +
+                   "</DERStatus>";
+        }
+    }
+
+    // Helper method for status values (dateTime + value)
+    private void appendStatusValue(StringBuilder xml, String name, Long dateTime, Integer value) {
+        if (dateTime != null || value != null) {
+            xml.append("  <").append(name).append(">\n");
+            if (dateTime != null) {
+                xml.append("    <dateTime>").append(dateTime).append("</dateTime>\n");
+            }
+            if (value != null) {
+                xml.append("    <value>").append(value).append("</value>\n");
+            }
+            xml.append("  </").append(name).append(">\n");
+        }
+    }
+
     public ResponseEntity<Map<String, Object>> getDer(Long derId, Long endDeviceId){
         Map<String, Object> result = new HashMap<>();
             
@@ -394,14 +463,14 @@ public class DerService {
             Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
 
             if (derEntityOptional.isEmpty()) {
-                return "<DER xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
+                return "<DER xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
                     " <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
                     "</DER>";
             }
 
             DerEntity derEntity = derEntityOptional.get();
             StringBuilder xml = new StringBuilder();
-            xml.append("<DER xmlns=\"http://ieee.org/2030.5\" ")
+            xml.append("<DER xmlns=\"urn:ieee:std:2030.5:ns\" ")
             .append("href=\"").append(stripHost(derEntity.getDerLink())).append("\">\n");
             appendIfPresent(xml, "AssociatedDERProgramListLink", derEntity.getAssociatedDERProgramListLink());
             appendIfPresent(xml, "AssociatedUsagePointLink", derEntity.getAssociatedUsagePointLink());
@@ -418,7 +487,7 @@ public class DerService {
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving DER", e);
-            return "<DER xmlns=\"http://ieee.org/2030.5\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
+            return "<DER xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "\">\n" +
                 " <error>Some error occurred</error>\n" +
                 "</DER>";
         }
@@ -482,7 +551,7 @@ public class DerService {
         String derListLink = stripHost(endDeviceDto.get().getDERListLink());
 
         StringBuilder xml = new StringBuilder();
-        xml.append("<DERList xmlns=\"http://ieee.org/2030.5\" ")
+        xml.append("<DERList xmlns=\"urn:ieee:std:2030.5:ns\" ")
            .append("href=\"").append(derListLink).append("\" ")
            .append("all=\"").append(derEntityList.size()).append("\" ")
            .append("results=\"").append(derEntityList.size()).append("\">\n");
@@ -687,6 +756,189 @@ public class DerService {
         derCapability.setRtgUnderExcitedPF(derDisplacementExtractor(payload, "rtgUnderExcitedPF"));
     }
 
+    @Transactional
+    public String updateDERStatus(Long endDeviceID, Long derId, JSONObject payload) 
+    throws NumberFormatException, JSONException, NotFoundException
+    {
+        LOGGER.info("Received DER Status update payload: " + payload);
+
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceID)
+        .orElseThrow(() -> new NotFoundException());
+        
+        DerEntity derEntity = derRepository.findById(derId)
+                .orElseThrow(() -> new NotFoundException());
+
+        derEntity.setEndDevice(endDevice);
+        try {
+            derEntity = derRepository.save(derEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        }
+
+        // Create DERStatus if it doesn't exist
+        if (derEntity.getDerStatus() == null) {
+            DERStatusEntity newStatus = new DERStatusEntity();
+            derEntity.setDerStatus(newStatus);
+            derEntity = derRepository.save(derEntity);
+        }
+
+        updateDERStatusFields(derEntity.getDerStatus(), payload);
+        derStatusRepository.save(derEntity.getDerStatus());
+
+        LOGGER.info("DER Status updated successfully");
+        return "DER Status updated";
+    }
+
+    
+     private void updateDERStatusFields(DERStatusEntity derStatusEntity, JSONObject payload)
+     {
+   
+        derStatusEntity.setAlarmStatus(payload.has("alarmStatus") ? payload.getString("alarmStatus") : null);
+        derStatusEntity.setReadingTime(payload.has("readingTime") ? payload.getLong("readingTime") : null);
+        derStatusEntity.setManufacturerStatus(payload.has("manufacturerStatus") ? payload.getString("manufacturerStatus") : null);
+
+        
+        if (payload.has("genConnectStatus")) {
+            JSONObject genConnect = payload.getJSONObject("genConnectStatus");
+            derStatusEntity.setGenConnectStatusDateTime(genConnect.has("dateTime") ? genConnect.getLong("dateTime") : null);
+            derStatusEntity.setGenConnectStatusValue(genConnect.has("value") ? genConnect.getInt("value") : null);
+        }
+
+        
+        if (payload.has("inverterStatus")) {
+            JSONObject inverter = payload.getJSONObject("inverterStatus");
+            derStatusEntity.setInverterStatusDateTime(inverter.has("dateTime") ? inverter.getLong("dateTime") : null);
+            derStatusEntity.setInverterStatusValue(inverter.has("value") ? inverter.getInt("value") : null);
+        }
+
+       
+        if (payload.has("localControlModeStatus")) {
+            JSONObject localControl = payload.getJSONObject("localControlModeStatus");
+            derStatusEntity.setLocalControlModeStatusDateTime(localControl.has("dateTime") ? localControl.getLong("dateTime") : null);
+            derStatusEntity.setLocalControlModeStatusValue(localControl.has("value") ? localControl.getInt("value") : null);
+        }
+
+        
+        if (payload.has("operationalModeStatus")) {
+            JSONObject operational = payload.getJSONObject("operationalModeStatus");
+            derStatusEntity.setOperationalModeStatusDateTime(operational.has("dateTime") ? operational.getLong("dateTime") : null);
+            derStatusEntity.setOperationalModeStatusValue(operational.has("value") ? operational.getInt("value") : null);
+        }
+
+        
+        if (payload.has("stateOfChargeStatus")) {
+            JSONObject stateOfCharge = payload.getJSONObject("stateOfChargeStatus");
+            derStatusEntity.setStateOfChargeStatusDateTime(stateOfCharge.has("dateTime") ? stateOfCharge.getLong("dateTime") : null);
+            derStatusEntity.setStateOfChargeStatusValue(stateOfCharge.has("value") ? stateOfCharge.getInt("value") : null);
+        }
+
+     
+        if (payload.has("storageModeStatus")) {
+            JSONObject storageMode = payload.getJSONObject("storageModeStatus");
+            derStatusEntity.setStorageModeStatusDateTime(storageMode.has("dateTime") ? storageMode.getLong("dateTime") : null);
+            derStatusEntity.setStorageModeStatusValue(storageMode.has("value") ? storageMode.getInt("value") : null);
+        }
+
+        
+        if (payload.has("storConnectStatus")) {
+            JSONObject storConnect = payload.getJSONObject("storConnectStatus");
+            derStatusEntity.setStorConnectStatusDateTime(storConnect.has("dateTime") ? storConnect.getLong("dateTime") : null);
+            derStatusEntity.setStorConnectStatusValue(storConnect.has("value") ? storConnect.getInt("value") : null);
+        }
+     }
+
+    @Transactional
+    public String updateDERAvailability(Long endDeviceID, Long derId, JSONObject payload)
+    throws NumberFormatException, JSONException, NotFoundException {
+        LOGGER.info("Received DER Availability update payload: " + payload);
+
+        EndDeviceEntity endDevice = endDeviceRepository.findById(endDeviceID)
+        .orElseThrow(() -> new NotFoundException());
+        
+        DerEntity derEntity = derRepository.findById(derId)
+                .orElseThrow(() -> new NotFoundException());
+
+        derEntity.setEndDevice(endDevice);
+        try {
+            derEntity = derRepository.save(derEntity);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error saving DER entity", e);
+        }
+
+        // Create DERAvailability if it doesn't exist
+        if (derEntity.getDerAvailability() == null) {
+            DERAvailabilityEntity newAvail = new DERAvailabilityEntity();
+            derEntity.setDerAvailability(newAvail);
+            derEntity = derRepository.save(derEntity);
+        }
+
+        updateDERAvailabilityFields(derEntity.getDerAvailability(), payload);
+        derAvailabilityRepository.save(derEntity.getDerAvailability());
+
+        LOGGER.info("DER Availability updated successfully");
+        return "DER Availability updated";
+    }
+
+    private void updateDERAvailabilityFields(DERAvailabilityEntity derAvail, JSONObject payload) {
+        derAvail.setAvailabilityDuration(payload.has("availabilityDuration") ? payload.getLong("availabilityDuration") : null);
+        derAvail.setMaxChargeDuration(payload.has("maxChargeDuration") ? payload.getLong("maxChargeDuration") : null);
+        derAvail.setReadingTime(payload.has("readingTime") ? payload.getLong("readingTime") : null);
+        derAvail.setReserveChargePercent(payload.has("reserveChargePercent") ? payload.getInt("reserveChargePercent") : null);
+        derAvail.setReservePercent(payload.has("reservePercent") ? payload.getInt("reservePercent") : null);
+
+        // statVarAvail (multiplier + value)
+        if (payload.has("statVarAvail")) {
+            JSONObject statVar = payload.getJSONObject("statVarAvail");
+            derAvail.setStatVarAvailMultiplier(statVar.has("multiplier") ? statVar.getInt("multiplier") : null);
+            derAvail.setStatVarAvailValue(statVar.has("value") ? statVar.getInt("value") : null);
+        }
+
+        // statWAvail (multiplier + value)
+        if (payload.has("statWAvail")) {
+            JSONObject statW = payload.getJSONObject("statWAvail");
+            derAvail.setStatWAvailMultiplier(statW.has("multiplier") ? statW.getInt("multiplier") : null);
+            derAvail.setStatWAvailValue(statW.has("value") ? statW.getInt("value") : null);
+        }
+    }
+
+    public String getDerAvailabilityHttp(Long endDeviceId, Long derId) {
+        try {
+            Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
+            if (derEntityOptional.isEmpty()) {
+                return "<DERAvailability xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dera\">\n" +
+                       "  <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                       "</DERAvailability>";
+            }
+    
+            DerEntity derEntity = derEntityOptional.get();
+            DERAvailabilityEntity derAvail = derEntity.getDerAvailability();
+            if (derAvail == null) {
+                return "<DERAvailability xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dera\">\n" +
+                       "  <message>No DERAvailability entity found for this DER</message>\n" +
+                       "</DERAvailability>";
+            }
+    
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERAvailability xmlns=\"urn:ieee:std:2030.5:ns\">\n");
+    
+            appendSimpleElement(xml, "availabilityDuration", derAvail.getAvailabilityDuration());
+            appendSimpleElement(xml, "maxChargeDuration", derAvail.getMaxChargeDuration());
+            appendSimpleElement(xml, "readingTime", derAvail.getReadingTime());
+            appendSimpleElement(xml, "reserveChargePercent", derAvail.getReserveChargePercent());
+            appendSimpleElement(xml, "reservePercent", derAvail.getReservePercent());
+            appendPhysicalValue(xml, "statVarAvail", derAvail.getStatVarAvailMultiplier(), derAvail.getStatVarAvailValue());
+            appendPhysicalValue(xml, "statWAvail", derAvail.getStatWAvailMultiplier(), derAvail.getStatWAvailValue());
+    
+            xml.append("</DERAvailability>");
+            return xml.toString();
+    
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERAvailability", e);
+            return "<DERAvailability xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dera\">\n" +
+                   "  <error>Some error occurred</error>\n" +
+                   "</DERAvailability>";
+        }
+    }
 
     @Transactional
      public ResponseEntity<Map<String, Object>> updatePowerGenerationTest(Long endDeviceID, Long derId,JSONObject payload)throws NumberFormatException, JSONException, NotFoundException 

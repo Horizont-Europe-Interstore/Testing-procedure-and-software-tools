@@ -14,6 +14,13 @@ import interstore.XmlValidation.XmlValidationService;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 
 
 @RestController
@@ -227,7 +234,27 @@ public class DerManager {
         return new ResponseEntity<>(derSettingsXml, headers, HttpStatus.OK);
     }
    
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/ders", produces = "application/sep+xml")
+    public ResponseEntity<String> getDerStatusDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
+        String derStatusXml = this.derService.getDerStatusHttp(endDeviceId, derId);
+        LOGGER.info("the Der Status val is " + derStatusXml);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        return new ResponseEntity<>(derStatusXml, headers, HttpStatus.OK);
+     
+    }
     
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/dera", produces = "application/sep+xml" )
+    public ResponseEntity<String>getDerAvaialbilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId)
+    {
+        String derAvailabilityXml = this.derService.getDerAvailabilityHttp(endDeviceId, derId);
+        LOGGER.info("the Der Availability val is " + derAvailabilityXml);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        return new ResponseEntity<>(derAvailabilityXml, headers, HttpStatus.OK);
+    }
 
     @PutMapping("edev/{endDeviceId}/der/{derId}/derg")
     public Map<String, Object> updatePowerGenerationTestHttp(
@@ -262,6 +289,33 @@ public class DerManager {
         JSONObject parsedPayload = PayloadParser.parseDERCapabilityXml(payload, endDeviceId, derId);
 
         String responseEntity = this.derService.updateDERCapability(endDeviceId, derId, parsedPayload);
+        return responseEntity;
+    }
+
+    @PutMapping("edev/{endDeviceId}/der/{derId}/ders")
+    public String updateDerStatus( @PathVariable Long endDeviceId,
+    @PathVariable Long derId,
+    @RequestBody String payload,
+    @RequestHeader(value = "Content-Type", required = false) String contentType)
+    throws Exception {
+
+        LOGGER.info("Received PUT request for DER Status (ders). Content-Type: " + contentType);
+        LOGGER.info("Raw payload: " + payload);
+    JSONObject parsedPayload = PayloadParser.parseDERStatusXml(payload, endDeviceId, derId);
+    String responseEntity = this.derService.updateDERStatus(endDeviceId, derId, parsedPayload); 
+    return responseEntity;
+    }
+
+    @PutMapping("edev/{endDeviceId}/der/{derId}/dera")
+    public String updateDerAvailability(@PathVariable Long endDeviceId,
+    @PathVariable Long derId,
+    @RequestBody String payload,
+    @RequestHeader(value = "Content-Type", required = false) String contentType)
+    throws Exception {
+        LOGGER.info("Received PUT request for DER Availability (dera). Content-Type: " + contentType);
+        LOGGER.info("Raw payload: " + payload);
+        JSONObject parsedPayload = PayloadParser.parseDERAvailabilityXml(payload, endDeviceId, derId);
+        String responseEntity = this.derService.updateDERAvailability(endDeviceId, derId, parsedPayload);
         return responseEntity;
     }
 

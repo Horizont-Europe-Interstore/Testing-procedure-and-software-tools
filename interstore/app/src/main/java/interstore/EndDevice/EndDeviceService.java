@@ -6,6 +6,7 @@ import interstore.DER.*;
 import interstore.EndDevice.DeviceInformation.DeviceInformationEntity;
 import interstore.EndDevice.DeviceInformation.DeviceInformationRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
@@ -44,6 +45,8 @@ public class EndDeviceService {
     private RegistrationRepository registrationRepository;
     @Autowired
     private DerRepository derRepository;
+    @Autowired
+    private FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
     @Autowired
     private DeviceInformationRepository deviceInformationRepository;
     private static final Logger LOGGER = Logger.getLogger(EndDeviceService.class.getName());
@@ -210,6 +213,10 @@ public class EndDeviceService {
                                     // Query the actual count of DER resources for this EndDevice
                                     int derCount = derRepository.findByEndDeviceId(endDeviceDto.getId()).size();
                                     xml.append(" all=\"").append(derCount).append("\"");
+                                } else if (xmlName.equals("FunctionSetAssignmentsListLink")) {
+                                    // Query the actual count of FSA resources for this EndDevice
+                                    int fsaCount = functionSetAssignmentsRepository.findByEndDeviceId(endDeviceDto.getId()).size();
+                                    xml.append(" all=\"").append(fsaCount).append("\"");
                                 } else {
                                     xml.append(" all=\"0\"");
                                 }
@@ -346,6 +353,10 @@ public class EndDeviceService {
                             // Query the actual count of DER resources for this EndDevice
                             int derCount = derRepository.findByEndDeviceId(id).size();
                             xml.append(" all=\"").append(derCount).append("\"");
+                        } else if (xmlName.equals("FunctionSetAssignmentsListLink")) {
+                            // Query the actual count of FSA resources for this EndDevice
+                            int fsaCount = functionSetAssignmentsRepository.findByEndDeviceId(id).size();
+                            xml.append(" all=\"").append(fsaCount).append("\"");
                         } else {
                             xml.append(" all=\"0\"");
                         }
