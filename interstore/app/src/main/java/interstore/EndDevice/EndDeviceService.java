@@ -525,6 +525,7 @@ public class EndDeviceService {
         registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
         endDeviceRegistrationLink = endDeviceRegistrationLink + "/" + registrationDto.getId();
         registrationDto.setLinkRgid( endDeviceRegistrationLink);
+        registrationDto = registrationRepository.save(registrationDto);
         return getEndDeviceRegistrationID(registrationDto);
     }
 
@@ -619,7 +620,7 @@ public class EndDeviceService {
         try {
             Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
-            if (registrationDto == null) {
+            if (!registrationDto.isPresent()) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);
             } else {
                 result.put("RegisteredEndDevice", registrationDto.get());
