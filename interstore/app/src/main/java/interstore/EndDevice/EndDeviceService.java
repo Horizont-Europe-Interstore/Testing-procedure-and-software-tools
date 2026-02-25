@@ -506,13 +506,19 @@ public class EndDeviceService {
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
 
-        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceIdNative(endDeviceID);
         if (!registrationDtos.isEmpty()) {
             throw new IllegalStateException("EndDevice with ID " + endDeviceID + " is already registered.");
         }
         EndDeviceEntity endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
         RegistrationEntity registrationDto = new RegistrationEntity();
+        
+        // Set all fields BEFORE saving
+        registrationDto.setPin(registrationPinLong);
+        registrationDto.setEndDevice(endDeviceDto);
+        registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
+        
         try {
             LOGGER.log(Level.INFO, "Registration Repository", registrationRepository);
             registrationDto = registrationRepository.save(registrationDto);
@@ -520,9 +526,7 @@ public class EndDeviceService {
             LOGGER.log(Level.SEVERE, "Failed to save RegistrationDto", e);
             throw e;
         }
-        registrationDto.setPin(registrationPinLong);
-        registrationDto.setEndDevice(endDeviceDto);
-        registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
+        
         endDeviceRegistrationLink = endDeviceRegistrationLink + "/" + registrationDto.getId();
         registrationDto.setLinkRgid( endDeviceRegistrationLink);
         registrationDto = registrationRepository.save(registrationDto);
@@ -544,7 +548,7 @@ public class EndDeviceService {
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
         try {
-            List<RegistrationEntity> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
+            List<RegistrationEntity> registrationDtos  = registrationRepository.findByEndDeviceIdNative(endDeviceID);
             LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
             List<Map<String, Object>> registrationDetails = registrationDtos.stream()
             .map(reg -> Map.<String, Object>of(
@@ -573,7 +577,7 @@ public class EndDeviceService {
     public String getRegisteredEndDevice(Long endDeviceID )
    {
         try {
-        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceIdNative(endDeviceID);
 
         if (registrationDtos.isEmpty()) {
             return "<Registration xmlns=\"urn:ieee:std:2030.5:ns\">" +
@@ -618,7 +622,7 @@ public class EndDeviceService {
     {
         
         try {
-            Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
+            Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDevice_IdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
             if (!registrationDto.isPresent()) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);

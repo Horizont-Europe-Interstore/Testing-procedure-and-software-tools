@@ -2,15 +2,15 @@ package interstore.Registration;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 public interface RegistrationRepository extends JpaRepository<RegistrationEntity, Long> {
-    List<RegistrationEntity> findByEndDeviceId(Long endDeviceId);
-   // RegistrationDto findTopByEndDeviceId(Long endDeviceId);
-    //RegistrationDto findTopByEndDeviceId(Long endDeviceId); 
-   // RegistrationDto findById(Long registrationID);
-    //Optional<RegistrationDto> findFirstByEndDeviceId(Long registrationID);
-    //RegistrationDto findByEndDeviceIDAndRegistrationId(Long endDeviceId, Long registrationID);
-    Optional<RegistrationEntity> findFirstByEndDeviceIdAndId(Long endDeviceId, Long registrationID); 
+    List<RegistrationEntity> findByEndDevice_Id(Long endDeviceId);
+    Optional<RegistrationEntity> findFirstByEndDevice_IdAndId(Long endDeviceId, Long registrationID);
+    
+    @Query("SELECT r FROM RegistrationEntity r WHERE r.endDevice.id = :endDeviceId")
+    List<RegistrationEntity> findByEndDeviceIdNative(@Param("endDeviceId") Long endDeviceId); 
 
 }
 
