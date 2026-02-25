@@ -25,8 +25,11 @@ public class RegistrationEntity   {
      */
     @JsonIgnore
     @OneToOne
-    @JoinColumn(name =  "endDeviceId", referencedColumnName = "id") 
+    @JoinColumn(name =  "endDeviceId", referencedColumnName = "id", insertable = false, updatable = false) 
     private EndDeviceEntity endDevice;
+    
+    @Column(name = "endDeviceId")
+    private Long endDeviceId;
     
     @Column(name = "link_rgid")
     private String linkRgid;
@@ -63,6 +66,14 @@ public class RegistrationEntity   {
     }
     public void setLinkRgid(String linkRgid) {
         this.linkRgid = linkRgid;
+    }
+    
+    public Long getEndDeviceId() {
+        return endDeviceId;
+    }
+    
+    public void setEndDeviceId(Long endDeviceId) {
+        this.endDeviceId = endDeviceId;
     }
 }
 

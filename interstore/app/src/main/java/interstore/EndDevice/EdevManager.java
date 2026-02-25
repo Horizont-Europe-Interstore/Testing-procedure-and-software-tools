@@ -162,7 +162,7 @@ public class EdevManager {
         return utiltyGetallEndDeviceLinks(responseEntity);
     }
 
-    @GetMapping(value = "/edev", produces = "application/sep+xml")
+    @GetMapping(value = "edev", produces = "application/sep+xml")
     public ResponseEntity<String> getEndDeviceList(@RequestParam(value = "l", required = false) Integer l) {
         String endDeviceListXml = this.endDeviceImpl.getEndDeviceListHttp(l);
         LOGGER.info("the enddevice_list_val is " + endDeviceListXml);
@@ -174,7 +174,7 @@ public class EdevManager {
         return new ResponseEntity<>(endDeviceListXml, headers, HttpStatus.OK);
     }
 
-     @GetMapping(value = "/edev/{id}", produces = "application/sep+xml")
+     @GetMapping(value = "edev/{id}", produces = "application/sep+xml")
      public ResponseEntity<String> getEndDeviceByIdHttp(@PathVariable Long id) {
         String endDeviceXml = this.endDeviceImpl.getEndDeviceHttp(id);
         LOGGER.info("the edev_val is " + endDeviceXml);
@@ -186,7 +186,7 @@ public class EdevManager {
         return new ResponseEntity<>(endDeviceXml, headers, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/edev/{endDeviceID}/di", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceID}/di", produces = "application/sep+xml")
      public ResponseEntity<String> getDeviceInformation(@PathVariable Long endDeviceID) {
         String deviceInfoXml = this.endDeviceImpl.getDeviceInformationHttp(endDeviceID);
         LOGGER.info("the dev_info_val is " + deviceInfoXml);
@@ -198,7 +198,7 @@ public class EdevManager {
         return new ResponseEntity<>(deviceInfoXml, headers, HttpStatus.OK);
      }
 
-     @PutMapping("/edev/{endDeviceId}/di")
+     @PutMapping("edev/{endDeviceId}/di")
      public String putDeviceInformation(@PathVariable Long endDeviceId, @RequestBody String payload){
         return endDeviceImpl.putDeviceInformationHttp(endDeviceId, payload);
      }
@@ -210,7 +210,7 @@ public class EdevManager {
         return responseEntity.getBody(); 
     }
 
-    @GetMapping(value = "/edev/{endDeviceID}/rg", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceID}/rg", produces = "application/sep+xml")
     public ResponseEntity<String> getEndDeviceRegistrationLink(@PathVariable Long endDeviceID) {
         String registeredEndDeviceXml = this.endDeviceImpl.getRegisteredEndDevice(endDeviceID);
         LOGGER.info("the registered_enddevice_val is " + registeredEndDeviceXml);
@@ -222,7 +222,7 @@ public class EdevManager {
         return new ResponseEntity<>(registeredEndDeviceXml, headers, HttpStatus.OK);
     }
    
-     @GetMapping("/edev/{endDeviceID}/rg/{registrationID}")
+     @GetMapping("edev/{endDeviceID}/rg/{registrationID}")
      public Map<String, Object> getRegisteredEndDeviceDetails(@PathVariable Long endDeviceID, @PathVariable Long registrationID) {
         ResponseEntity<Map<String, Object>> responseEntity = this.endDeviceImpl.getRegisterdEndDeviceDetails( endDeviceID, registrationID);
         return responseEntity.getBody();
