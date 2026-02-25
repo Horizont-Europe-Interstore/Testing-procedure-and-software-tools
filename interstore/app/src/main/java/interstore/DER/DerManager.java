@@ -184,7 +184,7 @@ public class DerManager {
     return null;
     }
 
-    @GetMapping(value = "/edev/{endDeviceId}/der", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceId}/der", produces = "application/sep+xml")
     public ResponseEntity<String> getAllDerHttp(@PathVariable Long endDeviceId) {
         String derListXml = derService.getAllDERsHttp(endDeviceId);
         LOGGER.info("the der_list val is " + derListXml);
@@ -196,7 +196,7 @@ public class DerManager {
         return new ResponseEntity<>(derListXml, headers, HttpStatus.OK);
     }
    
-    @GetMapping(value = "/edev/{endDeviceId}/der/{derId}", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}", produces = "application/sep+xml")
     public ResponseEntity<String> getADerHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
         String derXml = derService.getDerHttp(endDeviceId, derId);
         LOGGER.info("the der val is " + derXml);
@@ -208,7 +208,7 @@ public class DerManager {
         return new ResponseEntity<>(derXml, headers, HttpStatus.OK);
     } 
 
-    @GetMapping(value = "/edev/{endDeviceId}/der/{derId}/dercap", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/dercap", produces = "application/sep+xml")
     public ResponseEntity<String> getDerCapabilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
         String derCapabilityXml = this.derService.getDerCapabilityHttp(endDeviceId, derId);
         LOGGER.info("the Der Capability val is " + derCapabilityXml);
@@ -222,7 +222,7 @@ public class DerManager {
     
    
 
-    @GetMapping(value = "/edev/{endDeviceId}/der/{derId}/derg", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/derg", produces = "application/sep+xml")
     public ResponseEntity<String> getDerSettingsDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
         String derSettingsXml = this.derService.getDerSettingsHttp(endDeviceId, derId);
         LOGGER.info("the Der Settings val is " + derSettingsXml);
@@ -234,7 +234,7 @@ public class DerManager {
         return new ResponseEntity<>(derSettingsXml, headers, HttpStatus.OK);
     }
    
-    @GetMapping(value = "/edev/{endDeviceId}/der/{derId}/ders", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/ders", produces = "application/sep+xml")
     public ResponseEntity<String> getDerStatusDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) {
         String derStatusXml = this.derService.getDerStatusHttp(endDeviceId, derId);
         LOGGER.info("the Der Status val is " + derStatusXml);
@@ -245,7 +245,7 @@ public class DerManager {
      
     }
     
-    @GetMapping(value = "/edev/{endDeviceId}/der/{derId}/dera", produces = "application/sep+xml" )
+    @GetMapping(value = "edev/{endDeviceId}/der/{derId}/dera", produces = "application/sep+xml" )
     public ResponseEntity<String>getDerAvaialbilityDetailsHttp(@PathVariable Long endDeviceId, @PathVariable Long derId)
     {
         String derAvailabilityXml = this.derService.getDerAvailabilityHttp(endDeviceId, derId);

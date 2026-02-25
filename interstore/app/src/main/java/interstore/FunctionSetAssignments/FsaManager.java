@@ -91,7 +91,7 @@ public class FsaManager {
     } 
     
 
-    @GetMapping(value = "/edev/{id}/fsa", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{id}/fsa", produces = "application/sep+xml")
     public ResponseEntity<String> getFSAList(@PathVariable Long id) {
         String fsaListXml = this.fsaService.getAllFunctionsetAssignmentsHttp(id);
         LOGGER.info("the fsaList_val is " + fsaListXml);
@@ -110,7 +110,7 @@ public class FsaManager {
         return  responseEntity.getBody(); 
     }
     
-    @GetMapping(value = "/edev/{endDeviceID}/fsa/{fsaID}", produces = "application/sep+xml")
+    @GetMapping(value = "edev/{endDeviceID}/fsa/{fsaID}", produces = "application/sep+xml")
      public ResponseEntity<String> getFunctionSetAssignmentsDetailsHttp(@PathVariable Long endDeviceID, @PathVariable Long fsaID) {
         String fsaXml = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceID, fsaID);
         LOGGER.info("the fsa_val is " + fsaXml);

@@ -28,12 +28,12 @@ public class XmlValidationService {
     private void loadExpectedXmlMappings() {
         endpointToExpectedXmlFile.put("/dcap:GET", "DeviceCapability.xml");
         endpointToExpectedXmlFile.put("/edev/{id}:GET", "EndDevice.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/rg:GET", "Registration.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/fsa:GET", "FunctionSetAssignment.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/dercap:GET", "DerCapability.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/derstat:GET", "DerStatus.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/dera:GET", "DerAvailability.xml");
-        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/derg:GET", "DerSettings.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/rg:GET", "Registration.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/fsa:GET", "FunctionSetAssignment.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/der/{derId}/dercap:GET", "DerCapability.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/der/{derId}/ders:GET", "DerStatus.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/der/{derId}/dera:GET", "DerAvailability.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceId}/der/{derId}/derg:GET", "DerSettings.xml");
         endpointToExpectedXmlFile.put("/derp:GET", "DerProgramList.xml");
         endpointToExpectedXmlFile.put("/derp/{id}:GET", "DerProgramInfo.xml");
         endpointToExpectedXmlFile.put("/derp/{id}/derc:GET", "DerControlList.xml");
@@ -107,7 +107,7 @@ public class XmlValidationService {
 
     private String normalizeEndpoint(String endpoint) {
         return endpoint.replaceAll("/\\d+", "/{id}")
-                      .replaceAll("/(\\d+)/", "/{endDeviceID}/")
+                      .replaceAll("/(\\d+)/", "/{endDeviceId}/")
                       .replaceAll("/der/(\\d+)", "/der/{derId}");
     }
 
