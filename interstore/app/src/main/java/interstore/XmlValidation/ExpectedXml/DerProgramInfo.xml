@@ -1,0 +1,11 @@
+<DERList xmlns="urn:ieee:std:2030.5:ns" href="/edev/1/der" all="1" results="1">
+    <DER href="/edev/1/der/1">
+        <DERCapabilityLink href="/edev/1/der/1/dercap"/>
+        <DERStatusLink href="/edev/1/der/1/ders"/>
+        <DERAvailabilityLink href="/edev/1/der/1/dera"/>
+        <DERSettingsLink href="/edev/1/der/1/derg"/>
+        <AssociatedUsagePointLink href="/edev/1/der/1/upt"/>
+        <AssociatedDERProgramListLink href="/edev/1/der/1/derp" all="0"/>
+        <CurrentDERProgramLink href="/edev/1/der/1/cdp"/>
+    </DER>
+</DERList>

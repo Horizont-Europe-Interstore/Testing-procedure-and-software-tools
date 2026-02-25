@@ -26,7 +26,10 @@ public class XmlValidationController {
 
     @GetMapping("/results")
     public ResponseEntity<List<XmlValidationResult>> getAllResults() {
-        return ResponseEntity.ok(xmlValidationService.getAllValidationResults());
+        List<XmlValidationResult> results = xmlValidationService.getAllValidationResults();
+        System.out.println("=== Fetching validation results ===");
+        System.out.println("Total results: " + results.size());
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/results/{id}")

@@ -16,72 +16,78 @@ import java.util.logging.Logger;
 public class XmlValidationService {
     private static final Logger LOGGER = Logger.getLogger(XmlValidationService.class.getName());
     private final Map<String, XmlValidationResult> validationResults = new ConcurrentHashMap<>();
-    private final Map<String, String> wadlExpectedElements = new ConcurrentHashMap<>();
-    private final Set<String> pollingEndpoints = Set.of("/dcap", "/tm");
+    private final Map<String, String> endpointToExpectedXmlFile = new ConcurrentHashMap<>();
 
     @Autowired
     private NatsPublisher natsPublisher;
 
     public XmlValidationService() {
-        loadWadlMappings();
+        loadExpectedXmlMappings();
     }
 
-    private void loadWadlMappings() {
-        try (InputStream is = getClass().getResourceAsStream("sep_wadl.xml")) {
-            if (is == null) return;
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            Document doc = factory.newDocumentBuilder().parse(is);
-            NodeList resources = doc.getElementsByTagName("resource");
-            
-            for (int i = 0; i < resources.getLength(); i++) {
-                Element resource = (Element) resources.item(i);
-                String path = resource.getAttribute("wx:samplePath");
-                NodeList methods = resource.getElementsByTagName("method");
-                
-                for (int j = 0; j < methods.getLength(); j++) {
-                    Element method = (Element) methods.item(j);
-                    String httpMethod = method.getAttribute("name");
-                    NodeList responses = method.getElementsByTagName("response");
-                    
-                    for (int k = 0; k < responses.getLength(); k++) {
-                        Element response = (Element) responses.item(k);
-                        NodeList reps = response.getElementsByTagName("representation");
-                        if (reps.getLength() > 0) {
-                            Element rep = (Element) reps.item(0);
-                            String element = rep.getAttribute("element");
-                            if (element.startsWith("sep:")) {
-                                wadlExpectedElements.put(path + ":" + httpMethod, element.substring(4));
-                            }
-                        }
-                    }
-                }
-            }
-            LOGGER.info("Loaded " + wadlExpectedElements.size() + " WADL mappings");
-        } catch (Exception e) {
-            LOGGER.severe("Failed to load WADL: " + e.getMessage());
-        }
+    private void loadExpectedXmlMappings() {
+        endpointToExpectedXmlFile.put("/dcap:GET", "DeviceCapability.xml");
+        endpointToExpectedXmlFile.put("/edev/{id}:GET", "EndDevice.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/rg:GET", "Registration.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/fsa:GET", "FunctionSetAssignment.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/dercap:GET", "DerCapability.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/derstat:GET", "DerStatus.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/dera:GET", "DerAvailability.xml");
+        endpointToExpectedXmlFile.put("/edev/{endDeviceID}/der/{derId}/derg:GET", "DerSettings.xml");
+        endpointToExpectedXmlFile.put("/derp:GET", "DerProgramList.xml");
+        endpointToExpectedXmlFile.put("/derp/{id}:GET", "DerProgramInfo.xml");
+        endpointToExpectedXmlFile.put("/derp/{id}/derc:GET", "DerControlList.xml");
+        endpointToExpectedXmlFile.put("/derp/{id}/dercrv:GET", "DerCurveList.xml");
+        LOGGER.info("Loaded " + endpointToExpectedXmlFile.size() + " expected XML mappings");
     }
 
     public XmlValidationResult validateXml(String endpoint, String httpMethod, String requestXml, String actualXml) {
         String id = UUID.randomUUID().toString();
         
-        if (isPollingEndpoint(endpoint)) {
-            LOGGER.info("Skipping validation for polling endpoint: " + endpoint);
-            return null;
-        }
+        System.out.println("=== XmlValidationService.validateXml called ===");
+        System.out.println("Endpoint: " + endpoint);
+        System.out.println("Method: " + httpMethod);
+        System.out.println("Actual XML length: " + (actualXml != null ? actualXml.length() : 0));
 
         try {
-            boolean isWellFormed = isWellFormedXml(actualXml);
-            String expectedElement = getExpectedElement(endpoint, httpMethod);
-            String actualElement = extractRootElement(actualXml);
+            String normalizedEndpoint = normalizeEndpoint(endpoint);
+            String expectedXmlFile = endpointToExpectedXmlFile.get(normalizedEndpoint + ":" + httpMethod);
             
-            boolean isValid = isWellFormed && (expectedElement == null || expectedElement.equals(actualElement));
-            String differences = buildDifferences(isWellFormed, expectedElement, actualElement);
+            if (expectedXmlFile == null) {
+                LOGGER.warning("No expected XML mapping for: " + normalizedEndpoint + ":" + httpMethod);
+                return null;
+            }
+
+            String expectedXml = loadExpectedXml(expectedXmlFile);
+            if (expectedXml == null) {
+                LOGGER.warning("Could not load expected XML file: " + expectedXmlFile);
+                XmlValidationResult result = new XmlValidationResult(
+                    id, endpoint, httpMethod, "", "File not found: " + expectedXmlFile,
+                    actualXml, false, "Expected XML file not found: " + expectedXmlFile
+                );
+                validationResults.put(id, result);
+                publishResultToNats(result);
+                return result;
+            }
+
+            boolean isWellFormed = isWellFormedXml(actualXml);
+            if (!isWellFormed) {
+                XmlValidationResult result = new XmlValidationResult(
+                    id, endpoint, httpMethod, requestXml, expectedXml,
+                    actualXml, false, "XML parsing error"
+                );
+                validationResults.put(id, result);
+                publishResultToNats(result);
+                return result;
+            }
+
+            List<String> differences = compareXmlParameters(expectedXml, actualXml);
+            boolean isValid = differences.isEmpty();
+            String differencesStr = isValid ? "Valid - all parameters match" : String.join("; ", differences);
 
             XmlValidationResult result = new XmlValidationResult(
-                id, endpoint, httpMethod, requestXml, expectedElement,
-                actualXml, isValid, differences
+                id, endpoint, httpMethod, requestXml, expectedXml,
+                actualXml, isValid, differencesStr
             );
 
             validationResults.put(id, result);
@@ -99,36 +105,80 @@ public class XmlValidationService {
         }
     }
 
-    private boolean isPollingEndpoint(String endpoint) {
-        return pollingEndpoints.stream().anyMatch(endpoint::startsWith);
-    }
-
-    private String getExpectedElement(String endpoint, String httpMethod) {
-        String normalized = normalizeEndpoint(endpoint);
-        return wadlExpectedElements.get(normalized + ":" + httpMethod);
-    }
-
     private String normalizeEndpoint(String endpoint) {
-        return endpoint.replaceAll("/\\d+", "/{id}");
+        return endpoint.replaceAll("/\\d+", "/{id}")
+                      .replaceAll("/(\\d+)/", "/{endDeviceID}/")
+                      .replaceAll("/der/(\\d+)", "/der/{derId}");
     }
 
-    private String extractRootElement(String xml) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            Document doc = factory.newDocumentBuilder().parse(
-                new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-            return doc.getDocumentElement().getLocalName();
+    private String loadExpectedXml(String filename) {
+        try (InputStream is = getClass().getResourceAsStream("ExpectedXml/" + filename)) {
+            if (is == null) return null;
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
+            LOGGER.severe("Failed to load expected XML: " + filename + " - " + e.getMessage());
             return null;
         }
     }
 
-    private String buildDifferences(boolean isWellFormed, String expected, String actual) {
-        if (!isWellFormed) return "XML parsing error";
-        if (expected == null) return "No WADL mapping found";
-        if (expected.equals(actual)) return "Valid - matches WADL";
-        return "Expected: " + expected + ", Actual: " + actual;
+    private List<String> compareXmlParameters(String expectedXml, String actualXml) {
+        List<String> differences = new ArrayList<>();
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            
+            Document expectedDoc = builder.parse(new ByteArrayInputStream(expectedXml.getBytes(StandardCharsets.UTF_8)));
+            Document actualDoc = builder.parse(new ByteArrayInputStream(actualXml.getBytes(StandardCharsets.UTF_8)));
+            
+            Element expectedRoot = expectedDoc.getDocumentElement();
+            Element actualRoot = actualDoc.getDocumentElement();
+            
+            if (!expectedRoot.getLocalName().equals(actualRoot.getLocalName())) {
+                differences.add("Root element mismatch: expected " + expectedRoot.getLocalName() + 
+                              ", got " + actualRoot.getLocalName());
+                return differences;
+            }
+            
+            // Only check that expected elements exist in actual, don't check values
+            compareElementsPresence(expectedRoot, actualRoot, "", differences);
+            
+        } catch (Exception e) {
+            differences.add("XML comparison error: " + e.getMessage());
+        }
+        return differences;
+    }
+
+    private void compareElementsPresence(Element expected, Element actual, String path, List<String> differences) {
+        String currentPath = path + "/" + expected.getLocalName();
+        
+        NodeList expectedChildren = expected.getChildNodes();
+        Map<String, Element> expectedElements = new HashMap<>();
+        
+        for (int i = 0; i < expectedChildren.getLength(); i++) {
+            Node node = expectedChildren.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element child = (Element) node;
+                expectedElements.put(child.getLocalName(), child);
+            }
+        }
+        
+        // Only check that expected elements exist, don't validate values or counts
+        for (Map.Entry<String, Element> entry : expectedElements.entrySet()) {
+            String elementName = entry.getKey();
+            
+            NodeList actualMatches = actual.getElementsByTagName(elementName);
+            if (actualMatches.getLength() == 0) {
+                differences.add("Missing element: " + currentPath + "/" + elementName);
+            }
+        }
+        
+        // Check href attribute if present in expected
+        if (expected.hasAttribute("href")) {
+            if (!actual.hasAttribute("href")) {
+                differences.add("Missing href attribute at " + currentPath);
+            }
+        }
     }
 
     private boolean isWellFormedXml(String xml) {

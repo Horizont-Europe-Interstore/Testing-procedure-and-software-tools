@@ -25,6 +25,9 @@ public class DeviceCapabilityService {
     private DeviceCapabilityRepository deviceCapabilityRepository;
 
     @Autowired
+    private interstore.EndDevice.EndDeviceRepository endDeviceRepository;
+
+    @Autowired
     TimeRepository timeDtoRepository;
   
     
@@ -93,11 +96,12 @@ public class DeviceCapabilityService {
     // }
 
      public String getDeviceCapabilityHttp(DeviceCapabilityEntity dcap) {
+        int endDeviceCount = endDeviceRepository.findAll().size();
         return "<DeviceCapability xsi:schemaLocation=\"urn:ieee:std:2030.5:ns sep.xsd\" " +
                "xmlns=\"urn:ieee:std:2030.5:ns\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                "href=\"/dcap\">\n" +
                "  <TimeLink href=\"/dcap/tm\"/>\n" +
-               "  <EndDeviceListLink all=\"1\" href=\"/edev\"/>\n" +
+               "  <EndDeviceListLink all=\"" + endDeviceCount + "\" href=\"/edev\"/>\n" +
                "</DeviceCapability>";
      }
 
