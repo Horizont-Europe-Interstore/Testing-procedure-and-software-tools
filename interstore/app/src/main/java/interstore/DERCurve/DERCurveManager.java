@@ -67,23 +67,19 @@ public class DERCurveManager {
 
     public Map<String, Object> getDERCurve(JSONObject payload) throws JSONException
     {   LOGGER.info("Response received in DERCurveManager: "+payload);
-        if(payload.has("derpID") && payload.has("dercID"))
-        {
+        if (payload.has("payload")) payload = payload.getJSONObject("payload");
+        if(payload.has("derpID") && payload.has("dercID")) {
             Long derpID = payload.getLong("derpID");
             Long dercID = payload.getLong("dercID");
-            // ResponseEntity<Map<String, Object>> response = this.derCurveService.getDERCurve(derpID, dercID);
-            return getDERCurve(derpID, dercID);
+            String xml = this.derCurveService.getDERCurveHttp(derpID, dercID);
+            return Map.of("xml", xml != null ? xml : "");
         }
-
-        else if(payload.has("derpID"))
-        {   Long derpID = payload.getLong("derpID");
-
-            return getAllDERCurveDetails(derpID);
+        if(payload.has("derpID")) {
+            Long derpID = payload.getLong("derpID");
+            String xml = this.derCurveService.getAllDERCurvesHttp(derpID);
+            return Map.of("xml", xml != null ? xml : "");
         }
-
-        return null ;
-
-//        return getAllDERCurveDetails(Long.parseLong(payload.getJSONObject("payload").getString("der_program_id")));
+        return null;
     }
 
     @GetMapping(value = "/derp/{derpId}/dc", produces = "application/sep+xml")

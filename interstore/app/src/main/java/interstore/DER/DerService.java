@@ -141,7 +141,7 @@ public class DerService {
             return null;
           }
        JSONObject fieldOJsonObject = Derpayload.getJSONObject(rtg);
-       Integer value = fieldOJsonObject.has("value") ? fieldOJsonObject.getInt("value"):null;
+       Integer value = fieldOJsonObject.has("value") ? parseIntValue(fieldOJsonObject, "value"):null;
        Integer multiplier = fieldOJsonObject.has("multiplier") ? fieldOJsonObject.getInt("multiplier"):null;
        return new XmlvalueAndMultiplier(multiplier, value);
 
@@ -166,7 +166,7 @@ public class DerService {
            return null;
          }
         JSONObject fieldOJsonObject = derPayload.getJSONObject(rtg);
-        Integer value = fieldOJsonObject.has("value") ? fieldOJsonObject.getInt("value"):null;
+        Integer value = fieldOJsonObject.has("value") ? parseIntValue(fieldOJsonObject, "value"):null;
         Integer multiplier = fieldOJsonObject.has("multiplier") ? fieldOJsonObject.getInt("multiplier"):null;
         return new XmlvalueAndMultiplierSettings(multiplier, value);
     }
@@ -509,6 +509,12 @@ public class DerService {
 
     
 
+    private Integer parseIntValue(org.json.JSONObject obj, String key) {
+        if (!obj.has(key)) return null;
+        String s = obj.optString(key, "0").replaceAll("[^0-9-]", "");
+        return s.isEmpty() ? 0 : Integer.parseInt(s);
+    }
+
     private String stripHost(String url) {
         if (url == null) return null;
         try {
@@ -801,49 +807,49 @@ public class DerService {
         if (payload.has("genConnectStatus")) {
             JSONObject genConnect = payload.getJSONObject("genConnectStatus");
             derStatusEntity.setGenConnectStatusDateTime(genConnect.has("dateTime") ? genConnect.getLong("dateTime") : null);
-            derStatusEntity.setGenConnectStatusValue(genConnect.has("value") ? genConnect.getInt("value") : null);
+            derStatusEntity.setGenConnectStatusValue(genConnect.has("value") ? parseIntValue(genConnect, "value") : null);
         }
 
         
         if (payload.has("inverterStatus")) {
             JSONObject inverter = payload.getJSONObject("inverterStatus");
             derStatusEntity.setInverterStatusDateTime(inverter.has("dateTime") ? inverter.getLong("dateTime") : null);
-            derStatusEntity.setInverterStatusValue(inverter.has("value") ? inverter.getInt("value") : null);
+            derStatusEntity.setInverterStatusValue(inverter.has("value") ? parseIntValue(inverter, "value") : null);
         }
 
        
         if (payload.has("localControlModeStatus")) {
             JSONObject localControl = payload.getJSONObject("localControlModeStatus");
             derStatusEntity.setLocalControlModeStatusDateTime(localControl.has("dateTime") ? localControl.getLong("dateTime") : null);
-            derStatusEntity.setLocalControlModeStatusValue(localControl.has("value") ? localControl.getInt("value") : null);
+            derStatusEntity.setLocalControlModeStatusValue(localControl.has("value") ? parseIntValue(localControl, "value") : null);
         }
 
         
         if (payload.has("operationalModeStatus")) {
             JSONObject operational = payload.getJSONObject("operationalModeStatus");
             derStatusEntity.setOperationalModeStatusDateTime(operational.has("dateTime") ? operational.getLong("dateTime") : null);
-            derStatusEntity.setOperationalModeStatusValue(operational.has("value") ? operational.getInt("value") : null);
+            derStatusEntity.setOperationalModeStatusValue(operational.has("value") ? parseIntValue(operational, "value") : null);
         }
 
         
         if (payload.has("stateOfChargeStatus")) {
             JSONObject stateOfCharge = payload.getJSONObject("stateOfChargeStatus");
             derStatusEntity.setStateOfChargeStatusDateTime(stateOfCharge.has("dateTime") ? stateOfCharge.getLong("dateTime") : null);
-            derStatusEntity.setStateOfChargeStatusValue(stateOfCharge.has("value") ? stateOfCharge.getInt("value") : null);
+            derStatusEntity.setStateOfChargeStatusValue(stateOfCharge.has("value") ? parseIntValue(stateOfCharge, "value") : null);
         }
 
      
         if (payload.has("storageModeStatus")) {
             JSONObject storageMode = payload.getJSONObject("storageModeStatus");
             derStatusEntity.setStorageModeStatusDateTime(storageMode.has("dateTime") ? storageMode.getLong("dateTime") : null);
-            derStatusEntity.setStorageModeStatusValue(storageMode.has("value") ? storageMode.getInt("value") : null);
+            derStatusEntity.setStorageModeStatusValue(storageMode.has("value") ? parseIntValue(storageMode, "value") : null);
         }
 
         
         if (payload.has("storConnectStatus")) {
             JSONObject storConnect = payload.getJSONObject("storConnectStatus");
             derStatusEntity.setStorConnectStatusDateTime(storConnect.has("dateTime") ? storConnect.getLong("dateTime") : null);
-            derStatusEntity.setStorConnectStatusValue(storConnect.has("value") ? storConnect.getInt("value") : null);
+            derStatusEntity.setStorConnectStatusValue(storConnect.has("value") ? parseIntValue(storConnect, "value") : null);
         }
      }
 
@@ -890,14 +896,14 @@ public class DerService {
         if (payload.has("statVarAvail")) {
             JSONObject statVar = payload.getJSONObject("statVarAvail");
             derAvail.setStatVarAvailMultiplier(statVar.has("multiplier") ? statVar.getInt("multiplier") : null);
-            derAvail.setStatVarAvailValue(statVar.has("value") ? statVar.getInt("value") : null);
+            derAvail.setStatVarAvailValue(statVar.has("value") ? parseIntValue(statVar, "value") : null);
         }
 
         // statWAvail (multiplier + value)
         if (payload.has("statWAvail")) {
             JSONObject statW = payload.getJSONObject("statWAvail");
             derAvail.setStatWAvailMultiplier(statW.has("multiplier") ? statW.getInt("multiplier") : null);
-            derAvail.setStatWAvailValue(statW.has("value") ? statW.getInt("value") : null);
+            derAvail.setStatWAvailValue(statW.has("value") ? parseIntValue(statW, "value") : null);
         }
     }
 

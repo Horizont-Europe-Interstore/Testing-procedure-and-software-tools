@@ -46,12 +46,12 @@ export default class Client{
             }
             
             // Map test name to servicename and action
-            const {servicename, action} = Client.#getServiceInfo(testObject.test);
+            const {servicename, action, extraPayload} = Client.#getServiceInfo(testObject.test);
             
             const payload = {
                 servicename,
                 action,
-                payload: argsObject
+                payload: {...argsObject, ...(extraPayload || {})}
             };
             
             const res = await fetch(Client.#baseUrl, {
@@ -96,8 +96,8 @@ export default class Client{
             'Get A Der Control': {servicename: 'dercontrolmanager', action: 'get'},
             'Create Der': {servicename: 'dermanager', action: 'post'},
             'Get Der': {servicename: 'dermanager', action: 'get'},
-            'Get A Der Capability': {servicename: 'dermanager', action: 'get'},
-            'Get A Der Settings': {servicename: 'dermanager', action: 'get'},
+            'Get A Der Capability': {servicename: 'dermanager', action: 'get', extraPayload: {derCapabilities: true}},
+            'Get A Der Settings': {servicename: 'dermanager', action: 'get', extraPayload: {derSettings: true}},
         };
         return mapping[testName] || {servicename: '', action: 'post'};
     }
@@ -121,6 +121,32 @@ export default class Client{
     }
 
     static #generateStoredValuesResponse(testObject, serverResponse){
+        const {action} = Client.#getServiceInfo(testObject.test);
+        const isGet = action === 'get';
+
+        if(isGet){
+            const raw = serverResponse?.payload ?? serverResponse;
+            const payloadStr = (raw && raw.xml) ? raw.xml
+                : typeof raw === 'string' ? raw
+                : JSON.stringify(raw, null, 2);
+            return {
+              Feature: testObject.test,
+              Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+              Scenario: 'Data retrieved successfully',
+              'End result': 'retrieved',
+              Steps: [
+                {
+                  Keyword: 'Retrieved ',
+                  Name: testObject.test + ' Results',
+                  Result: 'passed',
+                  'Error message': '',
+                  Value: payloadStr,
+                  FetchedData: payloadStr
+                }
+              ]
+            };
+        }
+
         const storedValues = Object.entries(testObject.object)
             .filter(([k,v]) => v !== '')
             .map(([k,v]) => `${k}: ${v}`)

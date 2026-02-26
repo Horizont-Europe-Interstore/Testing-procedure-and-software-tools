@@ -1,6 +1,6 @@
 package interstore.XmlValidation;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class XmlValidationResult {
     private String id;
@@ -11,7 +11,7 @@ public class XmlValidationResult {
     private String actualXml;
     private boolean valid;
     private String differences;
-    private LocalDateTime timestamp;
+    private long timestamp;
 
     public XmlValidationResult(String id, String endpoint, String httpMethod, 
                              String requestXml, String expectedXml, String actualXml, 
@@ -24,7 +24,7 @@ public class XmlValidationResult {
         this.actualXml = actualXml;
         this.valid = valid;
         this.differences = differences;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = Instant.now().toEpochMilli();
     }
 
     // Getters and Setters
@@ -52,6 +52,6 @@ public class XmlValidationResult {
     public String getDifferences() { return differences; }
     public void setDifferences(String differences) { this.differences = differences; }
 
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public long getTimestamp() { return timestamp; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 }

@@ -3,80 +3,39 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import interstore.EndDevice.EndDeviceEntity;
-import jakarta.persistence.Entity; 
-import com.fasterxml.jackson.annotation.JsonIgnore; 
+import jakarta.persistence.Entity;
+
 @Entity
-public class RegistrationEntity   {
+public class RegistrationEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "pin")
-    private Long pin; 
+    private Long pin;
+
     @Column(name = "dateTimeRegistered")
     private String dateTimeRegistered;
-    /* here the end device id is forigen key for particular object of 
-     * end device there should be corresponding registrations it can be 
-     * one to one or one to many , how can i impliment this 
-     * Unidirectional relationship between RegistrationDto and EndDeviceDto 
-     */
-    @JsonIgnore
-    @OneToOne
-    @JoinColumn(name =  "endDeviceId", referencedColumnName = "id", insertable = false, updatable = false) 
-    private EndDeviceEntity endDevice;
-    
-    @Column(name = "endDeviceId")
-    private Long endDeviceId;
-    
+
+    @Column(name = "endDeviceID")
+    private Long endDeviceID ;
+
     @Column(name = "link_rgid")
     private String linkRgid;
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(final Long id) {
-        this.id = id;
-    }
+    public Long getPin() { return pin; }
+    public void setPin(Long pin) { this.pin = pin; }
 
-    public Long getPin() {
-        return pin;
-    }
-    public void setPin( Long pin) {
-        this.pin = pin;
-    }
-    public String getDateTimeRegistered() {
-        return dateTimeRegistered;
-    }
-    public void setDateTimeRegistered(String dateTimeRegistered) {
-        this.dateTimeRegistered = dateTimeRegistered;
-    }
+    public String getDateTimeRegistered() { return dateTimeRegistered; }
+    public void setDateTimeRegistered(String dateTimeRegistered) { this.dateTimeRegistered = dateTimeRegistered; }
 
-    public EndDeviceEntity getEndDevice() {
-        return endDevice;
-    }
-    public void setEndDevice(EndDeviceEntity endDevice) {
-        this.endDevice = endDevice;
-    }
-    public String getLinkRgid() {
-        return linkRgid;
-    }
-    public void setLinkRgid(String linkRgid) {
-        this.linkRgid = linkRgid;
-    }
-    
-    public Long getEndDeviceId() {
-        return endDeviceId;
-    }
-    
-    public void setEndDeviceId(Long endDeviceId) {
-        this.endDeviceId = endDeviceId;
-    }
+    public Long getEndDeviceId() { return endDeviceID; }
+    public void setEndDeviceId(Long endDeviceID) { this.endDeviceID = endDeviceID; }
+
+    public String getLinkRgid() { return linkRgid; }
+    public void setLinkRgid(String linkRgid) { this.linkRgid = linkRgid; }
 }
-
-
-
-

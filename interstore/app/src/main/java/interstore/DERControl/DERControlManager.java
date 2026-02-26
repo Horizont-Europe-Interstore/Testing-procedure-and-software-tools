@@ -70,22 +70,19 @@ public class DERControlManager {
     public Map<String, Object> getDERControl(JSONObject payload) throws JSONException
     {
         LOGGER.info("Response received in DERControlManager: "+payload);
-        if(payload.has("derpID") && payload.has("derControlID"))
-        {
+        if (payload.has("payload")) payload = payload.getJSONObject("payload");
+        if(payload.has("derpID") && payload.has("derControlID")) {
             Long derpID = payload.getLong("derpID");
             Long derControlID = payload.getLong("derControlID");
-            ResponseEntity<Map<String, Object>> response = this.derControlService.getDERControl(derpID, derControlID);
-            return response.getBody();
+            String xml = this.derControlService.getDERControlHttp(derpID, derControlID);
+            return Map.of("xml", xml != null ? xml : "");
         }
-
-        else if(payload.has("derpID"))
-        {   Long derpID = payload.getLong("derpID");
-
-            return getAllDERControlDetails(derpID);
+        if(payload.has("derpID")) {
+            Long derpID = payload.getLong("derpID");
+            String xml = this.derControlService.getAllDERControlsHttp(derpID);
+            return Map.of("xml", xml != null ? xml : "");
         }
-
-        return null ;
-
+        return null;
     }
 
     @GetMapping(value = "/derp/{derpId}/derc", produces = "application/sep+xml")

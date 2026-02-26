@@ -83,30 +83,22 @@ public class DerManager {
 
     public Object getDer(JSONObject payload) throws JSONException
     {
-       if(payload.has("endDeviceID") && payload.has("derID"))
-       {
+       if (payload.has("payload")) payload = payload.getJSONObject("payload");
+       if(payload.has("endDeviceID") && payload.has("derID")) {
            Long endDeviceId = payload.getLong("endDeviceID");
            Long derId = payload.getLong("derID");
-           LOGGER.info("the received payload in the DER program Manager for Get A DER is " +  payload);
-
-           if (payload.has("powerGenerationTest") && payload.getBoolean("powerGenerationTest")) {
-               return getDerCapabilityAndDerSettings(payload);
-           }
-
            if (payload.has("derCapabilities")) {
-               LOGGER.info("Getting DER Capability for endDeviceId: " + endDeviceId + ", derId: " + derId);
-               return derService.getDerCapabilityHttp(endDeviceId, derId);
+               String xml = derService.getDerCapabilityHttp(endDeviceId, derId);
+               return Map.of("xml", xml != null ? xml : "");
            }
-
            if (payload.has("derSettings")) {
-               LOGGER.info("Getting DER Settings for endDeviceId: " + endDeviceId + ", derId: " + derId);
-               return derService.getDerSettingsHttp(endDeviceId, derId);
+               String xml = derService.getDerSettingsHttp(endDeviceId, derId);
+               return Map.of("xml", xml != null ? xml : "");
            }
-
-           ResponseEntity<Map<String, Object>> response = derService.getDer(derId, endDeviceId);
-           return response.getBody();
+           String xml = derService.getDerHttp(endDeviceId, derId);
+           return Map.of("xml", xml != null ? xml : "");
        }
-      return null ;
+       return null;
     }
 
     public Object getDerCapabilityAndDerSettings(JSONObject payload) throws JSONException

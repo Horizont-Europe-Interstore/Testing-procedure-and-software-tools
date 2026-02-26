@@ -67,17 +67,14 @@ public class DERProgramManager {
     
        public Map<String, Object> getDERPrograms(JSONObject payload) throws JSONException 
       {
-         if(payload.has("derID"))
-         {  
+         if (payload.has("payload")) payload = payload.getJSONObject("payload");
+         if(payload.has("derID")) {
              Long derID = payload.getLong("derID");
-             LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
-             return getDerProgramDetails(derID);
+             String xml = this.derProgramService.getDerProgramHttp(derID);
+             return Map.of("xml", xml != null ? xml : "");
          }
-
-        else{
-            LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
-            return getAllDERProgramDetails();
-        }
+         String xml = this.derProgramService.getAllDerProgramsHttp();
+         return Map.of("xml", xml != null ? xml : "");
       }
 
 

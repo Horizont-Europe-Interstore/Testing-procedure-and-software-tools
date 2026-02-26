@@ -70,24 +70,19 @@ public class FsaManager {
      *   "endDeviceID"
      */
     public Map<String, Object> getFSA(JSONObject payload) throws JSONException {
-       
-         if (payload.has("endDeviceID") && payload.has("fsaID"))
-        {      
-               Long endDeviceIdLong =  payload.getLong("endDeviceID");     
-               Long fsaIdLong =  payload.getLong("fsaID");                                          
-               LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
-               LOGGER.info("fsaID in the FSA Manager" + fsaIdLong);
-
-                return getFunctionSetAssignmentsDetails(endDeviceIdLong, fsaIdLong );
-        }   
-
-        else if(payload.has("endDeviceID"))
-        {
-            Long endDeviceIdLong =   payload.getLong("endDeviceID"); 
-            LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
-            return getEndDeviceById(endDeviceIdLong);
+        if (payload.has("payload")) payload = payload.getJSONObject("payload");
+        if (payload.has("endDeviceID") && payload.has("fsaID")) {
+            Long endDeviceIdLong = payload.getLong("endDeviceID");
+            Long fsaIdLong = payload.getLong("fsaID");
+            String xml = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceIdLong, fsaIdLong);
+            return Map.of("xml", xml != null ? xml : "");
         }
-        return null; 
+        if (payload.has("endDeviceID")) {
+            Long endDeviceIdLong = payload.getLong("endDeviceID");
+            String xml = this.fsaService.getAllFunctionsetAssignmentsHttp(endDeviceIdLong);
+            return Map.of("xml", xml != null ? xml : "");
+        }
+        return null;
     } 
     
 
