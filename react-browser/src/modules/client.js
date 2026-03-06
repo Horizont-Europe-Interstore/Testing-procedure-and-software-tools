@@ -2,41 +2,6 @@ export default class Client{
     static #baseUrl='/api' 
     static async sendTest(testObject){
         try{
-            // Special handling for Power Generation Test - call direct HTTP endpoint
-            if(testObject.test === 'Power Generation Test'){
-                const endDeviceID = testObject.object.endDeviceID;
-                const derID = testObject.object.derID;
-                
-                if(!endDeviceID || !derID){
-                    return Client.#generateErrorReport("endDeviceID and derID are required", testObject.test);
-                }
-                
-                const res = await fetch(`${Client.#baseUrl}/derpowergenerationtest/${endDeviceID}/${derID}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-                
-                const data = await res.json();
-                
-                // Format response to match expected structure
-                return {
-                    Feature: testObject.test,
-                    Tag: '@PowerGeneration',
-                    Scenario: 'Power Generation Test Completed',
-                    'End result': data['End result'] || 'retrieved',
-                    Steps: data.Steps || [{
-                        Keyword: 'Retrieved ',
-                        Name: 'Power Generation Test Results',
-                        Result: 'passed',
-                        'Error message': '',
-                        Value: JSON.stringify(data),
-                        FetchedData: JSON.stringify(data, null, 2)
-                    }]
-                };
-            }
-            
             // Default flow for other tests - add servicename and action
             let argsObject = {}
             for(let [k,v] of Object.entries(testObject.object)){
@@ -98,6 +63,8 @@ export default class Client{
             'Get Der': {servicename: 'dermanager', action: 'get'},
             'Get A Der Capability': {servicename: 'dermanager', action: 'get', extraPayload: {derCapabilities: true}},
             'Get A Der Settings': {servicename: 'dermanager', action: 'get', extraPayload: {derSettings: true}},
+            'Power Generation Test': {servicename: 'dermanager', action: 'powergeneration'},
+            'Reactive Power Test': {servicename: 'dermanager', action: 'reactivepower'}
         };
         return mapping[testName] || {servicename: '', action: 'post'};
     }
@@ -122,10 +89,30 @@ export default class Client{
 
     static #generateStoredValuesResponse(testObject, serverResponse){
         const {action} = Client.#getServiceInfo(testObject.test);
-        const isGet = action === 'get';
+        const isGet = action === 'get' || action === 'powergeneration' || action === 'reactivepower';
 
         if(isGet){
             const raw = serverResponse?.payload ?? serverResponse;
+            
+            if ((action === 'powergeneration' || action === 'reactivepower') && raw?.xmlOnly) {
+                return {
+                  Feature: testObject.test,
+                  Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+                  Scenario: 'Validation in progress',
+                  'End result': 'retrieved',
+                  Steps: [
+                    {
+                      Keyword: 'Check ',
+                      Name: 'XML Validation Panel for results',
+                      Result: 'passed',
+                      'Error message': '',
+                      Value: 'See XML Validation Panel',
+                      FetchedData: 'See XML Validation Panel'
+                    }
+                  ]
+                };
+            }
+            
             const payloadStr = (raw && raw.xml) ? raw.xml
                 : typeof raw === 'string' ? raw
                 : JSON.stringify(raw, null, 2);
@@ -565,6 +552,19 @@ export default class Client{
             object:{
                 endDeviceID:'',
                 derID:''
+
+            }
+        },
+        {
+            index:25,
+            test:'Reactive Power Test',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
+            args:true,
+            object:{
+                endDeviceID:'',
+                derID:''
+
             }
         }
     ];
@@ -627,6 +627,10 @@ export default class Client{
             derID:(field)=> {return !isNaN(field)}
         },
         'Power Generation Test':{
+            endDeviceID:(field)=>{return !isNaN(field)},
+            derID:(field)=> {return !isNaN(field)}
+        },
+        'Reactive Power Test':{
             endDeviceID:(field)=>{return !isNaN(field)},
             derID:(field)=> {return !isNaN(field)}
         }

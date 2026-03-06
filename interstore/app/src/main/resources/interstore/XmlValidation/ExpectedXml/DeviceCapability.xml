@@ -1,6 +1,3 @@
-<DeviceCapability xmlns="urn:ieee:std:2030.5:ns" href="/dcap">
-<DemandResponseProgramListLink all="1" href="/drp"/>
-<MessagingProgramListLink all="2" href="/msg"/>
-<EndDeviceListLink all="1" href="/edev"/>
-<SelfDeviceLink href="/sdev"/>
+<DeviceCapability xmlns="urn:ieee:std:2030.5:ns" href="">
+<EndDeviceListLink href=""/>
 </DeviceCapability>

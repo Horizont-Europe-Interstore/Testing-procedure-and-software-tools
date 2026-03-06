@@ -10,15 +10,11 @@ import org.json.JSONObject;
 import interstore.DER.DERCapability.DERCapabilityEntity;
 import interstore.DER.DERSettings.DERSettingsEntity;
 import interstore.DER.DerPowerTests;
+import interstore.DER.DerUtils;
 import interstore.XmlValidation.XmlValidationService;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -29,6 +25,8 @@ public class DerManager {
     private DerService derService;
     private static final Logger LOGGER = Logger.getLogger(DerManager.class.getName());
     private DerPowerTests derPowerGenerationTest;
+    private DerUtils derUtil;
+
     
     @Autowired
     private XmlValidationService xmlValidationService;
@@ -36,6 +34,7 @@ public class DerManager {
     public DerManager(DerService derService) {
         this.derService = derService;
         this.derPowerGenerationTest = new DerPowerTests();
+        this.derUtil = new DerUtils();
     }
 
     
@@ -61,6 +60,10 @@ public class DerManager {
             case "put":
                 LOGGER.info("the received payload inside switch case DER .....Power " +  payload);
                 return updateDerSettings(jsonObject);
+            case "powergeneration":
+                 return powerGenerationTest(jsonObject);   
+            case "reactivepower":
+                 return reactivePowerTest(jsonObject);
             case "delete":
                 break;
 
@@ -69,6 +72,52 @@ public class DerManager {
     }
 
     
+    public Object powerGenerationTest(JSONObject payload) throws JSONException
+    {
+        
+       if (payload.has("payload")) payload = payload.getJSONObject("payload");
+       if(payload.has("endDeviceID") && payload.has("derID")) {
+           Long endDeviceId = payload.getLong("endDeviceID");
+           Long derId = payload.getLong("derID");
+           
+               String xmlDerCapability = derService.getDerCapabilityHttp(endDeviceId, derId);
+               String xmlDerSettings = derService.getDerSettingsHttp(endDeviceId, derId);
+               
+               Map<String, String> derPowerTests = Map.of(
+                       "derCapability", xmlDerCapability,
+                       "derSettings", xmlDerSettings
+                   );
+                Map<String, Object> derPowerTestResults = derUtil.PowerGenerationHandler(derPowerTests);
+                
+                // Build combined XML for validation
+                @SuppressWarnings("unchecked")
+                Map<String, String> modeValidation = (Map<String, String>) derPowerTestResults.get("modeValidation");
+                String combinedXml = derUtil.buildPowerGenerationXml(xmlDerCapability, xmlDerSettings, modeValidation);
+                
+                LOGGER.info("xmlValidationService is null: " + (xmlValidationService == null));
+                LOGGER.info("Combined XML for validation: " + combinedXml);
+                
+                // Trigger XML validation
+                if (xmlValidationService != null) {
+                    LOGGER.info("Triggering XML validation for powergeneration");
+                    xmlValidationService.validateXml(
+                        "/edev/" + endDeviceId + "/der/" + derId + "/powergeneration",
+                        "GET",
+                        "",
+                        combinedXml
+                    );
+                } else {
+                    LOGGER.warning("xmlValidationService is null, skipping validation");
+                }
+                
+                return derPowerTestResults;
+           }
+           return null;
+    }
+
+
+
+
     public Map<String, Object> addDer( JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
         if(payload.getJSONObject("payload").has("endDeviceID")){
             DerEntity derEntity = this.derService.createDerEntity(payload);
@@ -122,37 +171,7 @@ public class DerManager {
         return null;
     }
 
-    @GetMapping("/api/derpowergenerationtest/{endDeviceId}/{derId}")
-    public Map<String, Object> derPowerGenerationTestHttp(@PathVariable Long endDeviceId, @PathVariable Long derId) throws JSONException {
-        LOGGER.info("=== POWER GENERATION TEST ENDPOINT HIT ===");
-        LOGGER.info("Running Power Generation Test for endDeviceId: " + endDeviceId + ", derId: " + derId);
-        
-        String derPowerCapabilityResponse = derService.getDerCapabilityHttp(endDeviceId, derId);
-        String derPowerSettingsResponse = derService.getDerSettingsHttp(endDeviceId, derId);
-        
-        // Trigger XML validation for both requests
-        if (xmlValidationService != null) {
-            xmlValidationService.validateXml(
-                "/edev/" + endDeviceId + "/der/" + derId + "/dercap",
-                "GET",
-                "",
-                derPowerCapabilityResponse
-            );
-            xmlValidationService.validateXml(
-                "/edev/" + endDeviceId + "/der/" + derId + "/derg",
-                "GET",
-                "",
-                derPowerSettingsResponse
-            );
-        }
-        
-        Map<String, String> derPowerTests = Map.of(
-            "derCapability", derPowerCapabilityResponse,
-            "derSettings", derPowerSettingsResponse
-        );
-        
-        return (Map<String, Object>) derPowerGenerationTest.powerGenerationTest(derPowerTests);
-    }
+    
 
 
 
@@ -249,7 +268,7 @@ public class DerManager {
     }
 
     @PutMapping("edev/{endDeviceId}/der/{derId}/derg")
-    public Map<String, Object> updatePowerGenerationTestHttp(
+    public String updatePowerGenerationTestHttp(
             @PathVariable Long endDeviceId,
             @PathVariable Long derId,
             @RequestBody String payload,
@@ -259,11 +278,10 @@ public class DerManager {
         LOGGER.info("Received PUT request for DER Settings (derg). Content-Type: " + contentType);
         LOGGER.info("Raw payload: " + payload);
 
-        // Parse both JSON and XML payloads
         JSONObject parsedPayload = PayloadParser.parseDERSettingsXml(payload, endDeviceId, derId);
-
         ResponseEntity<Map<String, Object>> responseEntity = this.derService.updatePowerGenerationTest(endDeviceId, derId, parsedPayload);
-        return responseEntity.getBody();
+        
+        return this.derService.getDerSettingsHttp(endDeviceId, derId);
     }
 
     @PutMapping("edev/{endDeviceId}/der/{derId}/dercap")
@@ -310,7 +328,56 @@ public class DerManager {
         String responseEntity = this.derService.updateDERAvailability(endDeviceId, derId, parsedPayload);
         return responseEntity;
     }
+   
+    public Object reactivePowerTest(JSONObject payload) throws JSONException
+    {
+        
+       if (payload.has("payload")) payload = payload.getJSONObject("payload");
+       if(payload.has("endDeviceID") && payload.has("derID")) {
+           Long endDeviceId = payload.getLong("endDeviceID");
+           Long derId = payload.getLong("derID");
+           
+               String xmlDerCapability = derService.getDerCapabilityHttp(endDeviceId, derId);
+               String xmlDerSettings = derService.getDerSettingsHttp(endDeviceId, derId);
+               
+               Map<String, String> derReactivePowerTests = Map.of(
+                       "derCapability", xmlDerCapability,
+                       "derSettings", xmlDerSettings
+                   );
+                Map<String, Object> derReactivePowerTestResults = derUtil.reactivePowerHandler(derReactivePowerTests);
+                
+                // Build combined XML for validation
+                @SuppressWarnings("unchecked")
+                Map<String, String> modeValidation = (Map<String, String>) derReactivePowerTestResults.get("modeValidation");
+                @SuppressWarnings("unchecked")
+                Map<String, String> validationChecks = (Map<String, String>) derReactivePowerTestResults.get("validationChecks");
+                String combinedXml = derUtil.buildReactivePowerXml(xmlDerCapability, xmlDerSettings, modeValidation, validationChecks);
+                
+                LOGGER.info("Combined XML for reactivepower validation: " + combinedXml);
+                
+                // Trigger XML validation (display only, no expected XML comparison)
+                if (xmlValidationService != null) {
+                    LOGGER.info("Triggering XML validation for reactivepower");
+                    xmlValidationService.displayXmlOnly(
+                        "/edev/" + endDeviceId + "/der/" + derId + "/reactivepower",
+                        "GET",
+                        combinedXml
+                    );
+                } else {
+                    LOGGER.warning("xmlValidationService is null, skipping validation");
+                }
+                
+                return derReactivePowerTestResults;
+           }
+           return null;
+    }
+
+
+
+
+
+
+
+
 
 }
-
-

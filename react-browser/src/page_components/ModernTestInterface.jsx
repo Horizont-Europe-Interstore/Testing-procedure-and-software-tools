@@ -18,7 +18,9 @@ import Client from '../modules/client.js';
 import { EnhancedTestForm } from './EnhancedTestForm.jsx';
 
 export function ModernTestInterface({ colors, onViewTestResults }) {
-  const [selectedTest, setSelectedTest] = useState(null);
+  /* Two state varibales setActive Selection for the left pannel control the category card 
+    is expanded and selectedTest for the right pannel to show the form */
+  const [selectedTest, setSelectedTest] = useState(null); 
   const [activeSection, setActiveSection] = useState(null);
   
   const tests = Client.getTests();

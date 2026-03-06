@@ -17,6 +17,8 @@ public class XmlValidationService {
     private static final Logger LOGGER = Logger.getLogger(XmlValidationService.class.getName());
     private final Map<String, XmlValidationResult> validationResults = new ConcurrentHashMap<>();
     private final Map<String, String> endpointToExpectedXmlFile = new ConcurrentHashMap<>();
+    private final Map<String, Long> recentValidations = new ConcurrentHashMap<>();
+    private static final long DEDUP_WINDOW_MS = 100;
 
     @Autowired
     private NatsPublisher natsPublisher;
@@ -27,30 +29,57 @@ public class XmlValidationService {
 
     private void loadExpectedXmlMappings() {
         endpointToExpectedXmlFile.put("dcap:GET", "DeviceCapability.xml");
+        endpointToExpectedXmlFile.put("tm:GET", "Time.xml");
+        endpointToExpectedXmlFile.put("dcap/tm:GET", "Time.xml");
+        endpointToExpectedXmlFile.put("edev:GET", "EndDeviceList.xml");
         endpointToExpectedXmlFile.put("edev/{id}:GET", "EndDevice.xml");
         endpointToExpectedXmlFile.put("edev/{id}/rg:GET", "Registration.xml");
         endpointToExpectedXmlFile.put("edev/{id}/fsa:GET", "FunctionSetAssignment.xml");
-        endpointToExpectedXmlFile.put("edev/{id}/der/{derId}/dercap:GET", "DerCapability.xml");
-        endpointToExpectedXmlFile.put("edev/{id}/der/{derId}/ders:GET", "DerStatus.xml");
-        endpointToExpectedXmlFile.put("edev/{id}/der/{derId}/dera:GET", "DerAvailability.xml");
-        endpointToExpectedXmlFile.put("edev/{id}/der/{derId}/derg:GET", "DerSettings.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/dstat:GET", "DeviceStatus.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dercap:GET", "DerCapability.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dercap:PUT", "DerCapability.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/ders:GET", "DerStatus.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/ders:PUT", "DerStatus.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dera:GET", "DerAvailability.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/derg:GET", "DerSettings.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/derg:PUT", "DerSettings.xml");
         endpointToExpectedXmlFile.put("derp:GET", "DerProgramList.xml");
         endpointToExpectedXmlFile.put("derp/{id}:GET", "DerProgramInfo.xml");
         endpointToExpectedXmlFile.put("derp/{id}/derc:GET", "DerControlList.xml");
         endpointToExpectedXmlFile.put("derp/{id}/dercrv:GET", "DerCurveList.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/powergeneration:GET", "powergeneration.xml");
         LOGGER.info("Loaded " + endpointToExpectedXmlFile.size() + " expected XML mappings");
     }
 
     public XmlValidationResult validateXml(String endpoint, String httpMethod, String requestXml, String actualXml) {
-        String id = UUID.randomUUID().toString();
+        String normalizedEndpoint = normalizeEndpoint(endpoint);
         
-        System.out.println("=== XmlValidationService.validateXml called ===");
-        System.out.println("Endpoint: " + endpoint);
-        System.out.println("Method: " + httpMethod);
-        System.out.println("Actual XML length: " + (actualXml != null ? actualXml.length() : 0));
-
+        // Check for empty or null response
+        if (actualXml == null || actualXml.trim().isEmpty()) {
+            LOGGER.warning("Empty or null XML response for " + endpoint);
+            String id = normalizedEndpoint + ":" + httpMethod + ":" + System.currentTimeMillis();
+            XmlValidationResult result = new XmlValidationResult(
+                id, endpoint, httpMethod, requestXml, "",
+                actualXml != null ? actualXml : "", false, "Empty or null XML response"
+            );
+            validationResults.put(id, result);
+            publishResultToNats(result);
+            return result;
+        }
+        
+        // Deduplication check
+        String dedupKey = normalizedEndpoint + ":" + httpMethod + ":" + actualXml.hashCode();
+        long now = System.currentTimeMillis();
+        Long lastValidation = recentValidations.get(dedupKey);
+        if (lastValidation != null && (now - lastValidation) < DEDUP_WINDOW_MS) {
+            LOGGER.info("Skipping duplicate validation for: " + normalizedEndpoint + ":" + httpMethod);
+            return null;
+        }
+        recentValidations.put(dedupKey, now);
+        
+        String id = normalizedEndpoint + ":" + httpMethod + ":" + now;
+        
         try {
-            String normalizedEndpoint = normalizeEndpoint(endpoint);
             String expectedXmlFile = endpointToExpectedXmlFile.get(normalizedEndpoint + ":" + httpMethod);
             
             if (expectedXmlFile == null) {
@@ -58,11 +87,13 @@ public class XmlValidationService {
                 return null;
             }
 
+            LOGGER.info("Validating " + httpMethod + " " + endpoint + " -> " + normalizedEndpoint + ", actualXml length: " + (actualXml != null ? actualXml.length() : 0));
+
             String expectedXml = loadExpectedXml(expectedXmlFile);
             if (expectedXml == null) {
                 LOGGER.warning("Could not load expected XML file: " + expectedXmlFile);
                 XmlValidationResult result = new XmlValidationResult(
-                    id, endpoint, httpMethod, "", "File not found: " + expectedXmlFile,
+                    id, endpoint, httpMethod, requestXml, "File not found: " + expectedXmlFile,
                     actualXml, false, "Expected XML file not found: " + expectedXmlFile
                 );
                 validationResults.put(id, result);
@@ -72,6 +103,7 @@ public class XmlValidationService {
 
             boolean isWellFormed = isWellFormedXml(actualXml);
             if (!isWellFormed) {
+                LOGGER.warning("XML is not well-formed for " + endpoint);
                 XmlValidationResult result = new XmlValidationResult(
                     id, endpoint, httpMethod, requestXml, expectedXml,
                     actualXml, false, "XML parsing error"
@@ -85,6 +117,8 @@ public class XmlValidationService {
             boolean isValid = differences.isEmpty();
             String differencesStr = isValid ? "Valid - all parameters match" : String.join("; ", differences);
 
+            LOGGER.info("Validation result for " + endpoint + ": isValid=" + isValid + ", differences=" + differences.size());
+
             XmlValidationResult result = new XmlValidationResult(
                 id, endpoint, httpMethod, requestXml, expectedXml,
                 actualXml, isValid, differencesStr
@@ -95,6 +129,7 @@ public class XmlValidationService {
             return result;
 
         } catch (Exception e) {
+            LOGGER.severe("Validation error for " + endpoint + ": " + e.getMessage());
             XmlValidationResult errorResult = new XmlValidationResult(
                 id, endpoint, httpMethod, requestXml, null,
                 actualXml, false, "Error: " + e.getMessage()
@@ -105,8 +140,26 @@ public class XmlValidationService {
         }
     }
 
+    public XmlValidationResult displayXmlOnly(String endpoint, String httpMethod, String actualXml) {
+        String normalizedEndpoint = normalizeEndpoint(endpoint);
+        long now = System.currentTimeMillis();
+        String id = normalizedEndpoint + ":" + httpMethod + ":" + now;
+        
+        LOGGER.info("Displaying XML only for " + endpoint + ", actualXml length: " + (actualXml != null ? actualXml.length() : 0));
+        
+        XmlValidationResult result = new XmlValidationResult(
+            id, endpoint, httpMethod, "", "",
+            actualXml, true, "Display only - no validation"
+        );
+        
+        validationResults.put(id, result);
+        publishResultToNats(result);
+        return result;
+    }
+
     private String normalizeEndpoint(String endpoint) {
         return endpoint
+            .replaceAll("^/", "")
             .replaceAll("\\{[^}]+\\}", "{id}")
             .replaceAll("/\\d+", "/{id}");
     }

@@ -285,14 +285,12 @@ public class DerService {
         }
     }
     
-    // Helper method for physical values (multiplier + value)
+    // Helper method for physical values (multiplier + value) - always include even if null
     private void appendPhysicalValue(StringBuilder xml, String name, Integer multiplier, Integer value) {
-        if (value != null) {
-            xml.append("  <").append(name).append(">\n");
-            xml.append("    <multiplier>").append(multiplier != null ? multiplier : 0).append("</multiplier>\n");
-            xml.append("    <value>").append(value).append("</value>\n");
-            xml.append("  </").append(name).append(">\n");
-        }
+        xml.append("  <").append(name).append(">\n");
+        xml.append("    <multiplier>").append(multiplier != null ? multiplier : 0).append("</multiplier>\n");
+        xml.append("    <value>").append(value != null ? value : 0).append("</value>\n");
+        xml.append("  </").append(name).append(">\n");
     }
     
     // Helper method for power factor values (displacement + multiplier)
@@ -421,18 +419,12 @@ public class DerService {
         }
     }
 
-    // Helper method for status values (dateTime + value)
+    // Helper method for status values (dateTime + value) - always include even if null
     private void appendStatusValue(StringBuilder xml, String name, Long dateTime, Integer value) {
-        if (dateTime != null || value != null) {
-            xml.append("  <").append(name).append(">\n");
-            if (dateTime != null) {
-                xml.append("    <dateTime>").append(dateTime).append("</dateTime>\n");
-            }
-            if (value != null) {
-                xml.append("    <value>").append(value).append("</value>\n");
-            }
-            xml.append("  </").append(name).append(">\n");
-        }
+        xml.append("  <").append(name).append(">\n");
+        xml.append("    <dateTime>").append(dateTime != null ? dateTime : 0).append("</dateTime>\n");
+        xml.append("    <value>").append(value != null ? value : 0).append("</value>\n");
+        xml.append("  </").append(name).append(">\n");
     }
 
     public ResponseEntity<Map<String, Object>> getDer(Long derId, Long endDeviceId){
@@ -792,7 +784,7 @@ public class DerService {
         derStatusRepository.save(derEntity.getDerStatus());
 
         LOGGER.info("DER Status updated successfully");
-        return "DER Status updated";
+        return getDerStatusHttp(endDeviceID, derId);
     }
 
     

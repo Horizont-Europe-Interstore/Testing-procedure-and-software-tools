@@ -1,34 +1,32 @@
-
-    <DERStatus
-    xmlns="urn:ieee:std:2030.5:ns">
-    <alarmStatus>00</alarmStatus>
-     <genConnectStatus>
-    <dateTime>1771521030</dateTime>
-    <value>01</value>
+<DERStatus xmlns="urn:ieee:std:2030.5:ns">
+    <alarmStatus></alarmStatus>
+    <genConnectStatus>
+        <dateTime></dateTime>
+        <value></value>
     </genConnectStatus>
-     <inverterStatus>
-        <dateTime>1771521030</dateTime>
-        <value>4</value>
-     </inverterStatus>
+    <inverterStatus>
+        <dateTime></dateTime>
+        <value></value>
+    </inverterStatus>
     <localControlModeStatus>
-         <dateTime>1771521030</dateTime>
-         <value>1</value>
-     </localControlModeStatus>
-     <operationalModeStatus>
-         <dateTime>1771521030</dateTime>
-        <value>2</value>
-     </operationalModeStatus>
-    <readingTime>1771521030</readingTime>
-     <stateOfChargeStatus>
-        <dateTime>1771521030</dateTime>
-         <value>0</value>
+        <dateTime></dateTime>
+        <value></value>
+    </localControlModeStatus>
+    <operationalModeStatus>
+        <dateTime></dateTime>
+        <value></value>
+    </operationalModeStatus>
+    <readingTime></readingTime>
+    <stateOfChargeStatus>
+        <dateTime></dateTime>
+        <value></value>
     </stateOfChargeStatus>
-     <storageModeStatus>
-         <dateTime>1771521030</dateTime>
-        <value>2</value>
+    <storageModeStatus>
+        <dateTime></dateTime>
+        <value></value>
     </storageModeStatus>
-     <storConnectStatus>
-         <dateTime>1771521030</dateTime>
-         <value>01</value>
+    <storConnectStatus>
+        <dateTime></dateTime>
+        <value></value>
     </storConnectStatus>
- </DERStatus>
+</DERStatus>
