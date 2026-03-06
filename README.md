@@ -57,9 +57,8 @@ This server can be used in a Client-Server architecture with the client either b
      The testing software consist of 2 pages one page is where the user can the details about the device under test such as the lfdi, sfdi of the device
      the testing form page it the page where the user can enter the details about the IEEE 2030.5 device uder test outbound registration in IEEE 2030.5
     ![GUI to enter the details about device under test](https://github.com/Horizont-Europe-Interstore/Testing-procedure-and-software-tools/blob/main/assets/ Testing%20Software%20Front%20End%20Form%20Page.png) and test results and validation page where the results are shown ![The expected and actual response compare the test results shown](https://github.com/Horizont-Europe-Interstore/Testing-procedure-and-software-tools/blob/main/assets/Test%20Results%20and%20Validation%20Page%20.png) 
-     
-    - Adding the resources:
-        ![Demo](assets/demo.gif)
+   
+        ![Demo](https://github.com/Horizont-Europe-Interstore/Testing-procedure-and-software-tools/blob/main/assets/demo.gif) 
 
 ## Development notes
 - Main test orchestration and helper methods live in [`interstore/App.java`](./interstore/app/src/main/java/interstore/App.java).
@@ -75,3 +74,4 @@ This server can be used in a Client-Server architecture with the client either b
 - [React UI](./react-browser)
 
 <!-- - [Logstash config](ieee2030.5-restapi/logstash.conf) -->
+
