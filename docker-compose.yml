@@ -9,7 +9,7 @@ services:
     depends_on:
       - nats
     environment:
-      - NATS_URL=nats://18.232.7.53:4222
+      - NATS_URL=nats://18.232.7.53:4222 
       - SERVER_PORT=8080
       - SERVER_ADDRESS=0.0.0.0
       - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
@@ -45,8 +45,8 @@ services:
     container_name: nats-server
     hostname: nats-server
     ports:
-      - "0.0.0.0:4222:4222"  # Expose to all interfaces
-      - "0.0.0.0:8222:8222"  # Management interface
+      - "0.0.0.0:4222:4222"  
+      - "0.0.0.0:8222:8222" 
     command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
     networks:
       - back-nats
