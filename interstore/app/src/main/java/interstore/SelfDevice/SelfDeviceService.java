@@ -1,9 +1,11 @@
 package interstore.SelfDevice;
 
+import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Service
 public class SelfDeviceService {
 
     private Map<String, SelfDeviceEntity> sdevs = new HashMap<String, SelfDeviceEntity>();

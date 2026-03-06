@@ -2,28 +2,71 @@ export default class Client{
     static #baseUrl='/api' 
     static async sendTest(testObject){
         try{
+            // Default flow for other tests - add servicename and action
             let argsObject = {}
             for(let [k,v] of Object.entries(testObject.object)){
                 k=k.split(' ').join('')
                 k=k[0].toLowerCase()+k.substring(1,k.length)
                 argsObject[k] = v;
             }
-            testObject.object = argsObject;
+            
+            // Map test name to servicename and action
+            const {servicename, action, extraPayload} = Client.#getServiceInfo(testObject.test);
+            
+            const payload = {
+                servicename,
+                action,
+                payload: {...argsObject, ...(extraPayload || {})}
+            };
+            
             const res = await fetch(Client.#baseUrl, {
                 method: "POST",
-                body: JSON.stringify(testObject),
+                body: JSON.stringify(payload),
                 headers: {
                 "Content-Type": "application/json"
                 }
             })
             const data = await res.json()
-            return data;
+            
+            return Client.#generateStoredValuesResponse(testObject, data);
         }
         catch(err){
             console.log(err)
             return Client.#generateErrorReport("Exception when sending test object\n"+err,
                                                 testObject.test)
         }
+    }
+
+    static #getServiceInfo(testName){
+        const mapping = {
+            'Device Capability': {servicename: 'devicecapabilitymanager', action: 'post'},
+            'Get All End Devices': {servicename: 'enddevicemanager', action: 'get'},
+            'Create End Device': {servicename: 'enddevicemanager', action: 'post'},
+            'Get An End Device': {servicename: 'enddevicemanager', action: 'get'},
+            'Register End Device': {servicename: 'enddevicemanager', action: 'post'},
+            'Get Registered End Device': {servicename: 'enddevicemanager', action: 'get'},
+            'Time': {servicename: 'selfdevicemanager', action: 'get'},
+            'Advanced Time': {servicename: 'selfdevicemanager', action: 'get'},
+            'Get All Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'get'},
+            'Create Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'post'},
+            'Get A Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'get'},
+            'Create Der Program': {servicename: 'derprogrammanager', action: 'post'},
+            'Get All Der Programs': {servicename: 'derprogrammanager', action: 'get'},
+            'Get A Der Program': {servicename: 'derprogrammanager', action: 'get'},
+            'Create Der Curve': {servicename: 'dercurvemanager', action: 'post'},
+            'Get All Der Curves': {servicename: 'dercurvemanager', action: 'get'},
+            'Get A Der Curve': {servicename: 'dercurvemanager', action: 'get'},
+            'Create Der Control': {servicename: 'dercontrolmanager', action: 'post'},
+            'Get All Der Controls': {servicename: 'dercontrolmanager', action: 'get'},
+            'Get A Der Control': {servicename: 'dercontrolmanager', action: 'get'},
+            'Create Der': {servicename: 'dermanager', action: 'post'},
+            'Get Der': {servicename: 'dermanager', action: 'get'},
+            'Get A Der Capability': {servicename: 'dermanager', action: 'get', extraPayload: {derCapabilities: true}},
+            'Get A Der Settings': {servicename: 'dermanager', action: 'get', extraPayload: {derSettings: true}},
+            'Power Generation Test': {servicename: 'dermanager', action: 'powergeneration'},
+            'Reactive Power Test': {servicename: 'dermanager', action: 'reactivepower'}
+        };
+        return mapping[testName] || {servicename: '', action: 'post'};
     }
 
     static #generateErrorReport(error, testName){
@@ -44,15 +87,101 @@ export default class Client{
         };
     }
 
+    static #generateStoredValuesResponse(testObject, serverResponse){
+        const {action} = Client.#getServiceInfo(testObject.test);
+        const isGet = action === 'get' || action === 'powergeneration' || action === 'reactivepower';
+
+        if(isGet){
+            const raw = serverResponse?.payload ?? serverResponse;
+            
+            if ((action === 'powergeneration' || action === 'reactivepower') && raw?.xmlOnly) {
+                return {
+                  Feature: testObject.test,
+                  Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+                  Scenario: 'Validation in progress',
+                  'End result': 'retrieved',
+                  Steps: [
+                    {
+                      Keyword: 'Check ',
+                      Name: 'XML Validation Panel for results',
+                      Result: 'passed',
+                      'Error message': '',
+                      Value: 'See XML Validation Panel',
+                      FetchedData: 'See XML Validation Panel'
+                    }
+                  ]
+                };
+            }
+            
+            const payloadStr = (raw && raw.xml) ? raw.xml
+                : typeof raw === 'string' ? raw
+                : JSON.stringify(raw, null, 2);
+            return {
+              Feature: testObject.test,
+              Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+              Scenario: 'Data retrieved successfully',
+              'End result': 'retrieved',
+              Steps: [
+                {
+                  Keyword: 'Retrieved ',
+                  Name: testObject.test + ' Results',
+                  Result: 'passed',
+                  'Error message': '',
+                  Value: payloadStr,
+                  FetchedData: payloadStr
+                }
+              ]
+            };
+        }
+
+        const storedValues = Object.entries(testObject.object)
+            .filter(([k,v]) => v !== '')
+            .map(([k,v]) => `${k}: ${v}`)
+            .join(', ');
+        
+        return {
+          Feature: testObject.test,
+          Tag: '@'+testObject.test.split(' ').slice(0,2).join(''),
+          Scenario: 'Values stored successfully',
+          'End result': 'stored',
+          Steps: [
+            {
+              Keyword: 'Stored ',
+              Name: 'Values saved to application server',
+              Result: 'passed',
+              'Error message': '',
+              Value: storedValues || 'No values provided'
+            }
+          ]
+        };
+    }
+
     static getTests(){
         return Client.#tests;
+    }
+
+    static getTestsByPart(part){
+        switch(part) {
+            case 1: return Client.#tests.filter(t => t.index >= 0 && t.index <= 7);
+            case 2: return Client.#tests.filter(t => t.index >= 8 && t.index <= 21);
+            case 3: return Client.#tests.filter(t => t.index >= 22);
+            default: return Client.#tests;
+        }
+    }
+
+    static getTestPart(index){
+        if(index >= 0 && index <= 7) return 1;
+        if(index >= 8 && index <= 21) return 2;
+        if(index >= 22) return 3;
+        return 1;
     }
 
     static #tests=[
         {
             index:0,
             test:'Device Capability', 
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 'endDeviceListLink':'',
@@ -64,7 +193,8 @@ export default class Client{
         {
             index:1,
             test:'Get All End Devices',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{},
         },
@@ -72,61 +202,67 @@ export default class Client{
         {
             index:2,
             test:'Create End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
                 'lfdi':'',
                 'Device Category':'',
                 'sfdi':'',
                 'Registration Link':'',
-                'Functionset Assignment Link':'',
+                'FunctionSetAssignment Link':'',
                 'Subscription Link':'',
                 'Device Status Link':'',
-                'End Device List Link':'',
-                'DER List Link':'',
+                'End DeviceList Link':'',
+                'DERList Link':'',
             },
         },
         {
             index:3,
             test:'Get An End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
-                id:''
+                ID:''
                 
             },
         },
         {
             index:4,
             test:'Register End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 registrationPin:''
             },
         },
         {
             index:5,
             test:'Get Registered End Device',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 registrationID:''
             }
         },
         {
             index:6,
             test:'Time',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{}
         },
         {
             index:7,
             test:'Advanced Time',
-            desc:'description',
+            desc:'Part 1: Basic Device Setup',
+            part: 1,
             args: false,
             object:{}
         },
@@ -134,10 +270,11 @@ export default class Client{
         {
             index:8,
             test:'Get All Function Set Assignments',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 
             }
         },
@@ -145,10 +282,11 @@ export default class Client{
         {
             index:9,
             test:'Create Function Set Assignments',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 mRID:'',
                 description:'',
                 subscribable:'',
@@ -167,10 +305,11 @@ export default class Client{
         {
             index:10,
             test:'Get A Function Set Assignments',
-            desc:'description', 
+            desc:'Part 2: Function Sets & DER Programs', 
+            part: 2,
             args: true,
             object:{
-                endDeviceId:'',
+                endDeviceID:'',
                 fsaID:''
             }
         },
@@ -178,7 +317,8 @@ export default class Client{
         {
             index:11,
             test:'Create Der Program', 
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -198,7 +338,8 @@ export default class Client{
         {
             index:12,
             test:'Get All Der Programs',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -207,7 +348,8 @@ export default class Client{
         {
             index:13,
             test:'Get A Der Program',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 fsaID:'',
@@ -219,7 +361,8 @@ export default class Client{
         {
             index:14,
             test:'Create Der Curve',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derProgramId:'',
@@ -256,7 +399,8 @@ export default class Client{
         {
             index:15,
             test:'Get All Der Curves',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -265,7 +409,8 @@ export default class Client{
         {
             index:16,
             test:'Get A Der Curve',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -276,7 +421,8 @@ export default class Client{
         {
             index:17,
             test:'Create Der Control',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derProgramId:'',
@@ -291,6 +437,8 @@ export default class Client{
                 potentiallySuperseded: '',
                 randomizeDuration: '',
                 randomizeStart: '',
+                opModChargeMode: '',
+                opModDischargeMode: '',
                 opModConnect: '',
                 opModEnergize: '',
                 opModFixedPFAbsorbW: '',
@@ -309,7 +457,7 @@ export default class Client{
                 opModLVRTMayTrip: '',
                 opModLVRTMomentaryCessation: '',
                 opModLVRTMustTrip: '',
-                opModMaxLimW: '',
+                IntegeropModMaxLimW: '',
                 opModTargetVar: '',
                 opModTargetW: '',
                 opModVoltVar: '',
@@ -323,7 +471,8 @@ export default class Client{
         {
             index:18,
             test:'Get All Der Controls',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -332,7 +481,8 @@ export default class Client{
         {
             index:19,
             test:'Get A Der Control',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 derpID:'',
@@ -342,7 +492,8 @@ export default class Client{
         {
             index:20,
             test:'Create Der',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceID:'',
@@ -358,7 +509,8 @@ export default class Client{
         {
             index:21,
             test:'Get Der',
-            desc:'description',
+            desc:'Part 2: Function Sets & DER Programs',
+            part: 2,
             args: true,
             object:{
                 endDeviceID:'',
@@ -367,115 +519,51 @@ export default class Client{
         },
         {
             index:22,
-            test:'Create Der Capability',
-            desc:'description',
-            hidden: true,
+            test:'Get A Der Capability',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args: true,
             object:{
-                derId:'',
-                derCapabilityLink:'',
-                modesSupported:'',
-                rtgAbnormalCategory:'',
-                rtgMaxA:'',
-                rtgMaxAh:'',
-                rtgMaxChargeRateVA:'',
-                rtgMaxChargeRateW:'',
-                rtgMaxDischargeRateVA:'',
-                rtgMaxDischargeRateW:'',
-                rtgMaxV:'',
-                rtgMaxVA:'',
-                rtgMaxVar:'',
-                rtgMaxVarNeg:'',
-                rtgMaxW:'',
-                rtgMaxWh:'',
-                rtgMinPFOverExcited:'',
-                rtgMinPFUnderExcited:'',
-                rtgMinV:'',
-                rtgNormalCategory:'',
-                rtgOverExcitedPF:'',
-                rtgOverExcitedW:'',
-                rtgReactiveSusceptance:'',
-                rtgUnderExcitedPF:'',
-                rtgUnderExcitedW:'',
-                rtgVNom:'',
-                derType:''
+                derID:'',
+                endDeviceID:''
 
             }
         },
 
         {
             index:23,
-            test:'Get A Der Capability',
-            desc:'description',
+            test:'Get A Der Settings',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args: true,
             object:{
                 derID:'',
-                endDeviceId:''
+                endDeviceID:''
 
             }
         },
+
         {
             index:24,
-            test:'Create Der Settings',
-            desc:'description',
-            hidden: true,
-            args: true,
-            object:{
-                   derId:'',
-                   derSettingsLink:'',
-                   modesEnabled:'',
-                   setESDelay:'',
-                   setESHighFreq:'',
-                   setESHighVolt:'',
-                   setESLowVolt:'',
-                   setESRampTms:'',
-                   setESRandomDelay:'',
-                   setGradW:'',
-                   setSoftGradW:'',
-                   setMaxA:'',
-                   setMaxChargeRateVA:'',
-                   setMaxChargeRateW:'',
-                   setMaxDischargeRateVA:'',
-                   setMaxDischargeRateW:'',
-                   setMaxV:'',
-                   setMaxVA:'',
-                   setMaxVar:'',
-                   setMaxVarNeg:'',
-                   setMaxW:'',
-                   setMaxWh:'',
-                   setMinPFOverExcited:'',
-                   setMinPFUnderExcited:'',
-                   setMinV:'',
-                   setVNom:'',
-                   setVRef:'',
-                  
-
-            }
-
-        },
-
-        {
-            index:25,
-            test:'Get A Der Settings',
-            desc:'description',
-            args: true,
-            object:{
-                derID:'',
-                endDeviceId:''
-
-            }
-        },
-
-        {
-            index:26,
             test:'Power Generation Test',
-            desc:'description',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
             args:true,
             object:{
-                endDeviceId:'',
-                derID:'',
-                setMaxW:'',
-                setMaxVA:''
+                endDeviceID:'',
+                derID:''
+
+            }
+        },
+        {
+            index:25,
+            test:'Reactive Power Test',
+            desc:'Part 3: Advanced DER Configuration',
+            part: 3,
+            args:true,
+            object:{
+                endDeviceID:'',
+                derID:''
 
             }
         }
@@ -488,32 +576,32 @@ export default class Client{
         }
         ,
         'Get An End Device':{
-            id:(field)=>{return !isNaN(field)}
+            ID:(field)=>{return !isNaN(field)}
         }
         ,
         'Register End Device':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             registrationPin:(field)=>{return !isNaN(field)}
         }
         ,
         'Get Registered End Device':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             registrationID:(field)=>{return !isNaN(field)}
         }
         ,
         'Get All Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)}
+            endDeviceID:(field)=>{return !isNaN(field)}
         }
         ,
         'Create Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             mRID: (field) => field.trim() !== "",
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)}
         }, 
 
         'Get A Function Set Assignments':{
-            endDeviceId:(field)=>{return !isNaN(field)},
+            endDeviceID:(field)=>{return !isNaN(field)},
             fsaID:(field)=>{return !isNaN(field)}
         },
         
@@ -523,11 +611,7 @@ export default class Client{
             primacy:(field)=>{return !isNaN(field)},
             subscribable:(field)=>{return !isNaN(field)},
             version:(field)=>{return !isNaN(field)},
-            // activeDERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // defaultDERControlLink: (field) => field === null || field === "" || typeof field === 'string',
-            // dERControlListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // dERCurveListLink: (field) => field === null || field === "" || typeof field === 'string',
-            // derpLink: (field) => field === null || field === "" || typeof field === 'string'
+            
    
         },
 
@@ -541,6 +625,14 @@ export default class Client{
         'Get Der':{
             endDeviceID:(field)=>{return !isNaN(field)},
             derID:(field)=> {return !isNaN(field)}
+        },
+        'Power Generation Test':{
+            endDeviceID:(field)=>{return !isNaN(field)},
+            derID:(field)=> {return !isNaN(field)}
+        },
+        'Reactive Power Test':{
+            endDeviceID:(field)=>{return !isNaN(field)},
+            derID:(field)=> {return !isNaN(field)}
         }
 
     }
@@ -548,12 +640,31 @@ export default class Client{
     static getValid(key){
         return Client.#validationObject[key];
     }
+
+    static async getXmlValidationResults(){
+        try{
+            const res = await fetch(Client.#baseUrl + '/xml-validation/results')
+            const data = await res.json()
+            return data;
+        }
+        catch(err){
+            console.log('Error fetching XML validation results:', err)
+            return [];
+        }
+    }
+
+    static async clearXmlValidationResults(){
+        try{
+            await fetch(Client.#baseUrl + '/xml-validation/results', {
+                method: 'DELETE'
+            })
+            return true;
+        }
+        catch(err){
+            console.log('Error clearing XML validation results:', err)
+            return false;
+        }
+    }
 }
 
 
-/*
-
- {"payload":{"demandResponseProgramListLink":"","responseSetListLink":"","fileListLink":"","traiffProfileListLink":"","description":"der program fsa","usagePointListLink":"","version":"1","prepaymentListLink":"","mRID":"A1000000","endDeviceId":"1","messagingProgramListLink":"","customerAccountListLink":"","dERProgramListLink":"","subscribable":"1"},"action":"post","servicename":"createFsamanager"}
-
-
-*/

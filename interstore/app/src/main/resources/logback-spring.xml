@@ -22,12 +22,12 @@
 
     <logger name="interstore.NatsSubscriber" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="LOGSTASH"/>
+        <!-- <appender-ref ref="LOGSTASH"/> -->
     </logger>
 
     <logger name="interstore.NatsPublisher" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="LOGSTASH"/>
+        <!-- <appender-ref ref="LOGSTASH"/> -->
     </logger>
 
     <root level="INFO">

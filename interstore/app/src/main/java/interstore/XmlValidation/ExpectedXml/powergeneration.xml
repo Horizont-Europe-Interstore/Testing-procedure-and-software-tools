@@ -1,0 +1,25 @@
+<PowerGeneration xmlns="urn:ieee:std:2030.5:ns">
+    <modesSupported>05BD696B</modesSupported>
+    <rtgMaxVA>
+        <multiplier>0</multiplier>
+        <value>6800</value>
+    </rtgMaxVA>
+    <rtgMaxW>
+        <multiplier>0</multiplier>
+        <value>6000</value>
+    </rtgMaxW>
+   <setMaxW>
+        <multiplier>0</multiplier>
+        <value>6000</value>
+    </setMaxW>
+    <setMaxVA>
+        <multiplier>0</multiplier>
+        <value>6600</value>
+    </setMaxVA>
+    <modes>
+     opModMaxLimW
+     opModVoltWatt
+     opModFixedVAr
+     opModFixedPF
+    </modes>
+</PowerGeneration>

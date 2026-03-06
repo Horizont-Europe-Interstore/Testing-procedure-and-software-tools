@@ -13,6 +13,12 @@ public class DERControlBase implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "opModChargeMode")
+    private Boolean opModChargeMode;
+
+    @Column(name = "opModDischargeMode")
+    private Boolean opModDischargeMode;
+
     @Column(name = "opModConnect")
     private Boolean opModConnect;
 
@@ -98,6 +104,21 @@ public class DERControlBase implements Serializable {
         return id;
     }
 
+    public Boolean getOpModChargeMode() {
+        return opModChargeMode;
+    }
+
+    public void setOpModChargeMode(Boolean opModChargeMode) {
+        this.opModChargeMode = opModChargeMode;
+    }
+
+    public Boolean getOpModDischargeMode() {
+        return opModDischargeMode;
+    }
+
+    public void setOpModDischargeMode(Boolean opModDischargeMode) {
+        this.opModDischargeMode = opModDischargeMode;
+    }
 
     public Boolean getOpModConnect() {
         return opModConnect;

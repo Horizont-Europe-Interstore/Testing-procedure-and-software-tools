@@ -1,4 +1,5 @@
 package interstore.FunctionSetAssignments;
+import interstore.DERProgram.DERProgramRepository;
 import interstore.EndDevice.EndDeviceEntity;
 import interstore.EndDevice.EndDeviceRepository;
 import interstore.Types.HexBinary128;
@@ -30,6 +31,9 @@ public class FunctionSetAssignmentsService {
     
     @Autowired
     private EndDeviceRepository endDeviceRepository;
+
+    @Autowired
+    private DERProgramRepository derProgramRepository;
 
     private static final Logger LOGGER = Logger.getLogger(FunctionSetAssignmentsService.class.getName());
 
@@ -167,7 +171,7 @@ public String getAllFunctionsetAssignmentsHttp(Long endDeviceId){
 
     if (fsaEntityList.isEmpty()) {
         String emptyXml =
-            "<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" " +
+            "<FunctionSetAssignmentsList xmlns=\"urn:ieee:std:2030.5:ns\" " +
             "all=\"0\" href=\"/edev/" + endDeviceId + "/fsa\" results=\"0\" subscribable=\"0\">" +
             "<message>No FunctionSetAssignments found</message>" +
             "</FunctionSetAssignmentsList>";
@@ -176,7 +180,7 @@ public String getAllFunctionsetAssignmentsHttp(Long endDeviceId){
     }
 
     StringBuilder xml = new StringBuilder();
-    xml.append("<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" ")
+    xml.append("<FunctionSetAssignmentsList xmlns=\"urn:ieee:std:2030.5:ns\" ")
        .append("all=\"").append(fsaEntityList.size()).append("\" ")
        .append("href=\"").append(stripHost(endDeviceRepository.findById(endDeviceId).get().getFunctionSetAssignmentsListLink())).append("\" ")
        .append("results=\"").append(fsaEntityList.size()).append("\" ")
@@ -204,8 +208,12 @@ public String getAllFunctionsetAssignmentsHttp(Long endDeviceId){
             Object value = method.invoke(fsa);
 
             if (value != null) {
+                int count = 0;
+                if (entry.getKey().equals("getDERProgramListLink")) {
+                    count = (int) derProgramRepository.findByFsaEntity_Id(fsa.getId()).stream().count();
+                }
                 xml.append("    <").append(entry.getValue()).append(" href=\"")
-                   .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                   .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
             }
         }
 
@@ -224,7 +232,7 @@ public String getAllFunctionsetAssignmentsHttp(Long endDeviceId){
 
 } catch (Exception e) {
     LOGGER.log(Level.SEVERE, "Error retrieving functionSetAssignments", e);
-    return "<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev/" + endDeviceId + "/fsa\" results=\"0\" subscribable=\"0\">\n" +
+    return "<FunctionSetAssignmentsList xmlns=\"urn:ieee:std:2030.5:ns\" all=\"0\" href=\"/edev/" + endDeviceId + "/fsa\" results=\"0\" subscribable=\"0\">\n" +
            "<error>Some error occurred</error>\n" +
            "</FunctionSetAssignmentsList>";
 }
@@ -367,7 +375,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
             Optional<FunctionSetAssignmentsEntity> fsaEntityOptional = functionSetAssignmentsRepository.findFirstByEndDeviceIdAndId(endDeviceId, fsaId);
 
             if (fsaEntityOptional.isEmpty()) {
-                return "<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" " +
+                return "<FunctionSetAssignments xmlns=\"urn:ieee:std:2030.5:ns\" " +
                        "href=\"" + stripHost(endDeviceRepository.findById(endDeviceId).get().getFunctionSetAssignmentsListLink()) + "/" + fsaId + "\" " +
                        "subscribable=\"0\">\n" +
                        "<message>No FunctionSetAssignments found for EndDevice ID " + endDeviceId + " and FSA ID " + fsaId + "</message>\n" +
@@ -376,7 +384,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
 
             FunctionSetAssignmentsEntity fsa = fsaEntityOptional.get();
             StringBuilder xml = new StringBuilder();
-            xml.append("<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" ")
+            xml.append("<FunctionSetAssignments xmlns=\"urn:ieee:std:2030.5:ns\" ")
                .append("href=\"").append(stripHost(fsa.getFunctionSetAssignmentsLink())).append("\" subscribable=\""+ fsa.getSubscribable() + "\">\n");
 
             // Map of fields to XML tag names
@@ -397,8 +405,12 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
                     Method method = FunctionSetAssignmentsEntity.class.getMethod(entry.getKey());
                     Object value = method.invoke(fsa);
                     if (value != null) {
+                        int count = 0;
+                        if (entry.getKey().equals("getDERProgramListLink")) {
+                            count = (int) derProgramRepository.findByFsaEntity_Id(fsa.getId()).stream().count();
+                        }
                         xml.append(" <").append(entry.getValue()).append(" href=\"")
-                           .append(stripHost(value.toString())).append("\" all=\"0\"/>\n");
+                           .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                     LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);
@@ -417,7 +429,7 @@ public ResponseEntity<Map<String, Object>> getAllFunctionsetAssignments(Long end
             return xml.toString();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving FunctionSetAssignment", e);
-            return "<FunctionSetAssignments xmlns=\"http://ieee.org/2030.5\" " +
+            return "<FunctionSetAssignments xmlns=\"urn:ieee:std:2030.5:ns\" " +
                    "href=\"" + stripHost(endDeviceRepository.findById(endDeviceId).get().getFunctionSetAssignmentsListLink()) + "/" + fsaId + "\" " +
                    "subscribable=\"0\">\n" +
                    "<error>Some error occurred</error>\n" +

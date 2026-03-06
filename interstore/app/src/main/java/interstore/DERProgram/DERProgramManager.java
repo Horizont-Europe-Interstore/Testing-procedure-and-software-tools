@@ -67,17 +67,14 @@ public class DERProgramManager {
     
        public Map<String, Object> getDERPrograms(JSONObject payload) throws JSONException 
       {
-         if(payload.has("derID"))
-         {  
+         if (payload.has("payload")) payload = payload.getJSONObject("payload");
+         if(payload.has("derID")) {
              Long derID = payload.getLong("derID");
-             LOGGER.info("the received payload in the DER program Manager for Get A DER Program is " +  payload);
-             return getDerProgramDetails(derID);
+             String xml = this.derProgramService.getDerProgramHttp(derID);
+             return Map.of("xml", xml != null ? xml : "");
          }
-
-        else{
-            LOGGER.info("the received payload in the DER program Manager for Get All DER Program is " +  payload);
-            return getAllDERProgramDetails();
-        }
+         String xml = this.derProgramService.getAllDerProgramsHttp();
+         return Map.of("xml", xml != null ? xml : "");
       }
 
 
@@ -149,6 +146,8 @@ public class DERProgramManager {
         }
     }
 
+
+
     public Map<String, Object> getDerProgramDetails(@PathVariable Long derpID) throws JSONException {
         ResponseEntity<Map<String, Object>> responseEntity = this.derProgramService.getDerProgram(derpID);
         return  responseEntity.getBody();
@@ -172,18 +171,4 @@ public class DERProgramManager {
 
 
 
- /*
-     * public DERProgramEntity getDERProgramById(String id) throws NumberFormatException, NotFoundException {
-        Long longId = Long.parseLong(id);
-        ResponseEntity<Map<String, Object>> derProgramEntity = this.derProgramService.getDerProgramById(longId);
-        return derProgramEntity;
-    }
-     */
-
-     
-     /*  public static String EndDeviceListLinktest()
-    { 
-       expected payload is 
-       "payload" : {
-        derprogramLink :  }
-   */
+ 

@@ -188,7 +188,8 @@ std::string forward_to_java(const std::string& method, const std::string& path, 
 
     if(curl) {
 
-        std::string url = "http://java-backend:8080" + path;
+        std::string url = "http://java-backend:8080" + path;   // here instead of the java-backend user has to specify which ip where the 
+                                                                // the corresponding ip of the testing software. 
 
         std::cerr << "Forwarding to URL: " << url << " [Method: " << method << "]" << std::endl;
 

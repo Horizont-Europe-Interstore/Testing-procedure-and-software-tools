@@ -1,0 +1,10 @@
+<DERSettings xmlns="urn:ieee:std:2030.5:ns" href="">
+    <setMaxVA>
+        <multiplier></multiplier>
+        <value></value>
+    </setMaxVA>
+    <setMaxW>
+        <multiplier></multiplier>
+        <value></value>
+    </setMaxW>
+</DERSettings>

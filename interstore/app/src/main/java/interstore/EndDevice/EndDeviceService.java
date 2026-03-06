@@ -6,6 +6,7 @@ import interstore.DER.*;
 import interstore.EndDevice.DeviceInformation.DeviceInformationEntity;
 import interstore.EndDevice.DeviceInformation.DeviceInformationRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsEntity;
+import interstore.FunctionSetAssignments.FunctionSetAssignmentsRepository;
 import interstore.FunctionSetAssignments.FunctionSetAssignmentsService;
 import interstore.Identity.Link;
 import interstore.Identity.ListLink;
@@ -44,6 +45,8 @@ public class EndDeviceService {
     private RegistrationRepository registrationRepository;
     @Autowired
     private DerRepository derRepository;
+    @Autowired
+    private FunctionSetAssignmentsRepository functionSetAssignmentsRepository;
     @Autowired
     private DeviceInformationRepository deviceInformationRepository;
     private static final Logger LOGGER = Logger.getLogger(EndDeviceService.class.getName());
@@ -139,7 +142,7 @@ public class EndDeviceService {
             List<EndDeviceEntity> endDeviceList = endDeviceRepository.findAll();
 
             if (endDeviceList.isEmpty()) {
-                String emptyXml = "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" " +
+                String emptyXml = "<EndDeviceList xmlns=\"urn:ieee:std:2030.5:ns\" " +
                                   "all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
                                   "<message>No EndDevices found</message>\n" +
                                   "</EndDeviceList>";
@@ -152,7 +155,7 @@ public class EndDeviceService {
             }
 
             StringBuilder xml = new StringBuilder();
-            xml.append("<EndDeviceList xmlns=\"http://ieee.org/2030.5\" ")
+            xml.append("<EndDeviceList xmlns=\"urn:ieee:std:2030.5:ns\" ")
                .append("all=\"").append(totalCount).append("\" ")
                .append("href=\"/edev\" ")
                .append("results=\"").append(endDeviceList.size()).append("\" ")
@@ -210,6 +213,10 @@ public class EndDeviceService {
                                     // Query the actual count of DER resources for this EndDevice
                                     int derCount = derRepository.findByEndDeviceId(endDeviceDto.getId()).size();
                                     xml.append(" all=\"").append(derCount).append("\"");
+                                } else if (xmlName.equals("FunctionSetAssignmentsListLink")) {
+                                    // Query the actual count of FSA resources for this EndDevice
+                                    int fsaCount = functionSetAssignmentsRepository.findByEndDeviceId(endDeviceDto.getId()).size();
+                                    xml.append(" all=\"").append(fsaCount).append("\"");
                                 } else {
                                     xml.append(" all=\"0\"");
                                 }
@@ -227,7 +234,7 @@ public class EndDeviceService {
             return xml.toString();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceList", e);
-            return "<EndDeviceList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
+            return "<EndDeviceList xmlns=\"urn:ieee:std:2030.5:ns\" all=\"0\" href=\"/edev\" results=\"0\" subscribable=\"0\">\n" +
                    "<error>Some error occurred</error>\n" +
                    "</EndDeviceList>";
         }
@@ -311,10 +318,10 @@ public class EndDeviceService {
         try {
         EndDeviceEntity endDeviceDto = endDeviceRepository.findById(id).orElse(null);
         if (endDeviceDto == null) {
-            return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>No endDevice found.</message></EndDevice>";
+            return "<EndDevice xmlns=\"urn:ieee:std:2030.5:ns\"><message>No endDevice found.</message></EndDevice>";
         }
         StringBuilder xml = new StringBuilder();
-        xml.append("<EndDevice xmlns=\"http://ieee.org/2030.5\" href=\"")
+        xml.append("<EndDevice xmlns=\"urn:ieee:std:2030.5:ns\" href=\"")
            .append(stripHost(endDeviceDto.getEndDeviceLink()))
            .append("\" subscribable=\"0\">\n");
         // Fields in IEEE 2030.5 preferred order
@@ -346,6 +353,10 @@ public class EndDeviceService {
                             // Query the actual count of DER resources for this EndDevice
                             int derCount = derRepository.findByEndDeviceId(id).size();
                             xml.append(" all=\"").append(derCount).append("\"");
+                        } else if (xmlName.equals("FunctionSetAssignmentsListLink")) {
+                            // Query the actual count of FSA resources for this EndDevice
+                            int fsaCount = functionSetAssignmentsRepository.findByEndDeviceId(id).size();
+                            xml.append(" all=\"").append(fsaCount).append("\"");
                         } else {
                             xml.append(" all=\"0\"");
                         }
@@ -360,7 +371,7 @@ public class EndDeviceService {
         return xml.toString();
     } catch (Exception e) {
         LOGGER.log(Level.SEVERE, "Error retrieving EndDeviceDto", e);
-        return "<EndDevice xmlns=\"http://ieee.org/2030.5\"><message>Error retrieving EndDevice</message></EndDevice>";
+        return "<EndDevice xmlns=\"urn:ieee:std:2030.5:ns\"><message>Error retrieving EndDevice</message></EndDevice>";
     }
     }
  
@@ -495,13 +506,19 @@ public class EndDeviceService {
     public Map<String, Object> registerEndDevice(Long registrationPinLong, Long endDeviceID)
     {
 
-        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceID(endDeviceID);
         if (!registrationDtos.isEmpty()) {
             throw new IllegalStateException("EndDevice with ID " + endDeviceID + " is already registered.");
         }
         EndDeviceEntity endDeviceDto = this.findEndDeviceById(endDeviceID);
         String endDeviceRegistrationLink = endDeviceDto.getRegistrationLink();   // the registration link has to be present for cross check
         RegistrationEntity registrationDto = new RegistrationEntity();
+        
+        // Set all fields BEFORE saving
+        registrationDto.setPin(registrationPinLong);
+        registrationDto.setEndDeviceId(endDeviceID);
+        registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
+        
         try {
             LOGGER.log(Level.INFO, "Registration Repository", registrationRepository);
             registrationDto = registrationRepository.save(registrationDto);
@@ -509,11 +526,10 @@ public class EndDeviceService {
             LOGGER.log(Level.SEVERE, "Failed to save RegistrationDto", e);
             throw e;
         }
-        registrationDto.setPin(registrationPinLong);
-        registrationDto.setEndDevice(endDeviceDto);
-        registrationDto.setDateTimeRegistered(String.valueOf(System.currentTimeMillis()));
+        
         endDeviceRegistrationLink = endDeviceRegistrationLink + "/" + registrationDto.getId();
         registrationDto.setLinkRgid( endDeviceRegistrationLink);
+        registrationDto = registrationRepository.save(registrationDto);
         return getEndDeviceRegistrationID(registrationDto);
     }
 
@@ -532,7 +548,7 @@ public class EndDeviceService {
    public ResponseEntity<Map<String, Object>> getAllRegisteredEndDevice(Long endDeviceID )
    {
         try {
-            List<RegistrationEntity> registrationDtos  = registrationRepository.findByEndDeviceId(endDeviceID);
+            List<RegistrationEntity> registrationDtos  = registrationRepository.findByEndDeviceID(endDeviceID);
             LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
             List<Map<String, Object>> registrationDetails = registrationDtos.stream()
             .map(reg -> Map.<String, Object>of(
@@ -561,10 +577,18 @@ public class EndDeviceService {
     public String getRegisteredEndDevice(Long endDeviceID )
    {
         try {
-        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceId(endDeviceID);
+        List<RegistrationEntity> registrationDtos = registrationRepository.findByEndDeviceID(endDeviceID);
+        LOGGER.log(Level.INFO, "RegisteredEndDevices retrieved successfully" + registrationDtos);
+        if (registrationDtos.isEmpty()) {
+            List<RegistrationEntity> all = registrationRepository.findAll();
+            LOGGER.log(Level.INFO, "ALL registrations in DB: " + all.size());
+            for (RegistrationEntity r : all) {
+                LOGGER.log(Level.INFO, "reg id=" + r.getId() + " endDeviceID=" + r.getEndDeviceId() + " pin=" + r.getPin());
+            }
+        } 
 
         if (registrationDtos.isEmpty()) {
-            return "<Registration xmlns=\"http://ieee.org/2030.5\">" +
+            return "<Registration xmlns=\"urn:ieee:std:2030.5:ns\">" +
                    "<message>No RegisteredEndDevices found for EndDevice ID " + endDeviceID + "</message>" +
                    "</Registration>";
         }
@@ -572,7 +596,7 @@ public class EndDeviceService {
         StringBuilder xml = new StringBuilder();
         
         for (RegistrationEntity reg : registrationDtos) {
-            xml.append("<Registration xmlns=\"http://ieee.org/2030.5\" href=\"")
+            xml.append("<Registration xmlns=\"urn:ieee:std:2030.5:ns\" href=\"")
                .append(stripHost(endDeviceRepository.findById(endDeviceID).get().getRegistrationLink()))
                .append("\">\n");
 
@@ -596,7 +620,7 @@ public class EndDeviceService {
 
         } catch (Exception e) {
         LOGGER.log(Level.SEVERE, "Error retrieving RegisteredEndDevices", e);
-        return "<Registration xmlns=\"http://ieee.org/2030.5\">" +
+        return "<Registration xmlns=\"urn:ieee:std:2030.5:ns\">" +
                "<message>Error retrieving RegisteredEndDevices</message>" +
                "</Registration>";
         }
@@ -606,9 +630,9 @@ public class EndDeviceService {
     {
         
         try {
-            Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDeviceIdAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
+            Optional<RegistrationEntity> registrationDto  = registrationRepository.findFirstByEndDeviceIDAndId( endDeviceID,  registrationID) ;  //findFirstByEndDeviceId(endDeviceID);
             Map<String, Object> result = new HashMap<>();
-            if (registrationDto == null) {
+            if (!registrationDto.isPresent()) {
                 result.put("message", "No RegisteredEndDevice found for EndDevice ID " + endDeviceID + " and Registration ID " + registrationID);
             } else {
                 result.put("RegisteredEndDevice", registrationDto.get());
@@ -621,16 +645,15 @@ public class EndDeviceService {
 }
 
     public EndDeviceEntity getEndDeviceByRegistrationID(Long id){
-        Optional<RegistrationEntity> registrationDto = registrationRepository.findById(id);
-        EndDeviceEntity endDeviceDto = registrationDto.get().getEndDevice();
-        return endDeviceDto;
+        RegistrationEntity registrationDto = registrationRepository.findById(id).get();
+        return endDeviceRepository.findById(registrationDto.getEndDeviceId()).orElse(null);
     }
 
     public String getFunctionSetAssignmentHttp(Long id) {
         try {
             // Mock FunctionSetAssignmentsList for EndDevice with given id
             StringBuilder xml = new StringBuilder();
-            xml.append("<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" ")
+            xml.append("<FunctionSetAssignmentsList xmlns=\"urn:ieee:std:2030.5:ns\" ")
                .append("all=\"1\" href=\"/edev/").append(id).append("/fsa\" ")
                .append("results=\"1\" subscribable=\"0\">\n");
             
@@ -644,7 +667,7 @@ public class EndDeviceService {
             return xml.toString();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error retrieving FunctionSetAssignmentsList", e);
-            return "<FunctionSetAssignmentsList xmlns=\"http://ieee.org/2030.5\" all=\"0\" href=\"/edev/" + id + "/fsa\" results=\"0\" subscribable=\"0\">\n" +
+            return "<FunctionSetAssignmentsList xmlns=\"urn:ieee:std:2030.5:ns\" all=\"0\" href=\"/edev/" + id + "/fsa\" results=\"0\" subscribable=\"0\">\n" +
                    "<message>Error retrieving FunctionSetAssignments</message>\n" +
                    "</FunctionSetAssignmentsList>";
         }

@@ -1,0 +1,20 @@
+<PowerGeneration xmlns="urn:ieee:std:2030.5:ns">
+    <modesSupported></modesSupported>
+    <rtgMaxVA>
+        <multiplier></multiplier>
+        <value></value>
+    </rtgMaxVA>
+    <rtgMaxW>
+        <multiplier></multiplier>
+        <value></value>
+    </rtgMaxW>
+    <setMaxW>
+        <multiplier></multiplier>
+        <value></value>
+    </setMaxW>
+    <setMaxVA>
+        <multiplier></multiplier>
+        <value></value>
+    </setMaxVA>
+    <modes></modes>
+</PowerGeneration>

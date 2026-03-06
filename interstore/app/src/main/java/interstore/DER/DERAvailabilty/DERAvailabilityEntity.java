@@ -22,20 +22,24 @@ public class DERAvailabilityEntity {
     @Column(name = "maxChargeDuration")
     private Long maxChargeDuration;  
 
-    @Column(name = "readingTimeAvailability")
-    private String readingTimeAvailability; 
+    @Column(name = "readingTime")
+    private Long readingTime; 
 
     @Column(name = "reserveChargePercent")
-    private Double reserveChargePercent;  
+    private Integer reserveChargePercent;  
 
     @Column(name = "reservePercent")
-    private Double reservePercent;  
+    private Integer reservePercent;  
 
-    @Column(name = "statVarAvail")
-    private Double statVarAvail;  
+    @Column(name = "statVarAvailMultiplier")
+    private Integer statVarAvailMultiplier;  
+    @Column(name = "statVarAvailValue")
+    private Integer statVarAvailValue;
 
-    @Column(name = "statWAvail")
-    private Double statWAvail;
+    @Column(name = "statWAvailMultiplier")
+    private Integer statWAvailMultiplier;
+    @Column(name = "statWAvailValue")
+    private Integer statWAvailValue;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "der_entity") 
@@ -60,44 +64,60 @@ public class DERAvailabilityEntity {
         this.maxChargeDuration = maxChargeDuration;
     }
 
-    public Double getReserveChargePercent() {
+    public Integer getReserveChargePercent() {
         return reserveChargePercent;
     }
 
-    public void setReserveChargePercent(Double reserveChargePercent) {
+    public void setReserveChargePercent(Integer reserveChargePercent) {
         this.reserveChargePercent = reserveChargePercent;
     }
 
-    public Double getReservePercent() {
+    public Integer getReservePercent() {
         return reservePercent;
     }
 
-    public void setReservePercent(Double reservePercent) {
+    public void setReservePercent(Integer reservePercent) {
         this.reservePercent = reservePercent;
     }
 
-    public Double getStatVarAvail() {
-        return statVarAvail;
+    public Integer getStatVarAvailMultiplier() {
+        return statVarAvailMultiplier;
     }
 
-    public void setStatVarAvail(Double statVarAvail) {
-        this.statVarAvail = statVarAvail;
+    public void setStatVarAvailMultiplier(Integer statVarAvailMultiplier) {
+        this.statVarAvailMultiplier = statVarAvailMultiplier;
+    }
+
+    public Integer getStatVarAvailValue() {
+        return statVarAvailValue;
+    }
+
+    public void setStatVarAvailValue(Integer statVarAvailValue) {
+        this.statVarAvailValue = statVarAvailValue;
     }
    
-    public Double getStatWAvail() {
-        return statWAvail;
+    public Integer getStatWAvailMultiplier() {
+        return statWAvailMultiplier;
     }
 
-    public void setStatWAvail(Double statWAvail) {
-        this.statWAvail = statWAvail;
+    public void setStatWAvailMultiplier(Integer statWAvailMultiplier) {
+        this.statWAvailMultiplier = statWAvailMultiplier;
     }
 
-    public String getReadingTimeAvailability() {
-        return readingTimeAvailability;
+    public Integer getStatWAvailValue() {
+        return statWAvailValue;
     }
 
-    public void setReadingTimeAvailability(String readingTimeAvailability) {
-        this.readingTimeAvailability = readingTimeAvailability;
+    public void setStatWAvailValue(Integer statWAvailValue) {
+        this.statWAvailValue = statWAvailValue;
+    }
+
+    public Long getReadingTime() {
+        return readingTime;
+    }
+
+    public void setReadingTime(Long readingTime) {
+        this.readingTime = readingTime;
     }
 
     public Long getId() {

@@ -66,7 +66,7 @@ public class PayloadParser {
     /**
      * Extract a specific field from DERSettings XML
      * IEEE 2030.5 DERSettings XML format example:
-     * <DERSettings xmlns="http://ieee.org/2030.5">
+     * <DERSettings xmlns="urn:ieee:std:2030.5:ns">
      *   <setMaxW>5000</setMaxW>
      *   <setMaxVA>5500</setMaxVA>
      * </DERSettings>
@@ -137,6 +137,66 @@ public class PayloadParser {
         }
 
         LOGGER.info("Parsed DERCapability XML to: " + result.toString());
+        return result;
+    }
+
+    public static JSONObject parseDERStatusXml(String xmlPayload, Long endDeviceId, Long derId) throws Exception {
+        JSONObject parsed = parseXmlToJson(xmlPayload);
+        JSONObject result = new JSONObject();
+
+        result.put("endDeviceId", endDeviceId);
+        result.put("derID", derId);
+
+        if (parsed.has("DERStatus")) {
+            JSONObject derStatus = parsed.getJSONObject("DERStatus");
+            Iterator<String> keys = derStatus.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.startsWith("@") && !key.equals("xmlns")) {
+                    result.put(key, derStatus.get(key));
+                }
+            }
+        } else {
+            Iterator<String> keys = parsed.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.startsWith("@") && !key.equals("xmlns")) {
+                    result.put(key, parsed.get(key));
+                }
+            }
+        }
+
+        LOGGER.info("Parsed DERStatus XML to: " + result.toString());
+        return result;
+    }
+
+    public static JSONObject parseDERAvailabilityXml(String xmlPayload, Long endDeviceId, Long derId) throws Exception {
+        JSONObject parsed = parseXmlToJson(xmlPayload);
+        JSONObject result = new JSONObject();
+
+        result.put("endDeviceId", endDeviceId);
+        result.put("derID", derId);
+
+        if (parsed.has("DERAvailability")) {
+            JSONObject derAvail = parsed.getJSONObject("DERAvailability");
+            Iterator<String> keys = derAvail.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.startsWith("@") && !key.equals("xmlns")) {
+                    result.put(key, derAvail.get(key));
+                }
+            }
+        } else {
+            Iterator<String> keys = parsed.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.startsWith("@") && !key.equals("xmlns")) {
+                    result.put(key, parsed.get(key));
+                }
+            }
+        }
+
+        LOGGER.info("Parsed DERAvailability XML to: " + result.toString());
         return result;
     }
 }

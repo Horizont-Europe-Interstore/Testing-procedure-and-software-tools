@@ -19,6 +19,7 @@ dependencyManagement {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2' // Update dependencies to match Spring Boot 3.2.2
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
+    implementation 'org.springframework.boot:spring-boot-starter-aop:3.2.2'
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'io.vertx:vertx-core:4.5.1'
     implementation 'io.nats:jnats:2.16.12'
@@ -56,6 +57,10 @@ dependencies {
     
     // HTTP client dependency
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // XMLUnit for XML comparison
+    implementation 'org.xmlunit:xmlunit-core:2.9.1'
+    implementation 'org.xmlunit:xmlunit-matchers:2.9.1'
 
     // BouncyCastle for PEM parsing and certificate/key handling in Server.java
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'

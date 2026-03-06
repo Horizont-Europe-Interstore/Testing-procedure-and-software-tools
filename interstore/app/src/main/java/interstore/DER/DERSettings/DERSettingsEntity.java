@@ -12,343 +12,306 @@ import jakarta.persistence.OneToOne;
 
 @Entity
 public class DERSettingsEntity {
+    public record XmlvalueAndMultiplierSettings(Integer multiplier, Integer value) {}
+    public record XmlDisplacementAndMultiplierSettings(Integer displacement, Integer multiplier) {}
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="modesEnabled")
-    private Integer modesEnabled;
+    // Simple fields
+    @Column(name = "modesEnabled")
+    private String modesEnabled;
 
-    @Column(name="setESDelay")
+    @Column(name = "setESDelay")
     private Long setESDelay;
-   
-    @Column(name="setESHighFreq")
-    private Long setESHighFreq;
 
-    @Column(name = "setESLowFreq")
-    private Long setESLowFreq;
+    @Column(name = "setESHighFreq")
+    private Long setESHighFreq;
 
     @Column(name = "setESHighVolt")
     private Long setESHighVolt;
 
+    @Column(name = "setESLowFreq")
+    private Long setESLowFreq;
+
     @Column(name = "setESLowVolt")
     private Long setESLowVolt;
 
-    @Column(name="setESRampTms")
+    @Column(name = "setESRampTms")
     private Long setESRampTms;
 
     @Column(name = "setESRandomDelay")
     private Long setESRandomDelay;
 
-    @Column(name="setGradW")
+    @Column(name = "setGradW")
     private Long setGradW;
 
     @Column(name = "setSoftGradW")
-    private Long setSoftGradW; 
-    
-    
-    @Column(name = "setMaxA")
-    private Double setMaxA; 
-    
-    @Column(name = "setMaxChargeRateVA")
-    private Double setMaxChargeRateVA;
-
-    @Column(name = "setMaxChargeRateW")
-    private Double setMaxChargeRateW;
-
-    @Column(name = "setMaxDischargeRateVA")
-    private Double setMaxDischargeRateVA;
-
-    @Column(name = "setMaxDischargeRateW")
-    private Double setMaxDischargeRateW;
-
-    @Column(name = "setMaxV")
-    private Double setMaxV;
-
-    @Column(name = "setMaxVA")
-    private Double setMaxVA;
-
-    @Column(name = "setMaxVar")
-    private Double setMaxVar;
-
-    @Column(name = "setMaxVarNeg")
-    private Double setMaxVarNeg;
-
-    @Column(name = "setMaxW")
-    private Double setMaxW;
-
-    @Column(name = "setMaxWh")
-    private Double setMaxWh;
-
-    @Column(name = "setMinPFOverExcited")
-    private Double setMinPFOverExcited;
-
-    @Column(name = "setMinPFUnderExcited")
-    private Double setMinPFUnderExcited;
-
-    @Column(name = "setMinV")
-    private Double setMinV;
-    
-    @Column(name = "setVNom")
-    private Double setVNom;
-    
-    @Column(name = "setVRef")
-    private Double setVRef;
-
-    @Column(name = "setVRefOfs")
-    private Double setVRefOfs;
+    private Long setSoftGradW;
 
     @Column(name = "updatedTime")
-    private String updatedTime;
+    private Long updatedTime;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "der_entity") 
-    private DerEntity derEntity;
+    // setMaxDischargeRateW
+    @Column(name = "setMaxDischargeRateWValue")
+    private Integer setMaxDischargeRateWValue;
+    @Column(name = "setMaxDischargeRateWMultiplier")
+    private Integer setMaxDischargeRateWMultiplier;
 
-    @Column(name = "derSettingsLink")
-    private String derSettingsLink;
+    // setMaxV
+    @Column(name = "setMaxVValue")
+    private Integer setMaxVValue;
+    @Column(name = "setMaxVMultiplier")
+    private Integer setMaxVMultiplier;
 
-    public Integer getModesEnabled() {
-        return modesEnabled;
-    }
+    // setMaxVA
+    @Column(name = "setMaxVAValue")
+    private Integer setMaxVAValue;
+    @Column(name = "setMaxVAMultiplier")
+    private Integer setMaxVAMultiplier;
 
-    public void setModesEnabled(Integer modesEnabled) {
+    // setMaxVar
+    @Column(name = "setMaxVarValue")
+    private Integer setMaxVarValue;
+    @Column(name = "setMaxVarMultiplier")
+    private Integer setMaxVarMultiplier;
+
+    // setMaxVarNeg
+    @Column(name = "setMaxVarNegValue")
+    private Integer setMaxVarNegValue;
+    @Column(name = "setMaxVarNegMultiplier")
+    private Integer setMaxVarNegMultiplier;
+
+    // setMaxW
+    @Column(name = "setMaxWValue")
+    private Integer setMaxWValue;
+    @Column(name = "setMaxWMultiplier")
+    private Integer setMaxWMultiplier;
+
+    // setMinV
+    @Column(name = "setMinVValue")
+    private Integer setMinVValue;
+    @Column(name = "setMinVMultiplier")
+    private Integer setMinVMultiplier;
+
+    // setVNom
+    @Column(name = "setVNomValue")
+    private Integer setVNomValue;
+    @Column(name = "setVNomMultiplier")
+    private Integer setVNomMultiplier;
+
+    // setVRef
+    @Column(name = "setVRefValue")
+    private Integer setVRefValue;
+    @Column(name = "setVRefMultiplier")
+    private Integer setVRefMultiplier;
+
+    // setMinPFOverExcited (displacement + multiplier)
+    @Column(name = "setMinPFOverExcitedDisplacement")
+    private Integer setMinPFOverExcitedDisplacement;
+    @Column(name = "setMinPFOverExcitedMultiplier")
+    private Integer setMinPFOverExcitedMultiplier;
+
+    // setMinPFUnderExcited (displacement + multiplier)
+    @Column(name = "setMinPFUnderExcitedDisplacement")
+    private Integer setMinPFUnderExcitedDisplacement;
+    @Column(name = "setMinPFUnderExcitedMultiplier")
+    private Integer setMinPFUnderExcitedMultiplier;
+
+    // ============ SIMPLE SETTERS ============
+
+    public void setModesEnabled(String modesEnabled) {
         this.modesEnabled = modesEnabled;
-    }
-
-    public Long getSetESDelay() {
-        return setESDelay;
     }
 
     public void setSetESDelay(Long setESDelay) {
         this.setESDelay = setESDelay;
     }
 
-    public Long getSetESHighFreq() {
-        return setESHighFreq;
-    }
-
     public void setSetESHighFreq(Long setESHighFreq) {
         this.setESHighFreq = setESHighFreq;
-    }
-
-    public Long getSetESLowFreq() {
-        return setESLowFreq;
-    }
-
-    public void setSetESLowFreq(Long setESLowFreq) {
-        this.setESLowFreq = setESLowFreq;
-    }
-
-    public Long getSetESHighVolt() {
-        return setESHighVolt;
     }
 
     public void setSetESHighVolt(Long setESHighVolt) {
         this.setESHighVolt = setESHighVolt;
     }
 
-    public Long getSetESLowVolt() {
-        return setESLowVolt;
+    public void setSetESLowFreq(Long setESLowFreq) {
+        this.setESLowFreq = setESLowFreq;
     }
 
     public void setSetESLowVolt(Long setESLowVolt) {
         this.setESLowVolt = setESLowVolt;
     }
 
-    public Long getSetESRampTms() {
-        return setESRampTms;
-    }
-
     public void setSetESRampTms(Long setESRampTms) {
         this.setESRampTms = setESRampTms;
-    }
-
-    public Long getSetESRandomDelay() {
-        return setESRandomDelay;
     }
 
     public void setSetESRandomDelay(Long setESRandomDelay) {
         this.setESRandomDelay = setESRandomDelay;
     }
 
-    public Long getSetGradW() {
-        return setGradW;
-    }
-
     public void setSetGradW(Long setGradW) {
         this.setGradW = setGradW;
-    }
-
-    public Long getSetSoftGradW() {
-        return setSoftGradW;
     }
 
     public void setSetSoftGradW(Long setSoftGradW) {
         this.setSoftGradW = setSoftGradW;
     }
 
-    public Double getSetMaxA() {
-        return setMaxA;
-    }
-
-    public void setSetMaxA(Double setMaxA) {
-        this.setMaxA = setMaxA;
-    }
-
-    public Double getSetMaxChargeRateVA() {
-        return setMaxChargeRateVA;
-    }
-
-    public void setSetMaxChargeRateVA(Double setMaxChargeRateVA) {
-        this.setMaxChargeRateVA = setMaxChargeRateVA;
-    }
-
-    public Double getSetMaxChargeRateW() {
-        return setMaxChargeRateW;
-    }
-
-    public void setSetMaxChargeRateW(Double setMaxChargeRateW) {
-        this.setMaxChargeRateW = setMaxChargeRateW;
-    }
-
-    public Double getSetMaxDischargeRateVA() {
-        return setMaxDischargeRateVA;
-    }
-
-    public void setSetMaxDischargeRateVA(Double setMaxDischargeRateVA) {
-        this.setMaxDischargeRateVA = setMaxDischargeRateVA;
-    }
-
-    public Double getSetMaxDischargeRateW() {
-        return setMaxDischargeRateW;
-    }
-
-    public void setSetMaxDischargeRateW(Double setMaxDischargeRateW) {
-        this.setMaxDischargeRateW = setMaxDischargeRateW;
-    }
-
-    public Double getSetMaxV() {
-        return setMaxV;
-    }
-
-    public void setSetMaxV(Double setMaxV) {
-        this.setMaxV = setMaxV;
-    }
-
-    public Double getSetMaxVA() {
-        return setMaxVA;
-    }
-
-    public void setSetMaxVA(Double setMaxVA) {
-        this.setMaxVA = setMaxVA;
-    }
-
-    public Double getSetMaxVar() {
-        return setMaxVar;
-    }
-
-    public void setSetMaxVar(Double setMaxVar) {
-        this.setMaxVar = setMaxVar;
-    }
-
-    public Double getSetMaxVarNeg() {
-        return setMaxVarNeg;
-    }
-
-    public void setSetMaxVarNeg(Double setMaxVarNeg) {
-        this.setMaxVarNeg = setMaxVarNeg;
-    }
-
-    public Double getSetMaxW() {
-        return setMaxW;
-    }
-
-    public void setSetMaxW(Double setMaxW) {
-        this.setMaxW = setMaxW;
-    }
-
-    public Double getSetMaxWh() {
-        return setMaxWh;
-    }
-
-    public void setSetMaxWh(Double setMaxWh) {
-        this.setMaxWh = setMaxWh;
-    }
-
-    public Double getSetMinPFOverExcited() {
-        return setMinPFOverExcited;
-    }
-
-    public void setSetMinPFOverExcited(Double setMinPFOverExcited) {
-        this.setMinPFOverExcited = setMinPFOverExcited;
-    }
-
-    public Double getSetMinPFUnderExcited() {
-        return setMinPFUnderExcited;
-    }
-
-    public void setSetMinPFUnderExcited(Double setMinPFUnderExcited) {
-        this.setMinPFUnderExcited = setMinPFUnderExcited;
-    }
-
-    public Double getSetMinV() {
-        return setMinV;
-    }
-
-    public void setSetMinV(Double setMinV) {
-        this.setMinV = setMinV;
-    }
-
-    public Double getSetVNom() {
-        return setVNom;
-    }
-
-    public void setSetVNom(Double setVNom) {
-        this.setVNom = setVNom;
-    }
-
-    public Double getSetVRef() {
-        return setVRef;
-    }
-
-    public void setSetVRef(Double setVRef) {
-        this.setVRef = setVRef;
-    }
-
-    public Double getSetVRefOfs() {
-        return setVRefOfs;
-    }
-
-    public void setSetVRefOfs(Double setVRefOfs) {
-        this.setVRefOfs = setVRefOfs;
-    }
-
-    public String getUpdatedTime() {
-        return updatedTime;
-    }
-
-    public void setUpdatedTime(String updatedTime) {
+    public void setUpdatedTime(Long updatedTime) {
         this.updatedTime = updatedTime;
     }
 
-    public Long getId() {
-        return id;
+    // ============ VALUE + MULTIPLIER SETTERS ============
+
+    public void setSetMaxDischargeRateW(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxDischargeRateWValue = xml.value();
+            this.setMaxDischargeRateWMultiplier = xml.multiplier();
+        } else {
+            this.setMaxDischargeRateWValue = null;
+            this.setMaxDischargeRateWMultiplier = null;
+        }
     }
 
-    public DerEntity getDerEntity() {
-        return derEntity;
+    public void setSetMaxV(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxVValue = xml.value();
+            this.setMaxVMultiplier = xml.multiplier();
+        } else {
+            this.setMaxVValue = null;
+            this.setMaxVMultiplier = null;
+        }
     }
 
-    public void setDerEntity(DerEntity derEntity) {
-        this.derEntity = derEntity;
+    public void setSetMaxVA(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxVAValue = xml.value();
+            this.setMaxVAMultiplier = xml.multiplier();
+        } else {
+            this.setMaxVAValue = null;
+            this.setMaxVAMultiplier = null;
+        }
     }
 
-    public String getDerSettingsLink() {
-        return derSettingsLink;
+    public void setSetMaxVar(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxVarValue = xml.value();
+            this.setMaxVarMultiplier = xml.multiplier();
+        } else {
+            this.setMaxVarValue = null;
+            this.setMaxVarMultiplier = null;
+        }
     }
 
-    public void setDerSettingsLink(String derSettingsLink) {
-        this.derSettingsLink = derSettingsLink;
+    public void setSetMaxVarNeg(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxVarNegValue = xml.value();
+            this.setMaxVarNegMultiplier = xml.multiplier();
+        } else {
+            this.setMaxVarNegValue = null;
+            this.setMaxVarNegMultiplier = null;
+        }
     }
+
+    public void setSetMaxW(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMaxWValue = xml.value();
+            this.setMaxWMultiplier = xml.multiplier();
+        } else {
+            this.setMaxWValue = null;
+            this.setMaxWMultiplier = null;
+        }
+    }
+
+    public void setSetMinV(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMinVValue = xml.value();
+            this.setMinVMultiplier = xml.multiplier();
+        } else {
+            this.setMinVValue = null;
+            this.setMinVMultiplier = null;
+        }
+    }
+
+    public void setSetVNom(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setVNomValue = xml.value();
+            this.setVNomMultiplier = xml.multiplier();
+        } else {
+            this.setVNomValue = null;
+            this.setVNomMultiplier = null;
+        }
+    }
+
+    public void setSetVRef(XmlvalueAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setVRefValue = xml.value();
+            this.setVRefMultiplier = xml.multiplier();
+        } else {
+            this.setVRefValue = null;
+            this.setVRefMultiplier = null;
+        }
+    }
+
+    // ============ DISPLACEMENT + MULTIPLIER SETTERS ============
+
+    public void setSetMinPFOverExcited(XmlDisplacementAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMinPFOverExcitedDisplacement = xml.displacement();
+            this.setMinPFOverExcitedMultiplier = xml.multiplier();
+        } else {
+            this.setMinPFOverExcitedDisplacement = null;
+            this.setMinPFOverExcitedMultiplier = null;
+        }
+    }
+
+    public void setSetMinPFUnderExcited(XmlDisplacementAndMultiplierSettings xml) {
+        if (xml != null) {
+            this.setMinPFUnderExcitedDisplacement = xml.displacement();
+            this.setMinPFUnderExcitedMultiplier = xml.multiplier();
+        } else {
+            this.setMinPFUnderExcitedDisplacement = null;
+            this.setMinPFUnderExcitedMultiplier = null;
+        }
+    }
+
+    // ============ GETTERS ============
+
+    public Long getId() { return id; }
+    public String getModesEnabled() { return modesEnabled; }
+    public Long getSetESDelay() { return setESDelay; }
+    public Long getSetESHighFreq() { return setESHighFreq; }
+    public Long getSetESHighVolt() { return setESHighVolt; }
+    public Long getSetESLowFreq() { return setESLowFreq; }
+    public Long getSetESLowVolt() { return setESLowVolt; }
+    public Long getSetESRampTms() { return setESRampTms; }
+    public Long getSetESRandomDelay() { return setESRandomDelay; }
+    public Long getSetGradW() { return setGradW; }
+    public Long getSetSoftGradW() { return setSoftGradW; }
+    public Long getUpdatedTime() { return updatedTime; }
+    public Integer getSetMaxDischargeRateWValue() { return setMaxDischargeRateWValue; }
+    public Integer getSetMaxDischargeRateWMultiplier() { return setMaxDischargeRateWMultiplier; }
+    public Integer getSetMaxVValue() { return setMaxVValue; }
+    public Integer getSetMaxVMultiplier() { return setMaxVMultiplier; }
+    public Integer getSetMaxVAValue() { return setMaxVAValue; }
+    public Integer getSetMaxVAMultiplier() { return setMaxVAMultiplier; }
+    public Integer getSetMaxVarValue() { return setMaxVarValue; }
+    public Integer getSetMaxVarMultiplier() { return setMaxVarMultiplier; }
+    public Integer getSetMaxVarNegValue() { return setMaxVarNegValue; }
+    public Integer getSetMaxVarNegMultiplier() { return setMaxVarNegMultiplier; }
+    public Integer getSetMaxWValue() { return setMaxWValue; }
+    public Integer getSetMaxWMultiplier() { return setMaxWMultiplier; }
+    public Integer getSetMinVValue() { return setMinVValue; }
+    public Integer getSetMinVMultiplier() { return setMinVMultiplier; }
+    public Integer getSetVNomValue() { return setVNomValue; }
+    public Integer getSetVNomMultiplier() { return setVNomMultiplier; }
+    public Integer getSetVRefValue() { return setVRefValue; }
+    public Integer getSetVRefMultiplier() { return setVRefMultiplier; }
+    public Integer getSetMinPFOverExcitedDisplacement() { return setMinPFOverExcitedDisplacement; }
+    public Integer getSetMinPFOverExcitedMultiplier() { return setMinPFOverExcitedMultiplier; }
+    public Integer getSetMinPFUnderExcitedDisplacement() { return setMinPFUnderExcitedDisplacement; }
+    public Integer getSetMinPFUnderExcitedMultiplier() { return setMinPFUnderExcitedMultiplier; }
 }

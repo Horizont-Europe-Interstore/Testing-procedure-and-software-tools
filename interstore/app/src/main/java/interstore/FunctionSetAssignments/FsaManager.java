@@ -2,17 +2,12 @@ package interstore.FunctionSetAssignments;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
 @RestController
@@ -75,59 +70,32 @@ public class FsaManager {
      *   "endDeviceID"
      */
     public Map<String, Object> getFSA(JSONObject payload) throws JSONException {
-       
-         if (payload.has("endDeviceID") && payload.has("fsaID"))
-        {      
-               Long endDeviceIdLong =  payload.getLong("endDeviceID");     
-               Long fsaIdLong =  payload.getLong("fsaID");                                          
-               LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
-               LOGGER.info("fsaID in the FSA Manager" + fsaIdLong);
-
-                return getFunctionSetAssignmentsDetails(endDeviceIdLong, fsaIdLong );
-        }   
-
-        else if(payload.has("endDeviceID"))
-        {
-            Long endDeviceIdLong =   payload.getLong("endDeviceID"); 
-            LOGGER.info("endDeviceID in the FSA Manager" + endDeviceIdLong);
-            return getEndDeviceById(endDeviceIdLong);
+        if (payload.has("payload")) payload = payload.getJSONObject("payload");
+        if (payload.has("endDeviceID") && payload.has("fsaID")) {
+            Long endDeviceIdLong = payload.getLong("endDeviceID");
+            Long fsaIdLong = payload.getLong("fsaID");
+            String xml = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceIdLong, fsaIdLong);
+            return Map.of("xml", xml != null ? xml : "");
         }
-        return null; 
+        if (payload.has("endDeviceID")) {
+            Long endDeviceIdLong = payload.getLong("endDeviceID");
+            String xml = this.fsaService.getAllFunctionsetAssignmentsHttp(endDeviceIdLong);
+            return Map.of("xml", xml != null ? xml : "");
+        }
+        return null;
     } 
     
 
-    @GetMapping("/edev/{id}/fsa")
-    public Map<String, Object>getFSAList(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) 
-    {   
-        // Case: called from HTTP
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = this.fsaService.getAllFunctionsetAssignmentsHttp(id);
+    @GetMapping(value = "edev/{id}/fsa", produces = "application/sep+xml")
+    public ResponseEntity<String> getFSAList(@PathVariable Long id) {
+        String fsaListXml = this.fsaService.getAllFunctionsetAssignmentsHttp(id);
+        LOGGER.info("the fsaList_val is " + fsaListXml);
         
-                LOGGER.info("the fsaList_val is " + responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving FSAList value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        } 
-        // Case: called from NATS (internal)
-        else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getAllFunctionsetAssignments(id);
-            return  responseEntity.getBody(); 
-        }
-
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
         
+        return new ResponseEntity<>(fsaListXml, headers, HttpStatus.OK);
     }
 
 
@@ -137,36 +105,16 @@ public class FsaManager {
         return  responseEntity.getBody(); 
     }
     
-    @GetMapping("/edev/{endDeviceID}/fsa/{fsaID}")
-     public Map<String, Object> getFunctionSetAssignmentsDetailsHttp(@PathVariable Long endDeviceID, @PathVariable Long fsaID, HttpServletRequest request, HttpServletResponse response)
-      {
-        // Case: called from HTTP
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            try{
-                String responseEntity = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceID, fsaID);
+    @GetMapping(value = "edev/{endDeviceID}/fsa/{fsaID}", produces = "application/sep+xml")
+     public ResponseEntity<String> getFunctionSetAssignmentsDetailsHttp(@PathVariable Long endDeviceID, @PathVariable Long fsaID) {
+        String fsaXml = this.fsaService.getFunctionsetAssignmentsHttp(endDeviceID, fsaID);
+        LOGGER.info("the fsa_val is " + fsaXml);
         
-                LOGGER.info("the fsa_val is " + responseEntity);
-                byte[] bytes = responseEntity.getBytes(StandardCharsets.UTF_8);
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/sep+xml;level=S1");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setHeader("Connection", "keep-alive");
-                response.setContentLength(bytes.length);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(bytes);
-                out.flush();
-            } catch(Exception e){
-                LOGGER.severe("Error retrieving FSA value: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-            return null;
-        } 
-        // Case: called from NATS (internal)
-        else {
-            ResponseEntity<Map<String, Object>> responseEntity = this.fsaService.getFunctionsetAssignments(endDeviceID, fsaID);
-            return  responseEntity.getBody(); 
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        
+        return new ResponseEntity<>(fsaXml, headers, HttpStatus.OK);
      }
 
      public Map<String, Object> getFunctionSetAssignmentsDetails(@PathVariable Long endDeviceID, @PathVariable Long fsaID)

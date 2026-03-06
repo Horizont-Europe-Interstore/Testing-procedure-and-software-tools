@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EndDeviceList xmlns="urn:ieee:std:2030.5:ns" href="">
+    <EndDevice href="">
+        <sFDI></sFDI>
+    </EndDevice>
+</EndDeviceList>

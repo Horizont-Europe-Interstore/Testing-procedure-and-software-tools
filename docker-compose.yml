@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  java-backend:
+    build: 
+      context: ./interstore
+      dockerfile: Dockerfile
+    image: nithinmanuel9/interstoretestieee2030-server:3.1
+    container_name: java-backend 
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://18.232.7.53:4222 
+      - SERVER_PORT=8080
+      - SERVER_ADDRESS=0.0.0.0
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true
+      
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./interstore/app/certs:/app/certs:ro
+    networks:
+      - back-nats
+    restart: unless-stopped
+
+  react-browser:
+    build:
+      context: ./react-browser
+      dockerfile: Dockerfile  
+    hostname: react-browser
+    container_name: react-browser
+    depends_on:
+      - java-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./react-browser:/react  
+      - /react/node_modules
+    command: ["npm","start"]
+    networks:
+      - back-nats
+    restart: unless-stopped
+
+  nats: 
+    image: nats:latest
+    container_name: nats-server
+    hostname: nats-server
+    ports:
+      - "0.0.0.0:4222:4222"  
+      - "0.0.0.0:8222:8222" 
+    command: ["--jetstream", "--addr", "0.0.0.0", "--port", "4222", "-m", "8222"]
+    networks:
+      - back-nats
+    restart: unless-stopped
+
+ 
+
+networks:
+  back-nats:

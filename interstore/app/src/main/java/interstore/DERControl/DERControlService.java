@@ -13,7 +13,7 @@ import interstore.Types.mRIDType;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +47,12 @@ public class DERControlService {
     EventStatusRepository eventStatusRepository;
 
     @Transactional
-    public DERControlEntity createDERControl(JSONObject payload) throws NumberFormatException, JSONException, ChangeSetPersister.NotFoundException {
+    public DERControlEntity createDERControl(JSONObject payload) throws NumberFormatException, JSONException {
         LOGGER.info("reached here in control service class");
         DERControlEntity derControlEntity = new DERControlEntity();
         Long derProgramId = Long.parseLong(payload.getJSONObject("payload").getString("derProgramId"));
         DERProgramEntity derProgram = derProgramRepository.findById(derProgramId)
-                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+                .orElseThrow(() -> new RuntimeException("DERProgram not found"));
         derControlEntity.setDerProgram(derProgram);
         String derControlListLink = derProgram.getDERControlListLink();
         try {
@@ -70,51 +70,76 @@ public class DERControlService {
     }
 
     @Transactional
-    public boolean setDERControlEntity(DERControlEntity derControlEntity, JSONObject payload, String derControlListLink) throws NumberFormatException, IllegalArgumentException, ChangeSetPersister.NotFoundException {
+    public boolean setDERControlEntity(DERControlEntity derControlEntity, JSONObject payload, String derControlListLink) throws NumberFormatException, IllegalArgumentException {
         Long derControlEntityId = derControlEntity.getId();
         JSONObject derControlpayload = payload.optJSONObject("payload");
-        String idString = "/"+ String.valueOf(derControlEntityId) ;
+        if (derControlpayload == null) {
+            throw new IllegalArgumentException("Missing 'payload' object in request");
+        }
+        
+        String idString = "/"+ String.valueOf(derControlEntityId);
         String derControlLink = derControlListLink + idString;
-        String deviceCategory = derControlpayload.optString("deviceCategory");
-        String mRID = derControlpayload.optString("mRID");
-        String mRIDString = HexBinary128.validateAndFormatHexValue(mRID);
-        mRIDType mRIDValue = new mRIDType(mRIDString);
-        String version = derControlpayload.optString("version");
-        int intVersion = Integer.parseInt(version);
-        String description = derControlpayload.optString("description");
-        String currentStatus = derControlpayload.optString("currentStatus");
-        String dateTime = derControlpayload.optString("dateTime");
-        String potentiallySuperseded = derControlpayload.optString("potentiallySuperseded");
-        String duration = derControlpayload.optString("duration");
-        String start = derControlpayload.optString("start");
-        String randomizeDuration = derControlpayload.optString("randomizeDuration");
-        String randomizeStart = derControlpayload.optString("randomizeStart");
+        String deviceCategory = derControlpayload.optString("deviceCategory", "");
+        String mRID = derControlpayload.optString("mRID", "");
+        String version = derControlpayload.optString("version", "0");
+        String description = derControlpayload.optString("description", "");
+        String currentStatus = derControlpayload.optString("currentStatus", "0");
+        String dateTime = derControlpayload.optString("dateTime", String.valueOf(Instant.now().getEpochSecond()));
+        String potentiallySuperseded = derControlpayload.optString("potentiallySuperseded", "false");
+        String duration = derControlpayload.optString("duration", "0");
+        String start = derControlpayload.optString("start", "0");
+        String randomizeDuration = derControlpayload.optString("randomizeDuration", "0");
+        String randomizeStart = derControlpayload.optString("randomizeStart", "0");
 
-        derControlEntity.setDuration(Integer.parseInt(duration));
-        derControlEntity.setStart(Integer.parseInt(start));
-        derControlEntity.setRandomizeDuration(Integer.parseInt(randomizeDuration));
-        derControlEntity.setRandomizeStart(Integer.parseInt(randomizeStart));
+        try {
+            derControlEntity.setDuration(Integer.parseInt(duration));
+            derControlEntity.setStart(Integer.parseInt(start));
+            derControlEntity.setRandomizeDuration(Integer.parseInt(randomizeDuration));
+            derControlEntity.setRandomizeStart(Integer.parseInt(randomizeStart));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number format for duration/start/randomize fields: " + e.getMessage());
+        }
+        
         EventStatusEntity eventStatusEntity = new EventStatusEntity();
-        eventStatusEntity.setCurrentStatus(Integer.parseInt(currentStatus));
+        try {
+            eventStatusEntity.setCurrentStatus(Integer.parseInt(currentStatus));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid currentStatus value: " + currentStatus);
+        }
         eventStatusEntity.setDateTime(dateTime);
         eventStatusEntity.setPotentiallySuperseded(Boolean.parseBoolean(potentiallySuperseded));
         eventStatusRepository.save(eventStatusEntity);
         derControlEntity.setEventStatusEntity(eventStatusEntity);
         derControlEntity.setDerControlLink(derControlLink);
-        long currentTime =  Instant.now().getEpochSecond();
+        long currentTime = Instant.now().getEpochSecond();
         derControlEntity.setCreationTime(String.valueOf(currentTime));
+        
         RespondableSubscribableIdentifiedObjectEntity respondableSubscribableIdentifiedObjectEntity = new RespondableSubscribableIdentifiedObjectEntity();
-        respondableSubscribableIdentifiedObjectEntity.setmRID(mRIDValue.toString());
+        if (!mRID.isEmpty()) {
+            String mRIDString = HexBinary128.validateAndFormatHexValue(mRID);
+            mRIDType mRIDValue = new mRIDType(mRIDString);
+            respondableSubscribableIdentifiedObjectEntity.setmRID(mRIDValue.toString());
+        }
         respondableSubscribableIdentifiedObjectEntity.setDescription(description);
-        respondableSubscribableIdentifiedObjectEntity.setVersion(intVersion);
+        try {
+            respondableSubscribableIdentifiedObjectEntity.setVersion(Integer.parseInt(version));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid version value: " + version);
+        }
         respondableSubscribableIdentifiedObjectRepository.save(respondableSubscribableIdentifiedObjectEntity);
         derControlEntity.setRespondableSubscribableIdentifiedObjectEntity(respondableSubscribableIdentifiedObjectEntity);
-        if (DeviceCategoryType.deviceCategory.validateDeviceCategory(deviceCategory)){
-            derControlEntity.setDeviceCategory(Integer.parseInt(derControlpayload.optString("deviceCategory")));
-        }
-        else {
-            LOGGER.log(Level.SEVERE, "Incorrect DeviceCategoryType Provided");
-            throw new IllegalArgumentException("Invalid DeviceCategoryType provided: " + derControlpayload.optString("deviceCategory"));
+        
+        if (!deviceCategory.isEmpty()) {
+            if (DeviceCategoryType.deviceCategory.validateDeviceCategory(deviceCategory)) {
+                try {
+                    derControlEntity.setDeviceCategory(Integer.parseInt(deviceCategory));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid deviceCategory number format: " + deviceCategory);
+                }
+            } else {
+                LOGGER.log(Level.SEVERE, "Incorrect DeviceCategoryType Provided");
+                throw new IllegalArgumentException("Invalid DeviceCategoryType provided: " + deviceCategory);
+            }
         }
 
         DERControlBase derControlBase = new DERControlBase();
@@ -127,60 +152,82 @@ public class DERControlService {
             Iterator<String> keys = payload.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                String value = payload.optString(key, "");
-                if (!value.isEmpty()) {
-                    if (key.equals("opModConnect")) {
-                        derControlBase.setOpModConnect(payload.optBoolean(key, false));
-                    } else if (key.equals("opModEnergize")) {
-                        derControlBase.setOpModEnergize(payload.optBoolean(key, false));
-                    } else if (key.equals("opModFixedPFAbsorbW")) {
-                        derControlBase.setOpModFixedPFAbsorbW(payload.optInt(key, 0));
-                    } else if (key.equals("opModFixedPFInjectW")) {
-                        derControlBase.setOpModFixedPFInjectW(payload.optInt(key, 0));
-                    } else if (key.equals("opModFixedVar")) {
-                        derControlBase.setOpModFixedVar(payload.optInt(key, 0));
-                    } else if (key.equals("opModFixedW")) {
-                        derControlBase.setOpModFixedW(payload.optInt(key, 0));
-                    } else if (key.equals("opModFreqDroop")) {
-                        derControlBase.setOpModFreqDroop(payload.optInt(key, 0));
-                    } else if (key.equals("opModFreqWatt")) {
-                        derControlBase.setOpModFreqWatt(payload.optString(key, ""));
-                    } else if (key.equals("opModHFRTMayTrip")) {
-                        derControlBase.setOpModHFRTMayTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModHFRTMustTrip")) {
-                        derControlBase.setOpModHFRTMustTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModHVRTMayTrip")) {
-                        derControlBase.setOpModHVRTMayTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModHVRTMomentaryCessation")) {
-                        derControlBase.setOpModHVRTMomentaryCessation(payload.optString(key, ""));
-                    } else if (key.equals("opModHVRTMustTrip")) {
-                        derControlBase.setOpModHVRTMustTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModLFRTMayTrip")) {
-                        derControlBase.setOpModLFRTMayTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModLFRTMustTrip")) {
-                        derControlBase.setOpModLFRTMustTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModLVRTMayTrip")) {
-                        derControlBase.setOpModLVRTMayTrip(payload.optString(key, ""));
-                    } else if (key.equals("opModLVRTMomentaryCessation")) {
-                        derControlBase.setOpModLVRTMomentaryCessation(payload.optString(key, ""));
-                    } else if (key.equals("opModLVRTMustTrip")) {
-                        derControlBase.setOpModLVRTMustTrip(payload.optString(key, ""));
-                    } else if (key.equals("IntegeropModMaxLimW")) {
-                        derControlBase.setIntegeropModMaxLimW(payload.optInt(key, 0));
-                    } else if (key.equals("opModTargetVar")) {
-                        derControlBase.setOpModTargetVar(payload.optInt(key, 0));
-                    } else if (key.equals("opModTargetW")) {
-                        derControlBase.setOpModTargetW(payload.optInt(key, 0));
-                    } else if (key.equals("opModVoltVar")) {
-                        derControlBase.setOpModVoltVar(payload.optString(key, ""));
-                    } else if (key.equals("opModVoltWatt")) {
-                        derControlBase.setOpModVoltWatt(payload.optString(key, ""));
-                    } else if (key.equals("opModWattPF")) {
-                        derControlBase.setOpModWattPF(payload.optString(key, ""));
-                    } else if (key.equals("opModWattVar")) {
-                        derControlBase.setOpModWattVar(payload.optString(key, ""));
-                    } else if (key.equals("rampTms")) {
-                        derControlBase.setRampTms(payload.optInt(key, 0));
+                if (!payload.isNull(key)) {
+                    switch (key) {
+                        case "opModChargeMode":
+                        case "opModDischargeMode":
+                        case "opModConnect":
+                        case "opModEnergize":
+                            if (payload.get(key) instanceof Boolean) {
+                                switch (key) {
+                                    case "opModChargeMode": derControlBase.setOpModChargeMode(payload.getBoolean(key)); break;
+                                    case "opModDischargeMode": derControlBase.setOpModDischargeMode(payload.getBoolean(key)); break;
+                                    case "opModConnect": derControlBase.setOpModConnect(payload.getBoolean(key)); break;
+                                    case "opModEnergize": derControlBase.setOpModEnergize(payload.getBoolean(key)); break;
+                                }
+                            }
+                            break;
+                        case "opModFixedPFAbsorbW":
+                        case "opModFixedPFInjectW":
+                        case "opModFixedVar":
+                        case "opModFixedW":
+                        case "opModFreqDroop":
+                        case "IntegeropModMaxLimW":
+                        case "opModTargetVar":
+                        case "opModTargetW":
+                        case "rampTms":
+                            Object intValue = payload.get(key);
+                            if (intValue instanceof Number) {
+                                int val = ((Number) intValue).intValue();
+                                switch (key) {
+                                    case "opModFixedPFAbsorbW": derControlBase.setOpModFixedPFAbsorbW(val); break;
+                                    case "opModFixedPFInjectW": derControlBase.setOpModFixedPFInjectW(val); break;
+                                    case "opModFixedVar": derControlBase.setOpModFixedVar(val); break;
+                                    case "opModFixedW": derControlBase.setOpModFixedW(val); break;
+                                    case "opModFreqDroop": derControlBase.setOpModFreqDroop(val); break;
+                                    case "IntegeropModMaxLimW": derControlBase.setIntegeropModMaxLimW(val); break;
+                                    case "opModTargetVar": derControlBase.setOpModTargetVar(val); break;
+                                    case "opModTargetW": derControlBase.setOpModTargetW(val); break;
+                                    case "rampTms": derControlBase.setRampTms(val); break;
+                                }
+                            }
+                            break;
+                        case "opModFreqWatt":
+                        case "opModHFRTMayTrip":
+                        case "opModHFRTMustTrip":
+                        case "opModHVRTMayTrip":
+                        case "opModHVRTMomentaryCessation":
+                        case "opModHVRTMustTrip":
+                        case "opModLFRTMayTrip":
+                        case "opModLFRTMustTrip":
+                        case "opModLVRTMayTrip":
+                        case "opModLVRTMomentaryCessation":
+                        case "opModLVRTMustTrip":
+                        case "opModVoltVar":
+                        case "opModVoltWatt":
+                        case "opModWattPF":
+                        case "opModWattVar":
+                            String strValue = payload.getString(key);
+                            if (strValue != null && !strValue.isEmpty()) {
+                                switch (key) {
+                                    case "opModFreqWatt": derControlBase.setOpModFreqWatt(strValue); break;
+                                    case "opModHFRTMayTrip": derControlBase.setOpModHFRTMayTrip(strValue); break;
+                                    case "opModHFRTMustTrip": derControlBase.setOpModHFRTMustTrip(strValue); break;
+                                    case "opModHVRTMayTrip": derControlBase.setOpModHVRTMayTrip(strValue); break;
+                                    case "opModHVRTMomentaryCessation": derControlBase.setOpModHVRTMomentaryCessation(strValue); break;
+                                    case "opModHVRTMustTrip": derControlBase.setOpModHVRTMustTrip(strValue); break;
+                                    case "opModLFRTMayTrip": derControlBase.setOpModLFRTMayTrip(strValue); break;
+                                    case "opModLFRTMustTrip": derControlBase.setOpModLFRTMustTrip(strValue); break;
+                                    case "opModLVRTMayTrip": derControlBase.setOpModLVRTMayTrip(strValue); break;
+                                    case "opModLVRTMomentaryCessation": derControlBase.setOpModLVRTMomentaryCessation(strValue); break;
+                                    case "opModLVRTMustTrip": derControlBase.setOpModLVRTMustTrip(strValue); break;
+                                    case "opModVoltVar": derControlBase.setOpModVoltVar(strValue); break;
+                                    case "opModVoltWatt": derControlBase.setOpModVoltWatt(strValue); break;
+                                    case "opModWattPF": derControlBase.setOpModWattPF(strValue); break;
+                                    case "opModWattVar": derControlBase.setOpModWattVar(strValue); break;
+                                }
+                            }
+                            break;
                     }
                 }
             }
@@ -338,19 +385,24 @@ public class DERControlService {
                                 Object value = method.invoke(derControlBase);
 
                                 if (value != null) {
-                                    // Convert method name like getOpModVoltWatt -> opModVoltWatt
                                     String fieldName = Character.toLowerCase(method.getName().charAt(3)) + method.getName().substring(4);
 
-                                    // Strings are usually hrefs, Booleans/Integers are direct values
                                     if (value instanceof String) {
                                         xml.append("   <").append(fieldName).append(" href=\"")
                                         .append(stripHost((String) value))
                                         .append("\"/>\n");
+                                    } else if (value instanceof Boolean) {
+                                        xml.append("   <").append(fieldName).append(">")
+                                        .append(value)
+                                        .append("</").append(fieldName).append(">\n");
+                                    } else if (value instanceof Integer) {
+                                        xml.append("   <").append(fieldName).append(">")
+                                        .append(value)
+                                        .append("</").append(fieldName).append(">\n");
                                     }
                                 }
                             }
                         }
-                        // Add more fields as needed, similar to your DERControlBase mapping
                     } else {
                         xml.append("   <message>No DERControlBase data</message>\n");
                     }
@@ -369,6 +421,102 @@ public class DERControlService {
                     "<error>Some error occurred</error>\n" +
                     "</DERControlList>";
             }
+    }
+
+    public String getDERControlHttp(Long derProgramId, Long derControlId) {
+        try {
+            Optional<DERControlEntity> derControlEntityOptional = derControlRepository.findFirstByDerProgramIdAndId(derProgramId, derControlId);
+
+            if (derControlEntityOptional.isEmpty()) {
+                return "<DERControl xmlns=\"http://ieee.org/2030.5\">\n" +
+                       "<error>No DERControl found for DERProgram " + derProgramId + " and DERControl ID " + derControlId + "</error>\n" +
+                       "</DERControl>";
+            }
+
+            DERControlEntity derControl = derControlEntityOptional.get();
+            RespondableSubscribableIdentifiedObjectEntity identifiedObject = derControl.getRespondableSubscribableIdentifiedObjectEntity();
+            DERControlBase derControlBase = derControl.getDer_control_base();
+
+            StringBuilder xml = new StringBuilder();
+            xml.append("<DERControl xmlns=\"http://ieee.org/2030.5\" href=\"").append(stripHost(derControl.getDerControlLink())).append("\">\n");
+
+            xml.append(" <mRID>")
+               .append(identifiedObject != null && identifiedObject.getmRID() != null ? identifiedObject.getmRID() : "N/A")
+               .append("</mRID>\n");
+
+            xml.append(" <description>")
+               .append(identifiedObject != null && identifiedObject.getDescription() != null ? identifiedObject.getDescription() : "No description")
+               .append("</description>\n");
+
+            xml.append(" <creationTime>")
+               .append(derControl.getCreationTime() != null ? derControl.getCreationTime() : "0")
+               .append("</creationTime>\n");
+
+            xml.append(" <EventStatus>\n");
+            xml.append("  <currentStatus>")
+               .append(derControl.getEventStatusEntity().getCurrentStatus() != null ? derControl.getEventStatusEntity().getCurrentStatus() : "1")
+               .append("</currentStatus>\n");
+            xml.append("  <dateTime>")
+               .append(derControl.getEventStatusEntity().getDateTime() != null ? derControl.getEventStatusEntity().getDateTime() : "0")
+               .append("</dateTime>\n");
+            xml.append("  <potentiallySuperseded>")
+               .append(derControl.getEventStatusEntity().getPotentiallySuperseded())
+               .append("</potentiallySuperseded>\n");
+            xml.append(" </EventStatus>\n");
+
+            xml.append(" <interval>\n");
+            xml.append("  <duration>")
+               .append(derControl.getDuration() != null ? derControl.getDuration() : "0")
+               .append("</duration>\n");
+            xml.append("  <start>")
+               .append(derControl.getStart() != null ? derControl.getStart() : "0")
+               .append("</start>\n");
+            xml.append(" </interval>\n");
+
+            xml.append(" <randomizeDuration>")
+               .append(derControl.getRandomizeDuration() != null ? derControl.getRandomizeDuration() : "180")
+               .append("</randomizeDuration>\n");
+            xml.append(" <randomizeStart>")
+               .append(derControl.getRandomizeStart() != null ? derControl.getRandomizeStart() : "180")
+               .append("</randomizeStart>\n");
+
+            xml.append(" <DERControlBase>\n");
+            if (derControlBase != null) {
+                for (Method method : DERControlBase.class.getMethods()) {
+                    if (method.getName().startsWith("get") && !method.getName().equals("getId")) {
+                        Object value = method.invoke(derControlBase);
+                        if (value != null) {
+                            String fieldName = Character.toLowerCase(method.getName().charAt(3)) + method.getName().substring(4);
+                            if (value instanceof String) {
+                                xml.append("  <").append(fieldName).append(" href=\"")
+                                   .append(stripHost((String) value))
+                                   .append("\"/>\n");
+                            } else if (value instanceof Boolean) {
+                                xml.append("  <").append(fieldName).append(">")
+                                   .append(value)
+                                   .append("</").append(fieldName).append(">\n");
+                            } else if (value instanceof Integer) {
+                                xml.append("  <").append(fieldName).append(">")
+                                   .append(value)
+                                   .append("</").append(fieldName).append(">\n");
+                            }
+                        }
+                    }
+                }
+            } else {
+                xml.append("  <message>No DERControlBase data</message>\n");
+            }
+            xml.append(" </DERControlBase>\n");
+
+            xml.append("</DERControl>");
+            return xml.toString();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving DERControl", e);
+            return "<DERControl xmlns=\"http://ieee.org/2030.5\">\n" +
+                   "<error>Error occurred: " + e.getMessage() + "</error>\n" +
+                   "</DERControl>";
+        }
     }
 
     public ResponseEntity<Map<String, Object>> getDERControl(Long derProgramId, Long derControlId) {
