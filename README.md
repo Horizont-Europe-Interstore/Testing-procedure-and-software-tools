@@ -4,6 +4,8 @@ Compact overview, structure, and quick-start instructions for the workspace.
 
 ## Project overview
 This repository implements an IEEE 2030.5 conformance test application with:
+The Software Architecture 
+  ![SoftWare Architecture](assets/Test_Software_Architecture_1.0.png)
 - Java Spring Boot backend and services (interstore) — see [`interstore/app/src/main/java/interstore/App.java`](./interstore/app/src/main/java/interstore/App.java).
 - React front-end (UI) — see [`react-browser`](./react-browser).
 - Ad-hoc server for IEEE 2030.5 protocol handling — see [`adhoc-server`](./adhoc).
@@ -76,5 +78,6 @@ below link has the demo to use the testing tool
 - [React UI](./react-browser)
 
 <!-- - [Logstash config](ieee2030.5-restapi/logstash.conf) -->
+
 
 
