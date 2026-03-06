@@ -7,7 +7,7 @@ services:
       dockerfile: adhoc/Dockerfile
     container_name: ieee2030-proxy
     environment:
-      - BACKEND_URL=http://18.232.7.53:8080
+      - BACKEND_URL=http://xxx.xxx.xxx.xxx:8080
     ports:
       - "443:443"
     volumes:
