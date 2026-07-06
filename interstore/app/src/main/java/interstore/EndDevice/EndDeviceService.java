@@ -68,7 +68,7 @@ public class EndDeviceService {
         setEndDeviceAttributesEndPoints(payload);
         String endDeviceListLink =  payload.optString("endDeviceListLink", "defaultLink") ;
         String endDeviceLink =  endDeviceListLink +  idString;
-        String functionsetAssignmentListLink =   endDeviceListLink + idString + payload.optString("functionsetAssignmentLink", "defaultLink");
+        String functionsetAssignmentListLink =   endDeviceListLink + idString + payload.optString("functionSetAssignmentLink", "defaultLink");
         String derListLink = endDeviceListLink +  idString + payload.optString("dERListLink", "defaultLink");
         String deviceStatusLink =  endDeviceListLink  + idString + payload.optString("deviceStatusLink", "defaultLink");
         String registrationLink = endDeviceListLink  + idString + payload.optString("registrationLink", "defaultLink");
@@ -691,6 +691,25 @@ public class EndDeviceService {
             responseMap.put("message", "Error retrieving FunctionSetAssignments");
             return ResponseEntity.status(500).body(responseMap);
         }
+    }
+
+    public Long addEndDeviceHttp(Map<String, String> endDeviceEntity){
+        Long sFDI = Long.parseLong(endDeviceEntity.get("sFDI"));
+        Optional<EndDeviceEntity> optionalEndDeviceEntity = endDeviceRepository.findBysFDI(sFDI);
+        if (! optionalEndDeviceEntity.isPresent()){
+            EndDeviceEntity endDeviceDto = new EndDeviceEntity();
+            endDeviceDto.setsfdi(sFDI);
+            endDeviceDto = endDeviceRepository.save(endDeviceDto);
+            endDeviceDto.setEndDeviceLink("/edev/"+endDeviceDto.getId());
+            endDeviceDto.setRegistrationLink("/edev/"+endDeviceDto.getId()+"/rg");
+            endDeviceRepository.save(endDeviceDto);
+            registerEndDevice( Long.parseLong("111115"), endDeviceDto.getId());
+            return endDeviceDto.getId();
+        }
+        else{
+            return optionalEndDeviceEntity.get().getId();
+        }
+        
     }
 
 }

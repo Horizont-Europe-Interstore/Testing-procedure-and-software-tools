@@ -224,31 +224,37 @@ public class DerService {
     
             // Simple values
             appendSimpleElement(xml, "modesSupported", derCap.getModesSupported());
+            appendPhysicalValue(xml, "rtgA", derCap.getRtgAMultiplier(), derCap.getRtgAValue());
             appendSimpleElement(xml, "rtgAbnormalCategory", derCap.getRtgAbnormalCategory());
     
             // Value + Multiplier fields (IEEE 2030.5 physical values)
-            appendPhysicalValue(xml, "rtgMaxA", derCap.getRtgMaxAMultiplier(), derCap.getRtgMaxAValue());
-            appendPhysicalValue(xml, "rtgMaxAh", derCap.getRtgMaxAhMultiplier(), derCap.getRtgMaxAhValue());
+            
+            appendPhysicalValue(xml, "rtgAh", derCap.getRtgAhMultiplier(), derCap.getRtgAhValue());
             appendPhysicalValue(xml, "rtgMaxChargeRateVA", derCap.getRtgMaxChargeRateVAMultiplier(), derCap.getRtgMaxChargeRateVAValue());
             appendPhysicalValue(xml, "rtgMaxChargeRateW", derCap.getRtgMaxChargeRateWMultiplier(), derCap.getRtgMaxChargeRateWValue());
             appendPhysicalValue(xml, "rtgMaxDischargeRateVA", derCap.getRtgMaxDischargeRateVAMultiplier(), derCap.getRtgMaxDischargeRateVAValue());
             appendPhysicalValue(xml, "rtgMaxDischargeRateW", derCap.getRtgMaxDischargeRateWMultiplier(), derCap.getRtgMaxDischargeRateWValue());
-            appendPhysicalValue(xml, "rtgMaxV", derCap.getRtgMaxVMultiplier(), derCap.getRtgMaxVValue());
-            appendPhysicalValue(xml, "rtgMaxVA", derCap.getRtgMaxVAMultiplier(), derCap.getRtgMaxVAValue());
-            appendPhysicalValue(xml, "rtgMaxVar", derCap.getRtgMaxVarMultiplier(), derCap.getRtgMaxVarValue());
-            appendPhysicalValue(xml, "rtgMaxVarNeg", derCap.getRtgMaxVarNegMultiplier(), derCap.getRtgMaxVarNegValue());
-            appendPhysicalValue(xml, "rtgMaxW", derCap.getRtgMaxWMultiplier(), derCap.getRtgMaxWValue());
-            appendPhysicalValue(xml, "rtgMaxWh", derCap.getRtgMaxWhMultiplier(), derCap.getRtgMaxWhValue());
+
+            appendPowerFactorValue(xml, "rtgMinPF", derCap.getRtgMinPFDisplacement(), derCap.getRtgMinPFMultiplier());
+            appendPowerFactorValue(xml, "rtgMinPFNeg", derCap.getRtgMinPFNegDisplacement(), derCap.getRtgMinPFNegMultiplier());
+            appendSimpleElement(xml, "rtgNormalCategory", derCap.getRtgNormalCategory());
+
+            // appendPhysicalValue(xml, "rtgMaxV", derCap.getRtgMaxVMultiplier(), derCap.getRtgMaxVValue());
+            appendPhysicalValue(xml, "rtgVA", derCap.getRtgVAMultiplier(), derCap.getRtgVAValue());
+            appendPhysicalValue(xml, "rtgVar", derCap.getRtgVarMultiplier(), derCap.getRtgVarValue());
+            appendPhysicalValue(xml, "rtgVarNeg", derCap.getRtgVarNegMultiplier(), derCap.getRtgVarNegValue());
+            appendPhysicalValue(xml, "rtgW", derCap.getRtgWMultiplier(), derCap.getRtgWValue());
+            appendPhysicalValue(xml, "rtgWh", derCap.getRtgWhMultiplier(), derCap.getRtgWhValue());
     
             // Displacement + Multiplier fields (Power Factor)
-            appendPowerFactorValue(xml, "rtgMinPFOverExcited", derCap.getRtgMinPFOverExcitedDisplacement(), derCap.getRtgMinPFOverExcitedMultiplier());
-            appendPowerFactorValue(xml, "rtgMinPFUnderExcited", derCap.getRtgMinPFUnderExcitedDisplacement(), derCap.getRtgMinPFUnderExcitedMultiplier());
-    
+            // appendPowerFactorValue(xml, "rtgMinPFOverExcited", derCap.getRtgMinPFOverExcitedDisplacement(), derCap.getRtgMinPFOverExcitedMultiplier());
+            // appendPowerFactorValue(xml, "rtgMinPFUnderExcited", derCap.getRtgMinPFUnderExcitedDisplacement(), derCap.getRtgMinPFUnderExcitedMultiplier());
+
             // More physical values
-            appendPhysicalValue(xml, "rtgMinV", derCap.getRtgMinVMultiplier(), derCap.getRtgMinVValue());
+            // appendPhysicalValue(xml, "rtgMinV", derCap.getRtgMinVMultiplier(), derCap.getRtgMinVValue());
     
             // Simple value
-            appendSimpleElement(xml, "rtgNormalCategory", derCap.getRtgNormalCategory());
+            
     
             // More displacement + multiplier
             appendPowerFactorValue(xml, "rtgOverExcitedPF", derCap.getRtgOverExcitedPFDisplacement(), derCap.getRtgOverExcitedPFMultiplier());
@@ -262,7 +268,7 @@ public class DerService {
     
             // More physical values
             appendPhysicalValue(xml, "rtgUnderExcitedW", derCap.getRtgUnderExcitedWMultiplier(), derCap.getRtgUnderExcitedWValue());
-            appendPhysicalValue(xml, "rtgVNom", derCap.getRtgVNomMultiplier(), derCap.getRtgVNomValue());
+            // appendPhysicalValue(xml, "rtgVNom", derCap.getRtgVNomMultiplier(), derCap.getRtgVNomValue());
     
             // Type
             appendSimpleElement(xml, "type", derCap.getDerType());
@@ -287,10 +293,12 @@ public class DerService {
     
     // Helper method for physical values (multiplier + value) - always include even if null
     private void appendPhysicalValue(StringBuilder xml, String name, Integer multiplier, Integer value) {
+        if (value != null || multiplier != null) {
         xml.append("  <").append(name).append(">\n");
         xml.append("    <multiplier>").append(multiplier != null ? multiplier : 0).append("</multiplier>\n");
         xml.append("    <value>").append(value != null ? value : 0).append("</value>\n");
         xml.append("  </").append(name).append(">\n");
+        }
     }
     
     // Helper method for power factor values (displacement + multiplier)
@@ -395,18 +403,19 @@ public class DerService {
             xml.append("<DERStatus xmlns=\"urn:ieee:std:2030.5:ns\">\n");
     
             // Simple values
-            appendSimpleElement(xml, "alarmStatus", derStatus.getAlarmStatus());
-            appendSimpleElement(xml, "readingTime", derStatus.getReadingTime());
-            appendSimpleElement(xml, "manufacturerStatus", derStatus.getManufacturerStatus());
-    
-            // Status fields with dateTime and value
             appendStatusValue(xml, "genConnectStatus", derStatus.getGenConnectStatusDateTime(), derStatus.getGenConnectStatusValue());
             appendStatusValue(xml, "inverterStatus", derStatus.getInverterStatusDateTime(), derStatus.getInverterStatusValue());
             appendStatusValue(xml, "localControlModeStatus", derStatus.getLocalControlModeStatusDateTime(), derStatus.getLocalControlModeStatusValue());
             appendStatusValue(xml, "operationalModeStatus", derStatus.getOperationalModeStatusDateTime(), derStatus.getOperationalModeStatusValue());
+            appendSimpleElement(xml, "alarmStatus", derStatus.getAlarmStatus());
+            appendSimpleElement(xml, "readingTime", derStatus.getReadingTime());
             appendStatusValue(xml, "stateOfChargeStatus", derStatus.getStateOfChargeStatusDateTime(), derStatus.getStateOfChargeStatusValue());
             appendStatusValue(xml, "storageModeStatus", derStatus.getStorageModeStatusDateTime(), derStatus.getStorageModeStatusValue());
             appendStatusValue(xml, "storConnectStatus", derStatus.getStorConnectStatusDateTime(), derStatus.getStorConnectStatusValue());
+
+            appendSimpleElement(xml, "manufacturerStatus", derStatus.getManufacturerStatus());
+    
+            // Status fields with dateTime and value
     
             xml.append("</DERStatus>");
             return xml.toString();
@@ -420,7 +429,7 @@ public class DerService {
     }
 
     // Helper method for status values (dateTime + value) - always include even if null
-    private void appendStatusValue(StringBuilder xml, String name, Long dateTime, Integer value) {
+    private void appendStatusValue(StringBuilder xml, String name, Long dateTime, Object value) {
         xml.append("  <").append(name).append(">\n");
         xml.append("    <dateTime>").append(dateTime != null ? dateTime : 0).append("</dateTime>\n");
         xml.append("    <value>").append(value != null ? value : 0).append("</value>\n");
@@ -549,10 +558,11 @@ public class DerService {
         String derListLink = stripHost(endDeviceDto.get().getDERListLink());
 
         StringBuilder xml = new StringBuilder();
-        xml.append("<DERList xmlns=\"urn:ieee:std:2030.5:ns\" ")
-           .append("href=\"").append(derListLink).append("\" ")
+        xml.append("<DERList ")
            .append("all=\"").append(derEntityList.size()).append("\" ")
-           .append("results=\"").append(derEntityList.size()).append("\">\n");
+           .append("results=\"").append(derEntityList.size()).append("\" ")
+           .append("href=\"").append(derListLink).append("\" ")
+           .append("xmlns=\"urn:ieee:std:2030.5:ns\">\n");
 
         if (derEntityList.isEmpty()) {
             xml.append(" <message>No DERs found for EndDevice ").append(endDeviceId).append("</message>\n");
@@ -560,14 +570,16 @@ public class DerService {
             for (DerEntity der : derEntityList) {
                 xml.append(" <DER href=\"").append(stripHost(der.getDerLink())).append("\">\n");
 
-                // Conditional link elements
-                appendIfPresentIndented(xml, "DERCapabilityLink", der.getDerCapabilityLink(), 2);
-                appendIfPresentIndented(xml, "DERStatusLink", der.getDerStatusLink(), 2);
-                appendIfPresentIndented(xml, "DERAvailabilityLink", der.getDerAvailabilityLink(), 2);
-                appendIfPresentIndented(xml, "DERSettingsLink", der.getDerSettingsLink(), 2);
-                appendIfPresentIndented(xml, "AssociatedUsagePointLink", der.getAssociatedUsagePointLink(), 2);
-                appendIfPresentIndented(xml, "AssociatedDERProgramListLink", der.getAssociatedDERProgramListLink(), 2);
-                appendIfPresentIndented(xml, "CurrentDERProgramLink", der.getCurrentDERProgramLink(), 2);
+                // Conditional link elements 
+                // maintain order of the elements to not break the client
+
+                appendIfPresentIndented(xml, "AssociatedDERProgramListLink", der.getAssociatedDERProgramListLink(), 2); // #1
+                appendIfPresentIndented(xml, "AssociatedUsagePointLink", der.getAssociatedUsagePointLink(), 2); //#2
+                appendIfPresentIndented(xml, "CurrentDERProgramLink", der.getCurrentDERProgramLink(), 2); // #3
+                appendIfPresentIndented(xml, "DERAvailabilityLink", der.getDerAvailabilityLink(), 2); // #4
+                appendIfPresentIndented(xml, "DERCapabilityLink", der.getDerCapabilityLink(), 2); // #5
+                appendIfPresentIndented(xml, "DERSettingsLink", der.getDerSettingsLink(), 2); // #6
+                appendIfPresentIndented(xml, "DERStatusLink", der.getDerStatusLink(), 2); // #7
 
                 xml.append(" </DER>\n");
             }
@@ -592,11 +604,11 @@ public class DerService {
         if (link != null && !link.isBlank()) {
             String indent = " ".repeat(indentLevel);
             xml.append(indent)
-            .append("<").append(tagName)
-            .append(" href=\"").append(stripHost(link)).append("\"");
+            .append("<").append(tagName);
             if (tagName.endsWith("ListLink")) {
                 xml.append(" all=\"0\"");
             }
+            xml.append(" href=\"").append(stripHost(link)).append("\"");
             xml.append("/>\n");
         }
     }
@@ -729,29 +741,31 @@ public class DerService {
         derCapability.setDerType(payload.has("type") ? payload.getInt("type") : null);
 
         // Value + Multiplier fields
-        derCapability.setRtgMaxA(derCapablityExtractor(payload, "rtgMaxA"));
-        derCapability.setRtgMaxAh(derCapablityExtractor(payload, "rtgMaxAh"));
+        derCapability.setRtgA(derCapablityExtractor(payload, "rtgA"));
+        derCapability.setRtgAh(derCapablityExtractor(payload, "rtgAh"));
         derCapability.setRtgMaxChargeRateVA(derCapablityExtractor(payload, "rtgMaxChargeRateVA"));
         derCapability.setRtgMaxChargeRateW(derCapablityExtractor(payload, "rtgMaxChargeRateW"));
         derCapability.setRtgMaxDischargeRateW(derCapablityExtractor(payload, "rtgMaxDischargeRateW"));
         derCapability.setRtgMaxDischargeRateVA(derCapablityExtractor(payload, "rtgMaxDischargeRateVA"));
-        derCapability.setRtgMaxV(derCapablityExtractor(payload, "rtgMaxV"));
-        derCapability.setRtgMaxVA(derCapablityExtractor(payload, "rtgMaxVA"));
-        derCapability.setRtgMaxVar(derCapablityExtractor(payload, "rtgMaxVar"));
-        derCapability.setRtgMaxVarNeg(derCapablityExtractor(payload, "rtgMaxVarNeg"));
-        derCapability.setRtgMaxW(derCapablityExtractor(payload, "rtgMaxW"));
-        derCapability.setRtgMaxWh(derCapablityExtractor(payload, "rtgMaxWh"));
-        derCapability.setRtgMinV(derCapablityExtractor(payload, "rtgMinV"));
+        // derCapability.setRtgMaxV(derCapablityExtractor(payload, "rtgMaxV"));
+        derCapability.setRtgVA(derCapablityExtractor(payload, "rtgVA"));
+        derCapability.setRtgVar(derCapablityExtractor(payload, "rtgVar"));
+        derCapability.setRtgVarNeg(derCapablityExtractor(payload, "rtgVarNeg"));
+        derCapability.setRtgW(derCapablityExtractor(payload, "rtgW"));
+        derCapability.setRtgWh(derCapablityExtractor(payload, "rtgWh"));
+        // derCapability.setRtgMinV(derCapablityExtractor(payload, "rtgMinV"));
         derCapability.setRtgOverExcitedW(derCapablityExtractor(payload, "rtgOverExcitedW"));
         derCapability.setRtgReactiveSusceptance(derCapablityExtractor(payload, "rtgReactiveSusceptance"));
         derCapability.setRtgUnderExcitedW(derCapablityExtractor(payload, "rtgUnderExcitedW"));
-        derCapability.setRtgVNom(derCapablityExtractor(payload, "rtgVNom"));
+        // derCapability.setRtgVNom(derCapablityExtractor(payload, "rtgVNom"));
 
         // Displacement + Multiplier fields
-        derCapability.setRtgMinPFOverExcited(derDisplacementExtractor(payload, "rtgMinPFOverExcited"));
-        derCapability.setRtgMinPFUnderExcited(derDisplacementExtractor(payload, "rtgMinPFUnderExcited"));
+        // derCapability.setRtgMinPFOverExcited(derDisplacementExtractor(payload, "rtgMinPFOverExcited"));
+        // derCapability.setRtgMinPFUnderExcited(derDisplacementExtractor(payload, "rtgMinPFUnderExcited"));
         derCapability.setRtgOverExcitedPF(derDisplacementExtractor(payload, "rtgOverExcitedPF"));
         derCapability.setRtgUnderExcitedPF(derDisplacementExtractor(payload, "rtgUnderExcitedPF"));
+        derCapability.setRtgMinPF(derDisplacementExtractor(payload, "rtgMinPF"));
+        derCapability.setRtgMinPFNeg(derDisplacementExtractor(payload, "rtgMinPFNeg"));
     }
 
     @Transactional
@@ -799,7 +813,7 @@ public class DerService {
         if (payload.has("genConnectStatus")) {
             JSONObject genConnect = payload.getJSONObject("genConnectStatus");
             derStatusEntity.setGenConnectStatusDateTime(genConnect.has("dateTime") ? genConnect.getLong("dateTime") : null);
-            derStatusEntity.setGenConnectStatusValue(genConnect.has("value") ? parseIntValue(genConnect, "value") : null);
+            derStatusEntity.setGenConnectStatusValue(genConnect.has("value") ? genConnect.getString("value") : null);
         }
 
         
@@ -841,7 +855,7 @@ public class DerService {
         if (payload.has("storConnectStatus")) {
             JSONObject storConnect = payload.getJSONObject("storConnectStatus");
             derStatusEntity.setStorConnectStatusDateTime(storConnect.has("dateTime") ? storConnect.getLong("dateTime") : null);
-            derStatusEntity.setStorConnectStatusValue(storConnect.has("value") ? parseIntValue(storConnect, "value") : null);
+            derStatusEntity.setStorConnectStatusValue(storConnect.has("value") ? storConnect.getString("value") : null);
         }
      }
 
@@ -874,7 +888,7 @@ public class DerService {
         derAvailabilityRepository.save(derEntity.getDerAvailability());
 
         LOGGER.info("DER Availability updated successfully");
-        return "DER Availability updated";
+        return getDerAvailabilityHttp(endDeviceID, derId);
     }
 
     private void updateDERAvailabilityFields(DERAvailabilityEntity derAvail, JSONObject payload) {
@@ -904,7 +918,7 @@ public class DerService {
             Optional<DerEntity> derEntityOptional = derRepository.findFirstByEndDeviceIdAndId(endDeviceId, derId);
             if (derEntityOptional.isEmpty()) {
                 return "<DERAvailability xmlns=\"urn:ieee:std:2030.5:ns\" href=\"/edev/" + endDeviceId + "/der/" + derId + "/dera\">\n" +
-                       "  <message>No DER found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
+                       "  <message>No DERAvailability found for EndDevice " + endDeviceId + " and DER ID " + derId + "</message>\n" +
                        "</DERAvailability>";
             }
     

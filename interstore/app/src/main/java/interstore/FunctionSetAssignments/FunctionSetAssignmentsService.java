@@ -40,7 +40,7 @@ public class FunctionSetAssignmentsService {
      
      @Transactional
     public FunctionSetAssignmentsEntity createFunctionsetAssignments(JSONObject payload) throws NumberFormatException, JSONException, NotFoundException {
-        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceId"));
+        Long endDeviceId = Long.parseLong(payload.getJSONObject("payload").getString("endDeviceID"));
         EndDeviceEntity endDevice = endDeviceRepository.findById( endDeviceId)
         .orElseThrow(() -> new NotFoundException());
         //endDevice.getFunctionSetAssignmentsListLink();

@@ -189,12 +189,12 @@ public class DeviceCapabilityService {
     }
 
     @Transactional
-    public String getTime(String payload) throws JSONException{
+    public Map<String, Object> getTime(String payload) throws JSONException{
         TimeEntity timeDto = timeDtoRepository.findByTimeLink(payload);
         JSONObject object = new JSONObject();
         object.put("time_instance", timeDto.getCurrentTime());
         object.put("quality", timeDto.getQuality());
-        return object.toString();
+        return object.toMap();
     }
 
     @Transactional

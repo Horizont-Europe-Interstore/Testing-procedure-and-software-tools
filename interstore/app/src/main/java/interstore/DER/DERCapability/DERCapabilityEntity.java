@@ -24,17 +24,17 @@ public class DERCapabilityEntity {
     @Column(name = "rtgAbnormalCategory")
     private Integer rtgAbnormalCategory;
 
-    // rtgMaxA
-    @Column(name = "rtgMaxAMultiplier")
-    private Integer rtgMaxAMultiplier;
-    @Column(name = "rtgMaxAValue")
-    private Integer rtgMaxAValue;
+    // rtgMaxA -> rtgA
+    @Column(name = "rtgAMultiplier")
+    private Integer rtgAMultiplier;
+    @Column(name = "rtgAValue")
+    private Integer rtgAValue;
 
-    // rtgMaxAh
-    @Column(name = "rtgMaxAhMultiplier")
-    private Integer rtgMaxAhMultiplier;
-    @Column(name = "rtgMaxAhValue")
-    private Integer rtgMaxAhValue;
+    // rtgMaxAh -> rtgAh
+    @Column(name = "rtgAhMultiplier")
+    private Integer rtgAhMultiplier;
+    @Column(name = "rtgAhValue")
+    private Integer rtgAhValue;
 
     // rtgMaxChargeRateVA
     @Column(name = "rtgMaxChargeRateVAMultiplier")
@@ -61,58 +61,58 @@ public class DERCapabilityEntity {
     private Integer rtgMaxDischargeRateVAValue;
 
     // rtgMaxV
-    @Column(name = "rtgMaxVMultiplier")
-    private Integer rtgMaxVMultiplier;
-    @Column(name = "rtgMaxVValue")
-    private Integer rtgMaxVValue;
+    // @Column(name = "rtgMaxVMultiplier")
+    // private Integer rtgMaxVMultiplier;
+    // @Column(name = "rtgMaxVValue")
+    // private Integer rtgMaxVValue;
 
-    // rtgMaxVA
-    @Column(name = "rtgMaxVAMultiplier")
-    private Integer rtgMaxVAMultiplier;
-    @Column(name = "rtgMaxVAValue")
-    private Integer rtgMaxVAValue;
+    // rtgMaxVA -> rtgVA
+    @Column(name = "rtgVAMultiplier")
+    private Integer rtgVAMultiplier;
+    @Column(name = "rtgVAValue")
+    private Integer rtgVAValue;
 
-    // rtgMaxVar
-    @Column(name = "rtgMaxVarMultiplier")
-    private Integer rtgMaxVarMultiplier;
-    @Column(name = "rtgMaxVarValue")
-    private Integer rtgMaxVarValue;
+    // rtgMaxVar -> rtgVar
+    @Column(name = "rtgVarMultiplier")
+    private Integer rtgVarMultiplier;
+    @Column(name = "rtgVarValue")
+    private Integer rtgVarValue;
 
-    // rtgMaxVarNeg
-    @Column(name = "rtgMaxVarNegMultiplier")
-    private Integer rtgMaxVarNegMultiplier;
-    @Column(name = "rtgMaxVarNegValue")
-    private Integer rtgMaxVarNegValue;
+    // rtgMaxVarNeg -> rtgVarNeg
+    @Column(name = "rtgVarNegMultiplier")
+    private Integer rtgVarNegMultiplier;
+    @Column(name = "rtgVarNegValue")
+    private Integer rtgVarNegValue;
 
-    // rtgMaxW
-    @Column(name = "rtgMaxWMultiplier")
-    private Integer rtgMaxWMultiplier;
-    @Column(name = "rtgMaxWValue")
-    private Integer rtgMaxWValue;
+    // rtgMaxW -> rtgW
+    @Column(name = "rtgWMultiplier")
+    private Integer rtgWMultiplier;
+    @Column(name = "rtgWValue")
+    private Integer rtgWValue;
 
-    // rtgMaxWh
-    @Column(name = "rtgMaxWhMultiplier")
-    private Integer rtgMaxWhMultiplier;
-    @Column(name = "rtgMaxWhValue")
-    private Integer rtgMaxWhValue;
+    // rtgMaxWh -> rtgWh
+    @Column(name = "rtgWhMultiplier")
+    private Integer rtgWhMultiplier;
+    @Column(name = "rtgWhValue")
+    private Integer rtgWhValue;
 
     // rtgMinPFOverExcited (displacement + multiplier)
-    @Column(name = "rtgMinPFOverExcitedDisplacement")
-    private Integer rtgMinPFOverExcitedDisplacement;
-    @Column(name = "rtgMinPFOverExcitedMultiplier")
-    private Integer rtgMinPFOverExcitedMultiplier;
+    // @Column(name = "rtgMinPFOverExcitedDisplacement")
+    // private Integer rtgMinPFOverExcitedDisplacement;
+    // @Column(name = "rtgMinPFOverExcitedMultiplier")
+    // private Integer rtgMinPFOverExcitedMultiplier;
 
     // rtgMinPFUnderExcited (displacement + multiplier)
-    @Column(name = "rtgMinPFUnderExcitedDisplacement")
-    private Integer rtgMinPFUnderExcitedDisplacement;
-    @Column(name = "rtgMinPFUnderExcitedMultiplier")
-    private Integer rtgMinPFUnderExcitedMultiplier;
+    // @Column(name = "rtgMinPFUnderExcitedDisplacement")
+    // private Integer rtgMinPFUnderExcitedDisplacement;
+    // @Column(name = "rtgMinPFUnderExcitedMultiplier")
+    // private Integer rtgMinPFUnderExcitedMultiplier;
 
     // rtgMinV
-    @Column(name = "rtgMinVMultiplier")
-    private Integer rtgMinVMultiplier;
-    @Column(name = "rtgMinVValue")
-    private Integer rtgMinVValue;
+    // @Column(name = "rtgMinVMultiplier")
+    // private Integer rtgMinVMultiplier;
+    // @Column(name = "rtgMinVValue")
+    // private Integer rtgMinVValue;
 
     @Column(name = "rtgNormalCategory")
     private Integer rtgNormalCategory;
@@ -122,6 +122,18 @@ public class DERCapabilityEntity {
     private Integer rtgOverExcitedPFDisplacement;
     @Column(name = "rtgOverExcitedPFMultiplier")
     private Integer rtgOverExcitedPFMultiplier;
+
+    // rtgMinPF (displacement + multiplier)
+    @Column(name = "rtgMinPFDisplacement")
+    private Integer rtgMinPFDisplacement;
+    @Column(name = "rtgMinPFMultiplier")
+    private Integer rtgMinPFMultiplier;
+
+    // rtgMinPF (displacement + multiplier)
+    @Column(name = "rtgMinPFNegDisplacement")
+    private Integer rtgMinPFNegDisplacement;
+    @Column(name = "rtgMinPFNegMultiplier")
+    private Integer rtgMinPFNegMultiplier;
 
     // rtgOverExcitedW
     @Column(name = "rtgOverExcitedWMultiplier")
@@ -148,10 +160,10 @@ public class DERCapabilityEntity {
     private Integer rtgUnderExcitedWValue;
 
     // rtgVNom
-    @Column(name = "rtgVNomMultiplier")
-    private Integer rtgVNomMultiplier;
-    @Column(name = "rtgVNomValue")
-    private Integer rtgVNomValue;
+    // @Column(name = "rtgVNomMultiplier")
+    // private Integer rtgVNomMultiplier;
+    // @Column(name = "rtgVNomValue")
+    // private Integer rtgVNomValue;
 
     @Column(name = "type")
     private Integer derType;
@@ -165,23 +177,23 @@ public class DERCapabilityEntity {
 
     // ============ SETTERS FOR VALUE + MULTIPLIER FIELDS ============
 
-    public void setRtgMaxA(XmlvalueAndMultiplier xml) {
+    public void setRtgA(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxAMultiplier = xml.multiplier();
-            this.rtgMaxAValue = xml.value();
+            this.rtgAMultiplier = xml.multiplier();
+            this.rtgAValue = xml.value();
         } else {
-            this.rtgMaxAMultiplier = null;
-            this.rtgMaxAValue = null;
+            this.rtgAMultiplier = null;
+            this.rtgAValue = null;
         }
     }
 
-    public void setRtgMaxAh(XmlvalueAndMultiplier xml) {
+    public void setRtgAh(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxAhMultiplier = xml.multiplier();
-            this.rtgMaxAhValue = xml.value();
+            this.rtgAhMultiplier = xml.multiplier();
+            this.rtgAhValue = xml.value();
         } else {
-            this.rtgMaxAhMultiplier = null;
-            this.rtgMaxAhValue = null;
+            this.rtgAhMultiplier = null;
+            this.rtgAhValue = null;
         }
     }
 
@@ -225,75 +237,75 @@ public class DERCapabilityEntity {
         }
     }
 
-    public void setRtgMaxV(XmlvalueAndMultiplier xml) {
+    // public void setRtgMaxV(XmlvalueAndMultiplier xml) {
+    //     if (xml != null) {
+    //         this.rtgMaxVMultiplier = xml.multiplier();
+    //         this.rtgMaxVValue = xml.value();
+    //     } else {
+    //         this.rtgMaxVMultiplier = null;
+    //         this.rtgMaxVValue = null;
+    //     }
+    // }
+
+    public void setRtgVA(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxVMultiplier = xml.multiplier();
-            this.rtgMaxVValue = xml.value();
+            this.rtgVAMultiplier = xml.multiplier();
+            this.rtgVAValue = xml.value();
         } else {
-            this.rtgMaxVMultiplier = null;
-            this.rtgMaxVValue = null;
+            this.rtgVAMultiplier = null;
+            this.rtgVAValue = null;
         }
     }
 
-    public void setRtgMaxVA(XmlvalueAndMultiplier xml) {
+    public void setRtgVar(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxVAMultiplier = xml.multiplier();
-            this.rtgMaxVAValue = xml.value();
+            this.rtgVarMultiplier = xml.multiplier();
+            this.rtgVarValue = xml.value();
         } else {
-            this.rtgMaxVAMultiplier = null;
-            this.rtgMaxVAValue = null;
+            this.rtgVarMultiplier = null;
+            this.rtgVarValue = null;
         }
     }
 
-    public void setRtgMaxVar(XmlvalueAndMultiplier xml) {
+    public void setRtgVarNeg(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxVarMultiplier = xml.multiplier();
-            this.rtgMaxVarValue = xml.value();
+            this.rtgVarNegMultiplier = xml.multiplier();
+            this.rtgVarNegValue = xml.value();
         } else {
-            this.rtgMaxVarMultiplier = null;
-            this.rtgMaxVarValue = null;
+            this.rtgVarNegMultiplier = null;
+            this.rtgVarNegValue = null;
         }
     }
 
-    public void setRtgMaxVarNeg(XmlvalueAndMultiplier xml) {
+    public void setRtgW(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxVarNegMultiplier = xml.multiplier();
-            this.rtgMaxVarNegValue = xml.value();
+            this.rtgWMultiplier = xml.multiplier();
+            this.rtgWValue = xml.value();
         } else {
-            this.rtgMaxVarNegMultiplier = null;
-            this.rtgMaxVarNegValue = null;
+            this.rtgWMultiplier = null;
+            this.rtgWValue = null;
         }
     }
 
-    public void setRtgMaxW(XmlvalueAndMultiplier xml) {
+    public void setRtgWh(XmlvalueAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMaxWMultiplier = xml.multiplier();
-            this.rtgMaxWValue = xml.value();
+            this.rtgWhMultiplier = xml.multiplier();
+            this.rtgWhValue = xml.value();
         } else {
-            this.rtgMaxWMultiplier = null;
-            this.rtgMaxWValue = null;
+            this.rtgWhMultiplier = null;
+            this.rtgWhValue = null;
         }
     }
 
-    public void setRtgMaxWh(XmlvalueAndMultiplier xml) {
-        if (xml != null) {
-            this.rtgMaxWhMultiplier = xml.multiplier();
-            this.rtgMaxWhValue = xml.value();
-        } else {
-            this.rtgMaxWhMultiplier = null;
-            this.rtgMaxWhValue = null;
-        }
-    }
-
-    public void setRtgMinV(XmlvalueAndMultiplier xml) {
-        if (xml != null) {
-            this.rtgMinVMultiplier = xml.multiplier();
-            this.rtgMinVValue = xml.value();
-        } else {
-            this.rtgMinVMultiplier = null;
-            this.rtgMinVValue = null;
-        }
-    }
+    // public void setRtgMinV(XmlvalueAndMultiplier xml) {
+    //     if (xml != null) {
+    //         this.rtgMinVMultiplier = xml.multiplier();
+    //         this.rtgMinVValue = xml.value();
+    //     } else {
+    //         this.rtgMinVMultiplier = null;
+    //         this.rtgMinVValue = null;
+    //     }
+    // }
 
     public void setRtgOverExcitedW(XmlvalueAndMultiplier xml) {
         if (xml != null) {
@@ -325,35 +337,55 @@ public class DERCapabilityEntity {
         }
     }
 
-    public void setRtgVNom(XmlvalueAndMultiplier xml) {
-        if (xml != null) {
-            this.rtgVNomMultiplier = xml.multiplier();
-            this.rtgVNomValue = xml.value();
-        } else {
-            this.rtgVNomMultiplier = null;
-            this.rtgVNomValue = null;
-        }
-    }
+    // public void setRtgVNom(XmlvalueAndMultiplier xml) {
+    //     if (xml != null) {
+    //         this.rtgVNomMultiplier = xml.multiplier();
+    //         this.rtgVNomValue = xml.value();
+    //     } else {
+    //         this.rtgVNomMultiplier = null;
+    //         this.rtgVNomValue = null;
+    //     }
+    // }
 
     // ============ SETTERS FOR DISPLACEMENT + MULTIPLIER FIELDS ============
 
-    public void setRtgMinPFOverExcited(XmlDisplacementAndMultiplier xml) {
+    // public void setRtgMinPFOverExcited(XmlDisplacementAndMultiplier xml) {
+    //     if (xml != null) {
+    //         this.rtgMinPFOverExcitedDisplacement = xml.displacement();
+    //         this.rtgMinPFOverExcitedMultiplier = xml.multiplier();
+    //     } else {
+    //         this.rtgMinPFOverExcitedDisplacement = null;
+    //         this.rtgMinPFOverExcitedMultiplier = null;
+    //     }
+    // }
+
+    // public void setRtgMinPFUnderExcited(XmlDisplacementAndMultiplier xml) {
+    //     if (xml != null) {
+    //         this.rtgMinPFUnderExcitedDisplacement = xml.displacement();
+    //         this.rtgMinPFUnderExcitedMultiplier = xml.multiplier();
+    //     } else {
+    //         this.rtgMinPFUnderExcitedDisplacement = null;
+    //         this.rtgMinPFUnderExcitedMultiplier = null;
+    //     }
+    // }
+
+    public void setRtgMinPFNeg(XmlDisplacementAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMinPFOverExcitedDisplacement = xml.displacement();
-            this.rtgMinPFOverExcitedMultiplier = xml.multiplier();
+            this.rtgMinPFNegDisplacement = xml.displacement();
+            this.rtgMinPFNegMultiplier = xml.multiplier();
         } else {
-            this.rtgMinPFOverExcitedDisplacement = null;
-            this.rtgMinPFOverExcitedMultiplier = null;
+            this.rtgMinPFNegDisplacement = null;
+            this.rtgMinPFNegMultiplier = null;
         }
     }
 
-    public void setRtgMinPFUnderExcited(XmlDisplacementAndMultiplier xml) {
+    public void setRtgMinPF(XmlDisplacementAndMultiplier xml) {
         if (xml != null) {
-            this.rtgMinPFUnderExcitedDisplacement = xml.displacement();
-            this.rtgMinPFUnderExcitedMultiplier = xml.multiplier();
+            this.rtgMinPFDisplacement = xml.displacement();
+            this.rtgMinPFMultiplier = xml.multiplier();
         } else {
-            this.rtgMinPFUnderExcitedDisplacement = null;
-            this.rtgMinPFUnderExcitedMultiplier = null;
+            this.rtgMinPFDisplacement = null;
+            this.rtgMinPFMultiplier = null;
         }
     }
 
@@ -408,10 +440,10 @@ public class DERCapabilityEntity {
     public Long getId() { return id; }
     public String getModesSupported() { return modesSupported; }
     public Integer getRtgAbnormalCategory() { return rtgAbnormalCategory; }
-    public Integer getRtgMaxAMultiplier() { return rtgMaxAMultiplier; }
-    public Integer getRtgMaxAValue() { return rtgMaxAValue; }
-    public Integer getRtgMaxAhMultiplier() { return rtgMaxAhMultiplier; }
-    public Integer getRtgMaxAhValue() { return rtgMaxAhValue; }
+    public Integer getRtgAMultiplier() { return rtgAMultiplier; }
+    public Integer getRtgAValue() { return rtgAValue; }
+    public Integer getRtgAhMultiplier() { return rtgAhMultiplier; }
+    public Integer getRtgAhValue() { return rtgAhValue; }
     public Integer getRtgMaxChargeRateVAMultiplier() { return rtgMaxChargeRateVAMultiplier; }
     public Integer getRtgMaxChargeRateVAValue() { return rtgMaxChargeRateVAValue; }
     public Integer getRtgMaxChargeRateWMultiplier() { return rtgMaxChargeRateWMultiplier; }
@@ -420,24 +452,28 @@ public class DERCapabilityEntity {
     public Integer getRtgMaxDischargeRateWValue() { return rtgMaxDischargeRateWValue; }
     public Integer getRtgMaxDischargeRateVAMultiplier() { return rtgMaxDischargeRateVAMultiplier; }
     public Integer getRtgMaxDischargeRateVAValue() { return rtgMaxDischargeRateVAValue; }
-    public Integer getRtgMaxVMultiplier() { return rtgMaxVMultiplier; }
-    public Integer getRtgMaxVValue() { return rtgMaxVValue; }
-    public Integer getRtgMaxVAMultiplier() { return rtgMaxVAMultiplier; }
-    public Integer getRtgMaxVAValue() { return rtgMaxVAValue; }
-    public Integer getRtgMaxVarMultiplier() { return rtgMaxVarMultiplier; }
-    public Integer getRtgMaxVarValue() { return rtgMaxVarValue; }
-    public Integer getRtgMaxVarNegMultiplier() { return rtgMaxVarNegMultiplier; }
-    public Integer getRtgMaxVarNegValue() { return rtgMaxVarNegValue; }
-    public Integer getRtgMaxWMultiplier() { return rtgMaxWMultiplier; }
-    public Integer getRtgMaxWValue() { return rtgMaxWValue; }
-    public Integer getRtgMaxWhMultiplier() { return rtgMaxWhMultiplier; }
-    public Integer getRtgMaxWhValue() { return rtgMaxWhValue; }
-    public Integer getRtgMinPFOverExcitedDisplacement() { return rtgMinPFOverExcitedDisplacement; }
-    public Integer getRtgMinPFOverExcitedMultiplier() { return rtgMinPFOverExcitedMultiplier; }
-    public Integer getRtgMinPFUnderExcitedDisplacement() { return rtgMinPFUnderExcitedDisplacement; }
-    public Integer getRtgMinPFUnderExcitedMultiplier() { return rtgMinPFUnderExcitedMultiplier; }
-    public Integer getRtgMinVMultiplier() { return rtgMinVMultiplier; }
-    public Integer getRtgMinVValue() { return rtgMinVValue; }
+    // public Integer getRtgMaxVMultiplier() { return rtgMaxVMultiplier; }
+    // public Integer getRtgMaxVValue() { return rtgMaxVValue; }
+    public Integer getRtgVAMultiplier() { return rtgVAMultiplier; }
+    public Integer getRtgVAValue() { return rtgVAValue; }
+    public Integer getRtgVarMultiplier() { return rtgVarMultiplier; }
+    public Integer getRtgVarValue() { return rtgVarValue; }
+    public Integer getRtgVarNegMultiplier() { return rtgVarNegMultiplier; }
+    public Integer getRtgVarNegValue() { return rtgVarNegValue; }
+    public Integer getRtgWMultiplier() { return rtgWMultiplier; }
+    public Integer getRtgWValue() { return rtgWValue; }
+    public Integer getRtgWhMultiplier() { return rtgWhMultiplier; }
+    public Integer getRtgWhValue() { return rtgWhValue; }
+    public Integer getRtgMinPFDisplacement() { return rtgMinPFDisplacement; }
+    public Integer getRtgMinPFMultiplier() { return rtgMinPFMultiplier; }
+    public Integer getRtgMinPFNegDisplacement() { return rtgMinPFNegDisplacement; }
+    public Integer getRtgMinPFNegMultiplier() { return rtgMinPFNegMultiplier; }
+    // public Integer getRtgMinPFOverExcitedDisplacement() { return rtgMinPFOverExcitedDisplacement; }
+    // public Integer getRtgMinPFOverExcitedMultiplier() { return rtgMinPFOverExcitedMultiplier; }
+    // public Integer getRtgMinPFUnderExcitedDisplacement() { return rtgMinPFUnderExcitedDisplacement; }
+    // public Integer getRtgMinPFUnderExcitedMultiplier() { return rtgMinPFUnderExcitedMultiplier; }
+    // public Integer getRtgMinVMultiplier() { return rtgMinVMultiplier; }
+    // public Integer getRtgMinVValue() { return rtgMinVValue; }
     public Integer getRtgNormalCategory() { return rtgNormalCategory; }
     public Integer getRtgOverExcitedPFDisplacement() { return rtgOverExcitedPFDisplacement; }
     public Integer getRtgOverExcitedPFMultiplier() { return rtgOverExcitedPFMultiplier; }
@@ -449,8 +485,8 @@ public class DERCapabilityEntity {
     public Integer getRtgUnderExcitedPFMultiplier() { return rtgUnderExcitedPFMultiplier; }
     public Integer getRtgUnderExcitedWMultiplier() { return rtgUnderExcitedWMultiplier; }
     public Integer getRtgUnderExcitedWValue() { return rtgUnderExcitedWValue; }
-    public Integer getRtgVNomMultiplier() { return rtgVNomMultiplier; }
-    public Integer getRtgVNomValue() { return rtgVNomValue; }
+    // public Integer getRtgVNomMultiplier() { return rtgVNomMultiplier; }
+    // public Integer getRtgVNomValue() { return rtgVNomValue; }
     public Integer getDerType() { return derType; }
     public DerEntity getDerEntity() { return derEntity; }
     public String getDerCapabilityLink() { return derCapabilityLink; }

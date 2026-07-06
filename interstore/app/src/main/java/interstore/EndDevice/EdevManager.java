@@ -7,11 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -288,6 +291,21 @@ public class EdevManager {
     }
     public void deleteEndDevice( String id) {
 
+    }
+
+    @PostMapping(value = "edev", produces = "application/sep+xml")
+     public ResponseEntity<String> addEndDeviceHttp(@RequestBody Map<String, String> endDeviceEntity) {
+        System.out.println("------------------------------------from client---------------------------------------------");
+        System.out.println(endDeviceEntity.get("changedTime"));
+        System.out.println(endDeviceEntity.get("sFDI"));
+        Long id = this.endDeviceImpl.addEndDeviceHttp(endDeviceEntity);
+        // LOGGER.info("the edev_val is " + endDeviceXml);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/sep+xml;level=S1");
+        headers.set("Cache-Control", "no-cache");
+        headers.setLocation(URI.create("/edev/" + id));
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
     
 }

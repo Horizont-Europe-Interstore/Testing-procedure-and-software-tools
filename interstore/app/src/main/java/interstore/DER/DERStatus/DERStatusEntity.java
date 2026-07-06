@@ -22,7 +22,7 @@ public class DERStatusEntity {
     @Column(name = "genConnectStatusDateTime")
     private Long genConnectStatusDateTime; 
     @Column(name = "genConnectStatusValue")
-    private Integer genConnectStatusValue;
+    private String genConnectStatusValue;
 
     @Column(name = "inverterStatusDateTime")
     private Long inverterStatusDateTime; 
@@ -58,7 +58,7 @@ public class DERStatusEntity {
     @Column(name = "storConnectStatusDateTime")
     private Long storConnectStatusDateTime;
     @Column(name = "storConnectStatusValue")
-    private Integer storConnectStatusValue;
+    private String storConnectStatusValue;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "der_entity") 
@@ -83,11 +83,11 @@ public class DERStatusEntity {
         this.genConnectStatusDateTime = genConnectStatusDateTime;
     }
 
-    public Integer getGenConnectStatusValue() {
+    public String getGenConnectStatusValue() {
         return genConnectStatusValue;
     }
 
-    public void setGenConnectStatusValue(Integer genConnectStatusValue) {
+    public void setGenConnectStatusValue(String genConnectStatusValue) {
         this.genConnectStatusValue = genConnectStatusValue;
     }
 
@@ -195,11 +195,11 @@ public class DERStatusEntity {
         this.storConnectStatusDateTime = storConnectStatusDateTime;
     }
 
-    public Integer getStorConnectStatusValue() {
+    public String getStorConnectStatusValue() {
         return storConnectStatusValue;
     }
 
-    public void setStorConnectStatusValue(Integer storConnectStatusValue) {
+    public void setStorConnectStatusValue(String storConnectStatusValue) {
         this.storConnectStatusValue = storConnectStatusValue;
     }
 

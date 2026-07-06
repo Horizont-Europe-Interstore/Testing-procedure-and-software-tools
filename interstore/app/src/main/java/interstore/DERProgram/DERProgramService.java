@@ -14,6 +14,7 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -219,12 +220,12 @@ public class DERProgramService {
                 }
 
                 // Map of fields to XML tag names
-                Map<String, String> listLinks = Map.of(
-                    "getDefaultDERControlLink", "DefaultDERControlLink",
-                    "getActiveDERControlListLink", "ActiveDERControlListLink",
-                    "getDERControlListLink", "DERControlListLink",
-                    "getDERCurveListLink", "DERCurveListLink"
-                );
+                Map<String, String> listLinks = new LinkedHashMap<>();
+                    listLinks.put("getDefaultDERControlLink", "DefaultDERControlLink");
+                    listLinks.put("getActiveDERControlListLink", "ActiveDERControlListLink");
+                    listLinks.put("getDERControlListLink", "DERControlListLink");
+                    listLinks.put("getDERCurveListLink", "DERCurveListLink");
+                    
 
                 for (Map.Entry<String, String> entry : listLinks.entrySet()) {
                     try {
@@ -237,8 +238,7 @@ public class DERProgramService {
                             } else if (entry.getKey().equals("getDERCurveListLink")) {
                                 count = (int) derCurveRepository.findByDerProgramId(der.getId()).stream().count();
                             }
-                            xml.append("  <").append(entry.getValue()).append(" href=\"")
-                               .append(stripHost(value.toString())).append("\" all=\"").append(count).append("\"/>\n");
+                            xml.append("  <").append(entry.getValue()).append(" all=\"").append(count).append("\" href=\"").append(stripHost(value.toString())).append("\"/>\n");
                         }
                     } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
                         LOGGER.log(Level.WARNING, "Error processing method " + entry.getKey(), e);

@@ -32,15 +32,18 @@ public class XmlValidationService {
         endpointToExpectedXmlFile.put("tm:GET", "Time.xml");
         endpointToExpectedXmlFile.put("dcap/tm:GET", "Time.xml");
         endpointToExpectedXmlFile.put("edev:GET", "EndDeviceList.xml");
+        endpointToExpectedXmlFile.put("edev:POST", "EndDevice.xml");
         endpointToExpectedXmlFile.put("edev/{id}:GET", "EndDevice.xml");
         endpointToExpectedXmlFile.put("edev/{id}/rg:GET", "Registration.xml");
         endpointToExpectedXmlFile.put("edev/{id}/fsa:GET", "FunctionSetAssignment.xml");
         endpointToExpectedXmlFile.put("edev/{id}/dstat:GET", "DeviceStatus.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der:GET", "DerList.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dercap:GET", "DerCapability.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dercap:PUT", "DerCapability.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/ders:GET", "DerStatus.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/ders:PUT", "DerStatus.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dera:GET", "DerAvailability.xml");
+        endpointToExpectedXmlFile.put("edev/{id}/der/{id}/dera:PUT", "DerAvailability.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/derg:GET", "DerSettings.xml");
         endpointToExpectedXmlFile.put("edev/{id}/der/{id}/derg:PUT", "DerSettings.xml");
         endpointToExpectedXmlFile.put("derp:GET", "DerProgramList.xml");
@@ -118,6 +121,10 @@ public class XmlValidationService {
             String differencesStr = isValid ? "Valid - all parameters match" : String.join("; ", differences);
 
             LOGGER.info("Validation result for " + endpoint + ": isValid=" + isValid + ", differences=" + differences.size());
+
+            if (!differences.isEmpty()) {
+                differences.forEach(d -> LOGGER.info("Difference: " + d));
+            }
 
             XmlValidationResult result = new XmlValidationResult(
                 id, endpoint, httpMethod, requestXml, expectedXml,

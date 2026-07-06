@@ -45,7 +45,7 @@ export default class Client{
             'Get An End Device': {servicename: 'enddevicemanager', action: 'get'},
             'Register End Device': {servicename: 'enddevicemanager', action: 'post'},
             'Get Registered End Device': {servicename: 'enddevicemanager', action: 'get'},
-            'Time': {servicename: 'selfdevicemanager', action: 'get'},
+            'Time': {servicename: 'devicecapabilitymanager', action: 'get-time'},
             'Advanced Time': {servicename: 'selfdevicemanager', action: 'get'},
             'Get All Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'get'},
             'Create Function Set Assignments': {servicename: 'functionsetassignmentsmanager', action: 'post'},
@@ -89,7 +89,7 @@ export default class Client{
 
     static #generateStoredValuesResponse(testObject, serverResponse){
         const {action} = Client.#getServiceInfo(testObject.test);
-        const isGet = action === 'get' || action === 'powergeneration' || action === 'reactivepower';
+        const isGet = action === 'get' || action === 'get-time' || action === 'powergeneration' || action === 'reactivepower';
 
         if(isGet){
             const raw = serverResponse?.payload ?? serverResponse;

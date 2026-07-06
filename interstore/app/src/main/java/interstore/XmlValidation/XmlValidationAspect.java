@@ -74,6 +74,8 @@ public class XmlValidationAspect {
                     }
                 }
                 LOGGER.info("Validating PUT request: " + endpoint + ", has request XML: " + !requestXml.isEmpty());
+                LOGGER.info("requestXml: " + requestXml);
+                LOGGER.info("xmlResponse: " + xmlResponse);
                 xmlValidationService.validateXml(endpoint, "PUT", requestXml, xmlResponse);
             }
         } else {

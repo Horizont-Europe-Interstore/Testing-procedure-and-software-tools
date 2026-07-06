@@ -1,14 +1,14 @@
 <DERCapability xmlns="urn:ieee:std:2030.5:ns">
     <modesSupported>05BD696B</modesSupported>
     <rtgAbnormalCategory>0</rtgAbnormalCategory>
-    <rtgMaxA>
+    <rtgA>
         <multiplier>-2</multiplier>
         <value>2657</value>
-    </rtgMaxA>
-    <rtgMaxAh>
+    </rtgA>
+    <rtgAh>
         <multiplier>0</multiplier>
         <value>55535</value>
-    </rtgMaxAh>
+    </rtgAh>
     <rtgMaxChargeRateVA>
         <multiplier>0</multiplier>
         <value>5800</value>
@@ -21,48 +21,36 @@
         <multiplier>0</multiplier>
         <value>6000</value>
     </rtgMaxDischargeRateW>
-    <rtgMaxV>
-        <multiplier>-2</multiplier>
-        <value>25000</value>
-    </rtgMaxV>
-    <rtgMaxVA>
+    <rtgMinPF>
+        <displacement>9</displacement>
+        <multiplier>-1</multiplier>
+    </rtgMinPF>
+    <rtgMinPFNeg>
+        <displacement>1</displacement>
+        <multiplier>0</multiplier>
+    </rtgMinPFNeg>
+    <rtgVA>
         <multiplier>0</multiplier>
         <value>6600</value>
-    </rtgMaxVA>
-    <rtgMaxVar>
+    </rtgVA>
+    <!-- <rtgVar>
         <multiplier>0</multiplier>
         <value>4060</value>
-    </rtgMaxVar>
-    <rtgMaxVarNeg>
+    </rtgVar>
+    <rtgVarNeg>
         <multiplier>0</multiplier>
         <value>-4060</value>
-    </rtgMaxVarNeg>
-    <rtgMaxW>
+    </rtgVarNeg> -->
+    <rtgW>
         <multiplier>0</multiplier>
         <value>6000</value>
-    </rtgMaxW>
-    <rtgMaxWh>
+    </rtgW>
+    <rtgWh>
         <multiplier>0</multiplier>
         <value>65525</value>
-    </rtgMaxWh>
-    <rtgMinPFOverExcited>
-        <displacement>0</displacement>
-        <multiplier>-2</multiplier>
-    </rtgMinPFOverExcited>
-    <rtgMinPFUnderExcited>
-        <displacement>0</displacement>
-        <multiplier>-2</multiplier>
-    </rtgMinPFUnderExcited>
-    <rtgMinV>
-        <multiplier>-2</multiplier>
-        <value>17000</value>
-    </rtgMinV>
+    </rtgWh>
     <rtgNormalCategory>0</rtgNormalCategory>
-    <rtgOverExcitedPF>
-        <displacement>0</displacement>
-        <multiplier>-2</multiplier>
-    </rtgOverExcitedPF>
-    <rtgOverExcitedW>
+    <!-- <rtgOverExcitedW>
         <multiplier>0</multiplier>
         <value>1624</value>
     </rtgOverExcitedW>
@@ -70,17 +58,9 @@
         <multiplier>-6</multiplier>
         <value>0</value>
     </rtgReactiveSusceptance>
-    <rtgUnderExcitedPF>
-        <displacement>0</displacement>
-        <multiplier>-2</multiplier>
-    </rtgUnderExcitedPF>
     <rtgUnderExcitedW>
         <multiplier>0</multiplier>
         <value>1624</value>
-    </rtgUnderExcitedW>
-    <rtgVNom>
-        <multiplier>-2</multiplier>
-        <value>22000</value>
-    </rtgVNom>
+    </rtgUnderExcitedW> -->
     <type>4</type>
 </DERCapability>

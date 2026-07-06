@@ -42,7 +42,7 @@ if (payload == null || payload.isEmpty()) {
         case "get":
         return getDeviceCapability(null, null);
         case "get-time":
-        return getTime(jsonObject.getString("payload"));
+        return getTime(null);
         case "put":
         updateDeviceCapability(jsonObject);
         return "Device capability updated";
@@ -133,7 +133,18 @@ public void updateDeviceCapability( JSONObject jsonObject) {
 }
 }
 
-public String getTime(String payload) throws JSONException{
+public Map<String, Object> getTime(String payload) throws JSONException{
+    Map<String, Object> body = this.deviceCapabilityService.getDeviceCapabilities().getBody();
+    @SuppressWarnings("unchecked")
+    List<DeviceCapabilityEntity> dcapList = (List<DeviceCapabilityEntity>) body.get("deviceCapabilityDtos");
+    DeviceCapabilityEntity dcapDto;
+    if (dcapList == null || dcapList.isEmpty()) {
+            LOGGER.info("No device capabilities found for time retrieval, creating default one");
+            dcapDto = this.deviceCapabilityService.createDefaultDeviceCapability();
+        } else {
+            dcapDto = dcapList.get(0);
+           }
+        payload = dcapDto.getTimeLink();
     return deviceCapabilityService.getTime(payload);
 }
 

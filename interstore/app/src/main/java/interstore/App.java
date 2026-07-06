@@ -38,13 +38,13 @@ public class App {
         NatsSubscriber subscriber = ApplicationContextProvider.getApplicationContext().getBean(NatsSubscriber.class);
         
         subscriber.initializeConnection(natsUrl);
-        subscriber.subscribe("ieee2030.requests");
+        subscriber.subscribe("response.client");
 
         LOGGER.info("Everything is initialized including IEEE 2030.5 NATS subscriber");
     }
 
     public static void main(String[] args) throws Exception {
-        String natsUrl = "nats://18.232.7.53:4222";
+        String natsUrl = "nats://137.226.248.36:4222";
         ApplicationContext context = SpringApplication.run(App.class, args);
         ApplicationContextProvider.setApplicationContext(context);
         App mainApp = context.getBean(App.class);

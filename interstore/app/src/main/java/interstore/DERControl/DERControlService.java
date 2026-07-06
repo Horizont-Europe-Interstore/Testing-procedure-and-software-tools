@@ -84,7 +84,7 @@ public class DERControlService {
         String version = derControlpayload.optString("version", "0");
         String description = derControlpayload.optString("description", "");
         String currentStatus = derControlpayload.optString("currentStatus", "0");
-        String dateTime = derControlpayload.optString("dateTime", String.valueOf(Instant.now().getEpochSecond()));
+        String dateTime = derControlpayload.optString("dateTime", "");
         String potentiallySuperseded = derControlpayload.optString("potentiallySuperseded", "false");
         String duration = derControlpayload.optString("duration", "0");
         String start = derControlpayload.optString("start", "0");
@@ -106,7 +106,7 @@ public class DERControlService {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid currentStatus value: " + currentStatus);
         }
-        eventStatusEntity.setDateTime(dateTime);
+        eventStatusEntity.setDateTime(!dateTime.equals("") ? dateTime : String.valueOf(Instant.now().getEpochSecond()));
         eventStatusEntity.setPotentiallySuperseded(Boolean.parseBoolean(potentiallySuperseded));
         eventStatusRepository.save(eventStatusEntity);
         derControlEntity.setEventStatusEntity(eventStatusEntity);
