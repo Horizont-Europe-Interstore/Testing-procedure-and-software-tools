@@ -92,22 +92,22 @@ public class DERControlService {
         String randomizeStart = derControlpayload.optString("randomizeStart", "0");
 
         try {
-            derControlEntity.setDuration(Integer.parseInt(duration));
-            derControlEntity.setStart(Integer.parseInt(start));
-            derControlEntity.setRandomizeDuration(Integer.parseInt(randomizeDuration));
-            derControlEntity.setRandomizeStart(Integer.parseInt(randomizeStart));
+            derControlEntity.setDuration(!duration.equals("") ? Integer.parseInt(duration): 0);
+            derControlEntity.setStart(!dateTime.equals("")? Integer.parseInt(start): 0);
+            derControlEntity.setRandomizeDuration(!randomizeDuration.equals("") ? Integer.parseInt(randomizeDuration): 0);
+            derControlEntity.setRandomizeStart(!randomizeStart.equals("") ? Integer.parseInt(randomizeStart): 0);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid number format for duration/start/randomize fields: " + e.getMessage());
         }
         
         EventStatusEntity eventStatusEntity = new EventStatusEntity();
         try {
-            eventStatusEntity.setCurrentStatus(Integer.parseInt(currentStatus));
+            eventStatusEntity.setCurrentStatus(!currentStatus.equals("") ? Integer.parseInt(currentStatus) : 0);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid currentStatus value: " + currentStatus);
         }
         eventStatusEntity.setDateTime(!dateTime.equals("") ? dateTime : String.valueOf(Instant.now().getEpochSecond()));
-        eventStatusEntity.setPotentiallySuperseded(Boolean.parseBoolean(potentiallySuperseded));
+        eventStatusEntity.setPotentiallySuperseded(!potentiallySuperseded.equals("") ? Boolean.parseBoolean(potentiallySuperseded) : false);
         eventStatusRepository.save(eventStatusEntity);
         derControlEntity.setEventStatusEntity(eventStatusEntity);
         derControlEntity.setDerControlLink(derControlLink);

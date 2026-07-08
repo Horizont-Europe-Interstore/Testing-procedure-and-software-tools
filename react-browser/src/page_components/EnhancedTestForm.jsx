@@ -196,7 +196,7 @@ export function EnhancedTestForm({ test, onTestComplete }) {
   };
 
   
-  const fsaMandatoryFields = ['endDeviceId', 'mRID', 'description', 'subscribable', 'version'];
+  const fsaMandatoryFields = ['endDeviceID', 'mRID', 'description', 'subscribable', 'version'];
 
 
   const derCurveMandatoryFields = ['derProgramId', 'mRID', 'description', 'version', 'curveType',
